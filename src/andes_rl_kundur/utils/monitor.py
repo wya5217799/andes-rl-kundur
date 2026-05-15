@@ -86,6 +86,28 @@ class TrainingMonitor:
         self._last_trigger_ep: dict[str, int] = {}
         self._cooldown_episodes = 50  # minimum episodes between same warning
 
+        # Plug-in checks (extension seam — see utils/checks.py).
+        # The baked-in 12 checks remain in this file; user-supplied checks
+        # added via register_check() run alongside them.
+        from andes_rl_kundur.utils.checks import Check  # noqa: F401 — type hint only
+        self._plugin_checks: list = []
+
+    def register_check(self, check) -> None:
+        """Append a plug-in :class:`Check` instance to the registry.
+
+        The monitor invokes every registered check on each
+        :py:meth:`log_and_check` call. Returning ``triggered=True`` with
+        ``severity="stop"`` causes ``log_and_check`` to return ``True``,
+        which the training loop watches as its halt signal.
+        """
+        from andes_rl_kundur.utils.checks import Check
+        if not isinstance(check, Check):
+            raise TypeError(
+                f"Check must satisfy the Check Protocol "
+                f"(name: str + run(dict) -> CheckResult); got {type(check).__name__}"
+            )
+        self._plugin_checks.append(check)
+
     def log_and_check(
         self,
         episode: int,
@@ -156,11 +178,37 @@ class TrainingMonitor:
         if n > 0 and n % self.log_interval == 0:
             self._log_summary(episode)
 
-        # Run checks (skip during calibration unless user set manual thresholds)
+        # Run baked-in checks (skip during calibration unless user set manual thresholds)
         if n < self.calibration_episodes:
-            return self._run_manual_checks(episode)
+            baked_stop = self._run_manual_checks(episode)
+        else:
+            baked_stop = self._run_all_checks(episode)
 
-        return self._run_all_checks(episode)
+        # Run plug-in checks (extension seam). Plug-in stop wins.
+        episode_record = {
+            "episode": episode,
+            "rewards": rewards,
+            "reward_components": dict(reward_components),
+            "actions": actions,
+            "max_freq_deviation_hz": info.get("max_freq_deviation_hz", 0.0),
+            "tds_failed": info.get("tds_failed", False),
+            "per_agent_rewards": dict(per_agent_rewards or {}),
+        }
+        plugin_stop = False
+        for chk in self._plugin_checks:
+            result = chk.run(episode_record)
+            if result.triggered:
+                self._trigger_history.append({
+                    "episode": episode,
+                    "name": result.name,
+                    "severity": result.severity,
+                    "message": result.message,
+                    "source": "plugin",
+                })
+                if result.severity == "stop":
+                    plugin_stop = True
+
+        return baked_stop or plugin_stop
 
     # ─── Calibration ───
 
