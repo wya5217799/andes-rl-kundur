@@ -101,6 +101,20 @@ Asset 4 is paper-cited. Any change requires a new round + new claim
 documenting the ranker version. Even a path-only relocation is logged
 (R37 recorded the 2026-05-16 move to `src/andes_rl_kundur/evaluation/`).
 
+## Agent skills
+
+### Issue tracker
+
+Issues live in GitHub Issues for this repo. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Uses default label vocabulary (needs-triage / needs-info / ready-for-agent / ready-for-human / wontfix). See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context layout: one `CONTEXT.md` + `docs/adr/` at the repo root. See `docs/agents/domain.md`.
+
 ## Active research rules
 
 - Caveman Chinese for verdict/plan files (per user preference, see

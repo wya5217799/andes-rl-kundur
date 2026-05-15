@@ -45,6 +45,7 @@ import andes
 import numpy as np
 
 from andes_rl_kundur.env.andes.base_env import AndesBaseEnv
+from andes_rl_kundur.env.andes.v4_config import V4Config
 from andes_rl_kundur.scenarios.contract import KUNDUR as _CONTRACT
 
 warnings.filterwarnings("ignore")
@@ -146,15 +147,46 @@ class AndesMultiVSGEnvV4(AndesBaseEnv):
         self,
         random_disturbance: bool = True,
         comm_fail_prob: float | None = None,
+        *,
+        config: V4Config | None = None,
         comm_delay_steps: int = 0,
         forced_link_failures=None,
     ):
+        # The explicit V4Config replaces the historic class-attr monkey-
+        # patch pattern (root cause of CLM-0040). Defaults equal the
+        # paper-faithful baseline; class attributes still hold the same
+        # values as fallback for any code that bypasses the constructor.
+        cfg = config or V4Config.paper_faithful()
+        self.config: V4Config = cfg
+
         super().__init__(
             random_disturbance=random_disturbance,
             comm_fail_prob=comm_fail_prob,
             comm_delay_steps=comm_delay_steps,
             forced_link_failures=forced_link_failures,
         )
+
+        # Per-instance physics + reward weights, sourced from cfg.
+        # base_env.__init__ already populated self.M0 / self.D0 from class
+        # attrs; override below so the supplied config wins.
+        self.VSG_M0 = cfg.vsg_m0
+        self.VSG_D0 = cfg.vsg_d0
+        self.M0 = np.full(self.N_AGENTS, cfg.vsg_m0)
+        self.D0 = np.full(self.N_AGENTS, cfg.vsg_d0)
+        self.D0_HETEROGENEOUS = np.array(cfg.d0_per_agent)
+        self.DM_MIN = cfg.dm_min
+        self.DM_MAX = cfg.dm_max
+        self.DD_MIN = cfg.dd_min
+        self.DD_MAX = cfg.dd_max
+        self.M_MIN_PHYSICAL = cfg.m_min_physical
+        self.D_MIN_PHYSICAL = cfg.d_min_physical
+        self.PHI_F = cfg.phi_f
+        self.PHI_H = cfg.phi_h
+        self.PHI_D = cfg.phi_d
+        self.PHI_ABS = cfg.phi_abs
+        self.PHI_MAX = cfg.phi_max
+        self.PHI_SETTLE = cfg.phi_settle
+        self.ZERO_G4_INERTIA = cfg.zero_g4_inertia
 
         # R05 disturbance-scale env var (calibrate against paper cum_rf).
         scale = float(os.environ.get("DISTURB_SCALE", "1.0"))

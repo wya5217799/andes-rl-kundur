@@ -39,6 +39,7 @@ from andes_rl_kundur import config as cfg  # noqa: E402
 from andes_rl_kundur.agents.sac import SACAgent  # noqa: E402
 from andes_rl_kundur.agents.sac_ctde import CTDECoordinator, SACAgentCTDE  # noqa: E402
 from andes_rl_kundur.env.andes.andes_vsg_env_v4 import AndesMultiVSGEnvV4  # noqa: E402
+from andes_rl_kundur.env.andes.v4_config import V4Config  # noqa: E402
 from andes_rl_kundur.utils.monitor import TrainingMonitor  # noqa: E402
 
 # ─── CLI ───────────────────────────────────────────────────────────────
@@ -107,50 +108,33 @@ def parse_args() -> argparse.Namespace:
 # ─── Setup helpers ─────────────────────────────────────────────────────
 
 
-def patch_env_class_attrs(args: argparse.Namespace) -> dict[str, tuple[float, float]]:
-    """Monkey-patch ``AndesMultiVSGEnvV4`` class attributes from CLI flags.
+def build_v4_config(args: argparse.Namespace) -> V4Config:
+    """Translate CLI hyperparameter flags into an explicit :class:`V4Config`.
 
-    Must run BEFORE the first env instance is constructed, because
-    ``base_env.__init__`` reads the class attrs to compute ``self.M0`` /
-    ``self.D0`` per agent.
-
-    Returns a dict of ``{attr: (old, new)}`` for the training log.
+    Flags left at ``None`` inherit the paper-faithful defaults; explicit
+    values override them. Replaces the historic ``patch_env_class_attrs``
+    + ``restore_env_class_attrs`` monkey-patch pair (root cause of
+    CLM-0040 silent inheritance class of bugs).
     """
-    overrides: dict[str, tuple[float, float]] = {}
-    flag_to_attr = {
-        "phi_f":      "PHI_F",
-        "phi_h":      "PHI_H",
-        "phi_d":      "PHI_D",
-        "phi_abs":    "PHI_ABS",
-        "phi_max":    "PHI_MAX",
-        "phi_settle": "PHI_SETTLE",
-        "vsg_m0":     "VSG_M0",
-        "vsg_d0":     "VSG_D0",
-        "dm_min":     "DM_MIN",
-        "dm_max":     "DM_MAX",
-        "dd_min":     "DD_MIN",
-        "dd_max":     "DD_MAX",
+    base = V4Config.paper_faithful()
+    overrides = {
+        field: getattr(args, flag)
+        for flag, field in [
+            ("phi_f", "phi_f"), ("phi_h", "phi_h"), ("phi_d", "phi_d"),
+            ("phi_abs", "phi_abs"), ("phi_max", "phi_max"),
+            ("phi_settle", "phi_settle"),
+            ("vsg_m0", "vsg_m0"), ("vsg_d0", "vsg_d0"),
+            ("dm_min", "dm_min"), ("dm_max", "dm_max"),
+            ("dd_min", "dd_min"), ("dd_max", "dd_max"),
+        ]
+        if getattr(args, flag) is not None
     }
-    for flag, attr in flag_to_attr.items():
-        val = getattr(args, flag)
-        if val is None:
-            continue
-        old = getattr(AndesMultiVSGEnvV4, attr)
-        setattr(AndesMultiVSGEnvV4, attr, float(val))
-        overrides[attr] = (float(old), float(val))
-
     if overrides:
-        print(" [hparam-override]")
-        for k, (old, new) in overrides.items():
-            print(f"   {k}: {old} -> {new}")
-    return overrides
-
-
-def restore_env_class_attrs(overrides: dict[str, tuple[float, float]]) -> None:
-    """Undo ``patch_env_class_attrs`` so re-imports in the same process
-    see the original V4 class defaults (relevant for sweep harnesses)."""
-    for attr, (old, _) in overrides.items():
-        setattr(AndesMultiVSGEnvV4, attr, old)
+        print(" [V4Config override]")
+        for k, v in overrides.items():
+            print(f"   {k}: {getattr(base, k)} -> {v}")
+        return V4Config(**{**base.__dict__, **overrides})
+    return base
 
 
 def pick_device() -> str:
@@ -387,7 +371,7 @@ def main() -> None:
     print(f" ANDES Kundur 4-VSG training — {args.episodes} episodes (V4 env)")
     print("=" * 60)
 
-    hparam_overrides = patch_env_class_attrs(args)
+    env_config = build_v4_config(args)
 
     os.makedirs(args.save_dir, exist_ok=True)
 
@@ -445,7 +429,10 @@ def main() -> None:
 
     try:
         for ep in range(args.episodes):
-            env = AndesMultiVSGEnvV4(random_disturbance=True, comm_fail_prob=comm_fail)
+            env = AndesMultiVSGEnvV4(
+                random_disturbance=True, comm_fail_prob=comm_fail,
+                config=env_config,
+            )
             env.seed(args.seed + args.seed_offset + ep)
 
             stats = run_episode(env, agents, total_steps, args, action_dim)
@@ -529,27 +516,26 @@ def main() -> None:
             "episodes_completed": last_ep + 1,
             "episodes_planned":  args.episodes,
             "interrupted":       interrupted,
-            "hparam_overrides":  {k: new for k, (_, new) in hparam_overrides.items()},
+            "env_config":        env_config.__dict__,
             "hparam_effective":  {
-                "PHI_F":  AndesMultiVSGEnvV4.PHI_F,
-                "PHI_H":  AndesMultiVSGEnvV4.PHI_H,
-                "PHI_D":  AndesMultiVSGEnvV4.PHI_D,
-                "VSG_M0": AndesMultiVSGEnvV4.VSG_M0,
-                "VSG_D0": AndesMultiVSGEnvV4.VSG_D0,
-                "DM_MIN": AndesMultiVSGEnvV4.DM_MIN,
-                "DM_MAX": AndesMultiVSGEnvV4.DM_MAX,
-                "DD_MIN": AndesMultiVSGEnvV4.DD_MIN,
-                "DD_MAX": AndesMultiVSGEnvV4.DD_MAX,
+                "PHI_F":  env_config.phi_f,
+                "PHI_H":  env_config.phi_h,
+                "PHI_D":  env_config.phi_d,
+                "VSG_M0": env_config.vsg_m0,
+                "VSG_D0": env_config.vsg_d0,
+                "DM_MIN": env_config.dm_min,
+                "DM_MAX": env_config.dm_max,
+                "DD_MIN": env_config.dd_min,
+                "DD_MAX": env_config.dd_max,
             },
         }
         log_path = os.path.join(args.save_dir, "training_log.json")
         with open(log_path, "w", encoding="utf-8") as f:
-            json.dump(log, f)
+            json.dump(log, f, default=list)
         print(f"\nTraining log saved to {log_path}")
     else:
         print("\nNo episodes completed, nothing to save.")
 
-    restore_env_class_attrs(hparam_overrides)
     print(f"\nTotal time: {time.time() - t_start:.0f}s")
     print("Done!")
 
