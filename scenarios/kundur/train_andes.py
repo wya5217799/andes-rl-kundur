@@ -1,0 +1,468 @@
+"""
+ANDES 版训练脚本
+================
+在 WSL 中运行:
+    source ~/andes_venv/bin/activate
+    cd "/mnt/c/Users/27443/Desktop/Multi-Agent  VSGs"
+    python3 train_andes.py --episodes 500
+
+论文: Yang et al., IEEE TPWRS 2023
+使用 ANDES Kundur 两区域系统 + 4 VSG 储能
+"""
+
+import argparse
+import os
+import sys
+import time
+import json
+import numpy as np
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+
+# ─── 检测运行环境 ───
+try:
+    import torch
+    HAS_TORCH = True
+except ImportError:
+    HAS_TORCH = False
+    print("[WARN] torch not found in WSL, installing...")
+    os.system("pip install torch --index-url https://download.pytorch.org/whl/cpu -q")
+    import torch
+    HAS_TORCH = True
+
+from env.andes_vsg_env import AndesMultiVSGEnv
+from agents.sac import SACAgent
+from agents.sac_ctde import SACAgentCTDE, CTDECoordinator
+from utils.monitor import TrainingMonitor
+
+
+def parse_args():
+    p = argparse.ArgumentParser()
+    p.add_argument("--episodes", type=int, default=500)
+    p.add_argument("--warmup", type=int, default=None,
+                   help="Warmup steps (default: from config.py)")
+    p.add_argument("--seed", type=int, default=42)
+    p.add_argument("--save-dir", type=str, default="results/andes_models_v3")
+    p.add_argument("--log-interval", type=int, default=10)
+    p.add_argument("--resume", type=str, default=None,
+                   help="从指定目录加载模型继续训练, 如 results/andes_models_r3")
+    p.add_argument("--seed-offset", type=int, default=0,
+                   help="seed 偏移量, 避免与之前训练重复 (如之前训练了600ep, 设为600)")
+    # 2026-05-04 hparam sensitivity sweep: monkey-patch class attrs of AndesMultiVSGEnv
+    # before env construction; None = use base_env.py defaults (byte-identical to prior).
+    p.add_argument("--phi-f", type=float, default=None,
+                   help="Override AndesMultiVSGEnv.PHI_F (default: from base_env.py)")
+    p.add_argument("--phi-d", type=float, default=None,
+                   help="Override AndesMultiVSGEnv.PHI_D")
+    p.add_argument("--phi-h", type=float, default=None,
+                   help="Override AndesMultiVSGEnv.PHI_H")
+    p.add_argument("--phi-abs", type=float, default=None,
+                   help="Override AndesMultiVSGEnv.PHI_ABS (Kundur-specific freq absolute "
+                        "deviation penalty; paper Eq.14 strict = 0)")
+    p.add_argument("--phi-max", type=float, default=None,
+                   help="R31 (2026-05-07): Override AndesMultiVSGEnv.PHI_MAX. "
+                        "Reward shaping: r_max_df = -max_i(|d_omega|)^2. "
+                        "Default 0.0 = OFF (paper Eq.14 strict, NOT in paper).")
+    p.add_argument("--phi-settle", type=float, default=None,
+                   help="R33 (2026-05-07): Override AndesMultiVSGEnv.PHI_SETTLE. "
+                        "Reward shaping: -PHI_SETTLE per step per agent where "
+                        "|d_omega| > SETTLE_THRESHOLD_HZ (default 0.05). Targets "
+                        "LS1/LS2 settling time. Default 0.0 = OFF.")
+    p.add_argument("--vsg-m0", type=float, default=None,
+                   help="Override AndesMultiVSGEnv.VSG_M0 (= 2 H₀; V4 default 200=H₀100s)")
+    p.add_argument("--vsg-d0", type=float, default=None,
+                   help="Override AndesMultiVSGEnv.VSG_D0 (V4 default 100)")
+    p.add_argument("--comm-fail", type=float, default=None,
+                   help="Override env comm_fail_prob (historical 0.1, paper Sec.IV-D test)")
+    p.add_argument("--dm-min", type=float, default=None,
+                   help="Override AndesMultiVSGEnv.DM_MIN (action lower bound for ΔM)")
+    p.add_argument("--dm-max", type=float, default=None,
+                   help="Override AndesMultiVSGEnv.DM_MAX")
+    p.add_argument("--dd-min", type=float, default=None,
+                   help="Override AndesMultiVSGEnv.DD_MIN (action lower bound for ΔD)")
+    p.add_argument("--dd-max", type=float, default=None,
+                   help="Override AndesMultiVSGEnv.DD_MAX")
+    p.add_argument("--batch-size", type=int, default=None,
+                   help="Override config.BATCH_SIZE (research-loop GPU stress)")
+    p.add_argument("--hidden-size", type=int, default=None,
+                   help="Override config.HIDDEN_SIZES uniform width (research-loop GPU stress)")
+    p.add_argument("--ctde", action="store_true", default=False,
+                   help="Use Centralized Training Decentralized Execution (CTDE) SAC. "
+                        "Replaces N independent critics with one shared centralized critic "
+                        "that observes all agents' obs+actions. Actors remain decentralized.")
+    return p.parse_args()
+
+
+def main():
+    args = parse_args()
+
+    import config as _cfg_early
+    if args.warmup is None:
+        args.warmup = _cfg_early.WARMUP_STEPS
+
+    # 2026-05-03 Option D: seed torch RNG so SAC stochasticity is reproducible
+    # (4-25 D-floor diagnostic: R2 vs combo-300 divergence was SAC stochastic luck,
+    # not config; without this seed the same --seed produced different policies)
+    np.random.seed(args.seed + args.seed_offset)
+    torch.manual_seed(args.seed + args.seed_offset)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(args.seed + args.seed_offset)
+
+    print("=" * 60)
+    print(f" ANDES MADRL Training — {args.episodes} episodes")
+    print("=" * 60)
+
+    # 2026-05-04 hparam sweep: monkey-patch class attrs BEFORE first env construction.
+    # AndesMultiVSGEnv inherits PHI_F/PHI_D/DM_MIN/MAX/DD_MIN/MAX from AndesBaseEnv;
+    # base.__init__ reads these as class attrs to compute self._DM_*_runtime, so the
+    # patch must precede every AndesMultiVSGEnv(...) call (loop creates one per episode).
+    _hparam_overrides = {}
+    for attr, val in [("PHI_F", args.phi_f), ("PHI_D", args.phi_d),
+                      ("PHI_H", args.phi_h), ("PHI_ABS", args.phi_abs),
+                      ("PHI_MAX", args.phi_max), ("PHI_SETTLE", args.phi_settle),
+                      ("VSG_M0", args.vsg_m0), ("VSG_D0", args.vsg_d0),
+                      ("DM_MIN", args.dm_min), ("DM_MAX", args.dm_max),
+                      ("DD_MIN", args.dd_min), ("DD_MAX", args.dd_max)]:
+        if val is not None:
+            old = getattr(AndesMultiVSGEnv, attr)
+            setattr(AndesMultiVSGEnv, attr, float(val))
+            _hparam_overrides[attr] = (old, float(val))
+    if _hparam_overrides:
+        print(" [hparam-override]")
+        for k, (old, new) in _hparam_overrides.items():
+            print(f"   {k}: {old} -> {new}")
+
+    os.makedirs(args.save_dir, exist_ok=True)
+    os.makedirs("results/figures", exist_ok=True)
+
+    # ─── 环境 & Agent ───
+    # obs_dim 须读 env var (INCLUDE_OWN_ACTION_OBS 会增加 +2), 不能直接读类属性 OBS_DIM,
+    # 否则 R03 obs9 smoke 那种 shape mismatch (replay buffer (7,) vs env (9,)) 复现.
+    # 见 incidents/r03_obs9_shape_mismatch_bug.md.
+    N = AndesMultiVSGEnv.N_AGENTS
+    _include_own_action = bool(int(os.environ.get("INCLUDE_OWN_ACTION_OBS", "0")))
+    obs_dim = AndesMultiVSGEnv.OBS_DIM + (2 if _include_own_action else 0)
+    if _include_own_action:
+        print(f"[obs] INCLUDE_OWN_ACTION_OBS=1 -> obs_dim {AndesMultiVSGEnv.OBS_DIM} -> {obs_dim}")
+    action_dim = 2
+
+    # SAC 超参数 (论文 Table I, 从 config.py 读取)
+    import config as cfg
+    hidden_sizes = cfg.HIDDEN_SIZES
+    lr = cfg.LR
+    gamma = cfg.GAMMA
+    tau = cfg.TAU_SOFT
+    buffer_size = cfg.BUFFER_SIZE
+    batch_size = cfg.BATCH_SIZE
+    if args.batch_size is not None:
+        print(f"[hparam-override] BATCH_SIZE: {batch_size} -> {args.batch_size}")
+        batch_size = args.batch_size
+    if args.hidden_size is not None:
+        new_hidden = [args.hidden_size] * len(hidden_sizes)
+        print(f"[hparam-override] HIDDEN_SIZES: {hidden_sizes} -> {new_hidden}")
+        hidden_sizes = new_hidden
+
+    # Device selection: env var DEVICE overrides default cpu (per research-loop GPU policy)
+    device_env = os.environ.get("DEVICE", "cpu").lower()
+    if device_env == "cuda" and not torch.cuda.is_available():
+        print("[device] DEVICE=cuda requested but torch.cuda.is_available()=False, falling back to cpu")
+        device_env = "cpu"
+    print(f"[device] using {device_env}")
+
+    # ─── CTDE flag: shared centralized critic ───
+    ctde_coordinator = None  # set below if --ctde
+
+    if args.ctde:
+        print("[CTDE] Centralized Training Decentralized Execution mode enabled.")
+        agents = []
+        for i in range(N):
+            agent = SACAgentCTDE(
+                obs_dim=obs_dim,
+                action_dim=action_dim,
+                hidden_sizes=hidden_sizes,
+                lr=lr,
+                buffer_size=buffer_size,
+                batch_size=batch_size,
+                device=device_env,
+            )
+            agents.append(agent)
+        ctde_coordinator = CTDECoordinator(
+            n_agents=N,
+            obs_dim=obs_dim,
+            action_dim=action_dim,
+            hidden_sizes=hidden_sizes,
+            lr=lr,
+            gamma=gamma,
+            tau=tau,
+            batch_size=batch_size,
+            device=device_env,
+        )
+        print(f"[CTDE] Centralized critic input dim: {obs_dim * N + action_dim * N}")
+    else:
+        agents = []
+        for i in range(N):
+            agent = SACAgent(
+                obs_dim=obs_dim,
+                action_dim=action_dim,
+                hidden_sizes=hidden_sizes,
+                lr=lr,
+                gamma=gamma,
+                tau=tau,
+                buffer_size=buffer_size,
+                batch_size=batch_size,
+                device=device_env,
+            )
+            agents.append(agent)
+
+    # 从检查点恢复（优先 _final.pt，回退到最新 epN checkpoint）
+    if args.resume:
+        for i in range(N):
+            model_path = os.path.join(args.resume, f"agent_{i}_final.pt")
+            if not os.path.exists(model_path):
+                import glob
+                pattern = os.path.join(args.resume, f"agent_{i}_ep*.pt")
+                ckpts = sorted(glob.glob(pattern),
+                               key=lambda p: int(p.rsplit("ep", 1)[-1].split(".")[0]))
+                if ckpts:
+                    model_path = ckpts[-1]
+            if os.path.exists(model_path):
+                if args.ctde:
+                    # Warmstart from standard SACAgent ckpt: load actor only
+                    agents[i].load_actor_only(model_path)
+                    print(f"  Resumed agent {i} actor from {model_path} (CTDE warmstart)")
+                else:
+                    agents[i].load(model_path)
+                    print(f"  Resumed agent {i} from {model_path}")
+            else:
+                print(f"  [WARN] No checkpoint found for agent {i}, starting fresh")
+        # CTDE: also try to resume shared critic
+        if args.ctde:
+            critic_path = os.path.join(args.resume, "ctde_critic.pt")
+            if os.path.exists(critic_path):
+                ctde_coordinator.load_critic(critic_path)
+                print(f"  Resumed CTDE shared critic from {critic_path}")
+
+    # ─── 训练日志 ───
+    episode_rewards = {i: [] for i in range(N)}
+    total_rewards = []
+    total_steps = 0
+    t_start = time.time()
+    def on_best_reward(ep, reward):
+        print(f"  [Monitor] New best reward: {reward:.1f} @ ep {ep}")
+        for i in range(N):
+            agents[i].save(os.path.join(args.save_dir, f"agent_{i}_best.pt"))
+        if ctde_coordinator is not None:
+            ctde_coordinator.save_critic(os.path.join(args.save_dir, "ctde_critic_best.pt"))
+
+    monitor = TrainingMonitor(best_reward_callback=on_best_reward)
+
+    interrupted = False
+    last_ep = -1
+    # Wire --comm-fail override (M1 review fix 2026-05-07)
+    cf = args.comm_fail if args.comm_fail is not None else 0.1
+    try:
+        for ep in range(args.episodes):
+            env = AndesMultiVSGEnv(random_disturbance=True, comm_fail_prob=cf)
+            env.seed(args.seed + args.seed_offset + ep)
+
+            try:
+                obs = env.reset()
+            except Exception as e:
+                print(f"  [ep {ep}] reset failed: {e}, skipping")
+                continue
+
+            ep_reward = {i: 0.0 for i in range(N)}
+            ep_r_f, ep_r_h, ep_r_d = 0.0, 0.0, 0.0
+            ep_actions_list = []
+            ep_max_freq = 0.0
+            ep_tds_failed = False
+
+            for step in range(AndesMultiVSGEnv.STEPS_PER_EPISODE):
+                # 选择动作
+                actions = {}
+                for i in range(N):
+                    if total_steps < args.warmup:
+                        actions[i] = np.random.uniform(-1, 1, size=action_dim)
+                    else:
+                        actions[i] = agents[i].select_action(obs[i])
+
+                # 执行
+                try:
+                    next_obs, rewards, done, info = env.step(actions)
+                except Exception as e:
+                    print(f"  [ep {ep}, step {step}] step failed: {e}")
+                    break
+
+                # Monitor: collect actions and reward components
+                ep_actions_list.append(np.array([actions[i] for i in range(N)]))
+                ep_r_f += info.get('r_f', 0.0)
+                ep_r_h += info.get('r_h', 0.0)
+                ep_r_d += info.get('r_d', 0.0)
+                ep_max_freq = max(ep_max_freq, info.get('max_freq_deviation_hz', 0.0))
+                ep_tds_failed = ep_tds_failed or info.get('tds_failed', False)
+
+                # 存储经验
+                for i in range(N):
+                    agents[i].buffer.add(obs[i], actions[i], rewards[i],
+                                          next_obs[i], float(done))
+                    ep_reward[i] += rewards[i]
+
+                obs = next_obs
+                total_steps += 1
+
+                if done:
+                    break
+
+            # Episode 结束后集中更新 (论文 Algorithm 1 风格)
+            # 多轮重复采样, 类似 PPO K-epochs, 充分利用 50 条 transitions
+            N_EPOCH = 10  # 每条数据平均被采样 ~6 次 (10*32/50)
+            ep_sac_losses = [None] * N
+            if total_steps >= args.warmup:
+                if ctde_coordinator is not None:
+                    # CTDE: joint update via shared centralized critic
+                    last_loss = None
+                    for _ in range(N_EPOCH):
+                        loss_info = ctde_coordinator.update(agents)
+                        if loss_info is not None:
+                            last_loss = loss_info
+                    if last_loss is not None:
+                        ep_sac_losses = [last_loss] * N
+                else:
+                    for _ in range(N_EPOCH):
+                        for i in range(N):
+                            if len(agents[i].buffer) >= batch_size:
+                                loss_info = agents[i].update()
+                                if loss_info is not None:
+                                    ep_sac_losses[i] = loss_info
+
+            # Monitor: check for training issues
+            if ep_actions_list:
+                should_stop = monitor.log_and_check(
+                    episode=ep,
+                    rewards=sum(ep_reward.values()),
+                    reward_components={"r_f": ep_r_f, "r_h": ep_r_h, "r_d": ep_r_d},
+                    actions=np.array(ep_actions_list),
+                    info={"tds_failed": ep_tds_failed, "max_freq_deviation_hz": ep_max_freq},
+                    per_agent_rewards=ep_reward,
+                    sac_losses=[l for l in ep_sac_losses if l is not None] if any(ep_sac_losses) else None,
+                )
+                if should_stop:
+                    break
+
+            # Buffer 策略 (见 config.py 注释: Table I vs Algorithm 1 分析)
+            if cfg.CLEAR_BUFFER_PER_EPISODE:
+                for i in range(N):
+                    agents[i].buffer.clear()
+
+            # 记录
+            for i in range(N):
+                episode_rewards[i].append(ep_reward[i])
+            total_ep_reward = sum(ep_reward.values())
+            total_rewards.append(total_ep_reward)
+
+            last_ep = ep
+
+            if (ep + 1) % args.log_interval == 0:
+                elapsed = time.time() - t_start
+                avg_reward = np.mean(total_rewards[-args.log_interval:])
+                print(f"  Ep {ep+1}/{args.episodes} | "
+                      f"Avg Reward: {avg_reward:.1f} | "
+                      f"Steps: {total_steps} | "
+                      f"Time: {elapsed:.0f}s")
+
+            # 定期保存
+            if (ep + 1) % 100 == 0:
+                for i in range(N):
+                    agents[i].save(os.path.join(args.save_dir, f"agent_{i}_ep{ep+1}.pt"))
+                if ctde_coordinator is not None:
+                    ctde_coordinator.save_critic(
+                        os.path.join(args.save_dir, f"ctde_critic_ep{ep+1}.pt"))
+
+    except KeyboardInterrupt:
+        interrupted = True
+        print(f"\n[!] Training interrupted at ep {last_ep + 1}. Saving checkpoint...")
+
+    monitor.summary()
+
+    # Save monitor data
+    monitor.save_checkpoint(os.path.join(args.save_dir, "monitor_checkpoint.json"))
+    monitor.export_csv(os.path.join(args.save_dir, "monitor_data.csv"))
+
+    # ─── 保存（正常结束或中断都会执行） ───
+    if last_ep >= 0:
+        for i in range(N):
+            agents[i].save(os.path.join(args.save_dir, f"agent_{i}_final.pt"))
+        if ctde_coordinator is not None:
+            ctde_coordinator.save_critic(os.path.join(args.save_dir, "ctde_critic.pt"))
+
+        log = {
+            "episode_rewards": {str(i): episode_rewards[i] for i in range(N)},
+            "total_rewards": total_rewards,
+            "total_steps": total_steps,
+            "episodes_completed": last_ep + 1,
+            "episodes_planned": args.episodes,
+            "interrupted": interrupted,
+            "hparam_overrides": {k: new for k, (_old, new) in _hparam_overrides.items()},
+            "hparam_effective": {
+                "PHI_F": AndesMultiVSGEnv.PHI_F,
+                "PHI_D": AndesMultiVSGEnv.PHI_D,
+                "DM_MIN": AndesMultiVSGEnv.DM_MIN,
+                "DM_MAX": AndesMultiVSGEnv.DM_MAX,
+                "DD_MIN": AndesMultiVSGEnv.DD_MIN,
+                "DD_MAX": AndesMultiVSGEnv.DD_MAX,
+            },
+        }
+        log_path = os.path.join(args.save_dir, "training_log.json")
+        with open(log_path, "w") as f:
+            json.dump(log, f)
+        print(f"\nTraining log saved to {log_path}")
+    else:
+        print("\nNo episodes completed, nothing to save.")
+
+    # ─── 画训练曲线 ───
+    try:
+        import matplotlib
+        matplotlib.use("Agg")
+        import matplotlib.pyplot as plt
+
+        fig, axes = plt.subplots(2, 3, figsize=(15, 8))
+        fig.suptitle("ANDES MADRL Training (SAC)")
+
+        # 总奖励
+        ax = axes[0, 0]
+        window = max(1, len(total_rewards) // 20)
+        smoothed = np.convolve(total_rewards, np.ones(window)/window, mode="valid")
+        ax.plot(total_rewards, alpha=0.3, color="blue")
+        ax.plot(range(window-1, len(total_rewards)), smoothed, color="blue")
+        ax.set_title("Total Episode Reward")
+        ax.set_xlabel("Episode")
+        ax.grid(True, alpha=0.3)
+
+        # 各 agent 奖励
+        colors = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728"]
+        for i in range(N):
+            ax = axes[(i+1) // 3, (i+1) % 3]
+            r = episode_rewards[i]
+            sm = np.convolve(r, np.ones(window)/window, mode="valid")
+            ax.plot(r, alpha=0.3, color=colors[i])
+            ax.plot(range(window-1, len(r)), sm, color=colors[i])
+            ax.set_title(f"ES{i+1} Reward")
+            ax.set_xlabel("Episode")
+            ax.grid(True, alpha=0.3)
+
+        # 空的第6格
+        axes[1, 2].axis("off")
+
+        plt.tight_layout()
+        fig_path = "results/figures/andes_training_curves.png"
+        plt.savefig(fig_path, dpi=150)
+        print(f"Training curves saved to {fig_path}")
+    except Exception as e:
+        print(f"Plot error: {e}")
+
+    print(f"\nTotal time: {time.time() - t_start:.0f}s")
+    print("Done!")
+
+
+if __name__ == "__main__":
+    main()
