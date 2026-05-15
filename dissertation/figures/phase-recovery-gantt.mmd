@@ -1,0 +1,23 @@
+%%{init: {"theme": "default", "themeVariables": {"fontSize": "32px"}, "gantt": {"barHeight": 50, "fontSize": 28, "leftPadding": 280, "rightPadding": 80, "sectionFontSize": 28, "numberSectionStyles": 3}}}%%
+gantt
+    title Stage 2 SPEC-8 recovery plan
+    dateFormat  YYYY-MM-DD
+    axisFormat  %m-%d
+
+    section Algorithm (executed)
+    Phase A action smoothing       :done, pa, 2026-05-06, 1d
+    Phase 12 ensemble (G1 closed)  :done, p12, after pa, 2d
+
+    section Physical model (planned)
+    Phase B governor + AVR  :crit, pb, after p12, 3d
+    Phase C H0 rebaseline   :crit, pc, after pb, 2d
+    Phase D 5-seed retrain  :pd, after pc, 5d
+    Phase E re-render figs  :pe, after pd, 2d
+
+    section Acceptance gates
+    G1 overall >= 0.5   :milestone, g1, after p12, 0d
+    G2 max-dF <= 0.20Hz :milestone, g2, after pd, 0d
+    G3 settling <= 6s   :milestone, g3, after pd, 0d
+    G4 dH range >= 100  :milestone, g4, after pd, 0d
+    G5 smoothness <= 1  :milestone, g5, after pd, 0d
+    G6 DDIC > adaptive  :milestone, g6, after pd, 0d

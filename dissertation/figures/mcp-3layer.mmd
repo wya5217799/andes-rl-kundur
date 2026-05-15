@@ -1,0 +1,18 @@
+%%{init: {"flowchart": {"defaultRenderer": "elk", "htmlLabels": true, "curve": "linear"}, "themeVariables": {"fontSize": "24px"}}}%%
+flowchart TB
+    Agent["Claude / Codex agent"]:::agent
+
+    L3["<b>L3:</b> 45 Pydantic-validated MCP wrappers<br/><i>harness_model_diagnose, simulink_run_script, simulink_query_params, ...</i>"]:::lay3
+
+    L2["<b>L2:</b> slx_helpers (noise filter + IPC bundling)<br/><i>slx_run_quiet, assignin_safe, important_lines, ...</i>"]:::lay2
+
+    L1["<b>L1:</b> Singleton MATLAB Engine (~20 s cold start, persistent)<br/><i>matlab.engine.MatlabSession + MATLAB R2025b backend<br/>(set_param, sim, find_system, ...)</i>"]:::lay1
+
+    Agent -->|"1 MCP call"| L3
+    L3 -->|"N internal calls"| L2
+    L2 -->|"single op per helper"| L1
+
+    classDef agent fill:#fff,stroke:#000,stroke-width:2px,color:#000
+    classDef lay3 fill:#dde7ff,stroke:#33a,stroke-width:2px,color:#000
+    classDef lay2 fill:#e0f4d8,stroke:#3a3,stroke-width:2px,color:#000
+    classDef lay1 fill:#fef0d0,stroke:#a80,stroke-width:2px,color:#000

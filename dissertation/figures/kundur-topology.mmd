@@ -1,0 +1,44 @@
+%%{init: {"flowchart": {"defaultRenderer": "elk", "htmlLabels": true, "curve": "basis"}, "themeVariables": {"fontSize": "30px"}}}%%
+flowchart LR
+    subgraph SRC["Sources"]
+        direction TB
+        G1["G1 GENROU"]:::gen
+        G2["G2 GENROU"]:::gen
+        G3["G3 GENROU"]:::gen
+        W1["W1 wind<br/>(replaces G4)"]:::wind
+        W2["W2 wind"]:::wind
+    end
+
+    subgraph TX["Modified Kundur 4-bus transmission"]
+        direction TB
+        B7(("B7"))
+        B8(("B8"))
+        B9(("B9"))
+        B10(("B10"))
+        B7 --- B8 --- B9 --- B10
+    end
+
+    subgraph LD["Load buses + ESS (LS = paper load steps)"]
+        direction TB
+        L12["Bus 12 + ES2"]:::ess
+        L14["Bus 14 + ES3 (host)<br/><b>LS1 -2.48 p.u.</b>"]:::host
+        L15["Bus 15 + ES5<br/><b>LS2 +1.88 p.u.</b>"]:::ls
+        L16["Bus 16 + ES6"]:::ess
+    end
+
+    G1 --- B7
+    G2 --- B8
+    W2 --- B8
+    G3 --- B9
+    W1 --- B10
+
+    B7 --- L12
+    B9 --- L14
+    B9 --- L15
+    B10 --- L16
+
+    classDef gen fill:#e0e0ff,stroke:#33f,stroke-width:2px,color:#000
+    classDef wind fill:#cfc,stroke:#0a0,stroke-width:2px,color:#000
+    classDef ess fill:#ffd,stroke:#a80,stroke-width:2px,color:#000
+    classDef ls fill:#fff3cd,stroke:#a80,stroke-width:3px,color:#000
+    classDef host fill:#fcc,stroke:#c00,stroke-width:3px,color:#000
