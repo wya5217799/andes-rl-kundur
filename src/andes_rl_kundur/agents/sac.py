@@ -9,7 +9,6 @@ SAC (Soft Actor-Critic) 智能体
 """
 
 import copy
-import math
 import os
 
 import numpy as np
@@ -18,12 +17,12 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 
-from andes_rl_kundur.agents.networks import GaussianActor, DoubleQCritic
-from andes_rl_kundur.agents.replay_buffer import ReplayBuffer
+from andes_rl_kundur.agents.networks import DoubleQCritic
+from andes_rl_kundur.agents.sac_base import _SACBase
 
 
-class SACAgent:
-    """单个 SAC 智能体."""
+class SACAgent(_SACBase):
+    """Per-agent SAC: own actor + own DoubleQ critic + own alpha."""
 
     def __init__(
         self,
@@ -39,62 +38,21 @@ class SACAgent:
         alpha_min=0.005,
         alpha_max=5.0,
     ):
-        self.obs_dim = obs_dim
-        self.action_dim = action_dim
+        super().__init__(
+            obs_dim=obs_dim, action_dim=action_dim,
+            hidden_sizes=hidden_sizes, lr=lr,
+            buffer_size=buffer_size, batch_size=batch_size,
+            device=device, alpha_min=alpha_min, alpha_max=alpha_max,
+        )
         self.gamma = gamma
         self.tau = tau
-        self.batch_size = batch_size
-        self.device = device
 
-        # ── 网络 ──
-        self.actor = GaussianActor(obs_dim, action_dim, hidden_sizes).to(device)
+        # Independent critic (CTDE variant skips these)
         self.critic = DoubleQCritic(obs_dim, action_dim, hidden_sizes).to(device)
         self.critic_target = copy.deepcopy(self.critic).to(device)
-
-        # 冻结目标网络梯度
         for p in self.critic_target.parameters():
             p.requires_grad = False
-
-        # ── 优化器 ──
-        self.actor_optimizer = optim.Adam(self.actor.parameters(), lr=lr)
         self.critic_optimizer = optim.Adam(self.critic.parameters(), lr=lr)
-
-        # ── 自动熵调节 ──
-        self.target_entropy = -float(action_dim)
-        self.log_alpha = torch.zeros(1, requires_grad=True, device=device)
-        self.alpha_optimizer = optim.Adam([self.log_alpha], lr=lr)
-        self._log_alpha_min = math.log(alpha_min)
-        self._log_alpha_max = math.log(alpha_max)
-
-        # ── 经验回放 ──
-        self.buffer = ReplayBuffer(obs_dim, action_dim, capacity=buffer_size)
-
-        # ── 梯度裁剪 ──
-        self.max_grad_norm = 1.0
-
-    @property
-    def alpha(self):
-        return self.log_alpha.exp()
-
-    def select_action(self, obs: np.ndarray, deterministic: bool = False) -> np.ndarray:
-        """选择动作, 返回 shape (action_dim,) 范围 [-1, 1]."""
-        obs_t = torch.FloatTensor(obs).unsqueeze(0).to(self.device)
-        with torch.no_grad():
-            if deterministic:
-                action = self.actor.deterministic(obs_t)
-            else:
-                action, _ = self.actor.sample(obs_t)
-        return action.cpu().numpy().flatten()
-
-    def store_transition(
-        self,
-        obs: np.ndarray,
-        action: np.ndarray,
-        reward: float,
-        next_obs: np.ndarray,
-        done: bool,
-    ) -> None:
-        self.buffer.add(obs, action, reward, next_obs, done)
 
     def update(self) -> dict | None:
         """执行一步 SAC 更新. 返回 loss 字典."""

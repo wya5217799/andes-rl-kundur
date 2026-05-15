@@ -34,7 +34,6 @@ Compatibility
 from __future__ import annotations
 
 import copy
-import math
 import os
 from typing import List, Optional, Dict
 
@@ -44,62 +43,19 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 
-from andes_rl_kundur.agents.networks import GaussianActor, DoubleQCritic
-from andes_rl_kundur.agents.replay_buffer import ReplayBuffer
+from andes_rl_kundur.agents.networks import DoubleQCritic
+from andes_rl_kundur.agents.sac_base import _SACBase
 
 
-class SACAgentCTDE:
-    """Decentralized actor with per-agent alpha; critic is shared via CTDECoordinator."""
+class SACAgentCTDE(_SACBase):
+    """Decentralized actor; critic owned by :class:`CTDECoordinator`.
 
-    def __init__(
-        self,
-        obs_dim: int,
-        action_dim: int,
-        hidden_sizes,
-        lr: float = 3e-4,
-        buffer_size: int = 10000,
-        batch_size: int = 256,
-        device: str = 'cpu',
-        alpha_min: float = 0.005,
-        alpha_max: float = 5.0,
-    ):
-        self.obs_dim = obs_dim
-        self.action_dim = action_dim
-        self.batch_size = batch_size
-        self.device = device
+    Inherits actor + log_alpha + buffer + select_action + store_transition
+    from :class:`_SACBase`. Has no per-agent critic — the coordinator
+    holds the shared centralized critic.
+    """
 
-        # Decentralized actor only — no per-agent critic
-        self.actor = GaussianActor(obs_dim, action_dim, hidden_sizes).to(device)
-        self.actor_optimizer = optim.Adam(self.actor.parameters(), lr=lr)
-
-        # Per-agent entropy coeff
-        self.target_entropy = -float(action_dim)
-        self.log_alpha = torch.zeros(1, requires_grad=True, device=device)
-        self.alpha_optimizer = optim.Adam([self.log_alpha], lr=lr)
-        self._log_alpha_min = math.log(alpha_min)
-        self._log_alpha_max = math.log(alpha_max)
-
-        # Individual replay buffer (same interface as SACAgent)
-        self.buffer = ReplayBuffer(obs_dim, action_dim, capacity=buffer_size)
-
-        self.max_grad_norm = 1.0
-
-    @property
-    def alpha(self):
-        return self.log_alpha.exp()
-
-    def select_action(self, obs, deterministic: bool = False):
-        """Decentralized execution: uses only own obs."""
-        obs_t = torch.FloatTensor(obs).unsqueeze(0).to(self.device)
-        with torch.no_grad():
-            if deterministic:
-                action = self.actor.deterministic(obs_t)
-            else:
-                action, _ = self.actor.sample(obs_t)
-        return action.cpu().numpy().flatten()
-
-    def store_transition(self, obs, action, reward, next_obs, done):
-        self.buffer.add(obs, action, reward, next_obs, done)
+    # Init is inherited verbatim from _SACBase — no per-agent critic to add.
 
     def save(self, path, metadata: Optional[Dict] = None, save_buffer: bool = False):
         """Save actor + alpha (critic is saved separately by CTDECoordinator)."""
