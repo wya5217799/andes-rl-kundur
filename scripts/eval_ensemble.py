@@ -6,7 +6,7 @@ eval_v4_ddic.py for paper_grade_axes.py + Fig.7/9 ranker.
 
 Usage:
     PY=/home/wya/andes_venv/bin/python
-    $PY scripts/research_loop/eval_v4_ensemble.py \
+    $PY scripts/eval_ensemble.py \
         --ckpt-dirs results/v4_h50_s49 results/v4_8_warmstart_R21_s49 results/v4_9_ws_phif100_s44 \
         --suffixes  best best best \
         --weights 0.50 0.27 0.23 \
@@ -22,18 +22,18 @@ from pathlib import Path
 import numpy as np
 import torch
 
-ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(ROOT))
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "src"))
 
-from agents.sac import SACAgent  # noqa: E402
-from env.andes.andes_vsg_env_v4 import AndesMultiVSGEnvV4  # noqa: E402
-from probes.andes_common.paper_constants import SCENARIOS  # noqa: E402
+from andes_rl_kundur.agents.sac import SACAgent  # noqa: E402
+from andes_rl_kundur.env.andes.andes_vsg_env_v4 import AndesMultiVSGEnvV4  # noqa: E402
+from andes_rl_kundur.probes.andes_common.paper_constants import SCENARIOS  # noqa: E402
 EVAL_SEED = 42
 STEPS = 150
 
 
 def load_actors(ckpt_dir: Path, suffix: str) -> list[SACAgent]:
-    from config import HIDDEN_SIZES
+    from andes_rl_kundur.config import HIDDEN_SIZES
     obs_dim = AndesMultiVSGEnvV4.OBS_DIM
     actors = []
     for i in range(AndesMultiVSGEnvV4.N_AGENTS):

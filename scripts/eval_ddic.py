@@ -4,7 +4,7 @@ Mirrors `eval_v4_no_control.py` format so paper_grade_axes.py + Fig.7/9 plot
 can read same dir. Loads 4 SAC actors from --ckpt-dir (agent_{0..3}_<suffix>.pt).
 
 Usage:
-    /home/wya/andes_venv/bin/python scripts/research_loop/eval_v4_ddic.py \
+    /home/wya/andes_venv/bin/python scripts/eval_ddic.py \
         --ckpt-dir results/v4_paper_s42 --suffix best \
         --label ddic_v4_s42 --out-dir results/research_loop/eval_v4_baseline
 """
@@ -18,19 +18,19 @@ from pathlib import Path
 import numpy as np
 import torch
 
-ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(ROOT))
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "src"))
 
-from agents.sac import SACAgent  # noqa: E402
-from env.andes.andes_vsg_env_v4 import AndesMultiVSGEnvV4  # noqa: E402
-from probes.andes_common.paper_constants import SCENARIOS  # noqa: E402
+from andes_rl_kundur.agents.sac import SACAgent  # noqa: E402
+from andes_rl_kundur.env.andes.andes_vsg_env_v4 import AndesMultiVSGEnvV4  # noqa: E402
+from andes_rl_kundur.probes.andes_common.paper_constants import SCENARIOS  # noqa: E402
 
 EVAL_SEED = 42
 STEPS = 150  # 30s @ DT=0.6 (V4 ANDES)
 
 
 def load_actors(ckpt_dir: Path, suffix: str = "best") -> list[SACAgent]:
-    from config import HIDDEN_SIZES
+    from andes_rl_kundur.config import HIDDEN_SIZES
     obs_dim = AndesMultiVSGEnvV4.OBS_DIM
     action_dim = 2
     agents = []

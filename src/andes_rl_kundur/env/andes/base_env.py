@@ -22,7 +22,7 @@ from collections import deque
 import os
 import numpy as np
 
-from scenarios.contract import KUNDUR as _DEFAULT_CONTRACT
+from andes_rl_kundur.scenarios.contract import KUNDUR as _DEFAULT_CONTRACT
 
 
 class AndesBaseEnv(ABC):

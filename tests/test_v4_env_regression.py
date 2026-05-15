@@ -22,10 +22,10 @@ import numpy as np
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT))
+sys.path.insert(0, str(ROOT / "src"))
 
-from env.andes.andes_vsg_env_v4 import AndesMultiVSGEnvV4  # noqa: E402
-from probes.andes_common.paper_constants import SCENARIOS  # noqa: E402
+from andes_rl_kundur.env.andes.andes_vsg_env_v4 import AndesMultiVSGEnvV4  # noqa: E402
+from andes_rl_kundur.probes.andes_common.paper_constants import SCENARIOS  # noqa: E402
 
 BASELINE_DIR = ROOT / "results" / "research_loop" / "eval_v4_baseline_PRE_REFACTOR"
 

@@ -5,7 +5,7 @@ can read directly. No DDIC ckpt needed (zero-action baseline = paper Fig.6/8).
 
 Output: results/research_loop/eval_v4_baseline/no_control_load_step_{1,2}.json
 
-Run: /home/wya/andes_venv/bin/python scripts/research_loop/eval_v4_no_control.py
+Run: /home/wya/andes_venv/bin/python scripts/eval_no_control.py
 """
 from __future__ import annotations
 
@@ -15,11 +15,11 @@ from pathlib import Path
 
 import numpy as np
 
-ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(ROOT))
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "src"))
 
-from env.andes.andes_vsg_env_v4 import AndesMultiVSGEnvV4  # noqa: E402
-from probes.andes_common.paper_constants import SCENARIOS  # noqa: E402
+from andes_rl_kundur.env.andes.andes_vsg_env_v4 import AndesMultiVSGEnvV4  # noqa: E402
+from andes_rl_kundur.probes.andes_common.paper_constants import SCENARIOS  # noqa: E402
 
 OUT_DIR = ROOT / "results" / "research_loop" / "eval_v4_baseline"
 OUT_DIR.mkdir(parents=True, exist_ok=True)

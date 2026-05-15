@@ -25,7 +25,7 @@ from typing import Any, Callable, Iterable
 
 import numpy as np
 
-from probes.andes_common.paper_constants import (
+from andes_rl_kundur.probes.andes_common.paper_constants import (
     DEFAULT_PROBE_SEED,
     DEFAULT_PROBE_STEPS_SHORT,
     PAPER_BENCHMARKS,

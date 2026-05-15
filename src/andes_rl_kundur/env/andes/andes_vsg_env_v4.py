@@ -44,8 +44,8 @@ import warnings
 import andes
 import numpy as np
 
-from env.andes.base_env import AndesBaseEnv
-from scenarios.contract import KUNDUR as _CONTRACT
+from andes_rl_kundur.env.andes.base_env import AndesBaseEnv
+from andes_rl_kundur.scenarios.contract import KUNDUR as _CONTRACT
 
 warnings.filterwarnings("ignore")
 

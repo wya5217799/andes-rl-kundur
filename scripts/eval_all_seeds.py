@@ -17,10 +17,11 @@ import sys
 import traceback
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(ROOT))
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "src"))
+sys.path.insert(0, str(ROOT / "scripts"))
 
-from scripts.research_loop.eval_v4_ddic import eval_scenario, load_actors, SCENARIOS  # noqa: E402
+from eval_ddic import eval_scenario, load_actors, SCENARIOS  # noqa: E402
 
 EVAL_OUT_DIR = ROOT / "results" / "research_loop" / "eval_v4_baseline"
 RESULTS_DIR = ROOT / "results"

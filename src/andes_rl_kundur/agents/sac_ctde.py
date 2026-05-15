@@ -44,8 +44,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 
-from agents.networks import GaussianActor, DoubleQCritic
-from agents.replay_buffer import ReplayBuffer
+from andes_rl_kundur.agents.networks import GaussianActor, DoubleQCritic
+from andes_rl_kundur.agents.replay_buffer import ReplayBuffer
 
 
 class SACAgentCTDE:

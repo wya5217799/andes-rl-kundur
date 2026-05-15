@@ -32,14 +32,14 @@ from pathlib import Path
 import numpy as np
 import torch
 
-ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(ROOT))
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "src"))
 
-import config as cfg  # noqa: E402
-from agents.sac import SACAgent  # noqa: E402
-from agents.sac_ctde import CTDECoordinator, SACAgentCTDE  # noqa: E402
-from env.andes.andes_vsg_env_v4 import AndesMultiVSGEnvV4  # noqa: E402
-from utils.monitor import TrainingMonitor  # noqa: E402
+from andes_rl_kundur import config as cfg  # noqa: E402
+from andes_rl_kundur.agents.sac import SACAgent  # noqa: E402
+from andes_rl_kundur.agents.sac_ctde import CTDECoordinator, SACAgentCTDE  # noqa: E402
+from andes_rl_kundur.env.andes.andes_vsg_env_v4 import AndesMultiVSGEnvV4  # noqa: E402
+from andes_rl_kundur.utils.monitor import TrainingMonitor  # noqa: E402
 
 # ─── CLI ───────────────────────────────────────────────────────────────
 

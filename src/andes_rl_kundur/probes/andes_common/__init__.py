@@ -42,7 +42,7 @@ See ``probes/andes_common/README.md`` for the decision tree
 """
 from __future__ import annotations
 
-from probes.andes_common.paper_constants import (
+from andes_rl_kundur.probes.andes_common.paper_constants import (
     DEFAULT_PROBE_SEED,
     DEFAULT_PROBE_STEPS_LONG,
     DEFAULT_PROBE_STEPS_SHORT,
@@ -68,19 +68,19 @@ from probes.andes_common.paper_constants import (
     PaperBenchmark,
     SCENARIOS,
 )
-from probes.andes_common.tracers import (
+from andes_rl_kundur.probes.andes_common.tracers import (
     compute_settling_time,
     run_h_scan,
     run_trained_policy_trace,
     run_variant_ablation,
     run_zero_action_trace,
 )
-from probes.andes_common.utils import (
+from andes_rl_kundur.probes.andes_common.utils import (
     introspect_model,
     safe_get,
     try_read_v,
 )
-from probes.andes_common.verdict import (
+from andes_rl_kundur.probes.andes_common.verdict import (
     Verdict,
     VerdictRule,
     governor_wiring_ladder,
