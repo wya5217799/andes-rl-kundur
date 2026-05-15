@@ -172,3 +172,13 @@ B-2 panel-critique decisive row. The HAWE method claim is now defended
 by both DA-CRIT-1 (this verdict, fresh-seed HAWE works) and
 r33 (Gini-vs-score Spearman supported); the residual paper-draft
 revisions are §VI-A Table I + Abstract framing.*
+
+
+## Questions opened (this round)
+- none (retrofit — this verdict pre-dates the Q entity introduced in R39)
+
+## Questions closed (this round)
+- none (retrofit)
+
+## Questions advanced (this round, status unchanged)
+- none (retrofit)

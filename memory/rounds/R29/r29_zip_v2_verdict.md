@@ -259,3 +259,13 @@ revision relies on the ZIP-v2 traces.*
 - [ ] Inspect `_apply_disturbance` path with `print(ss.PQ.Ppf.v)` before and after disturbance application — confirm the mutation actually affects the PQ component used by the ZIP-replaced load.
 - [ ] If disturbance bypass confirmed: redirect dispatch to write `ss.ZIP.kpp.v[k]` or analogous parameter; retry probe.
 - [ ] If disturbance bypass refuted: V5 / ZIP env adoption pathway is real, advance to V5 paper-faithful retrain plan.
+
+
+## Questions opened (this round)
+- none (retrofit — this verdict pre-dates the Q entity introduced in R39)
+
+## Questions closed (this round)
+- none (retrofit)
+
+## Questions advanced (this round, status unchanged)
+- none (retrofit)

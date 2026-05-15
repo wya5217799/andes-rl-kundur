@@ -158,3 +158,13 @@ Final state: **21 tests pass**, `eval_no_control` still bit-identical
 - `tests/test_v4_env_regression.py` — regression sediment
 - `_legacy/env/andes/README.md` — what V1/V2/V3 + NE39 envs were
 - `_legacy/scenarios/kundur/README.md` — what the three old train shims were
+
+
+## Questions opened (this round)
+- none (retrofit — this verdict pre-dates the Q entity introduced in R39)
+
+## Questions closed (this round)
+- none (retrofit)
+
+## Questions advanced (this round, status unchanged)
+- none (retrofit)

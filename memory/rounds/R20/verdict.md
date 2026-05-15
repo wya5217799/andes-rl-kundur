@@ -168,3 +168,13 @@ PARTIAL 状态在原矩阵下没明示后续, 需新决策。
 ---
 
 *Generated 2026-05-07 by main agent. Hypothesis A 部分支持 (sync + r_f≈0) 部分推翻 (ΔD 全饱和 ≠ 互抵 mean=0). 后续等用户在选项 1/2/3/4 选.*
+
+
+## Questions opened (this round)
+- none (retrofit — this verdict pre-dates the Q entity introduced in R39)
+
+## Questions closed (this round)
+- none (retrofit)
+
+## Questions advanced (this round, status unchanged)
+- none (retrofit)

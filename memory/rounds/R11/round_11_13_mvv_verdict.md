@@ -109,3 +109,13 @@ r_phys = M · ω̇ + D·(ω-1) - (Pm - Pe) ≡ 0  (analytic)
 ---
 
 *Generated 2026-05-07. R11-R13 verdict locked from r1{1,2,3}_*.json.*
+
+
+## Questions opened (this round)
+- none (retrofit — this verdict pre-dates the Q entity introduced in R39)
+
+## Questions closed (this round)
+- none (retrofit)
+
+## Questions advanced (this round, status unchanged)
+- none (retrofit)

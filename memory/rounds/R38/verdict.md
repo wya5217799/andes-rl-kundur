@@ -164,3 +164,13 @@ research direction for R39. Recorded as `CLM-0043` for traceability.
   PHI_F × Δω² by ~500–1000 × at V4 paper-faithful weights; this is
   the structural cause of the 0.137 multi-seed attractor previously
   misattributed to SAC's entropy bonus. Fix candidates queued for R39.
+
+
+## Questions opened (this round)
+- none (retrofit — this verdict pre-dates the Q entity introduced in R39)
+
+## Questions closed (this round)
+- none (retrofit)
+
+## Questions advanced (this round, status unchanged)
+- none (retrofit)

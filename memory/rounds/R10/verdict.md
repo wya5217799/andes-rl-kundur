@@ -163,3 +163,13 @@ ANDES path closure 决策 **不变**. R10 是 closure 后的 root cause 闭环, 
 ---
 
 *Generated 2026-05-07, verdict locked from r10_governor_wiring_forensic.json.*
+
+
+## Questions opened (this round)
+- none (retrofit — this verdict pre-dates the Q entity introduced in R39)
+
+## Questions closed (this round)
+- none (retrofit)
+
+## Questions advanced (this round, status unchanged)
+- none (retrofit)

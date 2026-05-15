@@ -1,4 +1,4 @@
-"""Claim ledger validator. Runs 3 hard rules + 2 warnings."""
+"""Claim + Question ledger validator. Hard rules + soft warnings."""
 from __future__ import annotations
 import argparse
 import re
@@ -9,6 +9,26 @@ from typing import Any
 import yaml
 
 FRONTMATTER_RE = re.compile(r"^---\n(.*?)\n---\n", re.DOTALL)
+
+QUESTION_STATUS_ENUM = {
+    "open",
+    "in-flight",
+    "closed-positive",
+    "closed-negative",
+    "abandoned",
+}
+
+VERDICT_REQUIRED_SECTIONS = (
+    "## Questions opened",
+    "## Questions closed",
+    "## Questions advanced",
+)
+# Soft (warning-only) checks — historical verdicts use varied Status text
+# (COMPLETE / DONE / INCONCLUSIVE / PARTIAL / etc.) and not all have TL;DR.
+# Forward template (_TEMPLATE_VERDICT.md) includes them; legacy verdicts
+# are not retrofit-mandated.
+VERDICT_RECOMMENDED_SECTIONS = ("## TL;DR",)
+VERDICT_STATUS_HEADER_RE = re.compile(r"^\*\*Status\*\*\s*:", re.MULTILINE)
 
 
 def load_claims(claims_dir: Path) -> dict[str, dict[str, Any]]:
@@ -31,6 +51,111 @@ def load_claims(claims_dir: Path) -> dict[str, dict[str, Any]]:
             )
         claims[cid] = meta
     return claims
+
+
+def load_questions(questions_dir: Path) -> dict[str, dict[str, Any]]:
+    """Load every Q-*.md frontmatter into a dict keyed by id.
+
+    Returns empty dict if questions_dir doesn't exist (Q entity is optional —
+    a repo without any Q files is valid)."""
+    questions: dict[str, dict[str, Any]] = {}
+    if not questions_dir.exists():
+        return questions
+    for path in sorted(questions_dir.glob("Q-*.md")):
+        text = path.read_text(encoding="utf-8")
+        match = FRONTMATTER_RE.match(text)
+        if not match:
+            raise ValueError(f"{path.name}: no YAML frontmatter")
+        meta = yaml.safe_load(match.group(1)) or {}
+        meta["_path"] = path
+        qid = meta["id"]
+        if qid in questions:
+            raise ValueError(
+                f"duplicate id {qid} in {path.name} and "
+                f"{questions[qid]['_path'].name}"
+            )
+        questions[qid] = meta
+    return questions
+
+
+def validate_question_rules(
+    questions: dict[str, dict[str, Any]],
+    claims: dict[str, dict[str, Any]],
+    rounds_dir: Path,
+) -> list[str]:
+    """Three hard rules on Q entities. Returns list of error strings."""
+    errors: list[str] = []
+    for q in questions.values():
+        qid = q["id"]
+        status = q.get("status")
+
+        # Rule Q1: status must be in enum
+        if status not in QUESTION_STATUS_ENUM:
+            errors.append(
+                f"{qid}: status '{status}' not in "
+                f"{sorted(QUESTION_STATUS_ENUM)}"
+            )
+            continue  # downstream checks meaningless if status invalid
+
+        # Rule Q2: closed-* must have closed_round + closed_by
+        if status.startswith("closed-"):
+            closed_round = q.get("closed_round")
+            closed_by = q.get("closed_by")
+            if not closed_round or not closed_by:
+                errors.append(
+                    f"{qid}: status={status} but missing "
+                    f"closed_round/closed_by"
+                )
+            else:
+                if not (rounds_dir / closed_round).exists():
+                    errors.append(
+                        f"{qid}: closed_round {closed_round} dir does not exist"
+                    )
+                if closed_by not in claims:
+                    errors.append(
+                        f"{qid}: closed_by {closed_by} not a known claim id"
+                    )
+
+        # Rule Q3: opened_round must exist
+        opened_round = q.get("opened_round")
+        if not opened_round:
+            errors.append(f"{qid}: missing opened_round")
+        elif not (rounds_dir / opened_round).exists():
+            errors.append(
+                f"{qid}: opened_round {opened_round} dir does not exist"
+            )
+
+    return errors
+
+
+def validate_verdict_structure(verdict_path: Path) -> list[str]:
+    """Round verdict must have the 3 mandatory Q-section H2s.
+
+    Historical verdicts (R01..R38) use varied Status header text and not all
+    have explicit TL;DR — those checks live in the warnings path, not here.
+    """
+    errors: list[str] = []
+    if not verdict_path.exists():
+        return errors  # verdict.md absent = round in-flight, not an error
+    text = verdict_path.read_text(encoding="utf-8")
+    for section in VERDICT_REQUIRED_SECTIONS:
+        if section not in text:
+            errors.append(f"{verdict_path}: missing section '{section}'")
+    return errors
+
+
+def warn_verdict_recommended(verdict_path: Path) -> list[str]:
+    """Soft checks: TL;DR + Status header. Returns warning strings (not errors)."""
+    warnings: list[str] = []
+    if not verdict_path.exists():
+        return warnings
+    text = verdict_path.read_text(encoding="utf-8")
+    for section in VERDICT_RECOMMENDED_SECTIONS:
+        if section not in text:
+            warnings.append(f"{verdict_path}: missing recommended section '{section}'")
+    if not VERDICT_STATUS_HEADER_RE.search(text):
+        warnings.append(f"{verdict_path}: missing '**Status**:' header line")
+    return warnings
 
 
 def validate_rules(claims: dict[str, dict[str, Any]]) -> tuple[list[str], list[str]]:
@@ -143,15 +268,36 @@ def fix_back_edges(claims: dict[str, dict[str, Any]], *, write: bool) -> list[st
     return changes
 
 
+def _iter_verdicts(rounds_dir: Path):
+    """Yield Path objects for every existing round verdict.md (any filename
+    matching *verdict*.md inside RNN/ dirs)."""
+    if not rounds_dir.exists():
+        return
+    for round_dir in sorted(rounds_dir.iterdir()):
+        if not round_dir.is_dir() or not round_dir.name.startswith("R"):
+            continue
+        # Prefer canonical verdict.md; fall back to any *verdict*.md in the dir.
+        canonical = round_dir / "verdict.md"
+        if canonical.exists():
+            yield canonical
+            continue
+        for alt in sorted(round_dir.glob("*verdict*.md")):
+            yield alt
+
+
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Claim ledger validator")
-    parser.add_argument(
-        "--claims-dir", type=Path,
-        default=Path(__file__).parent.parent / "claims",
-        help="path to memory/claims/",
-    )
+    parser = argparse.ArgumentParser(description="Claim + Question ledger validator")
+    base = Path(__file__).parent.parent
+    parser.add_argument("--claims-dir", type=Path, default=base / "claims",
+                        help="path to memory/claims/")
+    parser.add_argument("--questions-dir", type=Path, default=base / "questions",
+                        help="path to memory/questions/")
+    parser.add_argument("--rounds-dir", type=Path, default=base / "rounds",
+                        help="path to memory/rounds/")
     parser.add_argument("--fix", action="store_true",
                         help="auto-write missing back edges and flip status")
+    parser.add_argument("--skip-verdicts", action="store_true",
+                        help="skip verdict structure validation (useful before retrofit)")
     args = parser.parse_args()
 
     claims = load_claims(args.claims_dir)
@@ -163,13 +309,25 @@ def main() -> int:
         claims = load_claims(args.claims_dir)
 
     errors, warnings = validate_rules(claims)
+    questions = load_questions(args.questions_dir)
+    q_errors = validate_question_rules(questions, claims, args.rounds_dir)
+    errors.extend(q_errors)
+
+    if not args.skip_verdicts:
+        for verdict_path in _iter_verdicts(args.rounds_dir):
+            errors.extend(validate_verdict_structure(verdict_path))
+            warnings.extend(warn_verdict_recommended(verdict_path))
+
     for w in warnings:
         print(f"WARN: {w}")
     for e in errors:
         print(f"ERROR: {e}", file=sys.stderr)
     if errors:
         return 1
-    print(f"OK: {len(claims)} claims, {len(warnings)} warnings")
+    print(
+        f"OK: {len(claims)} claims, {len(questions)} questions, "
+        f"{len(warnings)} warnings"
+    )
     return 0
 
 

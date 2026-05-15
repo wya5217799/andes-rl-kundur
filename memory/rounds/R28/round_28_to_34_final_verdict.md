@@ -303,3 +303,13 @@ documented in Appendix B.
 ---
 
 *Generated 2026-05-07 ~12:00 main agent. R28-R34 sprint within 2 hr budget. **w8515 = 0.554 = 5.04× no_control = 89.7% R21 = 55% paper-grade is the final reproducible result.** Paper-ready.*
+
+
+## Questions opened (this round)
+- none (retrofit — this verdict pre-dates the Q entity introduced in R39)
+
+## Questions closed (this round)
+- none (retrofit)
+
+## Questions advanced (this round, status unchanged)
+- none (retrofit)

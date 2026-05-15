@@ -247,3 +247,13 @@ publishable single finding from the entire dispatch (A1 / A2 / A3).*
 - [ ] Project ΔD range (in addition to ΔH) onto mode shape; check whether reversal is ΔH-specific
 - [ ] Bootstrap null: shuffle per-agent ΔH labels across agents, re-project, build null distribution, compute p-value for observed reversal
 - [ ] Spawn fresh-context claim-verifier on this verdict + r27 plot files; ask "what other mechanism explains the reversal?"
+
+
+## Questions opened (this round)
+- none (retrofit — this verdict pre-dates the Q entity introduced in R39)
+
+## Questions closed (this round)
+- none (retrofit)
+
+## Questions advanced (this round, status unchanged)
+- none (retrofit)

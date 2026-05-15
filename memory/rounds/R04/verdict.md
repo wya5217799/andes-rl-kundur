@@ -157,3 +157,13 @@ R05 K=8, 每 arm 30ep × 1 seed × ~7 min, parallel ~10 min wall:
 - obs9 smoke: `results/research_loop/r04_obs9_smoke_s42/`
 - 5 R04 ckpt: `results/research_loop/r04_A_phid1p0_s{42-46}/`
 - R05 plan: [round_05_plan.md](round_05_plan.md)
+
+
+## Questions opened (this round)
+- none (retrofit — this verdict pre-dates the Q entity introduced in R39)
+
+## Questions closed (this round)
+- none (retrofit)
+
+## Questions advanced (this round, status unchanged)
+- none (retrofit)

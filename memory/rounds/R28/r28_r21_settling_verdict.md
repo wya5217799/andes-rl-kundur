@@ -255,3 +255,13 @@ Appendix B.*
 - [ ] Compare ws8, HAWE 98/2, HAWE 85/15 on same 5 conventions — verify R21 is the best trained controller on settling, not just better-than-baseline.
 - [ ] Fix `paper_grade_axes._settling_time` to use 30 s window OR remove the 6 s truncation entirely. Re-rank all controllers; check that ranking order preserves R21 > HAWE > attractor.
 - [ ] Update paper Appendix B Table B with corrected settling numbers.
+
+
+## Questions opened (this round)
+- none (retrofit — this verdict pre-dates the Q entity introduced in R39)
+
+## Questions closed (this round)
+- none (retrofit)
+
+## Questions advanced (this round, status unchanged)
+- none (retrofit)

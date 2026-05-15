@@ -257,3 +257,13 @@ without further training, and is independent of B-2 (fresh-seed) outcomes.*
 - [ ] **B-2 fresh-seed actor** (seed 50/51/52 × 200 ep) — repeat the SWA-vs-HAWE 5-point sweep with R21 + fresh-seed pair. Resolves DA-CRIT-1 + this tautology concern.
 - [ ] Random-actor counterfactual: `theta_rand = 0.98 * theta_R21 + 0.02 * theta_random_init`. Should collapse to R21-class score if R21+ws8 result is degenerate; should drop sharply if R21+ws8 has real diversity.
 - [ ] Ranker re-validation: spawn fresh-context claim-verifier on `paper_grade_axes.py` post-fix vs pre-fix to confirm the band-target inflation mechanism.
+
+
+## Questions opened (this round)
+- none (retrofit — this verdict pre-dates the Q entity introduced in R39)
+
+## Questions closed (this round)
+- none (retrofit)
+
+## Questions advanced (this round, status unchanged)
+- none (retrofit)

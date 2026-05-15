@@ -123,6 +123,150 @@ import shutil
 from validate import fix_back_edges  # noqa: E402
 
 
+# ---------- Question entity tests (commit 2) ----------
+
+
+def test_load_questions_returns_dict_keyed_by_id(tmp_path):
+    """load_questions reads Q-*.md frontmatter into a dict keyed by id."""
+    (tmp_path / "Q-0001.md").write_text(
+        "---\nid: Q-0001\nstatus: open\ntitle: First Q\n"
+        "opened_round: R37\n---\n## Candidates\n- a\n## Log\n- R37: opened\n",
+        encoding="utf-8",
+    )
+    from validate import load_questions  # noqa: E402
+    qs = load_questions(tmp_path)
+    assert set(qs.keys()) == {"Q-0001"}
+    assert qs["Q-0001"]["status"] == "open"
+    assert qs["Q-0001"]["title"] == "First Q"
+    assert qs["Q-0001"]["opened_round"] == "R37"
+
+
+def test_validate_question_rules_status_enum(tmp_path):
+    """Question status must be in the allowed enum."""
+    from validate import validate_question_rules  # noqa: E402
+    questions = {
+        "Q-0001": {"id": "Q-0001", "status": "weird-status",
+                   "title": "x", "opened_round": "R37"},
+    }
+    rounds_dir = tmp_path / "rounds"
+    rounds_dir.mkdir()
+    (rounds_dir / "R37").mkdir()
+    errors = validate_question_rules(questions, claims={}, rounds_dir=rounds_dir)
+    assert any("Q-0001" in e and "status" in e for e in errors)
+
+
+def test_validate_question_rules_closed_must_have_closed_round_and_by(tmp_path):
+    """Q with status=closed-* must have closed_round + closed_by."""
+    from validate import validate_question_rules  # noqa: E402
+    questions = {
+        "Q-0001": {"id": "Q-0001", "status": "closed-positive",
+                   "title": "x", "opened_round": "R37"},
+    }
+    rounds_dir = tmp_path / "rounds"
+    rounds_dir.mkdir()
+    (rounds_dir / "R37").mkdir()
+    errors = validate_question_rules(questions, claims={}, rounds_dir=rounds_dir)
+    assert any("Q-0001" in e and "closed" in e for e in errors)
+
+
+def test_validate_question_rules_opened_round_must_exist(tmp_path):
+    """opened_round must correspond to an existing round directory."""
+    from validate import validate_question_rules  # noqa: E402
+    questions = {
+        "Q-0001": {"id": "Q-0001", "status": "open",
+                   "title": "x", "opened_round": "R999"},
+    }
+    rounds_dir = tmp_path / "rounds"
+    rounds_dir.mkdir()
+    # no R999 dir
+    errors = validate_question_rules(questions, claims={}, rounds_dir=rounds_dir)
+    assert any("Q-0001" in e and "R999" in e for e in errors)
+
+
+def test_validate_question_rules_clean_passes(tmp_path):
+    """An open Q with valid opened_round and a closed Q with full closure produces no errors."""
+    from validate import validate_question_rules  # noqa: E402
+    questions = {
+        "Q-0001": {"id": "Q-0001", "status": "open",
+                   "title": "x", "opened_round": "R37"},
+        "Q-0002": {"id": "Q-0002", "status": "closed-negative",
+                   "title": "y", "opened_round": "R37",
+                   "closed_round": "R38", "closed_by": "CLM-0099"},
+    }
+    rounds_dir = tmp_path / "rounds"
+    rounds_dir.mkdir()
+    for r in ("R37", "R38"):
+        (rounds_dir / r).mkdir()
+    errors = validate_question_rules(questions, claims={"CLM-0099": {}}, rounds_dir=rounds_dir)
+    assert errors == []
+
+
+def test_validate_verdict_structure_3_q_sections_pass(tmp_path):
+    """A verdict with the 3 mandatory Q-sections passes (hard check)."""
+    from validate import validate_verdict_structure  # noqa: E402
+    verdict_path = tmp_path / "verdict.md"
+    verdict_path.write_text(
+        "# R99 verdict — example\n\n"
+        "**Date**: 2026-01-01\n**Status**: **COMPLETE**.\n\n"
+        "## TL;DR\nSomething happened.\n\n"
+        "## Questions opened (this round)\n- none\n\n"
+        "## Questions closed (this round)\n- none\n\n"
+        "## Questions advanced (this round)\n- none\n",
+        encoding="utf-8",
+    )
+    errors = validate_verdict_structure(verdict_path)
+    assert errors == []
+
+
+def test_validate_verdict_structure_missing_q_section_fails(tmp_path):
+    """Missing one of the 3 Q-sections is a hard error."""
+    from validate import validate_verdict_structure  # noqa: E402
+    verdict_path = tmp_path / "verdict.md"
+    verdict_path.write_text(
+        "# R99 verdict\n\n**Status**: complete\n## TL;DR\nx\n"
+        "## Questions opened (this round)\n- none\n",
+        # missing Questions closed + advanced
+        encoding="utf-8",
+    )
+    errors = validate_verdict_structure(verdict_path)
+    assert any("Questions closed" in e for e in errors)
+    assert any("Questions advanced" in e for e in errors)
+
+
+def test_validate_verdict_status_header_accepts_varied_text(tmp_path):
+    """`**Status**:` line is required but the text after is free
+    (legacy verdicts use COMPLETE / DONE / INCONCLUSIVE / **PARTIAL** etc.)."""
+    from validate import warn_verdict_recommended  # noqa: E402
+    for tail in (
+        "**COMPLETE**.",
+        "DONE (8/8 exit 0)",
+        "**INCONCLUSIVE**",
+        "⚠ **PARTIAL** — see below",
+        "in-progress",
+    ):
+        verdict_path = tmp_path / f"v_{hash(tail) & 0xFFFF}.md"
+        verdict_path.write_text(
+            f"# R99\n**Status**: {tail}\n## TL;DR\nx\n",
+            encoding="utf-8",
+        )
+        warnings = warn_verdict_recommended(verdict_path)
+        # No Status-related warning since header line is present
+        assert not any("Status" in w for w in warnings), \
+            f"unexpected Status warning for tail={tail!r}: {warnings}"
+
+
+def test_warn_verdict_missing_tldr_emits_warning(tmp_path):
+    from validate import warn_verdict_recommended  # noqa: E402
+    verdict_path = tmp_path / "v.md"
+    verdict_path.write_text(
+        "# R99\n**Status**: COMPLETE\n## Questions opened\n- none\n"
+        "## Questions closed\n- none\n## Questions advanced\n- none\n",
+        encoding="utf-8",
+    )
+    warnings = warn_verdict_recommended(verdict_path)
+    assert any("TL;DR" in w for w in warnings)
+
+
 def test_fix_back_edges_writes_superseded_by_and_flips_status(tmp_path):
     src = FIXTURES
     dst = tmp_path / "claims"

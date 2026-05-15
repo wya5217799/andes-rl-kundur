@@ -151,3 +151,13 @@ User's prediction "可能稳定到 0.45+" UNDER-shot — actual 0.554 (23% above
 ---
 
 *Generated 2026-05-07 ~11:30. R30 ensemble strategy 突破 R28 0.42 ceiling 到 0.554 reproducible. 11.3% gap to R21 lucky single. R31 reward shaping (PHI_MAX code-mod) running in parallel, may push further.*
+
+
+## Questions opened (this round)
+- none (retrofit — this verdict pre-dates the Q entity introduced in R39)
+
+## Questions closed (this round)
+- none (retrofit)
+
+## Questions advanced (this round, status unchanged)
+- none (retrofit)

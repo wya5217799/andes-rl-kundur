@@ -153,3 +153,13 @@ R21 0.613 仍 historical best (single-seed s49 lucky), 但 0.41-0.42 是当前 c
 ---
 
 *Generated 2026-05-07 ~11:05 by main agent. R28 100% replicates user request "尝试启动". Established 0.41-0.42 as reproducible ANDES paper-faithful ceiling. R21 0.613 remains historical best as single-seed lucky cherry-pick.*
+
+
+## Questions opened (this round)
+- none (retrofit — this verdict pre-dates the Q entity introduced in R39)
+
+## Questions closed (this round)
+- none (retrofit)
+
+## Questions advanced (this round, status unchanged)
+- none (retrofit)

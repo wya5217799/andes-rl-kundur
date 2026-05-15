@@ -206,3 +206,13 @@ on `r31_eval_v4_baseline_ranking.json` being current.
 *Generated 2026-05-07 by code-probe dispatch followup F-stat. r33 closes
 panel CONS-4 quantitatively; combined with r27 (modal-alignment
 rejection) it gives the paper §VI-D a coherent post-fix narrative.*
+
+
+## Questions opened (this round)
+- none (retrofit — this verdict pre-dates the Q entity introduced in R39)
+
+## Questions closed (this round)
+- none (retrofit)
+
+## Questions advanced (this round, status unchanged)
+- none (retrofit)

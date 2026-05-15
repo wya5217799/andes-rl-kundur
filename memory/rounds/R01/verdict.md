@@ -96,3 +96,13 @@ R02 G2/G3 期望: governor 启用后 no-ctrl baseline max_df 0.6 → ≤ 0.30.
 - [incidents/r01_h0_probe_disturbance_bug.md](incidents/r01_h0_probe_disturbance_bug.md) — H₀ probe bug
 - [recovery plan](../plans/2026-05-07_andes_6axis_recovery.md) §A/B/C — context
 - 8 arms ckpt: `results/research_loop/r01_A_*/`
+
+
+## Questions opened (this round)
+- none (retrofit — this verdict pre-dates the Q entity introduced in R39)
+
+## Questions closed (this round)
+- none (retrofit)
+
+## Questions advanced (this round, status unchanged)
+- none (retrofit)

@@ -182,3 +182,13 @@ ranker bug; the rest is polish.
 *Generated 2026-05-07 by code-probe dispatch followup F7. The post-N1c
 ranker is trustworthy for paper revision; the C1-C3 findings are minor
 and do not require re-running the rank.*
+
+
+## Questions opened (this round)
+- none (retrofit — this verdict pre-dates the Q entity introduced in R39)
+
+## Questions closed (this round)
+- none (retrofit)
+
+## Questions advanced (this round, status unchanged)
+- none (retrofit)

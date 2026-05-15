@@ -182,3 +182,13 @@ update this verdict if the ranker is changed again.
 *Generated 2026-05-07 by code-probe dispatch. Closes the per-axis
 forensics line — paper Table III + Appendix B residual budget data
 ready to paste.*
+
+
+## Questions opened (this round)
+- none (retrofit — this verdict pre-dates the Q entity introduced in R39)
+
+## Questions closed (this round)
+- none (retrofit)
+
+## Questions advanced (this round, status unchanged)
+- none (retrofit)

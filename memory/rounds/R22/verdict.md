@@ -146,3 +146,13 @@ handoff 原矩阵:
 ---
 
 *Generated 2026-05-07 by main agent. 3-way parallel 验证 hypothesis A 的 PHI_ABS / PHI_D mechanism, 全部失败. ANDES anti-paper 是 SAC × Eq.14 landscape 结构问题, 不是 PHI_* 调参可破的 local optimum. 触发 handoff fallback option 4.*
+
+
+## Questions opened (this round)
+- none (retrofit — this verdict pre-dates the Q entity introduced in R39)
+
+## Questions closed (this round)
+- none (retrofit)
+
+## Questions advanced (this round, status unchanged)
+- none (retrofit)

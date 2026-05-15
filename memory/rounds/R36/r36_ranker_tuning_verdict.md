@@ -195,3 +195,13 @@ Runtime ~30 s.
 ranker-sensitivity question raised by panel DA-CRIT-2 / DA-CRIT-3 /
 CONS-1. Recommendation is to keep the V1 baseline ranker and footnote
 the sensitivity.*
+
+
+## Questions opened (this round)
+- none (retrofit — this verdict pre-dates the Q entity introduced in R39)
+
+## Questions closed (this round)
+- none (retrofit)
+
+## Questions advanced (this round, status unchanged)
+- none (retrofit)

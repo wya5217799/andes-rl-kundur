@@ -107,3 +107,13 @@ R03 期 (假设 1 任一 PASS, R02 6-axis ≥ 0.10):
 - [incidents/r01_h0_probe_disturbance_bug.md](incidents/r01_h0_probe_disturbance_bug.md) — H0 probe bug
 - 5 R02 ckpt: `results/research_loop/r02_A_lam0p01_200ep_s{42-46}/`
 - H0 probe v2: `results/research_loop/r02_C_pre_h0_sweep_v2.json`
+
+
+## Questions opened (this round)
+- none (retrofit — this verdict pre-dates the Q entity introduced in R39)
+
+## Questions closed (this round)
+- none (retrofit)
+
+## Questions advanced (this round, status unchanged)
+- none (retrofit)

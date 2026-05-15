@@ -165,3 +165,13 @@ ANDES + paper-faithful env 结构性 unfeasible. 切回 -discrete repo 的 Simul
 ---
 
 *Generated 2026-05-07 ~08:55 by main agent during user "睡会" autonomy. R23 v3 single train + multi-seed数据 reveals R21 V4_h50_s49 0.613 is single-trajectory cherry-pick. ANDES + paper Eq.14 真实 attractor ≈ 0.137. Paper main strategy 需要修改. 推荐方案 A (诚实报告) + 部分方案 B (algorithm innovation).*
+
+
+## Questions opened (this round)
+- none (retrofit — this verdict pre-dates the Q entity introduced in R39)
+
+## Questions closed (this round)
+- none (retrofit)
+
+## Questions advanced (this round, status unchanged)
+- none (retrofit)

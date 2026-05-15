@@ -226,3 +226,13 @@ appended after AGC/ZIP API findings to save downstream effort.*
 - [ ] V2 + AGC variant (manual import of `andes.models.experimental.agc.AGC`, register, retry) — N2 backlog.
 - [ ] V2 + true ZIP DynLoad (`ss.add("ZIP", ...)` before `ss.setup()`, with disturbance path redirected) — r29 attempted but disturbance-dispatch bug invalidated.
 - [ ] Saturation probe over LS1/LS2 disturbance magnitudes ∈ [0.5×, 1.0×, 2.0×] paper-anchor values to confirm 8.40 s scales monotonically with disturbance magnitude.
+
+
+## Questions opened (this round)
+- none (retrofit — this verdict pre-dates the Q entity introduced in R39)
+
+## Questions closed (this round)
+- none (retrofit)
+
+## Questions advanced (this round, status unchanged)
+- none (retrofit)

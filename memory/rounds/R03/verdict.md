@@ -138,3 +138,13 @@ K=4 train(PHI_D fix) + 1 cpu (adaptive) + 1 gpu (V3 smoke) + 2 buffer = 8 槽全
 - figs (paper-spec): `paper/figures/r03_lam0p01_s42_best/fig{6,7,8,9}_*.png`
 - archived R0 figs: `paper/figures/_archive_R0_2026-05-06/`
 - nav 改动: SKILL.md L1 verdict 6-段模板
+
+
+## Questions opened (this round)
+- none (retrofit — this verdict pre-dates the Q entity introduced in R39)
+
+## Questions closed (this round)
+- none (retrofit)
+
+## Questions advanced (this round, status unchanged)
+- none (retrofit)

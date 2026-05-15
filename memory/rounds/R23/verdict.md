@@ -145,3 +145,13 @@ ANDES error → catch → reset env → 再 build → 再 SAC explore → 再撞
 ---
 
 *Generated 2026-05-07 by main agent during user "睡会" autonomy. Two R23 launches failed due to system-level contention (8 parallel ANDES train in single venv). Diagnosis points to CPU starvation + ANDES adaptive timestep mistakenly halving to 0. Next attempt R23 v3 will limit to ≤3 parallel after another session's v4_5 self-fails.*
+
+
+## Questions opened (this round)
+- none (retrofit — this verdict pre-dates the Q entity introduced in R39)
+
+## Questions closed (this round)
+- none (retrofit)
+
+## Questions advanced (this round, status unchanged)
+- none (retrofit)

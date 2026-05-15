@@ -155,3 +155,13 @@ exp4: r06_v1_env_5seed_200ep_smoke (gpu, 5 seed × 200ep, ~30 min)
 - 8 R05 ckpt: `results/research_loop/r05_*_s42/`
 - 8 arm eval JSONs: `results/research_loop/eval_r05/` (16 + no_ctrl 2)
 - R06 plan: [round_06_plan.md](round_06_plan.md)
+
+
+## Questions opened (this round)
+- none (retrofit — this verdict pre-dates the Q entity introduced in R39)
+
+## Questions closed (this round)
+- none (retrofit)
+
+## Questions advanced (this round, status unchanged)
+- none (retrofit)
