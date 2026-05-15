@@ -36,6 +36,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from andes_rl_kundur import config as cfg  # noqa: E402
+from andes_rl_kundur.agents.episode_result import EpisodeResult  # noqa: E402
 from andes_rl_kundur.agents.sac import SACAgent  # noqa: E402
 from andes_rl_kundur.agents.sac_ctde import CTDECoordinator, SACAgentCTDE  # noqa: E402
 from andes_rl_kundur.env.andes.andes_vsg_env_v4 import AndesMultiVSGEnvV4  # noqa: E402
@@ -268,13 +269,13 @@ def run_episode(
     total_steps: int,
     args: argparse.Namespace,
     action_dim: int,
-) -> dict:
-    """Roll out one episode, collect rewards / actions / monitor stats."""
+) -> EpisodeResult:
+    """Roll out one episode, return a typed :class:`EpisodeResult`."""
     N = env.N_AGENTS
     try:
         obs = env.reset()
     except Exception as e:
-        return {"reset_failed": True, "reason": str(e)}
+        return EpisodeResult.from_reset_failure(str(e), total_steps=total_steps)
 
     ep_reward = {i: 0.0 for i in range(N)}
     ep_r_f, ep_r_h, ep_r_d = 0.0, 0.0, 0.0
@@ -312,17 +313,15 @@ def run_episode(
         if done:
             break
 
-    return {
-        "reset_failed": False,
-        "ep_reward":      ep_reward,
-        "ep_r_f":         ep_r_f,
-        "ep_r_h":         ep_r_h,
-        "ep_r_d":         ep_r_d,
-        "ep_actions":     ep_actions_list,
-        "ep_max_freq":    ep_max_freq,
-        "ep_tds_failed":  ep_tds_failed,
-        "total_steps":    total_steps,
-    }
+    return EpisodeResult(
+        reset_failed=False,
+        ep_reward=ep_reward,
+        ep_r_f=ep_r_f, ep_r_h=ep_r_h, ep_r_d=ep_r_d,
+        ep_actions=ep_actions_list,
+        ep_max_freq=ep_max_freq,
+        ep_tds_failed=ep_tds_failed,
+        total_steps=total_steps,
+    )
 
 
 def run_updates(
@@ -435,32 +434,21 @@ def main() -> None:
             )
             env.seed(args.seed + args.seed_offset + ep)
 
-            stats = run_episode(env, agents, total_steps, args, action_dim)
-            if stats.get("reset_failed"):
-                print(f"  [ep {ep}] reset failed: {stats['reason']}; skipping")
+            result = run_episode(env, agents, total_steps, args, action_dim)
+            if result.reset_failed:
+                print(f"  [ep {ep}] reset failed: {result.reason}; skipping")
                 continue
-            total_steps = stats["total_steps"]
+            total_steps = result.total_steps
 
             ep_sac_losses: list[dict | None] = [None] * N
             if total_steps >= args.warmup:
                 ep_sac_losses = run_updates(agents, coordinator, batch_size)
 
-            if stats["ep_actions"]:
+            if result.ep_actions:
                 should_stop = monitor.log_and_check(
                     episode=ep,
-                    rewards=sum(stats["ep_reward"].values()),
-                    reward_components={
-                        "r_f": stats["ep_r_f"],
-                        "r_h": stats["ep_r_h"],
-                        "r_d": stats["ep_r_d"],
-                    },
-                    actions=np.array(stats["ep_actions"]),
-                    info={
-                        "tds_failed": stats["ep_tds_failed"],
-                        "max_freq_deviation_hz": stats["ep_max_freq"],
-                    },
-                    per_agent_rewards=stats["ep_reward"],
                     sac_losses=[l for l in ep_sac_losses if l is not None] or None,
+                    **result.to_monitor_kwargs(),
                 )
                 if should_stop:
                     break
@@ -470,8 +458,8 @@ def main() -> None:
                     agents[i].buffer.clear()
 
             for i in range(N):
-                episode_rewards[i].append(stats["ep_reward"][i])
-            total_rewards.append(sum(stats["ep_reward"].values()))
+                episode_rewards[i].append(result.ep_reward[i])
+            total_rewards.append(sum(result.ep_reward.values()))
             last_ep = ep
 
             if (ep + 1) % args.log_interval == 0:
