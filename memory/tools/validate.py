@@ -63,6 +63,24 @@ def validate_rules(claims: dict[str, dict[str, Any]]) -> tuple[list[str], list[s
                 f"superseded_by: {claim['superseded_by']}"
             )
 
+    # Rule 4: trust ↔ type consistency.
+    # Decisions are choices — they cannot be "Verified" (V); they are Stated (S).
+    # Corrections replace a prior verified number — the replacement must itself
+    # be Verified (V), not Stated. Findings remain flexible (V / S / T).
+    for claim in claims.values():
+        ctype = claim.get("type")
+        ctrust = claim.get("trust")
+        if ctype == "decision" and ctrust != "S":
+            errors.append(
+                f"{claim['id']}: decision claims must have trust: S "
+                f"(got trust: {ctrust})"
+            )
+        if ctype == "correction" and ctrust != "V":
+            errors.append(
+                f"{claim['id']}: correction claims must have trust: V "
+                f"(got trust: {ctrust})"
+            )
+
     # Warning A: forward/back edge symmetry
     for claim in claims.values():
         for target in claim.get("supersedes", []) or []:

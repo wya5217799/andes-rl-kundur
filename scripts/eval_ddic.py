@@ -22,6 +22,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from andes_rl_kundur.agents.sac import SACAgent  # noqa: E402
+from andes_rl_kundur.agents.td3 import TD3Agent  # noqa: E402
 from andes_rl_kundur.env.andes.andes_vsg_env_v4 import AndesMultiVSGEnvV4  # noqa: E402
 from andes_rl_kundur.probes.andes_common.paper_constants import SCENARIOS  # noqa: E402
 
@@ -29,17 +30,30 @@ EVAL_SEED = 42
 STEPS = 150  # 30s @ DT=0.6 (V4 ANDES)
 
 
-def load_actors(ckpt_dir: Path, suffix: str = "best") -> list[SACAgent]:
+def _detect_algo(ckpt_path: Path) -> str:
+    """Inspect the ckpt's self-described algo field. Default to 'sac' for
+    pre-2026-05-17 ckpts that don't carry it."""
+    ckpt = torch.load(ckpt_path, map_location="cpu", weights_only=True)
+    return ckpt.get("algo", "sac")
+
+
+def load_actors(ckpt_dir: Path, suffix: str = "best") -> list:
+    """Load 4 actors. Detects SAC vs TD3 from the ckpt's algo field."""
     from andes_rl_kundur.config import HIDDEN_SIZES
     obs_dim = AndesMultiVSGEnvV4.OBS_DIM
     action_dim = 2
-    agents = []
+    agents: list = []
     for i in range(AndesMultiVSGEnvV4.N_AGENTS):
-        a = SACAgent(obs_dim=obs_dim, action_dim=action_dim,
-                     hidden_sizes=HIDDEN_SIZES, device="cpu")
         ckpt_path = ckpt_dir / f"agent_{i}_{suffix}.pt"
         if not ckpt_path.exists():
             raise FileNotFoundError(f"No ckpt: {ckpt_path}")
+        algo = _detect_algo(ckpt_path)
+        if algo == "td3":
+            a = TD3Agent(obs_dim=obs_dim, action_dim=action_dim,
+                         hidden_sizes=HIDDEN_SIZES, device="cpu")
+        else:
+            a = SACAgent(obs_dim=obs_dim, action_dim=action_dim,
+                         hidden_sizes=HIDDEN_SIZES, device="cpu")
         a.load(str(ckpt_path))
         agents.append(a)
     return agents

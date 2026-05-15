@@ -56,6 +56,52 @@ def test_clean_fixtures_have_no_errors():
     assert warnings == [], f"Unexpected warnings: {warnings}"
 
 
+def test_rule4_decision_with_trust_V_fails():
+    """A `type: decision` claim must be `trust: S` (Stated, not Verified).
+    Decisions are choices, not measurable facts."""
+    claims = {
+        "CLM-0001": {"id": "CLM-0001", "type": "decision", "trust": "V",
+                     "status": "current", "supersedes": [], "superseded_by": []},
+    }
+    errors, _ = validate_rules(claims)
+    assert any("CLM-0001" in e and "decision" in e and "trust" in e for e in errors), \
+        f"expected rule4 error, got: {errors}"
+
+
+def test_rule4_decision_with_trust_S_passes():
+    claims = {
+        "CLM-0001": {"id": "CLM-0001", "type": "decision", "trust": "S",
+                     "status": "current", "supersedes": [], "superseded_by": []},
+    }
+    errors, _ = validate_rules(claims)
+    assert not any("CLM-0001" in e and "decision" in e and "trust" in e for e in errors), \
+        f"unexpected rule4 error: {errors}"
+
+
+def test_rule4_correction_with_trust_S_fails():
+    """A `type: correction` claim must be `trust: V` (it replaces a verified
+    prior number — the replacement itself must be verified)."""
+    claims = {
+        "CLM-0001": {"id": "CLM-0001", "type": "correction", "trust": "S",
+                     "status": "current", "supersedes": [], "superseded_by": []},
+    }
+    errors, _ = validate_rules(claims)
+    assert any("CLM-0001" in e and "correction" in e and "trust" in e for e in errors), \
+        f"expected rule4 error, got: {errors}"
+
+
+def test_rule4_finding_trust_V_or_S_both_pass():
+    """Findings can be V, S, or T — different levels of evidence."""
+    for trust in ("V", "S", "T"):
+        claims = {
+            "CLM-0001": {"id": "CLM-0001", "type": "finding", "trust": trust,
+                         "status": "current", "supersedes": [], "superseded_by": []},
+        }
+        errors, _ = validate_rules(claims)
+        assert not any("CLM-0001" in e and "finding" in e and "trust" in e for e in errors), \
+            f"unexpected rule4 error for trust={trust}: {errors}"
+
+
 def test_load_claims_raises_on_duplicate_id_on_disk(tmp_path):
     """Two files with the same id should error at load time."""
     (tmp_path / "CLM-0001.md").write_text(
