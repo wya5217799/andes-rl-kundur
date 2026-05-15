@@ -1,0 +1,77 @@
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "andes-rl-kundur"
+version = "0.1.0"
+description = "Multi-agent SAC training and evaluation on the ANDES Kundur 4-VSG benchmark"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [
+    {name = "andes-rl-kundur contributors"},
+]
+keywords = [
+    "reinforcement-learning",
+    "virtual-synchronous-generator",
+    "power-systems",
+    "andes",
+    "multi-agent",
+    "soft-actor-critic",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering",
+]
+# Runtime dependencies. ANDES is WSL-only (see docs/eng-notes/NOTES_ANDES.md);
+# torch is installed separately per platform (CPU vs CUDA).
+dependencies = [
+    "numpy>=1.24",
+    "andes>=2.0.0",
+    "torch>=2.0",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest>=7.0",
+    "pytest-timeout>=2.0",
+]
+dev = [
+    "ruff>=0.4",
+    "black>=24.0",
+]
+
+[project.urls]
+Source = "https://github.com/27443/andes-rl-kundur"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["andes_rl_kundur*"]
+
+[tool.setuptools.package-data]
+andes_rl_kundur = ["**/*.md", "**/*.json"]
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = "-ra --strict-markers"
+testpaths = ["tests"]
+timeout = 300
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+src = ["src"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W", "UP"]
+ignore = ["E501"]  # line length — handled by formatter
+
+[tool.black]
+line-length = 100
+target-version = ["py310"]

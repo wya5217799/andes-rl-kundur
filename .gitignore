@@ -29,6 +29,9 @@ results/*
 !results/whitelist/
 !results/whitelist/**
 
+# ANDES TDS scratch outputs (left in CWD when running eval scripts)
+kundur_full_out.*
+
 # Local config
 .env
 .venv/
