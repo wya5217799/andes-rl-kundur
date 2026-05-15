@@ -11,6 +11,8 @@ SAC (Soft Actor-Critic) 智能体
 import copy
 import math
 import os
+
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -74,19 +76,8 @@ class SACAgent:
     def alpha(self):
         return self.log_alpha.exp()
 
-    def select_action(self, obs, deterministic=False):
-        """
-        选择动作.
-
-        Parameters
-        ----------
-        obs : np.ndarray, shape (obs_dim,)
-        deterministic : bool
-
-        Returns
-        -------
-        action : np.ndarray, shape (action_dim,), 范围 [-1, 1]
-        """
+    def select_action(self, obs: np.ndarray, deterministic: bool = False) -> np.ndarray:
+        """选择动作, 返回 shape (action_dim,) 范围 [-1, 1]."""
         obs_t = torch.FloatTensor(obs).unsqueeze(0).to(self.device)
         with torch.no_grad():
             if deterministic:
@@ -95,10 +86,17 @@ class SACAgent:
                 action, _ = self.actor.sample(obs_t)
         return action.cpu().numpy().flatten()
 
-    def store_transition(self, obs, action, reward, next_obs, done):
+    def store_transition(
+        self,
+        obs: np.ndarray,
+        action: np.ndarray,
+        reward: float,
+        next_obs: np.ndarray,
+        done: bool,
+    ) -> None:
         self.buffer.add(obs, action, reward, next_obs, done)
 
-    def update(self):
+    def update(self) -> dict | None:
         """执行一步 SAC 更新. 返回 loss 字典."""
         if len(self.buffer) < self.batch_size:
             return None
@@ -180,7 +178,7 @@ class SACAgent:
         """加载 checkpoint，返回 metadata dict（无 metadata 时返回 {}）。
         若同路径存在 _buffer.npz，自动恢复 replay buffer。
         """
-        ckpt = torch.load(path, map_location=self.device, weights_only=False)
+        ckpt = torch.load(path, map_location=self.device, weights_only=True)
         self.actor.load_state_dict(ckpt['actor'])
         self.critic.load_state_dict(ckpt['critic'])
         self.critic_target.load_state_dict(ckpt['critic_target'])

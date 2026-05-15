@@ -27,8 +27,8 @@ Axes (论文 benchmark = 1.0, 项目越接近越高):
   3. settling_s       收敛时刻          论文 LS1=3.0  / LS2=2.5 s
   4. dH_smoothness    ΔH 步间抖动 std   论文 ≈0 (DDIC 平稳控制)
   5. dD_smoothness    ΔD 步间抖动 std   论文 ≈0
-  6. dH_utilization   ΔH 动作利用率     proj_span/paper_span [DDIC only]
-  7. dD_utilization   ΔD 动作利用率     proj_span/paper_span [DDIC only]
+  6. dH_utilization   ΔH 动作利用率     proj_span/paper_span (all traces; no-ctrl→score≈0)
+  7. dD_utilization   ΔD 动作利用率     proj_span/paper_span (all traces; no-ctrl→score≈0)
   8. improvement      vs no-ctrl 改善   (no_ctrl_df-ctrl_df)/no_ctrl_df [DDIC+ref]
 
 总分 = geometric mean(axes), soft-clamp 0.01 per axis
@@ -154,7 +154,8 @@ def _settling_time(t: np.ndarray, df: np.ndarray, residual_band_Hz: float = 0.02
     """Time after which max|Δf - final_df| stays < residual_band_Hz over dt_window window."""
     max_per_t = np.max(np.abs(df), axis=1)
     deviation_from_residual = np.abs(max_per_t - final_df_Hz)
-    n_window = max(1, int(dt_window / max(t[1] - t[0], 1e-6)))
+    dt = float(np.median(np.diff(t))) if len(t) > 1 else 1e-6
+    n_window = max(1, int(dt_window / max(dt, 1e-6)))
     for i in range(len(t) - n_window):
         if np.all(deviation_from_residual[i : i + n_window] < residual_band_Hz):
             return float(t[i])
@@ -223,7 +224,8 @@ def _load_no_ctrl_max_df(eval_dir: Path, scenario: str) -> float:
         if not path.exists():
             continue
         try:
-            j = json.load(open(path))
+            with open(path, encoding='utf-8') as _f:
+                j = json.load(_f)
             tr = j.get("traces", [])
             if not tr or j.get("tds_failed"):
                 continue
@@ -244,9 +246,9 @@ def evaluate_trace(trace_json_path: Path, paper: PaperBenchmark, is_ddic: bool,
                    label: str, no_ctrl_max_df: float = 0.0) -> TraceScore:
     """Compute up to 8-axis score for one trace JSON.
 
-    Axes 1-5 apply to ALL traces (frequency alignment + smoothness).
-    Axes 6-7 apply to DDIC only (action utilization — no semantic meaning for no-ctrl).
-    Axis 8 applies to DDIC when a no-ctrl reference is available.
+    Axes 1-7 apply to ALL traces (frequency alignment, smoothness, action utilization).
+    For no-ctrl traces axes 6-7 score near 0 (no action → no utilization), which is correct.
+    Axis 8 applies to DDIC only when a no-ctrl reference is available.
 
     Args:
         trace_json_path: Path to trace JSON (keys: 'traces', 'tds_failed').
@@ -257,7 +259,8 @@ def evaluate_trace(trace_json_path: Path, paper: PaperBenchmark, is_ddic: bool,
                         0 = unavailable → falls back to paper.no_ctrl_max_abs_df_Hz.
                         Still 0 after fallback → Axis 8 skipped.
     """
-    j = json.load(open(trace_json_path))
+    with open(trace_json_path, encoding='utf-8') as _f:
+        j = json.load(_f)
     tr = j["traces"]
     if not tr:
         return TraceScore(label=label, scenario=paper.scenario, is_ddic=is_ddic,

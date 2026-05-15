@@ -117,7 +117,7 @@ class SACAgentCTDE:
 
     def load(self, path) -> Dict:
         """Load actor + alpha. Returns metadata dict."""
-        ckpt = torch.load(path, map_location=self.device, weights_only=False)
+        ckpt = torch.load(path, map_location=self.device, weights_only=True)
         self.actor.load_state_dict(ckpt['actor'])
         self.log_alpha.data = ckpt['log_alpha']
         self.actor_optimizer.load_state_dict(ckpt['actor_opt'])
@@ -129,7 +129,7 @@ class SACAgentCTDE:
 
     def load_actor_only(self, path) -> Dict:
         """Load actor weights from a standard SACAgent checkpoint (for warmstart)."""
-        ckpt = torch.load(path, map_location=self.device, weights_only=False)
+        ckpt = torch.load(path, map_location=self.device, weights_only=True)
         self.actor.load_state_dict(ckpt['actor'])
         # try actor optimizer if compatible
         try:
@@ -228,9 +228,17 @@ class CTDECoordinator:
         rewards_list = [_gather(a.buffer, 'rewards') for a in agents]
         dones_list   = [_gather(a.buffer, 'dones') for a in agents]
 
-        # Sum rewards across agents; dones should be same across agents
-        rewards = torch.stack(rewards_list, dim=0).sum(dim=0).unsqueeze(1)  # [B, 1]
-        dones   = dones_list[0].unsqueeze(1)                                  # [B, 1]
+        # Cooperative MARL contract: team value = sum of individual rewards.
+        # This is valid here because all agents share the same global frequency
+        # objective. If per-agent rewards become heterogeneous (e.g. local-only
+        # shaping), this sum must be revisited — the centralized Q would no
+        # longer represent the team's joint return correctly.
+        #
+        # NOTE: _gather returns [B, 1] tensors (ReplayBuffer stores rewards/dones
+        # as 2D (capacity, 1) arrays for sac.py Bellman compatibility). No
+        # .unsqueeze(1) needed — the trailing dim is already present.
+        rewards = torch.stack(rewards_list, dim=0).sum(dim=0)  # [B, 1]
+        dones   = dones_list[0]                                  # [B, 1]
 
         # Centralized obs/actions tensors
         obs_cat      = torch.cat(obs_list, dim=-1)       # [B, obs_dim*N]
@@ -323,7 +331,7 @@ class CTDECoordinator:
 
     def load_critic(self, path):
         """Load shared centralized critic from disk."""
-        ckpt = torch.load(path, map_location=self.device, weights_only=False)
+        ckpt = torch.load(path, map_location=self.device, weights_only=True)
         self.critic.load_state_dict(ckpt['critic'])
         self.critic_target.load_state_dict(ckpt['critic_target'])
         self.critic_optimizer.load_state_dict(ckpt['critic_opt'])

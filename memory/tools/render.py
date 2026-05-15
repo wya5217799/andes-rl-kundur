@@ -60,7 +60,7 @@ def render_state(
         f"({type_counts.get('finding', 0)} finding / "
         f"{type_counts.get('decision', 0)} decision / "
         f"{type_counts.get('correction', 0)} correction), "
-        f"{sum(1 for p in rounds_dir.iterdir() if p.is_dir())} rounds"
+        f"{sum(1 for p in rounds_dir.iterdir() if p.is_dir() and p.name.startswith('R'))} rounds"
     )
 
     latest_round = _latest_round(rounds_dir) or "(none)"

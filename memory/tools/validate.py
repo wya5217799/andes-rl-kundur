@@ -38,7 +38,8 @@ def validate_rules(claims: dict[str, dict[str, Any]]) -> tuple[list[str], list[s
     errors: list[str] = []
     warnings: list[str] = []
 
-    # Rule 1: id uniqueness — check that no two entries declare the same id value
+    # Rule 1: id uniqueness — guards against same id value appearing under different
+    # dict keys (possible when validate_rules is called outside the main() flow).
     seen_ids: dict[str, str] = {}
     for key, claim in claims.items():
         cid = claim["id"]

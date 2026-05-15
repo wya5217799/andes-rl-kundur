@@ -3,7 +3,7 @@ ANDES 版训练脚本
 ================
 在 WSL 中运行:
     source ~/andes_venv/bin/activate
-    cd "/mnt/c/Users/27443/Desktop/Multi-Agent  VSGs"
+    cd "/mnt/c/Users/<user>/Desktop/andes-rl-kundur"
     python3 train_andes.py --episodes 500
 
 论文: Yang et al., IEEE TPWRS 2023
@@ -459,6 +459,11 @@ def main():
         print(f"Training curves saved to {fig_path}")
     except Exception as e:
         print(f"Plot error: {e}")
+
+    # Restore any class-level hparam patches so re-imports in the same process
+    # (e.g. sweep scripts, runpy.run_path calls) see the original class defaults.
+    for attr, (old_val, _) in _hparam_overrides.items():
+        setattr(AndesMultiVSGEnv, attr, old_val)
 
     print(f"\nTotal time: {time.time() - t_start:.0f}s")
     print("Done!")

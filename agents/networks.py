@@ -14,7 +14,7 @@ LOG_STD_MAX = 2.0
 EPS = 1e-6
 
 
-def build_mlp(input_dim, hidden_sizes, output_dim):
+def build_mlp(input_dim: int, hidden_sizes: list[int], output_dim: int) -> nn.Sequential:
     """构建多层感知机."""
     layers = []
     prev = input_dim
@@ -33,11 +33,8 @@ class GaussianActor(nn.Module):
     obs → 4×128 hidden → (mean, log_std) → tanh(sample)
     """
 
-    def __init__(self, obs_dim, action_dim, hidden_sizes):
+    def __init__(self, obs_dim: int, action_dim: int, hidden_sizes: list[int]) -> None:
         super().__init__()
-        self.trunk = build_mlp(obs_dim, hidden_sizes, hidden_sizes[-1])
-        # trunk 输出经过 ReLU, 但 build_mlp 最后一层没有激活
-        # 重新构建: 共享隐藏层 + 分别输出 mean 和 log_std
         layers = []
         prev = obs_dim
         for h in hidden_sizes:
@@ -48,14 +45,14 @@ class GaussianActor(nn.Module):
         self.mean_head = nn.Linear(prev, action_dim)
         self.log_std_head = nn.Linear(prev, action_dim)
 
-    def forward(self, obs):
+    def forward(self, obs: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
         h = self.net(obs)
         mean = self.mean_head(h)
         log_std = self.log_std_head(h)
         log_std = torch.clamp(log_std, LOG_STD_MIN, LOG_STD_MAX)
         return mean, log_std
 
-    def sample(self, obs):
+    def sample(self, obs: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
         """
         重参数化采样 + tanh 压缩.
 
@@ -78,7 +75,7 @@ class GaussianActor(nn.Module):
 
         return action, log_prob
 
-    def deterministic(self, obs):
+    def deterministic(self, obs: torch.Tensor) -> torch.Tensor:
         """确定性输出 (评估用)."""
         mean, _ = self.forward(obs)
         return torch.tanh(mean)
@@ -87,11 +84,11 @@ class GaussianActor(nn.Module):
 class QNetwork(nn.Module):
     """Q 值网络: (obs, action) → Q(s, a)."""
 
-    def __init__(self, obs_dim, action_dim, hidden_sizes):
+    def __init__(self, obs_dim: int, action_dim: int, hidden_sizes: list[int]) -> None:
         super().__init__()
         self.net = build_mlp(obs_dim + action_dim, hidden_sizes, 1)
 
-    def forward(self, obs, action):
+    def forward(self, obs: torch.Tensor, action: torch.Tensor) -> torch.Tensor:
         x = torch.cat([obs, action], dim=-1)
         return self.net(x)
 
@@ -99,10 +96,12 @@ class QNetwork(nn.Module):
 class DoubleQCritic(nn.Module):
     """Double-Q Critic: 两个独立的 Q 网络."""
 
-    def __init__(self, obs_dim, action_dim, hidden_sizes):
+    def __init__(self, obs_dim: int, action_dim: int, hidden_sizes: list[int]) -> None:
         super().__init__()
         self.q1 = QNetwork(obs_dim, action_dim, hidden_sizes)
         self.q2 = QNetwork(obs_dim, action_dim, hidden_sizes)
 
-    def forward(self, obs, action):
+    def forward(
+        self, obs: torch.Tensor, action: torch.Tensor
+    ) -> tuple[torch.Tensor, torch.Tensor]:
         return self.q1(obs, action), self.q2(obs, action)

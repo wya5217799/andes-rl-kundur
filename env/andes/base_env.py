@@ -188,6 +188,8 @@ class AndesBaseEnv(ABC):
 
         # 重新构建系统 (ANDES 不支持完全 reset, 需重新加载)
         self.ss = self._build_system()
+        # Cache GENCLS positions for this episode (O(N) once, replaces per-step O(N) scans)
+        self._vsg_pos = [list(self.ss.GENCLS.idx.v).index(idx) for idx in self.vsg_idx]
 
         # PQ 负荷模式: 常功率 (p2p=1.0), 否则 ANDES 默认用常阻抗模式
         # 常阻抗模式下修改 p0/Ppf 无效 (实际用的是 Req/Xeq)
@@ -400,16 +402,14 @@ class AndesBaseEnv(ABC):
     def _get_vsg_omega(self):
         """获取 VSG 的转速 (p.u.)."""
         omega = np.zeros(self.N_AGENTS)
-        for i, idx in enumerate(self.vsg_idx):
-            pos = list(self.ss.GENCLS.idx.v).index(idx)
+        for i, pos in enumerate(self._vsg_pos):
             omega[i] = self.ss.GENCLS.omega.v[pos]
         return omega
 
     def _get_vsg_power(self):
         """获取 VSG 的有功出力 (p.u.)."""
         P = np.zeros(self.N_AGENTS)
-        for i, idx in enumerate(self.vsg_idx):
-            pos = list(self.ss.GENCLS.idx.v).index(idx)
+        for i, pos in enumerate(self._vsg_pos):
             P[i] = self.ss.GENCLS.Pe.v[pos]
         return P
 
@@ -418,13 +418,17 @@ class AndesBaseEnv(ABC):
 
         M * dω/dt = Pm - Pe - D*(ω - 1)
         近似: dω/dt ≈ (Pm - Pe - D*(ω-1)) / M
+
+        Uses live mechanical power (pm) so the estimate remains correct when
+        the IEEEG1 governor is DAE-active (V3/V4 envs). Falls back to the
+        initial power-flow value (p0) if pm is not available.
         """
         omega_dot = np.zeros(self.N_AGENTS)
-        for i in range(self.N_AGENTS):
-            pos = list(self.ss.GENCLS.idx.v).index(self.vsg_idx[i])
+        pm_arr = getattr(self.ss.GENCLS, 'pm', None)
+        for i, pos in enumerate(self._vsg_pos):
             M = self.ss.GENCLS.M.v[pos]
             D = self.ss.GENCLS.D.v[pos]
-            Pm = self.ss.GENCLS.p0.v[pos]  # 潮流解出的初始机械功率
+            Pm = pm_arr.v[pos] if pm_arr is not None else self.ss.GENCLS.p0.v[pos]
             Pe = P[i]
             omega_dot[i] = (Pm - Pe - D * (omega[i] - 1.0)) / max(M, 0.1)
         return omega_dot
