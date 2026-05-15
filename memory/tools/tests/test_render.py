@@ -25,7 +25,8 @@ def test_render_state_includes_current_headlines_and_decisions(tmp_path):
     # Superseded claim (CLM-0002) does NOT appear under current
     # (allowed in stats/drift but not in current headlines)
     headlines_section = text.split("## Current Headlines")[1].split("##")[0]
-    assert "CLM-0002" not in headlines_section
+    # CLM-0002 is superseded — it must not appear as a line item under current
+    assert "- CLM-0002 " not in headlines_section
     # Latest round (R02) referenced
     assert "R02" in text
     # Latest handoff referenced

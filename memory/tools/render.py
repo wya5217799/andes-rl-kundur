@@ -39,9 +39,7 @@ def _latest_handoff(handoffs_dir: Path) -> str | None:
 def _format_claim_line(claim: dict[str, Any]) -> str:
     cid = claim["id"]
     trust = claim.get("trust", "?")
-    raw_statement = (claim.get("statement") or "").strip().splitlines()[0]
-    # Strip cross-references to other CLM IDs so they don't surface in section tests
-    statement = re.sub(r"\bCLM-\d{4}\b", "", raw_statement).strip(" —–-").strip()
+    statement = (claim.get("statement") or "").strip().splitlines()[0]
     round_label = claim.get("round")
     suffix = f" ({round_label})" if round_label else ""
     return f"- {cid} [{trust}] {statement}{suffix}"

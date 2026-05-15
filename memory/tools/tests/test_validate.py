@@ -51,8 +51,26 @@ def test_rule3_current_with_nonempty_superseded_by_fails():
 
 def test_clean_fixtures_have_no_errors():
     claims = load_claims(FIXTURES)
-    errors, _warnings = validate_rules(claims)
+    errors, warnings = validate_rules(claims)
     assert errors == [], f"Unexpected errors: {errors}"
+    assert warnings == [], f"Unexpected warnings: {warnings}"
+
+
+def test_load_claims_raises_on_duplicate_id_on_disk(tmp_path):
+    """Two files with the same id should error at load time."""
+    (tmp_path / "CLM-0001.md").write_text(
+        "---\nid: CLM-0001\ntype: finding\ntrust: V\n"
+        "status: current\nstatement: foo\n---\n",
+        encoding="utf-8",
+    )
+    (tmp_path / "CLM-0001b.md").write_text(
+        "---\nid: CLM-0001\ntype: finding\ntrust: V\n"
+        "status: current\nstatement: bar\n---\n",
+        encoding="utf-8",
+    )
+    import pytest
+    with pytest.raises(ValueError, match="duplicate id CLM-0001"):
+        load_claims(tmp_path)
 
 
 import shutil

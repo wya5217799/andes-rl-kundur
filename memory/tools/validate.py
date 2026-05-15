@@ -23,7 +23,13 @@ def load_claims(claims_dir: Path) -> dict[str, dict[str, Any]]:
         meta["_path"] = path
         meta.setdefault("superseded_by", [])
         meta.setdefault("supersedes", [])
-        claims[meta["id"]] = meta
+        cid = meta["id"]
+        if cid in claims:
+            raise ValueError(
+                f"duplicate id {cid} in {path.name} and "
+                f"{claims[cid]['_path'].name}"
+            )
+        claims[cid] = meta
     return claims
 
 
