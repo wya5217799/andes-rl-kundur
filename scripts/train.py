@@ -23,6 +23,7 @@ Typical usage:
 from __future__ import annotations
 
 import argparse
+import dataclasses
 import json
 import os
 import sys
@@ -134,7 +135,7 @@ def build_v4_config(args: argparse.Namespace) -> V4Config:
         print(" [V4Config override]")
         for k, v in overrides.items():
             print(f"   {k}: {getattr(base, k)} -> {v}")
-        return V4Config(**{**base.__dict__, **overrides})
+        return dataclasses.replace(base, **overrides)
     return base
 
 
@@ -242,7 +243,7 @@ def apply_warmstart_shared(agents: list, args: argparse.Namespace) -> None:
     src = Path(args.warmstart_shared)
     if not src.exists():
         raise FileNotFoundError(f"warmstart-shared checkpoint not found: {src}")
-    state = torch.load(src, map_location="cpu", weights_only=False)
+    state = torch.load(src, map_location="cpu", weights_only=True)
     if "actor" not in state:
         raise KeyError(
             f"warmstart-shared ckpt missing 'actor' key. "
@@ -504,7 +505,7 @@ def main() -> None:
             "episodes_completed": last_ep + 1,
             "episodes_planned":  args.episodes,
             "interrupted":       interrupted,
-            "env_config":        env_config.__dict__,
+            "env_config":        dataclasses.asdict(env_config),
             "hparam_effective":  {
                 "PHI_F":  env_config.phi_f,
                 "PHI_H":  env_config.phi_h,

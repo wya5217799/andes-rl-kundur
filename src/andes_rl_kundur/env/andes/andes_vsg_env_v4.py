@@ -373,12 +373,17 @@ class AndesMultiVSGEnvV4(AndesBaseEnv):
 
         Useful for logging / sanity-checking which baseline is being run.
         """
+        g4_state = (
+            "zeroed (ZERO_G4_INERTIA=True; paper headline numbers, CLM-0040)"
+            if cls.ZERO_G4_INERTIA
+            else "preserved (Kundur 4 SG baseline; not paper-headline reproducible)"
+        )
         return {
             "version": "v4",
             "vsg_m0": cls.VSG_M0,
             "vsg_d0": cls.VSG_D0,
             "d0_heterogeneous": cls.D0_HETEROGENEOUS.tolist(),
-            "g4_inertia": "preserved (paper Kundur 4 SG)",
+            "g4_inertia": g4_state,
             "governor": "IEEEG1 DAE-active (R10 fix)",
             "avr": "EXST1 DAE-active (R10 fix)",
             "action_range_dm": (cls.DM_MIN, cls.DM_MAX),

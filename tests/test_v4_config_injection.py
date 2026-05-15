@@ -106,3 +106,17 @@ def test_v4_config_is_immutable():
     cfg = V4Config()
     with pytest.raises(Exception):  # FrozenInstanceError is dataclass-specific
         cfg.phi_h = 999.0  # type: ignore[misc]
+
+
+def test_deviation_summary_truthfully_reports_g4_state():
+    """The introspection helper must report what ZERO_G4_INERTIA actually is.
+
+    Pre-fix the dict always said ``"preserved (paper Kundur 4 SG)"`` even
+    when ZERO_G4_INERTIA=True was zeroing G4 — that was the same class
+    of silent-disagreement bug as CLM-0040.
+    """
+    summary = AndesMultiVSGEnvV4.deviation_summary()
+    assert "zeroed" in summary["g4_inertia"], (
+        f"Default V4 has ZERO_G4_INERTIA=True so deviation_summary "
+        f"must say 'zeroed', got: {summary['g4_inertia']!r}"
+    )
