@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+*.egg-info/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# LaTeX build artifacts
+*.aux
+*.log
+*.bbl
+*.blg
+*.toc
+*.out
+*.lof
+*.lot
+*.synctex.gz
+*.fdb_latexmk
+*.fls
+
+# Training artifacts — gitignored except whitelist
+results/*
+!results/MANIFEST.md
+!results/whitelist/
+!results/whitelist/**
+
+# Local config
+.env
+.venv/
+venv/
+
+# Editor
+.vscode/
+.idea/
