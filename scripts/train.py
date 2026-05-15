@@ -40,6 +40,7 @@ from andes_rl_kundur import config as cfg  # noqa: E402
 from andes_rl_kundur.agents.episode_result import EpisodeResult  # noqa: E402
 from andes_rl_kundur.agents.sac import SACAgent  # noqa: E402
 from andes_rl_kundur.agents.sac_ctde import CTDECoordinator, SACAgentCTDE  # noqa: E402
+from andes_rl_kundur.agents.td3 import TD3Agent  # noqa: E402
 from andes_rl_kundur.env.andes.andes_vsg_env_v4 import AndesMultiVSGEnvV4  # noqa: E402
 from andes_rl_kundur.env.andes.v4_config import V4Config  # noqa: E402
 from andes_rl_kundur.utils.monitor import TrainingMonitor  # noqa: E402
@@ -73,10 +74,18 @@ def parse_args() -> argparse.Namespace:
                    default="actor_only",
                    help="What to copy from --warmstart-shared.")
 
-    # CTDE
+    # Algorithm selection
+    p.add_argument("--algo", choices=["sac", "td3"], default="sac",
+                   help="Per-agent RL algorithm. 'sac' (default) uses "
+                        "entropy-regularized soft AC; 'td3' uses "
+                        "deterministic policy + target smoothing + delayed "
+                        "policy updates (no entropy bonus).")
+
+    # CTDE (SAC only)
     p.add_argument("--ctde", action="store_true",
                    help="Use Centralized-Training-Decentralized-Execution SAC "
-                        "(shared centralized critic; decentralized actors).")
+                        "(shared centralized critic; decentralized actors). "
+                        "Mutually exclusive with --algo td3.")
 
     # Env hyperparameters — override V4 class attrs before any env() call.
     # None = keep V4 default.
@@ -173,6 +182,9 @@ def build_agents(
     N = AndesMultiVSGEnvV4.N_AGENTS
     coordinator: CTDECoordinator | None = None
 
+    if args.ctde and args.algo == "td3":
+        raise ValueError("--ctde is SAC-only; pass --algo sac or drop --ctde")
+
     if args.ctde:
         print("[CTDE] shared centralized critic enabled.")
         agents = [
@@ -189,7 +201,19 @@ def build_agents(
             batch_size=batch_size, device=device,
         )
         print(f"[CTDE] centralized critic input dim: {obs_dim * N + action_dim * N}")
+    elif args.algo == "td3":
+        print("[algo] TD3 — deterministic policy, twin critics, no entropy bonus")
+        agents = [
+            TD3Agent(
+                obs_dim=obs_dim, action_dim=action_dim,
+                hidden_sizes=hidden_sizes,
+                lr=lr, gamma=gamma, tau=tau,
+                buffer_size=buffer_size, batch_size=batch_size, device=device,
+            )
+            for _ in range(N)
+        ]
     else:
+        print("[algo] SAC — entropy-regularized")
         agents = [
             SACAgent(
                 obs_dim=obs_dim, action_dim=action_dim,
