@@ -117,6 +117,37 @@ load_step_2: cum_rf_total match=True, max_df match=True, per-step diffs across 5
 - `CLM-0041` — paper-cited `paper_grade_axes.py` relocation
   `evaluation/` → `src/andes_rl_kundur/evaluation/`, byte-identical
   logic (zero `git diff` on the file's content; only path changes)
+- `CLM-0042` — R37 deepening pass extending the 14-AD baseline
+
+## Deepening pass — 5 candidates + reviewer fixes
+
+The 14-AD refactor produced the structural baseline. A follow-up
+`/improve-codebase-architecture` review identified 7 deepening
+candidates; 5 were implemented in this round (Cand 5 contextmanager
+was absorbed by Cand 1, Cand 6 paper_grade_axes tests already shipped
+in the prior commit `429ef48`).
+
+| Cand | Commit | Module | Tests |
+|------|--------|--------|-------|
+| 7 | `13cf76a` | `probes.andes_common.LSFigureBenchmark` (rename) | +1 |
+| 1 | `994bb2d` | `env.andes.v4_config.V4Config` (injection seam) | +5 |
+| 4 | `95ee4c4` | `agents.episode_result.EpisodeResult` (typed roll-out) | +3 |
+| 3 | `e4d757d` | `agents.sac_base._SACBase` (shared concrete base) | +4 |
+| 2 | `dbed45d` | `utils.checks.Check` Protocol + `register_check()` | +3 |
+
+Two independent reviewer agents (code-reviewer, security-reviewer)
+ran on the final branch. Findings landed in `6aae9a8`:
+- CRITICAL: `deviation_summary()` reported `"preserved"` even when
+  ZERO_G4_INERTIA=True — same silent-disagreement class as CLM-0040.
+  Fixed; regression test locks it.
+- HIGH (security): `torch.load(weights_only=False)` in the warmstart
+  path could execute arbitrary code from an adversarial checkpoint.
+  Changed to `weights_only=True`.
+- HIGH (robustness): `V4Config.__dict__` on a frozen dataclass —
+  replaced by `dataclasses.replace()` and `dataclasses.asdict()`.
+
+Final state: **21 tests pass**, `eval_no_control` still bit-identical
+(max_df 0.189 / 0.168) to the PRE_REFACTOR baseline.
 
 ---
 
