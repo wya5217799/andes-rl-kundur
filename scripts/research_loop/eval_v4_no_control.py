@@ -19,11 +19,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
 from env.andes.andes_vsg_env_v4 import AndesMultiVSGEnvV4  # noqa: E402
-
-SCENARIOS = {
-    "load_step_1": {"PQ_Bus14": -2.48},
-    "load_step_2": {"PQ_Bus15":  1.88},
-}
+from probes.andes_common.paper_constants import SCENARIOS  # noqa: E402
 
 OUT_DIR = ROOT / "results" / "research_loop" / "eval_v4_baseline"
 OUT_DIR.mkdir(parents=True, exist_ok=True)

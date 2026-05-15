@@ -27,11 +27,7 @@ sys.path.insert(0, str(ROOT))
 
 from agents.sac import SACAgent  # noqa: E402
 from env.andes.andes_vsg_env_v4 import AndesMultiVSGEnvV4  # noqa: E402
-
-SCENARIOS = {
-    "load_step_1": {"PQ_Bus14": -2.48},
-    "load_step_2": {"PQ_Bus15": 1.88},
-}
+from probes.andes_common.paper_constants import SCENARIOS  # noqa: E402
 EVAL_SEED = 42
 STEPS = 150
 
