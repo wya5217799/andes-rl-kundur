@@ -107,6 +107,11 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--dd-max", type=float, default=None)
     p.add_argument("--comm-fail", type=float, default=None,
                    help="Override env comm_fail_prob.")
+    p.add_argument("--normalize-actions", action="store_true",
+                   help="Use V4Config.action_penalty_mode='normalized': "
+                        "penalize action in normalized [-1,1] space "
+                        "instead of physical ΔM/ΔD space. Avoids the "
+                        "CLM-0043 action-vs-frequency reward asymmetry.")
 
     # SAC hyperparameter overrides
     p.add_argument("--batch-size",  type=int, default=None)
@@ -140,6 +145,8 @@ def build_v4_config(args: argparse.Namespace) -> V4Config:
         ]
         if getattr(args, flag) is not None
     }
+    if getattr(args, "normalize_actions", False):
+        overrides["action_penalty_mode"] = "normalized"
     if overrides:
         print(" [V4Config override]")
         for k, v in overrides.items():

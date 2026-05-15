@@ -512,8 +512,20 @@ class AndesBaseEnv(ABC):
         d_omega = (omega - 1.0) * self.FN  # Hz 偏差
 
         # Eq.17-18: 物理调整量全局均值 (先均值再平方, 与 Simulink 路径一致)
-        ah_avg = float(np.mean(delta_M)) / 2.0   # ΔH_avg = mean(ΔM)/2
-        ad_avg = float(np.mean(delta_D))          # ΔD_avg
+        # Default 'physical' mode uses the paper Eq.17-18 form. The
+        # 'normalized' mode (CLM-0043 follow-up) divides by half-range
+        # so the action-penalty term stays O(1) regardless of action
+        # range, restoring the paper's intended PHI scaling semantics
+        # without changing the PHI numbers.
+        mode = getattr(self, "action_penalty_mode", "physical")
+        if mode == "normalized":
+            m_half_range = max(self.DM_MAX, abs(self.DM_MIN))
+            d_half_range = max(self.DD_MAX, abs(self.DD_MIN))
+            ah_avg = float(np.mean(delta_M)) / max(m_half_range, 1e-9)
+            ad_avg = float(np.mean(delta_D)) / max(d_half_range, 1e-9)
+        else:
+            ah_avg = float(np.mean(delta_M)) / 2.0   # ΔH_avg = mean(ΔM)/2
+            ad_avg = float(np.mean(delta_D))          # ΔD_avg
 
         rewards = {}
         r_f_total, r_h_total, r_d_total = 0.0, 0.0, 0.0

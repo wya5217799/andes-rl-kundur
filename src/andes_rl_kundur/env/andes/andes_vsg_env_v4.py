@@ -187,6 +187,7 @@ class AndesMultiVSGEnvV4(AndesBaseEnv):
         self.PHI_MAX = cfg.phi_max
         self.PHI_SETTLE = cfg.phi_settle
         self.ZERO_G4_INERTIA = cfg.zero_g4_inertia
+        self.action_penalty_mode = cfg.action_penalty_mode
 
         # R05 disturbance-scale env var (calibrate against paper cum_rf).
         scale = float(os.environ.get("DISTURB_SCALE", "1.0"))

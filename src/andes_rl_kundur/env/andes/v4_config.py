@@ -13,6 +13,7 @@ headlines (R21 0.444, HAWE 0.439, no-control 0.104).
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Literal
 
 
 @dataclass(frozen=True)
@@ -47,6 +48,22 @@ class V4Config:
     # False asks for the paper-faithful Kundur 4-SG baseline — that
     # requires re-running training to validate.
     zero_g4_inertia: bool = True
+
+    # ─── Reward shape (R41 / CLM-0044 follow-up) ─────────────────────
+    # "physical"  = r_h = -(mean(ΔM)/2)² × PHI_H, r_d = -(mean(ΔD))² × PHI_D
+    #               (paper-faithful, bit-identical default; produces the
+    #               action-cost dominance documented in CLM-0043)
+    # "normalized" = r_h = -(mean(a_M))² × PHI_H, r_d = -(mean(a_D))² × PHI_D
+    #               (a ∈ [-1, 1] is the normalized action passed to step();
+    #               action-cost stays O(1) regardless of action range)
+    action_penalty_mode: Literal["physical", "normalized"] = "physical"
+
+    def __post_init__(self) -> None:
+        if self.action_penalty_mode not in ("physical", "normalized"):
+            raise ValueError(
+                f"action_penalty_mode must be 'physical' or 'normalized', "
+                f"got {self.action_penalty_mode!r}"
+            )
 
     @classmethod
     def paper_faithful(cls) -> "V4Config":
