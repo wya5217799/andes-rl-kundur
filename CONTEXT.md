@@ -48,12 +48,24 @@ The 6-axis score that SAC reliably converges to under V4 + paper-faithful
 reward: ~0.137 ± 0.005, regardless of H₀ ∈ {40,70,100,200} or seed.
 The "real" performance ceiling of SAC on this problem, modulo lucky basins.
 
-### `claim` / `round` / `ledger`
-Three-layer research memory system (the novel infrastructure):
+### `claim` / `question` / `round` / `ledger`
+Four-entity research memory system (active oracle since R39):
 - **Claim** (`memory/claims/CLM-NNNN.md`): atomic, append-only, citable
-- **Round** (`memory/rounds/RNN/`): plan.md + verdict.md, bundles an experiment
-- **STATE.md** (`memory/STATE.md`): auto-rendered current view
-Full design: `docs/superpowers/specs/2026-05-15-andes-research-workbench-design.md`.
+  finding / decision / correction.
+- **Question** (`memory/questions/Q-NNNN.md`): the forward-action unit.
+  An open research uncertainty that a future round may address. Status
+  is one of `open` / `in-flight` / `closed-positive` / `closed-negative`
+  / `abandoned`. Closure cites a closing claim + round.
+- **Round** (`memory/rounds/RNN/`): plan.md + verdict.md, bundles an
+  experiment or infrastructure change. Verdict has 3 mandatory
+  Q-sections (opened / closed / advanced).
+- **STATE.md** (`memory/STATE.md`): auto-rendered 6-section active
+  oracle (headlines / in-flight / open Qs / recently closed / latest
+  round / stats). Reads claims + questions + rounds.
+- `memory/handoffs/` is **out of schema** — informal session-end
+  scratchpad, not read by `validate.py` or `render.py`. See
+  `memory/handoffs/README.md`.
+Full design rationale: `memory/rounds/R39/plan.md`.
 
 ### `WSL-only` (ANDES)
 ANDES (the power system DAE simulator) is installed inside WSL only:
