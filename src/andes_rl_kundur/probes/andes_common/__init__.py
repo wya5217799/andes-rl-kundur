@@ -65,7 +65,7 @@ from andes_rl_kundur.probes.andes_common.paper_constants import (
     PAPER_FIG6,
     PAPER_FIG8,
     PAPER_T_EPISODE,
-    PaperBenchmark,
+    LSFigureBenchmark,
     SCENARIOS,
 )
 from andes_rl_kundur.probes.andes_common.tracers import (
@@ -100,7 +100,7 @@ __all__ = [
     "governor_wiring_ladder", "root3_residual_ladder",
     # paper constants
     "LS1_DELTA_U", "LS2_DELTA_U", "LS1_NAME", "LS2_NAME", "SCENARIOS",
-    "PaperBenchmark", "PAPER_FIG6", "PAPER_FIG8", "PAPER_BENCHMARKS",
+    "LSFigureBenchmark", "PAPER_FIG6", "PAPER_FIG8", "PAPER_BENCHMARKS",
     "EQ12_DH_RANGE", "EQ12_DD_RANGE",
     "KUNDUR_AREA1_H", "KUNDUR_AREA2_H", "KUNDUR_GENROU_M_SYS_BASE",
     "DEFAULT_PROBE_STEPS_SHORT", "DEFAULT_PROBE_STEPS_LONG",

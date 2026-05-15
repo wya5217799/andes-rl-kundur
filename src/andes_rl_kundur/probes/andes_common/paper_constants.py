@@ -38,7 +38,7 @@ SCENARIOS = {
 # ─── Paper Fig.6/8 benchmarks (no-control baseline, 6s window) ───────────
 
 @dataclass(frozen=True)
-class PaperBenchmark:
+class LSFigureBenchmark:
     """Paper Fig.6/8 ground truth for one LS scenario, no-control baseline.
 
     All Δf values are |Δf| magnitudes (sign-agnostic per paper convention).
@@ -49,14 +49,14 @@ class PaperBenchmark:
     settling_to_residual_s: float # time to enter ±0.02 Hz of final
 
 
-PAPER_FIG6 = PaperBenchmark(
+PAPER_FIG6 = LSFigureBenchmark(
     scenario=LS1_NAME,
     max_abs_df_Hz=0.13,
     final_abs_df_Hz=0.08,
     settling_to_residual_s=3.0,
 )
 
-PAPER_FIG8 = PaperBenchmark(
+PAPER_FIG8 = LSFigureBenchmark(
     scenario=LS2_NAME,
     max_abs_df_Hz=0.10,
     final_abs_df_Hz=0.05,
@@ -103,7 +103,7 @@ H_EQ12_BOX_UPPER = 300.0    # Eq.12 upper bound
 
 __all__ = [
     "LS1_DELTA_U", "LS2_DELTA_U", "LS1_NAME", "LS2_NAME", "SCENARIOS",
-    "PaperBenchmark", "PAPER_FIG6", "PAPER_FIG8", "PAPER_BENCHMARKS",
+    "LSFigureBenchmark", "PAPER_FIG6", "PAPER_FIG8", "PAPER_BENCHMARKS",
     "EQ12_DH_RANGE", "EQ12_DD_RANGE",
     "KUNDUR_AREA1_H", "KUNDUR_AREA2_H", "KUNDUR_GENROU_M_SYS_BASE",
     "KUNDUR_TOTAL_GEN_MVA",

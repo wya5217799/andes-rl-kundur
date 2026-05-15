@@ -27,11 +27,11 @@ sys.path.insert(0, str(ROOT / "src"))
 
 from andes_rl_kundur.evaluation.paper_grade_axes import (  # noqa: E402
     PAPER as RANKER_PAPER,
-    PaperBenchmark as RankerBenchmark,
+    PaperBenchmark,
     evaluate_trace,
 )
 from andes_rl_kundur.probes.andes_common.paper_constants import (  # noqa: E402
-    PaperBenchmark as ProbeBenchmark,
+    LSFigureBenchmark,
 )
 
 BASELINE_DIR = ROOT / "results" / "research_loop" / "eval_v4_baseline_PRE_REFACTOR"
@@ -57,25 +57,28 @@ def test_overall_score_against_pre_refactor_baseline(scenario, expected):
     )
 
 
-def test_paper_benchmark_name_collision_documented():
-    """Surface the two-class footgun so future callers don't trip on it.
+def test_paperbenchmark_no_name_collision():
+    """The ranker's ``PaperBenchmark`` (9 fields) and the probe layer's
+    ``LSFigureBenchmark`` (4 fields) must NOT share a class name.
 
-    If the schemas ever drift further apart (someone adds a field to
-    one but not the other), this test still passes — it locks only the
-    fact that the two classes exist with the same short name. The
-    collision itself is recorded in
-    ``src/andes_rl_kundur/evaluation/paper_grade_axes.py`` and CLM-NNNN.
+    Pre-2026-05-16 both classes were named ``PaperBenchmark`` — a foot-
+    gun: importing the probe-side one and passing it to
+    ``evaluate_trace`` crashes with ``AttributeError: 'PaperBenchmark'
+    object has no attribute 'dH_range'``. The rename to
+    ``LSFigureBenchmark`` makes the boundary explicit.
     """
-    assert RankerBenchmark is not ProbeBenchmark, (
-        "Sanity: the two PaperBenchmark classes must remain distinct types "
-        "(if they were merged, this test should be deleted)."
+    import andes_rl_kundur.probes.andes_common.paper_constants as pc
+    assert not hasattr(pc, "PaperBenchmark"), (
+        "probes.andes_common.paper_constants must NOT expose a "
+        "PaperBenchmark symbol — that name belongs to the ranker. "
+        "Use LSFigureBenchmark for the 4-field paper Fig.6/8 baseline."
     )
-    ranker_fields = set(RankerBenchmark.__dataclass_fields__.keys())
-    probe_fields = set(ProbeBenchmark.__dataclass_fields__.keys())
-    # The probe-side is a strict subset of the ranker-side schema.
-    missing_on_probe = ranker_fields - probe_fields
-    assert "dH_range" in missing_on_probe and "dD_range" in missing_on_probe, (
-        "The probe-side PaperBenchmark must NOT grow dH_range / dD_range — "
-        "if it does, it can be passed to evaluate_trace and the silent shape "
-        "drift returns."
-    )
+    assert PaperBenchmark.__name__ == "PaperBenchmark"
+    assert LSFigureBenchmark.__name__ == "LSFigureBenchmark"
+
+    # The probe-side stays narrower in scope (no action box / smoothness)
+    ranker_fields = set(PaperBenchmark.__dataclass_fields__.keys())
+    probe_fields = set(LSFigureBenchmark.__dataclass_fields__.keys())
+    assert probe_fields < ranker_fields  # strict subset
+    assert {"dH_range", "dD_range"} & ranker_fields == {"dH_range", "dD_range"}
+    assert {"dH_range", "dD_range"} & probe_fields == set()
