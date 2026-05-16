@@ -19,7 +19,8 @@ def _render(tmp_path) -> str:
 
 
 def test_render_state_has_six_sections(tmp_path):
-    """Active-oracle STATE.md has exactly the 6 mandated sections."""
+    """Active-oracle STATE.md has the 6 mandated sections (plus optional
+    Leaderboard from R50 opt H — that's tested separately)."""
     text = _render(tmp_path)
     for section in (
         "## Headline Numbers",
@@ -202,6 +203,93 @@ def test_recently_closed_sorts_by_round_number_not_lex(tmp_path):
     pos_r09 = closed.find("R09")
     assert 0 <= pos_r11 < pos_r10 < pos_r09, \
         f"expected R11 < R10 < R09 in section text; got positions {pos_r11}, {pos_r10}, {pos_r09}"
+
+
+# ── R50 opt H: STATE.md ``## Leaderboard`` section ─────────────────────────
+
+
+def _build_metric_fixture(tmp_path, entries: list[tuple[str, float | None]]):
+    """Make tmp_path/{claims, rounds, questions} with one claim per
+    (cid, metric_value) pair. ``None`` value means no metric field."""
+    claims_dir = tmp_path / "claims"
+    claims_dir.mkdir()
+    for cid, value in entries:
+        metric_block = (
+            f"metric:\n  name: 6_axis\n  value: {value}\n" if value is not None else ""
+        )
+        (claims_dir / f"{cid}.md").write_text(
+            f"---\nid: {cid}\ntype: finding\ntrust: V\nstatus: current\n"
+            f"statement: x\nround: R01\n{metric_block}---\n",
+            encoding="utf-8",
+        )
+    rounds_dir = tmp_path / "rounds"
+    rounds_dir.mkdir()
+    (rounds_dir / "R01").mkdir()
+    (rounds_dir / "R01" / "verdict.md").write_text(
+        "# R01\n**Status**: COMPLETE\n## TL;DR\nx\n"
+        "## Questions opened\n- none\n## Questions closed\n- none\n"
+        "## Questions advanced\n- none\n",
+        encoding="utf-8",
+    )
+    questions_dir = tmp_path / "questions"
+    questions_dir.mkdir()
+    return claims_dir, rounds_dir, questions_dir
+
+
+def test_leaderboard_section_emitted_when_any_claim_has_metric(tmp_path):
+    claims_dir, rounds_dir, questions_dir = _build_metric_fixture(
+        tmp_path, [("CLM-0001", 0.334), ("CLM-0002", 0.275)],
+    )
+    out = tmp_path / "STATE.md"
+    render_state(claims_dir, rounds_dir, questions_dir, out)
+    text = out.read_text(encoding="utf-8")
+
+    assert "## Leaderboard" in text, "leaderboard section must be present"
+
+
+def test_leaderboard_sorts_by_metric_value_descending(tmp_path):
+    claims_dir, rounds_dir, questions_dir = _build_metric_fixture(
+        tmp_path,
+        [("CLM-0001", 0.275), ("CLM-0002", 0.334), ("CLM-0003", 0.117)],
+    )
+    out = tmp_path / "STATE.md"
+    render_state(claims_dir, rounds_dir, questions_dir, out)
+    text = out.read_text(encoding="utf-8")
+
+    lb = text.split("## Leaderboard")[1].split("## ")[0]
+    pos_top = lb.find("CLM-0002")  # value 0.334 (highest)
+    pos_mid = lb.find("CLM-0001")  # value 0.275
+    pos_low = lb.find("CLM-0003")  # value 0.117 (lowest)
+    assert 0 <= pos_top < pos_mid < pos_low, (
+        f"expected descending sort by metric.value; got positions "
+        f"top={pos_top}, mid={pos_mid}, low={pos_low}"
+    )
+
+
+def test_leaderboard_excludes_claims_without_metric(tmp_path):
+    claims_dir, rounds_dir, questions_dir = _build_metric_fixture(
+        tmp_path, [("CLM-0001", 0.334), ("CLM-0002", None)],
+    )
+    out = tmp_path / "STATE.md"
+    render_state(claims_dir, rounds_dir, questions_dir, out)
+    text = out.read_text(encoding="utf-8")
+
+    lb = text.split("## Leaderboard")[1].split("## ")[0]
+    assert "CLM-0001" in lb
+    assert "CLM-0002" not in lb
+
+
+def test_leaderboard_shows_metric_value(tmp_path):
+    """Each leaderboard row prints the metric value so a reader can scan."""
+    claims_dir, rounds_dir, questions_dir = _build_metric_fixture(
+        tmp_path, [("CLM-0001", 0.334)],
+    )
+    out = tmp_path / "STATE.md"
+    render_state(claims_dir, rounds_dir, questions_dir, out)
+    text = out.read_text(encoding="utf-8")
+
+    lb = text.split("## Leaderboard")[1].split("## ")[0]
+    assert "0.334" in lb or "0.33" in lb, f"value should appear in leaderboard: {lb}"
 
 
 def test_latest_round_picks_newest_completed_when_newest_is_in_flight(tmp_path):

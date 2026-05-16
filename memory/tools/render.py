@@ -143,6 +143,35 @@ def _extract_tldr(verdict_path: Path | None) -> str | None:
 # ---------- section formatters ----------
 
 
+def _leaderboard_rows(
+    claims: list[dict[str, Any]], *, top: int = 10
+) -> list[str]:
+    """Build the rows for the ``## Leaderboard`` section.
+
+    Pulls claims with a structured ``metric`` block (R50 opt I), sorts by
+    ``metric.value`` descending, and formats one line per row. Returns
+    an empty list when no claim carries a metric — caller omits the
+    whole section in that case.
+    """
+    scored: list[tuple[float, dict[str, Any]]] = []
+    for c in claims:
+        m = c.get("metric")
+        if not isinstance(m, dict):
+            continue
+        v = m.get("value")
+        if isinstance(v, bool) or not isinstance(v, (int, float)):
+            continue
+        scored.append((float(v), c))
+    scored.sort(key=lambda t: t[0], reverse=True)
+    rows: list[str] = []
+    for value, c in scored[:top]:
+        cid = c.get("id", "?")
+        name = (c.get("metric") or {}).get("name", "?")
+        round_label = c.get("round", "?")
+        rows.append(f"- {cid} [{round_label}] {name} = {value:.4f}")
+    return rows
+
+
 def _format_headline_line(claim: dict[str, Any]) -> str:
     cid = claim["id"]
     trust = claim.get("trust", "?")
@@ -290,6 +319,18 @@ def render_state(
     else:
         lines.append("(no rounds yet)")
     lines.append("")
+
+    # 5b. Leaderboard (R50 opt H) — claims with structured ``metric`` field,
+    # sorted by metric.value descending. Top 10 rows. Section is omitted
+    # entirely when no claim carries a metric block (keeps STATE.md clean
+    # for memories without metrics-style claims).
+    lb_rows = _leaderboard_rows(claims, top=10)
+    if lb_rows:
+        lines.append("## Leaderboard (top-10 by metric)")
+        lines.append("")
+        for row in lb_rows:
+            lines.append(row)
+        lines.append("")
 
     # 6. Stats
     lines.append("## Stats")
