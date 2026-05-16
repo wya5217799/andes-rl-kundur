@@ -48,8 +48,19 @@ def zero_action_fn(step: int, obs: dict[int, np.ndarray], n_agents: int) -> dict
 
 
 def deterministic_actor_action_fn(agents: list) -> ActionFn:
-    """Each agent runs its own ``select_action(obs[i], deterministic=True)``."""
+    """Each agent runs its own ``select_action(obs[i], deterministic=True)``.
+
+    R56 — recurrent (``is_recurrent=True``) agents own a per-rollout
+    hidden state advanced by every ``select_action`` call. The closure
+    detects scenario boundaries via ``step == 0`` and resets each
+    recurrent agent's hidden state at the start of every scenario.
+    No-op for memoryless agents.
+    """
     def _fn(step: int, obs: dict[int, np.ndarray], n_agents: int) -> dict[int, np.ndarray]:
+        if step == 0:
+            for ag in agents:
+                if getattr(ag, "is_recurrent", False):
+                    ag.begin_episode()
         return {
             i: agents[i].select_action(obs[i], deterministic=True)
             for i in range(n_agents)

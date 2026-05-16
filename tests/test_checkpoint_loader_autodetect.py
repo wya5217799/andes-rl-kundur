@@ -107,3 +107,57 @@ def test_load_agents_explicit_mismatch_still_raises(tmp_path: Path) -> None:
 
     with pytest.raises(RuntimeError, match="size mismatch"):
         load_agents(tmp_path, suffix="best", hidden_sizes=(128,) * 4)
+
+
+def _save_synthetic_lstm_ckpt(
+    ckpt_dir: Path,
+    *,
+    n_agents: int,
+    obs_dim: int,
+    hidden_size: int,
+) -> None:
+    from andes_rl_kundur.agents.td3_lstm import TD3LSTMAgent
+    ckpt_dir.mkdir(parents=True, exist_ok=True)
+    for i in range(n_agents):
+        agent = TD3LSTMAgent(
+            obs_dim=obs_dim,
+            action_dim=2,
+            hidden_sizes=(hidden_size,),
+            device="cpu",
+        )
+        agent.save(str(ckpt_dir / f"agent_{i}_best.pt"))
+
+
+def test_load_agents_routes_td3_lstm_ckpts_to_lstm_agent(tmp_path: Path) -> None:
+    """R56: a ckpt with ``algo='td3_lstm'`` must be loaded into a
+    TD3LSTMAgent. The detect_actor_dims path must also handle the
+    RecurrentActor's ``lstm.weight_ih`` shape (4*hidden, obs_dim)."""
+    from andes_rl_kundur.agents.td3_lstm import TD3LSTMAgent
+
+    n_agents = AndesMultiVSGEnvV4.N_AGENTS
+    _save_synthetic_lstm_ckpt(
+        tmp_path,
+        n_agents=n_agents,
+        obs_dim=AndesMultiVSGEnvV4.OBS_DIM,
+        hidden_size=64,
+    )
+
+    agents = load_agents(tmp_path, suffix="best")
+    assert all(isinstance(a, TD3LSTMAgent) for a in agents)
+    assert agents[0].hidden == 64
+    assert agents[0].obs_dim == AndesMultiVSGEnvV4.OBS_DIM
+
+
+def test_detect_actor_dims_handles_recurrent_actor(tmp_path: Path) -> None:
+    """detect_actor_dims must recover (obs_dim, hidden) from a
+    RecurrentActor ckpt without confusing the LSTMCell's 4× gate
+    stacking with a different ``hidden`` value."""
+    from andes_rl_kundur.agents.checkpoint_loader import detect_actor_dims
+    from andes_rl_kundur.agents.td3_lstm import TD3LSTMAgent
+
+    agent = TD3LSTMAgent(obs_dim=9, action_dim=2, hidden_sizes=(48,))
+    path = tmp_path / "agent_0_best.pt"
+    agent.save(str(path))
+    obs_dim, hidden = detect_actor_dims(path)
+    assert obs_dim == 9
+    assert hidden == 48

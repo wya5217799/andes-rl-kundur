@@ -53,6 +53,57 @@ class _FakeEnv:
         self.closed = True
 
 
+def test_deterministic_actor_action_fn_resets_recurrent_hidden_at_scenario_boundary():
+    """R56: when ``deterministic_actor_action_fn`` is reused across
+    scenarios, the closure must call ``begin_episode()`` at ``step == 0``
+    on each recurrent agent so the hidden state starts from zero. This
+    test verifies the reset hook fires; without it, an LSTM agent's
+    second-scenario actions would be conditioned on its first-scenario
+    trajectory tail."""
+    from andes_rl_kundur.evaluation.paper_path import deterministic_actor_action_fn
+
+    class StubLSTMAgent:
+        is_recurrent = True
+
+        def __init__(self):
+            self.begin_called = 0
+            self.step_idx = 0
+
+        def begin_episode(self):
+            self.begin_called += 1
+            self.step_idx = 0
+
+        def select_action(self, obs, deterministic=False):
+            self.step_idx += 1
+            return np.array([float(self.step_idx), 0.0], dtype=np.float32)
+
+    class StubMLPAgent:
+        # No ``is_recurrent`` attribute / set to False.
+        def __init__(self):
+            self.calls = 0
+
+        def select_action(self, obs, deterministic=False):
+            self.calls += 1
+            return np.zeros(2, dtype=np.float32)
+
+    agents = [StubLSTMAgent(), StubMLPAgent()]
+    fn = deterministic_actor_action_fn(agents)
+    obs = {0: np.zeros(7, dtype=np.float32), 1: np.zeros(7, dtype=np.float32)}
+
+    # Scenario 1: 3 steps starting at step=0
+    fn(0, obs, 2)
+    fn(1, obs, 2)
+    fn(2, obs, 2)
+    assert agents[0].begin_called == 1
+
+    # Scenario 2: same closure, fresh step=0 → another begin_episode call
+    fn(0, obs, 2)
+    fn(1, obs, 2)
+    assert agents[0].begin_called == 2
+    # MLP agent never has begin_episode called (no method, no error)
+    assert agents[1].calls == 5  # 3 + 2 select_action invocations
+
+
 def test_run_scenario_closes_env_on_action_fn_exception(monkeypatch):
     """B1 regression: if ``action_fn`` raises, ``env.close()`` must still run.
 

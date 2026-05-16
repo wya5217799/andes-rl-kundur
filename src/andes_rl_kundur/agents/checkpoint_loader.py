@@ -18,6 +18,7 @@ import torch
 
 from andes_rl_kundur.agents.sac import SACAgent
 from andes_rl_kundur.agents.td3 import TD3Agent
+from andes_rl_kundur.agents.td3_lstm import TD3LSTMAgent
 from andes_rl_kundur.config import HIDDEN_SIZES
 from andes_rl_kundur.env.andes.andes_vsg_env_v4 import AndesMultiVSGEnvV4
 
@@ -33,18 +34,29 @@ def detect_algo(ckpt_path: Path) -> str:
 
 
 def detect_actor_dims(ckpt_path: Path) -> tuple[int, int]:
-    """Inspect ckpt['actor']['net.0.weight'] shape to recover (obs_dim, hidden_size).
+    """Inspect ckpt['actor'] shape to recover (obs_dim, hidden_size).
 
-    Both SAC GaussianActor and TD3 DeterministicActor name the first linear
-    layer ``net.0.weight`` with shape ``(hidden_size, obs_dim)`` (PyTorch
-    Linear convention). All four hidden layers are assumed uniform-width
-    (matches ``train.py --hidden-size N`` semantics).
+    Three actor architectures are supported:
 
-    R50 optimization A: replaces the R48 / R49 inline workarounds where the
-    caller had to know the ckpt's actor architecture out-of-band.
+    * MLP (SAC ``GaussianActor`` / non-recurrent TD3): the first linear
+      layer is ``net.0.weight`` with shape ``(hidden, obs_dim)``.
+    * Recurrent (R56 ``RecurrentActor``): the LSTMCell input-to-hidden
+      weight is ``lstm.weight_ih`` with shape ``(4 * hidden, obs_dim)``
+      — the 4× block contains the i/f/g/o gate stacks.
+
+    All four MLP hidden layers are assumed uniform-width (matches
+    ``train.py --hidden-size N`` semantics); the LSTM is a single cell
+    so hidden has only one value.
+
+    R50 optimization A + R56 LSTM branch.
     """
     ckpt = torch.load(ckpt_path, map_location="cpu", weights_only=True)
-    w = ckpt["actor"]["net.0.weight"]
+    actor = ckpt["actor"]
+    if "lstm.weight_ih" in actor:
+        # RecurrentActor: weight_ih shape is (4*hidden, obs_dim)
+        w = actor["lstm.weight_ih"]
+        return int(w.shape[1]), int(w.shape[0] // 4)
+    w = actor["net.0.weight"]
     return int(w.shape[1]), int(w.shape[0])
 
 
@@ -109,6 +121,11 @@ def load_agents(
         algo = detect_algo(ckpt_path)
         if algo == "td3":
             agent = TD3Agent(
+                obs_dim=obs_dim, action_dim=action_dim,
+                hidden_sizes=hidden_sizes, device=device,
+            )
+        elif algo == "td3_lstm":
+            agent = TD3LSTMAgent(
                 obs_dim=obs_dim, action_dim=action_dim,
                 hidden_sizes=hidden_sizes, device=device,
             )

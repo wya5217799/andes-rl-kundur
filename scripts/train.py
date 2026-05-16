@@ -41,6 +41,7 @@ from andes_rl_kundur.agents.episode_result import EpisodeResult  # noqa: E402
 from andes_rl_kundur.agents.sac import SACAgent  # noqa: E402
 from andes_rl_kundur.agents.sac_ctde import CTDECoordinator, SACAgentCTDE  # noqa: E402
 from andes_rl_kundur.agents.td3 import TD3Agent  # noqa: E402
+from andes_rl_kundur.agents.td3_lstm import TD3LSTMAgent  # noqa: E402
 from andes_rl_kundur.env.andes.andes_vsg_env_v4 import AndesMultiVSGEnvV4  # noqa: E402
 from andes_rl_kundur.env.andes.v4_config import V4Config  # noqa: E402
 from andes_rl_kundur.scenarios.kundur.training_checks import (  # noqa: E402
@@ -78,11 +79,15 @@ def parse_args() -> argparse.Namespace:
                    help="What to copy from --warmstart-shared.")
 
     # Algorithm selection
-    p.add_argument("--algo", choices=["sac", "td3"], default="sac",
+    p.add_argument("--algo", choices=["sac", "td3", "td3_lstm"], default="sac",
                    help="Per-agent RL algorithm. 'sac' (default) uses "
                         "entropy-regularized soft AC; 'td3' uses "
                         "deterministic policy + target smoothing + delayed "
-                        "policy updates (no entropy bonus).")
+                        "policy updates (no entropy bonus); 'td3_lstm' (R56) "
+                        "uses TD3 with a recurrent LSTMCell actor/critic — "
+                        "policy is structurally time-varying via hidden "
+                        "state, escaping the R49-R55 hexagon's static-"
+                        "setpoint attractor.")
 
     # CTDE (SAC only)
     p.add_argument("--ctde", action="store_true",
@@ -206,8 +211,11 @@ def build_agents(
     N = AndesMultiVSGEnvV4.N_AGENTS
     coordinator: CTDECoordinator | None = None
 
-    if args.ctde and args.algo == "td3":
-        raise ValueError("--ctde is SAC-only; pass --algo sac or drop --ctde")
+    if args.ctde and args.algo in ("td3", "td3_lstm"):
+        raise ValueError(
+            f"--ctde is SAC-only; pass --algo sac or drop --ctde "
+            f"(got --algo {args.algo})"
+        )
 
     if args.ctde:
         print("[CTDE] shared centralized critic enabled.")
@@ -233,6 +241,31 @@ def build_agents(
                 hidden_sizes=hidden_sizes,
                 lr=lr, gamma=gamma, tau=tau,
                 buffer_size=buffer_size, batch_size=batch_size, device=device,
+            )
+            for _ in range(N)
+        ]
+    elif args.algo == "td3_lstm":
+        # R56: LSTMCell recurrent actor + critic. The recurrent path uses
+        # its own (sequence) batch size and (episode) buffer size, both
+        # decoupled from the step-level SAC/TD3 hyperparameters.
+        lstm_batch_size = 32  # sequences per gradient step
+        lstm_capacity_episodes = 200
+        # LSTMCell is a single-layer cell; only the first hidden width
+        # is used. lr clamped to 1e-4 for RNN stability (vs 3e-4 baseline).
+        lstm_lr = min(lr, 1e-4)
+        print(
+            f"[algo] TD3+LSTM — recurrent actor/critic, hidden={hidden_sizes[0]}, "
+            f"seq=25 burn=5, batch={lstm_batch_size} seq, lr={lstm_lr}"
+        )
+        agents = [
+            TD3LSTMAgent(
+                obs_dim=obs_dim, action_dim=action_dim,
+                hidden_sizes=hidden_sizes,
+                lr=lstm_lr, gamma=gamma, tau=tau,
+                buffer_size=lstm_capacity_episodes,
+                batch_size=lstm_batch_size,
+                device=device,
+                seq_len=25, burn_in=5,
             )
             for _ in range(N)
         ]
@@ -288,6 +321,15 @@ def apply_warmstart_shared(agents: list, args: argparse.Namespace) -> None:
     """Copy one shared-actor checkpoint into every agent."""
     if not args.warmstart_shared:
         return
+    if args.algo == "td3_lstm":
+        # RecurrentActor state_dict has different keys (lstm.weight_ih /
+        # lstm.weight_hh / fc_out.*) from GaussianActor (net.*.weight /
+        # mean_head / log_std_head). Cross-architecture warmstart is
+        # undefined; refuse explicitly rather than silently fail.
+        raise ValueError(
+            "--warmstart-shared is incompatible with --algo td3_lstm "
+            "(MLP-actor and LSTM-actor state_dicts have disjoint keys)"
+        )
     src = Path(args.warmstart_shared)
     if not src.exists():
         raise FileNotFoundError(f"warmstart-shared checkpoint not found: {src}")
@@ -326,6 +368,12 @@ def run_episode(
     except Exception as e:
         return EpisodeResult.from_reset_failure(str(e), total_steps=total_steps)
 
+    # Recurrent agents (R56): reset the per-rollout hidden state and the
+    # in-progress transition buffer. No-op for memoryless agents.
+    for ag in agents:
+        if getattr(ag, "is_recurrent", False):
+            ag.begin_episode()
+
     ep_reward = {i: 0.0 for i in range(N)}
     ep_r_f, ep_r_h, ep_r_d = 0.0, 0.0, 0.0
     ep_actions_list: list[np.ndarray] = []
@@ -336,7 +384,13 @@ def run_episode(
         actions = {}
         for i in range(N):
             if total_steps < args.warmup:
-                actions[i] = np.random.uniform(-1, 1, size=action_dim)
+                actions[i] = np.random.uniform(-1, 1, size=action_dim).astype(np.float32)
+                # Recurrent agents still need to advance the rollout
+                # hidden state even when the action is overridden by
+                # warmup-random — call select_action then discard, so
+                # the LSTM sees the obs sequence during warmup.
+                if getattr(agents[i], "is_recurrent", False):
+                    agents[i].select_action(obs[i])
             else:
                 actions[i] = agents[i].select_action(obs[i])
 
@@ -354,13 +408,24 @@ def run_episode(
         ep_tds_failed = ep_tds_failed or info.get("tds_failed", False)
 
         for i in range(N):
-            agents[i].buffer.add(obs[i], actions[i], rewards[i],
-                                 next_obs[i], float(done))
+            # store_transition handles both per-step (SAC/TD3) and
+            # per-episode (TD3+LSTM) replay buffers uniformly.
+            agents[i].store_transition(
+                obs[i], actions[i], rewards[i], next_obs[i], bool(done)
+            )
             ep_reward[i] += rewards[i]
         obs = next_obs
         total_steps += 1
         if done:
             break
+
+    # Safety net: if the loop exited without a final done=True (e.g.
+    # the inner step raised before env signalled termination), flush
+    # any in-progress recurrent episode to its buffer so the data is
+    # not lost.
+    for ag in agents:
+        if getattr(ag, "is_recurrent", False):
+            ag.flush_episode()
 
     return EpisodeResult(
         reset_failed=False,
@@ -394,10 +459,19 @@ def run_updates(
     else:
         for _ in range(n_epoch):
             for i in range(N):
-                if len(agents[i].buffer) >= batch_size:
+                # Recurrent agents (R56) gate inside ``update`` itself
+                # (the buffer is episode-keyed and may have stored
+                # episodes that are too short for the seq window — the
+                # step-level ``len(buffer) >= batch_size`` precheck is
+                # not meaningful for them).
+                if getattr(agents[i], "is_recurrent", False):
                     loss_info = agents[i].update()
-                    if loss_info is not None:
-                        ep_sac_losses[i] = loss_info
+                elif len(agents[i].buffer) >= batch_size:
+                    loss_info = agents[i].update()
+                else:
+                    loss_info = None
+                if loss_info is not None:
+                    ep_sac_losses[i] = loss_info
     return ep_sac_losses
 
 
