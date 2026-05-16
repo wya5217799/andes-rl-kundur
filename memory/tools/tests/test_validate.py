@@ -503,3 +503,75 @@ def test_status_current_still_validates_after_obsoleted_added():
     }
     errors, _warnings = validate_rules(claims)
     assert errors == []
+
+
+# ── R50 opt K: provenance soft path check ─────────────────────────────────────
+
+
+def test_provenance_existing_path_no_warning(tmp_path):
+    """Literal provenance paths that exist on disk produce no warning."""
+    from validate import check_provenance_paths
+
+    existing = tmp_path / "real_file.json"
+    existing.write_text("{}", encoding="utf-8")
+
+    claims = {
+        "CLM-0001": _minimal_claim(
+            "CLM-0001", provenance=[str(existing)],
+        ),
+    }
+    warnings = check_provenance_paths(claims, repo_root=tmp_path)
+    # Only warnings about THIS literal path; should be empty.
+    relevant = [w for w in warnings if "real_file" in w]
+    assert relevant == []
+
+
+def test_provenance_missing_path_warns(tmp_path):
+    """Literal provenance path that doesn't exist -> warning."""
+    from validate import check_provenance_paths
+
+    claims = {
+        "CLM-0001": _minimal_claim(
+            "CLM-0001", provenance=["does/not/exist.json"],
+        ),
+    }
+    warnings = check_provenance_paths(claims, repo_root=tmp_path)
+    assert any("does/not/exist.json" in w for w in warnings), warnings
+
+
+def test_provenance_wildcard_path_skipped(tmp_path):
+    """Glob / brace patterns are skipped — too expensive to expand and
+    the brace form (``s{49,50,51}``) is shell syntax, not glob."""
+    from validate import check_provenance_paths
+
+    claims = {
+        "CLM-0001": _minimal_claim(
+            "CLM-0001",
+            provenance=[
+                "results/td3_norm_s{49,50,51}/agent_*_best.pt",
+                "results/td3_norm_s49/agent_0_best.pt",  # literal, missing
+            ],
+        ),
+    }
+    warnings = check_provenance_paths(claims, repo_root=tmp_path)
+    # Only the literal-but-missing path produces a warning.
+    assert any("agent_0_best.pt" in w for w in warnings)
+    assert not any("{49,50,51}" in w for w in warnings)
+    assert not any("agent_*_best.pt" in w for w in warnings)
+
+
+def test_provenance_check_is_warning_not_error(tmp_path):
+    """Missing provenance never blocks validation — it only produces a
+    warning. This honors the soft-check contract: results/ is gitignored,
+    so cross-session provenance paths are routinely dangling."""
+    from validate import check_provenance_paths
+
+    claims = {
+        "CLM-0001": _minimal_claim(
+            "CLM-0001", provenance=["results/missing.json"],
+        ),
+    }
+    # The function returns a list of warning strings (no exception).
+    warnings = check_provenance_paths(claims, repo_root=tmp_path)
+    assert isinstance(warnings, list)
+    assert all(isinstance(w, str) for w in warnings)

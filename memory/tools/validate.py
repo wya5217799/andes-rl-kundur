@@ -315,6 +315,75 @@ def validate_rules(claims: dict[str, dict[str, Any]]) -> tuple[list[str], list[s
     return errors, warnings
 
 
+def _is_pattern_provenance(p: str) -> bool:
+    """A provenance entry is treated as a pattern (skipped by the soft
+    path check) if it contains glob wildcards or brace expansion.
+
+    Examples that count as patterns:
+        results/td3_norm_s{49,50,51}/agent_*_best.pt
+        logs/r46_beta_s{49,50,51}.log
+        memory/claims/CLM-00{40..47}.md  # range expansion
+
+    Examples that count as literal paths:
+        results/research_loop/r48_alpha_h256_sweep.json
+        scripts/_r44_eval_no_control_g4preserved.py
+        memory/rounds/R48/verdict.md
+    """
+    return any(ch in p for ch in "*?[{")
+
+
+def check_provenance_paths(
+    claims: dict[str, dict[str, Any]], *, repo_root: Path
+) -> list[str]:
+    """Soft check: for each claim's provenance entries that look like
+    literal paths (no glob / brace patterns), warn if the path doesn't
+    resolve under ``repo_root``.
+
+    Always returns warnings, never errors. The check is soft because
+    ``results/*`` is gitignored — cross-session provenance is routinely
+    dangling and that's intentional (results are reproducible from the
+    listed scripts). Pre-R50, audits had to grep manually.
+
+    R50 optimization K.
+    """
+    out: list[str] = []
+    for claim in claims.values():
+        for entry in claim.get("provenance", []) or []:
+            if not isinstance(entry, str):
+                continue
+            head = _extract_provenance_path(entry)
+            if not head:
+                continue
+            if _is_pattern_provenance(head):
+                continue
+            full = (repo_root / head).resolve()
+            if not full.exists():
+                out.append(
+                    f"{claim['id']}: provenance path missing on disk: {head}"
+                )
+    return out
+
+
+def _extract_provenance_path(entry: str) -> str:
+    """Pull the literal path prefix out of a provenance entry.
+
+    Provenance lines commonly carry trailing markers:
+      ``path/to/file.py (commentary)``      → strip "(commentary)"
+      ``path/main.tex §IV-C "section"``      → strip "§..."
+      ``path/file.py @ refactor/branch``    → strip "@ gitref"
+      ``path/file.py @abc123``              → strip "@abc123"
+
+    Returns the path portion only (stripped of whitespace).
+    """
+    p = entry
+    # Cut at the first of: "(", " §", " @", "  " (double-space comment).
+    for sep in ("(", " §", "§", " @"):
+        idx = p.find(sep)
+        if idx != -1:
+            p = p[:idx]
+    return p.strip()
+
+
 def _rewrite_frontmatter(path: Path, updates: dict[str, Any]) -> None:
     """Rewrite the YAML block of a claim file, preserving body and key order
     where possible."""
@@ -415,6 +484,12 @@ def main() -> int:
         for verdict_path in _iter_verdicts(args.rounds_dir):
             errors.extend(validate_verdict_structure(verdict_path))
             warnings.extend(warn_verdict_recommended(verdict_path))
+
+    # R50 opt K: soft check that provenance paths exist on disk.
+    # Gitignored areas (results/, logs/) routinely produce warnings;
+    # users skim past them. Never blocks validation.
+    repo_root = Path(__file__).resolve().parents[2]
+    warnings.extend(check_provenance_paths(claims, repo_root=repo_root))
 
     for w in warnings:
         print(f"WARN: {w}")
