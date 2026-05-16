@@ -101,6 +101,22 @@ the 3 mandatory Q-sections.
 Run `validate.py` before every commit. Run `render.py` after adding or
 superseding claims **or** after opening/closing any Question.
 
+### Creating a new round / claim
+
+1. Reserve the round number atomically:
+   `python memory/tools/reserve_round.py`
+   This creates `memory/rounds/R<N>/` as a side effect. Never pick
+   a round number by hand — parallel sessions will race.
+
+2. Copy `memory/claims/_TEMPLATE.md` for each new claim. If the
+   claim's statement cites a benchmark number (6-axis, settling, etc.),
+   fill in the `metric:` block — that's what powers the STATE.md
+   `## Leaderboard` and `query.py --best`.
+
+3. If the round produces a number whose paper-grade scoring you want
+   to reuse, drive it through `python scripts/score_run.py ...`
+   instead of inline-coding the eval loop. Same surface every round.
+
 ## Code conventions
 
 ### ANDES = WSL only

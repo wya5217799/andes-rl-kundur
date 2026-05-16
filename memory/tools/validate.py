@@ -312,7 +312,31 @@ def validate_rules(claims: dict[str, dict[str, Any]]) -> tuple[list[str], list[s
         if claim.get("trust") == "V" and not claim.get("provenance"):
             warnings.append(f"{claim['id']} has trust: V but empty provenance")
 
+    # Warning C (R53 patch A2): finding / correction claims whose statement
+    # cites a benchmark-like decimal number but carry no metric block. Pushes
+    # adoption of R50 opt I (structured metric) without blocking authorship.
+    # Decision claims are exempt — they are choices, not measurements.
+    for claim in claims.values():
+        ctype = claim.get("type")
+        if ctype not in ("finding", "correction"):
+            continue
+        if claim.get("metric"):
+            continue
+        stmt = claim.get("statement") or ""
+        if _DECIMAL_RE.search(stmt):
+            warnings.append(
+                f"{claim['id']}: statement cites decimal(s) but has no "
+                f"metric block — consider adding one for H/L (soft hint)"
+            )
+
     return errors, warnings
+
+
+# Module-level regex for the soft metric-hint check (Warning C).
+# Matches a decimal with at least two fractional digits — captures the
+# benchmark form (e.g. 0.444, 0.3346) while skipping single-digit
+# decimals like "+0.1" (mostly used in ranges / step sizes).
+_DECIMAL_RE = re.compile(r"\b\d+\.\d{2,4}\b")
 
 
 def _is_pattern_provenance(p: str) -> bool:

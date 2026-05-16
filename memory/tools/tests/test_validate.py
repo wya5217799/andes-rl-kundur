@@ -575,3 +575,59 @@ def test_provenance_check_is_warning_not_error(tmp_path):
     warnings = check_provenance_paths(claims, repo_root=tmp_path)
     assert isinstance(warnings, list)
     assert all(isinstance(w, str) for w in warnings)
+
+
+# ── R53 patch A2: soft-warn for finding/correction without metric ────────────
+
+
+def test_finding_with_decimal_statement_no_metric_warns():
+    """R53 patch A2 (validates R50 opt I adoption): if a finding or
+    correction's statement cites a benchmark-like decimal number but
+    carries no metric block, emit a soft warning so future authors
+    will fill it in. The warning is informational only (does not
+    block validation)."""
+    claims = {
+        "CLM-0001": _minimal_claim(
+            "CLM-0001",
+            type="finding",
+            statement="result is 0.334 6-axis",
+        ),
+    }
+    _errors, warnings = validate_rules(claims)
+    assert any(
+        "CLM-0001" in w and "metric" in w for w in warnings
+    ), f"expected soft-warn for missing metric, got: {warnings}"
+
+
+def test_finding_with_decimal_and_metric_no_warn():
+    """Same statement but with a metric block: no warning."""
+    claims = {
+        "CLM-0001": _minimal_claim(
+            "CLM-0001",
+            type="finding",
+            statement="result is 0.334 6-axis",
+            metric={"name": "6_axis", "value": 0.334},
+        ),
+    }
+    _errors, warnings = validate_rules(claims)
+    assert not any(
+        "CLM-0001" in w and "metric" in w for w in warnings
+    ), f"unexpected metric-soft-warn: {warnings}"
+
+
+def test_decision_with_decimal_does_not_trigger_metric_warn():
+    """Decision claims are choices, not measurements — the soft-warn
+    only targets findings + corrections, even when a decision's
+    statement happens to cite a decimal."""
+    claims = {
+        "CLM-0001": _minimal_claim(
+            "CLM-0001",
+            type="decision",
+            trust="S",
+            statement="picked weight 0.85 for the ensemble baseline",
+        ),
+    }
+    _errors, warnings = validate_rules(claims)
+    assert not any(
+        "CLM-0001" in w and "metric" in w for w in warnings
+    ), f"decision should not trigger metric soft-warn: {warnings}"

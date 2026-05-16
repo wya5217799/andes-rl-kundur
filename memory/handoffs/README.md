@@ -34,6 +34,15 @@ Use one of the schema-managed entities instead:
   are kept for historical context; you may prune anything older than
   ~30 days or marked STALE at your discretion.
 
+## `_archive/` convention
+
+Handoffs older than ~10 days, or no longer referenced by any in-flight
+question or round, live in `memory/handoffs/_archive/`. The top-level
+`memory/handoffs/` directory is reserved for the most recent
+session-pickup material — anything the next cold-start session might
+need within reach. Run `git mv` into `_archive/` (not `rm`) so the
+history is preserved.
+
 ## Why this exists at all
 
 Session boundaries and round boundaries are orthogonal axes. A session
