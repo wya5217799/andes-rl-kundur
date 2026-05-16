@@ -449,3 +449,57 @@ def test_claim_without_metric_field_still_valid():
     }
     errors, _warnings = validate_rules(claims)
     assert errors == [], f"backward compat broken: {errors}"
+
+
+# ── R50 opt J: status: obsoleted ──────────────────────────────────────────────
+
+
+def test_status_obsoleted_with_round_and_reason_validates():
+    """R50 opt J: status='obsoleted' means the claim's number / decision
+    became stale due to external change (ranker drift, env semantics
+    shift) WITHOUT a successor claim to point at. Distinct from
+    'superseded' (which always has a replacement). Both round + reason
+    are mandatory so the obsoletion is auditable."""
+    claims = {
+        "CLM-0001": _minimal_claim(
+            "CLM-0001",
+            status="obsoleted",
+            obsoleted_round="R44",
+            obsoleted_reason="ranker drift post-R30 changed baseline",
+        ),
+    }
+    errors, _warnings = validate_rules(claims)
+    assert errors == [], f"expected no errors, got {errors}"
+
+
+def test_status_obsoleted_missing_round_fails():
+    claims = {
+        "CLM-0001": _minimal_claim(
+            "CLM-0001",
+            status="obsoleted",
+            obsoleted_reason="something",
+        ),
+    }
+    errors, _warnings = validate_rules(claims)
+    assert any("obsoleted" in e and "round" in e for e in errors), errors
+
+
+def test_status_obsoleted_missing_reason_fails():
+    claims = {
+        "CLM-0001": _minimal_claim(
+            "CLM-0001",
+            status="obsoleted",
+            obsoleted_round="R44",
+        ),
+    }
+    errors, _warnings = validate_rules(claims)
+    assert any("obsoleted" in e and "reason" in e for e in errors), errors
+
+
+def test_status_current_still_validates_after_obsoleted_added():
+    """The new status branch must NOT break existing 'current' claims."""
+    claims = {
+        "CLM-0001": _minimal_claim("CLM-0001"),  # status='current' by default
+    }
+    errors, _warnings = validate_rules(claims)
+    assert errors == []

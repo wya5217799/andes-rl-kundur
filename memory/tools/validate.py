@@ -247,6 +247,25 @@ def validate_rules(claims: dict[str, dict[str, Any]]) -> tuple[list[str], list[s
                 f"(got trust: {ctrust})"
             )
 
+    # Rule 6 (R50 opt J): ``status: obsoleted`` requires obsoleted_round
+    # and obsoleted_reason so the obsoletion is auditable. Distinct from
+    # ``status: superseded`` (which always points at a successor claim);
+    # ``obsoleted`` is for claims whose number / decision became stale due
+    # to external change (ranker drift, env-semantics shift) without a
+    # replacement claim. Example: CLM-0008's R30 ranker baseline 0.104
+    # was rendered stale by R36 ranker tuning to 0.094.
+    for claim in claims.values():
+        if claim.get("status") != "obsoleted":
+            continue
+        if not claim.get("obsoleted_round"):
+            errors.append(
+                f"{claim['id']}: status=obsoleted requires 'obsoleted_round' field"
+            )
+        if not claim.get("obsoleted_reason"):
+            errors.append(
+                f"{claim['id']}: status=obsoleted requires 'obsoleted_reason' field"
+            )
+
     # Rule 5 (R50 opt I): structured ``metric`` field, if present, must
     # carry ``name: str`` and a numeric ``value`` so STATE.md's
     # leaderboard (H) can sort + display deterministically.
