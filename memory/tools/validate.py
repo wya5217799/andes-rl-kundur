@@ -247,6 +247,35 @@ def validate_rules(claims: dict[str, dict[str, Any]]) -> tuple[list[str], list[s
                 f"(got trust: {ctrust})"
             )
 
+    # Rule 5 (R50 opt I): structured ``metric`` field, if present, must
+    # carry ``name: str`` and a numeric ``value`` so STATE.md's
+    # leaderboard (H) can sort + display deterministically.
+    for claim in claims.values():
+        metric = claim.get("metric")
+        if metric is None:
+            continue
+        if not isinstance(metric, dict):
+            errors.append(
+                f"{claim['id']}: metric field must be a mapping "
+                f"(got {type(metric).__name__})"
+            )
+            continue
+        if "name" not in metric:
+            errors.append(f"{claim['id']}: metric block missing 'name' key")
+        elif not isinstance(metric["name"], str) or not metric["name"]:
+            errors.append(
+                f"{claim['id']}: metric.name must be a non-empty string"
+            )
+        if "value" not in metric:
+            errors.append(f"{claim['id']}: metric block missing 'value' key")
+        else:
+            v = metric["value"]
+            if isinstance(v, bool) or not isinstance(v, (int, float)):
+                errors.append(
+                    f"{claim['id']}: metric.value must be numeric "
+                    f"(got {type(v).__name__})"
+                )
+
     # Warning A: forward/back edge symmetry
     for claim in claims.values():
         for target in claim.get("supersedes", []) or []:

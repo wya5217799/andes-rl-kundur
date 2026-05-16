@@ -378,3 +378,74 @@ def test_fix_back_edges_writes_superseded_by_and_flips_status(tmp_path):
     fixed = load_claims(dst)
     assert fixed["CLM-0002"]["status"] == "superseded"
     assert fixed["CLM-0002"]["superseded_by"] == ["CLM-0003"]
+
+
+# ── R50 opt I: structured ``metric`` field ────────────────────────────────────
+
+
+def _minimal_claim(cid: str, **extra) -> dict:
+    base = {
+        "id": cid,
+        "type": "finding",
+        "trust": "V",
+        "status": "current",
+        "supersedes": [],
+        "superseded_by": [],
+        "provenance": ["x"],
+    }
+    base.update(extra)
+    return base
+
+
+def test_metric_field_with_name_and_value_validates():
+    """R50 opt I: claims may declare a structured metric for the
+    STATE.md leaderboard (H). Valid block: name + numeric value."""
+    claims = {
+        "CLM-0001": _minimal_claim(
+            "CLM-0001",
+            metric={"name": "6_axis", "value": 0.334},
+        ),
+    }
+    errors, _warnings = validate_rules(claims)
+    assert errors == [], f"expected no errors, got {errors}"
+
+
+def test_metric_field_missing_name_fails():
+    claims = {
+        "CLM-0001": _minimal_claim(
+            "CLM-0001", metric={"value": 0.334},
+        ),
+    }
+    errors, _warnings = validate_rules(claims)
+    assert any("metric" in e and "name" in e for e in errors), errors
+
+
+def test_metric_field_missing_value_fails():
+    claims = {
+        "CLM-0001": _minimal_claim(
+            "CLM-0001", metric={"name": "6_axis"},
+        ),
+    }
+    errors, _warnings = validate_rules(claims)
+    assert any("metric" in e and "value" in e for e in errors), errors
+
+
+def test_metric_field_non_numeric_value_fails():
+    claims = {
+        "CLM-0001": _minimal_claim(
+            "CLM-0001",
+            metric={"name": "6_axis", "value": "high"},
+        ),
+    }
+    errors, _warnings = validate_rules(claims)
+    assert any("metric" in e and ("numeric" in e or "value" in e) for e in errors), errors
+
+
+def test_claim_without_metric_field_still_valid():
+    """Backward compat: pre-R50 claims (CLM-0001 .. CLM-0057) don't
+    carry a metric block. They must continue to validate."""
+    claims = {
+        "CLM-0001": _minimal_claim("CLM-0001"),  # no metric kwarg
+    }
+    errors, _warnings = validate_rules(claims)
+    assert errors == [], f"backward compat broken: {errors}"
