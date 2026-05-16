@@ -82,3 +82,24 @@ def test_paperbenchmark_no_name_collision():
     assert probe_fields < ranker_fields  # strict subset
     assert {"dH_range", "dD_range"} & ranker_fields == {"dH_range", "dD_range"}
     assert {"dH_range", "dD_range"} & probe_fields == set()
+
+
+def test_action_utilization_docstring_doctest_runs():
+    """R50 opt D: the _action_utilization docstring carries 4 doctest
+    assertions that lock the formula (proj_span/paper_span, clipped [0,1]).
+    Without this test the doctests don't run under the default
+    ``testpaths = ['tests']`` config and would silently rot."""
+    import doctest
+
+    from andes_rl_kundur.evaluation import paper_grade_axes
+
+    # _action_utilization is module-private; doctest.testmod finds it via the
+    # module's __test__ + member walk.
+    results = doctest.testmod(paper_grade_axes, verbose=False, raise_on_error=False)
+    assert results.failed == 0, (
+        f"paper_grade_axes doctests failed: {results.failed} of {results.attempted}"
+    )
+    assert results.attempted >= 4, (
+        f"expected at least 4 doctests (the _action_utilization examples), "
+        f"found only {results.attempted}"
+    )

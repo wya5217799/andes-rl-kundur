@@ -169,7 +169,23 @@ def _hf_std(arr: np.ndarray) -> float:
 
 
 def _action_range(arr: np.ndarray) -> tuple[float, float]:
-    """Min/max of avg curve over time."""
+    """Min/max of the CROSS-AGENT MEAN curve over time.
+
+    R50 opt D — explicit naming to prevent misinterpretation.
+    ``arr`` is shape (T, N_agents) — typically ``H - H[0]`` or ``D - D[0]``
+    (the state delta from t=0 per agent, over the first 6 seconds).
+    We FIRST average across the N agents at each timestep, THEN take min/max
+    of the resulting 1-D time series. This is NOT the per-step action
+    magnitude and NOT the per-agent action range — it is specifically the
+    excursion of the **collective mean** over the response window.
+
+    Two counter-intuitive consequences (R49 audit, CLM-0057):
+      * An agent emitting large but TEMPORALLY-FLAT actions scores LOW
+        because the mean curve barely moves.
+      * Four agents emitting large but UNCORRELATED actions can score LOW
+        because cross-agent cancellation flattens the mean.
+    See ``_action_utilization`` for the score derived from this range.
+    """
     avg = arr.mean(axis=1)
     return float(avg.min()), float(avg.max())
 
@@ -184,6 +200,25 @@ def _action_utilization(proj_span: float, paper_span: float) -> float:
       old logic: check proj range ⊂ paper box → trivially 1.0 for all ckpts
                  (project DH ∈ [-5,+15] is always inside box [-100,+300])
       new logic: measures how much of available space agent actually exploits.
+
+    IMPORTANT (R50 opt D, post-R49 diagnostic):
+      ``proj_span`` and ``paper_span`` are SPANS (max - min) of the
+      cross-agent-mean curve over the first 6 seconds — see ``_action_range``.
+      They are NOT per-step action magnitudes. A policy that pushes a
+      large action at the disturbance and holds (TD3-style static setpoint,
+      R48-β / R49 default behavior) will score LOW on this axis even if
+      the instantaneous |delta_M| reaches the upper action bound. The
+      bottleneck for this axis is **temporal variation of the collective
+      mean**, not raw action authority.
+
+    >>> _action_utilization(50.0, 400.0)
+    0.125
+    >>> _action_utilization(400.0, 400.0)
+    1.0
+    >>> _action_utilization(600.0, 400.0)
+    1.0
+    >>> _action_utilization(0.0, 400.0)
+    0.0
     """
     if paper_span < 1.0:
         return 1.0
