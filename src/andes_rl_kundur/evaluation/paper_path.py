@@ -27,11 +27,14 @@ Trace JSON shape (one file per scenario):
 """
 from __future__ import annotations
 
-from typing import Any, Callable
+from typing import TYPE_CHECKING, Any, Callable
 
 import numpy as np
 
 from andes_rl_kundur.env.andes.andes_vsg_env_v4 import AndesMultiVSGEnvV4
+
+if TYPE_CHECKING:
+    from andes_rl_kundur.env.andes.v4_config import V4Config
 
 
 # An ``action_fn`` receives the per-step observation dict and the agent
@@ -63,6 +66,7 @@ def run_scenario(
     seed: int = 42,
     steps: int = 150,
     extra_keys: dict[str, Any] | None = None,
+    config: "V4Config | None" = None,
 ) -> dict[str, Any]:
     """Run one scenario on the V4 env and return the trace JSON dict.
 
@@ -77,53 +81,64 @@ def run_scenario(
         steps:     max episode length (default 150 = 30s @ DT=0.2).
         extra_keys: optional dict merged into the returned record
                     (e.g. ensemble eval adds ``ensemble_agg`` / ``n_actors``).
+        config:     optional ``V4Config`` forwarded to the env constructor.
+                    If ``None``, the env uses ``V4Config.paper_faithful()``
+                    (bit-identical to the historic no-config path). Pass
+                    a custom config for variants like ``zero_g4_inertia=False``
+                    (R44-β) or ``lambda_smooth=-10.0`` (R50-α).
 
     Returns:
         Trace JSON dict (see module docstring for shape).
     """
-    env = AndesMultiVSGEnvV4(random_disturbance=False, comm_fail_prob=0.0)
-    env.seed(seed)
-    env.STEPS_PER_EPISODE = steps
-    obs = env.reset(delta_u=delta_u)
-
-    n_agents = env.N_AGENTS
-    f_nom = env.FN
+    env = AndesMultiVSGEnvV4(
+        random_disturbance=False, comm_fail_prob=0.0, config=config,
+    )
     traces: list[dict[str, Any]] = []
     cum_rf = 0.0
     max_df = 0.0
     osc_accum = 0.0
+    try:
+        env.seed(seed)
+        env.STEPS_PER_EPISODE = steps
+        obs = env.reset(delta_u=delta_u)
 
-    for step in range(steps):
-        actions = action_fn(step, obs, n_agents)
-        obs, _rewards, done, info = env.step(actions)
-        if info.get("tds_failed"):
-            break
+        n_agents = env.N_AGENTS
+        f_nom = env.FN
 
-        freq_hz = info["freq_hz"].astype(float).tolist()
-        delta_f = [(f - f_nom) for f in freq_hz]
-        f_bar = float(np.mean(freq_hz))
-        step_rf = float(np.mean([(d - (f_bar - f_nom)) ** 2 for d in delta_f]))
-        cum_rf -= step_rf
-        max_df = max(max_df, float(np.max(np.abs(delta_f))))
-        osc_accum += float(np.std(delta_f))
+        for step in range(steps):
+            actions = action_fn(step, obs, n_agents)
+            obs, _rewards, done, info = env.step(actions)
+            if info.get("tds_failed"):
+                break
 
-        traces.append({
-            "step":       step,
-            "t":          float(info["time"]),
-            "freq_hz":    freq_hz,
-            "f_bar":      f_bar,
-            "step_rf":    step_rf,
-            "delta_P_es": info["P_es"].astype(float).tolist(),
-            "delta_f_es": delta_f,
-            "M_es":       info["M_es"].astype(float).tolist(),
-            "D_es":       info["D_es"].astype(float).tolist(),
-            "delta_M":    info["delta_M"].astype(float).tolist(),
-            "delta_D":    info["delta_D"].astype(float).tolist(),
-        })
-        if done:
-            break
+            freq_hz = info["freq_hz"].astype(float).tolist()
+            delta_f = [(f - f_nom) for f in freq_hz]
+            f_bar = float(np.mean(freq_hz))
+            step_rf = float(np.mean([(d - (f_bar - f_nom)) ** 2 for d in delta_f]))
+            cum_rf -= step_rf
+            max_df = max(max_df, float(np.max(np.abs(delta_f))))
+            osc_accum += float(np.std(delta_f))
 
-    env.close()
+            traces.append({
+                "step":       step,
+                "t":          float(info["time"]),
+                "freq_hz":    freq_hz,
+                "f_bar":      f_bar,
+                "step_rf":    step_rf,
+                "delta_P_es": info["P_es"].astype(float).tolist(),
+                "delta_f_es": delta_f,
+                "M_es":       info["M_es"].astype(float).tolist(),
+                "D_es":       info["D_es"].astype(float).tolist(),
+                "delta_M":    info["delta_M"].astype(float).tolist(),
+                "delta_D":    info["delta_D"].astype(float).tolist(),
+            })
+            if done:
+                break
+    finally:
+        # Always release the ANDES TDS session; single-session limit
+        # on Windows (see docs/eng-notes/NOTES_ANDES.md) makes a leaked
+        # env fatal for the next run.
+        env.close()
 
     record: dict[str, Any] = {
         "controller":   label,
