@@ -19,9 +19,15 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
-sys.path.insert(0, str(ROOT / "scripts"))
 
-from eval_ddic import eval_scenario, load_actors, SCENARIOS  # noqa: E402
+from andes_rl_kundur.agents.checkpoint_loader import load_agents  # noqa: E402
+from andes_rl_kundur.evaluation.paper_path import (  # noqa: E402
+    deterministic_actor_action_fn,
+    run_scenario,
+)
+from andes_rl_kundur.probes.andes_common.paper_constants import SCENARIOS  # noqa: E402
+
+STEPS = 150  # 30s @ DT=0.6 (matches eval_ddic.py)
 
 EVAL_OUT_DIR = ROOT / "results" / "research_loop" / "eval_v4_baseline"
 RESULTS_DIR = ROOT / "results"
@@ -55,13 +61,20 @@ def eval_one(variant: str, seed: int, ckpt_dir: Path) -> dict:
     out: dict = {"variant": variant, "seed": seed, "ckpt_dir": str(ckpt_dir),
                  "suffix": suffix, "label": label, "results": {}}
     try:
-        agents = load_actors(ckpt_dir, suffix=suffix)
+        agents = load_agents(ckpt_dir, suffix=suffix)
     except Exception as e:
-        out["error"] = f"load_actors: {str(e)[:200]}"
+        out["error"] = f"load_agents: {str(e)[:200]}"
         return out
+    action_fn = deterministic_actor_action_fn(agents)
     for scen, du in SCENARIOS.items():
         try:
-            rep = eval_scenario(scen, du, agents, label, seed=42)
+            rep = run_scenario(
+                scen, du,
+                action_fn=action_fn,
+                label=label,
+                seed=42,
+                steps=STEPS,
+            )
             (EVAL_OUT_DIR / f"{label}_{scen}.json").write_text(
                 json.dumps(rep, indent=2, default=str), encoding="utf-8"
             )

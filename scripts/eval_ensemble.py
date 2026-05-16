@@ -33,11 +33,6 @@ EVAL_SEED = 42
 STEPS = 150
 
 
-def load_actors(ckpt_dir: Path, suffix: str) -> list:
-    """Back-compat alias for ``checkpoint_loader.load_agents``."""
-    return load_agents(ckpt_dir, suffix=suffix)
-
-
 def ensemble_action(all_actors_per_agent: list[list],
                     agent_idx: int, obs_i: np.ndarray,
                     agg: str, weights: np.ndarray) -> np.ndarray:
@@ -97,7 +92,7 @@ def main():
     if args.agg == "weighted":
         print(f"  weights = {weights}")
 
-    all_actors = [load_actors(Path(cd), suf) for cd, suf in zip(args.ckpt_dirs, args.suffixes)]
+    all_actors = [load_agents(Path(cd), suf) for cd, suf in zip(args.ckpt_dirs, args.suffixes)]
     print(f"[V4 ensemble] loaded {len(all_actors)} actor sets × 4 agents")
 
     action_fn = _ensemble_action_fn(all_actors, args.agg, weights)

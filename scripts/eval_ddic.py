@@ -22,42 +22,11 @@ from andes_rl_kundur.agents.checkpoint_loader import load_agents  # noqa: E402
 from andes_rl_kundur.evaluation.paper_path import (  # noqa: E402
     deterministic_actor_action_fn,
     run_scenario,
-    zero_action_fn,
 )
 from andes_rl_kundur.probes.andes_common.paper_constants import SCENARIOS  # noqa: E402
 
 EVAL_SEED = 42
 STEPS = 150  # 30s @ DT=0.6 (V4 ANDES)
-
-
-def load_actors(ckpt_dir: Path, suffix: str = "best") -> list:
-    """Back-compat alias for ``checkpoint_loader.load_agents``.
-
-    Kept so external callers (notably ``scripts/eval_all_seeds.py``) that
-    historically ``from eval_ddic import load_actors`` continue to work.
-    """
-    return load_agents(ckpt_dir, suffix=suffix)
-
-
-def eval_scenario(scen_name: str, delta_u: dict,
-                   agents: list | None, label: str,
-                   seed: int = EVAL_SEED) -> dict:
-    """Back-compat thin wrapper around run_scenario.
-
-    Kept so that scripts/eval_all_seeds.py and any external callers that
-    still ``from eval_ddic import eval_scenario`` continue to work.
-    """
-    action_fn = (
-        zero_action_fn if agents is None
-        else deterministic_actor_action_fn(agents)
-    )
-    return run_scenario(
-        scen_name, delta_u,
-        action_fn=action_fn,
-        label=label,
-        seed=seed,
-        steps=STEPS,
-    )
 
 
 def main():
@@ -75,7 +44,7 @@ def main():
 
     ckpt_dir = Path(args.ckpt_dir)
     print(f"[V4 ddic eval] loading 4 actors from {ckpt_dir} (suffix={args.suffix})")
-    agents = load_actors(ckpt_dir, suffix=args.suffix)
+    agents = load_agents(ckpt_dir, suffix=args.suffix)
     action_fn = deterministic_actor_action_fn(agents)
 
     for scen, du in SCENARIOS.items():
