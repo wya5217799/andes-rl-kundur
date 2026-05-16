@@ -159,6 +159,21 @@ class AndesBaseEnv(ABC):
                 )
             self.OBS_DIM = self.__class__.OBS_DIM + 1
 
+        # R55 probe: windowed-horizon smoothness. Default 1 = per-step
+        # (original R01/R50 behaviour). When > 1 the smoothness penalty
+        # uses `(a[t] - a[t-W])²` (telescoping) instead of per-step
+        # diff, preserving policy drift signal vs flat noise floor.
+        # Env-var entry point; V4Config can override.
+        self._smoothness_window = max(1, int(
+            os.environ.get("SMOOTHNESS_WINDOW", "1")
+        ))
+        if self._smoothness_window > 1:
+            self._action_history_dM = deque(maxlen=self._smoothness_window)
+            self._action_history_dD = deque(maxlen=self._smoothness_window)
+        else:
+            self._action_history_dM = None
+            self._action_history_dD = None
+
     def close(self):
         """Clean up ANDES system resources."""
         self.ss = None
@@ -254,6 +269,10 @@ class AndesBaseEnv(ABC):
 
         self.step_count = 0
         self._prev_omega = self._get_vsg_omega()
+        # R55: clear windowed action history at episode start
+        if self._action_history_dM is not None:
+            self._action_history_dM.clear()
+            self._action_history_dD.clear()
 
         # 记录当前 M/D 值, 用于 substep 插值的起点
         self._prev_M = self.M0.copy()
@@ -358,14 +377,27 @@ class AndesBaseEnv(ABC):
         # Negative LAMBDA_SMOOTH (R50, 2026-05-17) flips sign to REWARD action change
         # (anti-smoothness), addressing CLM-0057's temporal-flatness bottleneck.
         # LAMBDA_SMOOTH=0.0 (default) stays paper-faithful; non-zero is research mode.
+        # R55: SMOOTHNESS_WINDOW > 1 switches to telescoping diff
+        # `(a[t] - a[t-W])²` (hijack-resistant for policy drift signal).
         r_smooth_sum = 0.0
         if self._lambda_smooth != 0.0:
             dM_range = max(self.DM_MAX - self.DM_MIN, 1e-6)
             dD_range = max(self.DD_MAX - self.DD_MIN, 1e-6)
+            # Choose reference action: W steps ago (telescoping) or 1 step ago (per-step)
+            if (
+                self._smoothness_window > 1
+                and self._action_history_dM is not None
+                and len(self._action_history_dM) >= self._smoothness_window
+            ):
+                ref_dM = self._action_history_dM[0]
+                ref_dD = self._action_history_dD[0]
+            else:
+                ref_dM = self._prev_delta_M
+                ref_dD = self._prev_delta_D
             smooth_pen = 0.0
             for i in range(self.N_AGENTS):
-                dm_diff = (delta_M[i] - self._prev_delta_M[i]) / dM_range
-                dd_diff = (delta_D[i] - self._prev_delta_D[i]) / dD_range
+                dm_diff = (delta_M[i] - ref_dM[i]) / dM_range
+                dd_diff = (delta_D[i] - ref_dD[i]) / dD_range
                 smooth_pen += dm_diff * dm_diff + dd_diff * dd_diff
             r_smooth_sum = -self._lambda_smooth * smooth_pen
             r_per_agent = r_smooth_sum / self.N_AGENTS
@@ -374,6 +406,10 @@ class AndesBaseEnv(ABC):
 
         self._prev_delta_M = delta_M.copy()
         self._prev_delta_D = delta_D.copy()
+        # R55: push current action onto telescoping window
+        if self._action_history_dM is not None:
+            self._action_history_dM.append(delta_M.copy())
+            self._action_history_dD.append(delta_D.copy())
 
         # 5c. Cache last action for INCLUDE_OWN_ACTION_OBS obs append
         if self._include_own_action_obs:

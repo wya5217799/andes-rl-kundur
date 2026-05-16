@@ -40,6 +40,7 @@ from __future__ import annotations
 
 import os
 import warnings
+from collections import deque
 
 import andes
 import numpy as np
@@ -189,8 +190,11 @@ class AndesMultiVSGEnvV4(AndesBaseEnv):
         self.ZERO_G4_INERTIA = cfg.zero_g4_inertia
         self.action_penalty_mode = cfg.action_penalty_mode
         # R50 opt B: V4Config-driven anti-smoothness + own-action obs.
-        # Override base_env's env-var-derived defaults so cfg wins.
-        self._lambda_smooth = cfg.lambda_smooth
+        # Only override if cfg explicitly non-default; otherwise keep
+        # base_env's env-var-derived value (R55 preserves LAMBDA_SMOOTH=-N
+        # env-var path so research probes work via env-var-only).
+        if cfg.lambda_smooth != 0.0:
+            self._lambda_smooth = cfg.lambda_smooth
         if cfg.include_own_action_obs and not self._include_own_action_obs:
             # Late-enable: base_env init didn't see the env var, but cfg
             # says we want the probe — bump OBS_DIM and init last_action.
@@ -206,6 +210,11 @@ class AndesMultiVSGEnvV4(AndesBaseEnv):
         if cfg.include_time_obs:
             self._include_time_obs = True
             self.OBS_DIM = self.__class__.OBS_DIM + 1
+        # R55 probe: windowed-horizon smoothness late-enable from cfg.
+        if cfg.smoothness_window > 1 and self._smoothness_window <= 1:
+            self._smoothness_window = cfg.smoothness_window
+            self._action_history_dM = deque(maxlen=self._smoothness_window)
+            self._action_history_dD = deque(maxlen=self._smoothness_window)
 
         # R05 disturbance-scale env var (calibrate against paper cum_rf).
         scale = float(os.environ.get("DISTURB_SCALE", "1.0"))

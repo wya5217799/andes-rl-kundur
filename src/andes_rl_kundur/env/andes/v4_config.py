@@ -69,6 +69,17 @@ class V4Config:
     # is the recommended modern path.
     lambda_smooth: float = 0.0
 
+    # ─── Windowed-horizon smoothness (R55 / CLM-0061 follow-up) ──────
+    # The R50 anti-smoothness reward (lambda_smooth < 0) at window=1
+    # was hijacked by exploration noise: per-step action change
+    # variance was dominated by Gaussian exploration noise (sigma~0.1),
+    # not by policy-driven systematic variation. Window > 1 switches
+    # from per-step diff `(a[t] - a[t-1])²` to telescoping diff
+    # `(a[t] - a[t-W])²`, which preserves policy drift signal across
+    # W steps while leaving noise variance still bounded at 2σ².
+    # Default 1 (per-step, original R01/R50 behaviour).
+    smoothness_window: int = 1
+
     # ─── Observation augmentation (R03 / R49 probe) ──────────────────
     # When True, OBS_DIM += 2 and each agent's obs is appended with its
     # previous action ``(delta_M_prev, delta_D_prev)``. R49-α found this
