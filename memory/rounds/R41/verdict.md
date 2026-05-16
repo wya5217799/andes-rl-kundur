@@ -193,3 +193,6 @@ distribution, achievable in 75 episodes.
   ≈ 75ep mean).
 - "Can we keep paper PHI weights and fix the asymmetry?" — YES
   (normalized-mode V4Config).
+
+## Questions advanced (this round, status unchanged)
+- (none)
