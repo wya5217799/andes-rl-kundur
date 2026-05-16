@@ -32,12 +32,29 @@ def detect_algo(ckpt_path: Path) -> str:
     return ckpt.get("algo", "sac")
 
 
+def detect_actor_dims(ckpt_path: Path) -> tuple[int, int]:
+    """Inspect ckpt['actor']['net.0.weight'] shape to recover (obs_dim, hidden_size).
+
+    Both SAC GaussianActor and TD3 DeterministicActor name the first linear
+    layer ``net.0.weight`` with shape ``(hidden_size, obs_dim)`` (PyTorch
+    Linear convention). All four hidden layers are assumed uniform-width
+    (matches ``train.py --hidden-size N`` semantics).
+
+    R50 optimization A: replaces the R48 / R49 inline workarounds where the
+    caller had to know the ckpt's actor architecture out-of-band.
+    """
+    ckpt = torch.load(ckpt_path, map_location="cpu", weights_only=True)
+    w = ckpt["actor"]["net.0.weight"]
+    return int(w.shape[1]), int(w.shape[0])
+
+
 def load_agents(
     ckpt_dir: Path,
     *,
     suffix: str = "best",
     n_agents: int | None = None,
     hidden_sizes: tuple[int, ...] | None = None,
+    obs_dim: int | None = None,
     device: str = "cpu",
 ) -> list:
     """Load N agents from ``ckpt_dir/agent_{i}_{suffix}.pt``.
@@ -46,8 +63,12 @@ def load_agents(
         ckpt_dir:     directory containing the per-agent ckpt files.
         suffix:       ckpt filename suffix (``"best"`` or ``"final"``).
         n_agents:     number of agents (default: ``AndesMultiVSGEnvV4.N_AGENTS``).
-        hidden_sizes: actor/critic hidden layer sizes (default:
-                      ``andes_rl_kundur.config.HIDDEN_SIZES``).
+        hidden_sizes: actor/critic hidden layer sizes. If ``None`` (default),
+                      auto-detected from ``ckpt['actor']['net.0.weight']``.
+                      Pass explicitly to override / pin for safety.
+        obs_dim:      actor input dimension. If ``None`` (default), auto-detected
+                      from the ckpt as above. Pass explicitly when loading into
+                      an env whose ``OBS_DIM`` may differ (e.g. INCLUDE_OWN_ACTION_OBS).
         device:       torch device.
 
     Returns:
@@ -56,12 +77,28 @@ def load_agents(
 
     Raises:
         FileNotFoundError: if any expected ckpt file is missing.
+        RuntimeError:      if explicit ``hidden_sizes`` / ``obs_dim`` mismatch
+                           the ckpt's actor (user-intent-wins semantics).
     """
     if n_agents is None:
         n_agents = AndesMultiVSGEnvV4.N_AGENTS
+
+    # Auto-detect dims from the first ckpt when caller did not pin them.
+    if hidden_sizes is None or obs_dim is None:
+        first_ckpt = ckpt_dir / CKPT_NAME_FMT.format(i=0, suffix=suffix)
+        if first_ckpt.exists():
+            detected_obs, detected_hidden = detect_actor_dims(first_ckpt)
+            if hidden_sizes is None:
+                hidden_sizes = (detected_hidden,) * 4
+            if obs_dim is None:
+                obs_dim = detected_obs
+
+    # Fallbacks (only reached if first ckpt is missing; the per-i loop below
+    # will then raise FileNotFoundError, but we still need non-None values).
     if hidden_sizes is None:
         hidden_sizes = HIDDEN_SIZES
-    obs_dim = AndesMultiVSGEnvV4.OBS_DIM
+    if obs_dim is None:
+        obs_dim = AndesMultiVSGEnvV4.OBS_DIM
     action_dim = 2
 
     agents: list = []
