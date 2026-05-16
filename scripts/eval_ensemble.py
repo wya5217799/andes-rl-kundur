@@ -21,14 +21,11 @@ import sys
 from pathlib import Path
 
 import numpy as np
-import torch
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from andes_rl_kundur.agents.sac import SACAgent  # noqa: E402
-from andes_rl_kundur.agents.td3 import TD3Agent  # noqa: E402
-from andes_rl_kundur.env.andes.andes_vsg_env_v4 import AndesMultiVSGEnvV4  # noqa: E402
+from andes_rl_kundur.agents.checkpoint_loader import load_agents  # noqa: E402
 from andes_rl_kundur.evaluation.paper_path import run_scenario  # noqa: E402
 from andes_rl_kundur.probes.andes_common.paper_constants import SCENARIOS  # noqa: E402
 
@@ -36,32 +33,9 @@ EVAL_SEED = 42
 STEPS = 150
 
 
-def _detect_algo(ckpt_path: Path) -> str:
-    """Inspect the ckpt's self-described algo field. Default to 'sac' for
-    pre-2026-05-17 ckpts that don't carry it."""
-    ckpt = torch.load(ckpt_path, map_location="cpu", weights_only=True)
-    return ckpt.get("algo", "sac")
-
-
 def load_actors(ckpt_dir: Path, suffix: str) -> list:
-    """Load 4 actors. Detects SAC vs TD3 from the ckpt's algo field."""
-    from andes_rl_kundur.config import HIDDEN_SIZES
-    obs_dim = AndesMultiVSGEnvV4.OBS_DIM
-    actors = []
-    for i in range(AndesMultiVSGEnvV4.N_AGENTS):
-        ckpt_path = ckpt_dir / f"agent_{i}_{suffix}.pt"
-        if not ckpt_path.exists():
-            raise FileNotFoundError(ckpt_path)
-        algo = _detect_algo(ckpt_path)
-        if algo == "td3":
-            a = TD3Agent(obs_dim=obs_dim, action_dim=2,
-                         hidden_sizes=HIDDEN_SIZES, device="cpu")
-        else:
-            a = SACAgent(obs_dim=obs_dim, action_dim=2,
-                         hidden_sizes=HIDDEN_SIZES, device="cpu")
-        a.load(str(ckpt_path))
-        actors.append(a)
-    return actors
+    """Back-compat alias for ``checkpoint_loader.load_agents``."""
+    return load_agents(ckpt_dir, suffix=suffix)
 
 
 def ensemble_action(all_actors_per_agent: list[list],
