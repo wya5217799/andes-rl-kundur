@@ -58,6 +58,24 @@ class V4Config:
     #               action-cost stays O(1) regardless of action range)
     action_penalty_mode: Literal["physical", "normalized"] = "physical"
 
+    # ─── Action smoothing / anti-smoothing (R01 / R50 follow-up) ─────
+    # r_smooth = -lambda_smooth × Σ((Δa - Δa_prev)/range)² added per step.
+    #   0.0          : disabled (paper-faithful default)
+    #   > 0.0        : PENALIZE action change (R01 smoothness probe)
+    #   < 0.0        : REWARD action change (R50 anti-flatness, addresses
+    #                  CLM-0057 temporal-flatness bottleneck)
+    # The env-var ``LAMBDA_SMOOTH`` is the legacy entry point (still
+    # honoured by ``base_env`` for back-compat); pinning via V4Config
+    # is the recommended modern path.
+    lambda_smooth: float = 0.0
+
+    # ─── Observation augmentation (R03 / R49 probe) ──────────────────
+    # When True, OBS_DIM += 2 and each agent's obs is appended with its
+    # previous action ``(delta_M_prev, delta_D_prev)``. R49-α found this
+    # NEGATIVE for V4 (-21% 6-axis vs baseline) — see CLM-0057. Field
+    # exists for reproducibility / future ablations; default OFF.
+    include_own_action_obs: bool = False
+
     def __post_init__(self) -> None:
         if self.action_penalty_mode not in ("physical", "normalized"):
             raise ValueError(

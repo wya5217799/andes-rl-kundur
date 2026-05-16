@@ -188,6 +188,19 @@ class AndesMultiVSGEnvV4(AndesBaseEnv):
         self.PHI_SETTLE = cfg.phi_settle
         self.ZERO_G4_INERTIA = cfg.zero_g4_inertia
         self.action_penalty_mode = cfg.action_penalty_mode
+        # R50 opt B: V4Config-driven anti-smoothness + own-action obs.
+        # Override base_env's env-var-derived defaults so cfg wins.
+        self._lambda_smooth = cfg.lambda_smooth
+        if cfg.include_own_action_obs and not self._include_own_action_obs:
+            # Late-enable: base_env init didn't see the env var, but cfg
+            # says we want the probe — bump OBS_DIM and init last_action.
+            self._include_own_action_obs = True
+            self.OBS_DIM = self.__class__.OBS_DIM + 2
+            self._last_action = np.zeros((self.N_AGENTS, 2), dtype=np.float32)
+        elif not cfg.include_own_action_obs and self._include_own_action_obs:
+            # Cfg explicitly says OFF; honour it even if env var said ON.
+            self._include_own_action_obs = False
+            self.OBS_DIM = self.__class__.OBS_DIM
 
         # R05 disturbance-scale env var (calibrate against paper cum_rf).
         scale = float(os.environ.get("DISTURB_SCALE", "1.0"))

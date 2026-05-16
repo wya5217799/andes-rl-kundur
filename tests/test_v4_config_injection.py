@@ -108,6 +108,39 @@ def test_v4_config_is_immutable():
         cfg.phi_h = 999.0  # type: ignore[misc]
 
 
+def test_config_lambda_smooth_flows_to_instance():
+    """R50 opt B: V4Config.lambda_smooth must reach env._lambda_smooth so
+    train.py / eval scripts can enable anti-smoothness reward shaping via
+    config instead of LAMBDA_SMOOTH env var."""
+    env = AndesMultiVSGEnvV4(
+        random_disturbance=False, comm_fail_prob=0.0,
+        config=V4Config(lambda_smooth=-10.0),
+    )
+    assert env._lambda_smooth == -10.0
+
+
+def test_config_include_own_action_obs_bumps_obs_dim():
+    """R50 opt B: V4Config.include_own_action_obs=True must bump instance
+    OBS_DIM by 2 (the R03 probe) — replaces the INCLUDE_OWN_ACTION_OBS env
+    var workaround used in R49."""
+    env = AndesMultiVSGEnvV4(
+        random_disturbance=False, comm_fail_prob=0.0,
+        config=V4Config(include_own_action_obs=True),
+    )
+    assert env.OBS_DIM == AndesMultiVSGEnvV4.OBS_DIM + 2
+    assert env._include_own_action_obs is True
+
+
+def test_config_lambda_smooth_default_is_zero_and_off():
+    """Bit-identical paper-faithful guarantee: V4Config() with no override
+    leaves the env reward path unchanged (lambda_smooth=0.0 disables the
+    r_smooth term entirely)."""
+    env = AndesMultiVSGEnvV4(random_disturbance=False, comm_fail_prob=0.0)
+    assert env._lambda_smooth == 0.0
+    assert env._include_own_action_obs is False
+    assert env.OBS_DIM == AndesMultiVSGEnvV4.OBS_DIM
+
+
 def test_deviation_summary_truthfully_reports_g4_state():
     """The introspection helper must report what ZERO_G4_INERTIA actually is.
 

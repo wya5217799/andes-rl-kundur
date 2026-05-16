@@ -339,8 +339,11 @@ class AndesBaseEnv(ABC):
             omega, omega_dot, delta_M, delta_D)
 
         # 5b. Action smoothing penalty (R01 Phase A; LAMBDA_SMOOTH=0.0 disables, paper-faithful)
+        # Negative LAMBDA_SMOOTH (R50, 2026-05-17) flips sign to REWARD action change
+        # (anti-smoothness), addressing CLM-0057's temporal-flatness bottleneck.
+        # LAMBDA_SMOOTH=0.0 (default) stays paper-faithful; non-zero is research mode.
         r_smooth_sum = 0.0
-        if self._lambda_smooth > 0.0:
+        if self._lambda_smooth != 0.0:
             dM_range = max(self.DM_MAX - self.DM_MIN, 1e-6)
             dD_range = max(self.DD_MAX - self.DD_MIN, 1e-6)
             smooth_pen = 0.0
