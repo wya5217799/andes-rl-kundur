@@ -17,7 +17,7 @@ from collections import Counter
 import csv
 import json
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
 import numpy as np
 
@@ -37,10 +37,12 @@ class TrainingMonitor:
         self,
         calibration_episodes: int = 20,
         log_interval: int = 10,
-        best_reward_callback: callable | None = None,
+        best_reward_callback: Callable[[int, float], None] | None = None,
+        algo_name: str = "sac",
     ):
         self.calibration_episodes = calibration_episodes
         self.log_interval = log_interval
+        self.algo_name = algo_name
 
         # Data storage
         self._episode_rewards: list[float] = []
@@ -59,9 +61,9 @@ class TrainingMonitor:
         self._best_reward = float('-inf')
         self._best_episode = -1
 
-        # Early stopping state
-        self._early_stop_best_reward = float('-inf')
-        self._early_stop_best_ep_idx = 0
+        # (Early-stopping state moved to scenarios.kundur.training_checks.
+        # EarlyStoppingCheck owns its own _best_reward / _best_ep_idx
+        # since R42 / C4.)
 
         # Trigger history
         self._trigger_history: list[dict[str, Any]] = []
@@ -73,7 +75,9 @@ class TrainingMonitor:
         # Registered Check Protocol instances (single execution path).
         # Domain defaults are registered by
         # andes_rl_kundur.scenarios.kundur.training_checks.register_kundur_default_checks.
-        from andes_rl_kundur.utils.checks import Check  # noqa: F401 — type hint only
+        # The runtime Check Protocol check happens inside register_check
+        # (which imports it locally to avoid the import cycle), so no
+        # import is needed here.
         self._plugin_checks: list = []
 
     # ─── Public read-only accessors (Check Protocol view) ───
@@ -388,8 +392,6 @@ class TrainingMonitor:
             "_sac_losses": self._sac_losses,
             "_best_reward": self._best_reward,
             "_best_episode": self._best_episode,
-            "_early_stop_best_reward": self._early_stop_best_reward,
-            "_early_stop_best_ep_idx": self._early_stop_best_ep_idx,
             "_last_trigger_ep": self._last_trigger_ep,
         }
         Path(path).parent.mkdir(parents=True, exist_ok=True)
@@ -417,8 +419,8 @@ class TrainingMonitor:
         monitor._sac_losses = data.get("_sac_losses", [])
         monitor._best_reward = data.get("_best_reward", float('-inf'))
         monitor._best_episode = data.get("_best_episode", -1)
-        monitor._early_stop_best_reward = data.get("_early_stop_best_reward", float('-inf'))
-        monitor._early_stop_best_ep_idx = data.get("_early_stop_best_ep_idx", 0)
+        # _early_stop_best_* keys silently ignored: pre-R42 checkpoints
+        # carried them but EarlyStoppingCheck now owns its own state.
         monitor._last_trigger_ep = data.get("_last_trigger_ep", {})
 
         # If enough episodes exist, ensure calibrated
@@ -555,7 +557,7 @@ class TrainingMonitor:
                 if alpha_vals:
                     mean_alpha = float(np.mean(alpha_vals))
                     parts.append(f"mean alpha: {mean_alpha:.3f}")
-                print(f"          SAC: {', '.join(parts)}")
+                print(f"          {self.algo_name.upper()}: {', '.join(parts)}")
 
     def summary(self):
         n = len(self._episode_rewards)
@@ -612,11 +614,20 @@ class TrainingMonitor:
 
         if self._trigger_history:
             print(f"\n  Checks triggered:")
-            # Group by check name
-            counts = Counter(t["check"] for t in self._trigger_history)
+            # Field-name fallback: pre-R42 plug-in entries used `name` /
+            # `severity` instead of `check` / `action`. load_checkpoint
+            # hydrates either shape; tolerate both here.
+            def _ck(t):
+                return t.get("check", t.get("name", "?"))
+
+            def _act(t):
+                return t.get("action", t.get("severity", "warn"))
+
+            counts = Counter(_ck(t) for t in self._trigger_history)
             for check_name, count in counts.items():
-                first_ep = next(t["episode"] for t in self._trigger_history if t["check"] == check_name)
-                action = next(t["action"] for t in self._trigger_history if t["check"] == check_name)
+                matches = [t for t in self._trigger_history if _ck(t) == check_name]
+                first_ep = matches[0]["episode"]
+                action = _act(matches[0])
                 icon = "[STOP]" if action == "stop" else "[!]"
                 label = "STOP" if action == "stop" else "WARN"
                 print(f"    {check_name:<28} {icon} {label:<5} @ ep {first_ep:<5} ({count} time{'s' if count > 1 else ''})")

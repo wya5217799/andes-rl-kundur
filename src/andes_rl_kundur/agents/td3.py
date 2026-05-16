@@ -34,6 +34,8 @@ from andes_rl_kundur.agents.sac_base import _SACBase
 class TD3Agent(_SACBase):
     """Deterministic-policy actor with twin critics + delayed updates."""
 
+    algo_name: str = "td3"
+
     def __init__(
         self,
         obs_dim: int,

@@ -24,6 +24,8 @@ from andes_rl_kundur.agents.sac_base import _SACBase
 class SACAgent(_SACBase):
     """Per-agent SAC: own actor + own DoubleQ critic + own alpha."""
 
+    algo_name: str = "sac"
+
     def __init__(
         self,
         obs_dim,
