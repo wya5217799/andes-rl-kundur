@@ -35,59 +35,81 @@ VERDICT_RECOMMENDED_SECTIONS = ("## TL;DR",)
 VERDICT_STATUS_HEADER_RE = re.compile(r"^\*\*Status\*\*\s*:", re.MULTILINE)
 
 
-def load_claims(claims_dir: Path) -> dict[str, dict[str, Any]]:
-    """Load every CLM-*.md frontmatter into a dict keyed by id."""
-    claims: dict[str, dict[str, Any]] = {}
-    for path in sorted(claims_dir.glob("CLM-*.md")):
+def _load_entities(
+    entity_dir: Path,
+    *,
+    glob_pattern: str,
+    extras: dict[str, Any] | None = None,
+    require_dir: bool = True,
+) -> dict[str, dict[str, Any]]:
+    """Load every frontmatter-tagged markdown file in ``entity_dir`` matching
+    ``glob_pattern`` into a dict keyed by frontmatter ``id``.
+
+    Used by both :func:`load_claims` and :func:`load_questions`. Centralises
+    the frontmatter parse, the missing-``id`` guard, and the duplicate-id
+    check so that adding a new entity kind in the future means writing a
+    ≤5-line wrapper instead of duplicating ~20 lines.
+
+    Args:
+        entity_dir:    directory to scan.
+        glob_pattern:  e.g. ``"CLM-*.md"`` or ``"Q-*.md"``.
+        extras:        per-entity defaults to ``setdefault`` on each loaded
+                       meta dict (e.g. ``superseded_by=[]``).
+        require_dir:   if False and ``entity_dir`` does not exist, returns
+                       ``{}`` silently (Q entity is optional).
+
+    Raises:
+        ValueError: missing frontmatter, missing ``id`` field, or duplicate id.
+    """
+    out: dict[str, dict[str, Any]] = {}
+    if not entity_dir.exists():
+        if require_dir:
+            raise FileNotFoundError(f"entity dir does not exist: {entity_dir}")
+        return out
+    for path in sorted(entity_dir.glob(glob_pattern)):
         text = path.read_text(encoding="utf-8")
         match = FRONTMATTER_RE.match(text)
         if not match:
             raise ValueError(f"{path.name}: no YAML frontmatter")
         meta = yaml.safe_load(match.group(1)) or {}
         meta["_path"] = path
-        meta.setdefault("superseded_by", [])
-        meta.setdefault("supersedes", [])
-        cid = meta.get("id")
-        if not cid:
+        if extras:
+            for k, v in extras.items():
+                meta.setdefault(k, v)
+        eid = meta.get("id")
+        if not eid:
             raise ValueError(
                 f"{path.name}: frontmatter missing required 'id' field"
             )
-        if cid in claims:
+        if eid in out:
             raise ValueError(
-                f"duplicate id {cid} in {path.name} and "
-                f"{claims[cid]['_path'].name}"
+                f"duplicate id {eid} in {path.name} and "
+                f"{out[eid]['_path'].name}"
             )
-        claims[cid] = meta
-    return claims
+        out[eid] = meta
+    return out
+
+
+def load_claims(claims_dir: Path) -> dict[str, dict[str, Any]]:
+    """Load every CLM-*.md frontmatter into a dict keyed by id."""
+    return _load_entities(
+        claims_dir,
+        glob_pattern="CLM-*.md",
+        extras={"superseded_by": [], "supersedes": []},
+    )
 
 
 def load_questions(questions_dir: Path) -> dict[str, dict[str, Any]]:
     """Load every Q-*.md frontmatter into a dict keyed by id.
 
-    Returns empty dict if questions_dir doesn't exist (Q entity is optional —
-    a repo without any Q files is valid)."""
-    questions: dict[str, dict[str, Any]] = {}
-    if not questions_dir.exists():
-        return questions
-    for path in sorted(questions_dir.glob("Q-*.md")):
-        text = path.read_text(encoding="utf-8")
-        match = FRONTMATTER_RE.match(text)
-        if not match:
-            raise ValueError(f"{path.name}: no YAML frontmatter")
-        meta = yaml.safe_load(match.group(1)) or {}
-        meta["_path"] = path
-        qid = meta.get("id")
-        if not qid:
-            raise ValueError(
-                f"{path.name}: frontmatter missing required 'id' field"
-            )
-        if qid in questions:
-            raise ValueError(
-                f"duplicate id {qid} in {path.name} and "
-                f"{questions[qid]['_path'].name}"
-            )
-        questions[qid] = meta
-    return questions
+    Returns empty dict if ``questions_dir`` does not exist (Q entity is
+    optional — a repo without any Q files is valid).
+    """
+    return _load_entities(
+        questions_dir,
+        glob_pattern="Q-*.md",
+        require_dir=False,
+    )
 
 
 def validate_question_rules(
