@@ -560,53 +560,120 @@ class AndesBaseEnv(ABC):
 
         - r_f (Eq.15-16): 局部邻居平均频率同步惩罚
         - r_abs: -d_omega_i^2, 绝对频率偏差惩罚 (解决紧耦合系统 r_f 信号过弱)
-        - r_h (Eq.17): -(ΔH_avg)^2, 物理惯量调整均值 (ΔH = ΔM/2, M = 2H)
+        - r_h (Eq.17): -(ΔH_avg)^2, 物理惯量调整均值
         - r_d (Eq.18): -(ΔD_avg)^2, 物理阻尼调整均值
+
+        R58 audit-A escape hatches (all defaults preserve R30–R57 behaviour):
+            * ``r_f_freq_units``: "hz" (default) or "rad_per_s" (audit A3)
+            * ``h_paper_interpretation``: "mechanical_H" (default) or "andes_M" (A2)
+            * ``r_avg_scope``: "global" (default) or "neighbor" (A5)
+            * Audit A1 fix: when ``comm_delay_steps > 0`` the reward
+              consumes the obs-side delayed neighbor frequency (paper
+              §2.4.5: reward must be consistent with obs). Inactive
+              when ``comm_delay_steps == 0`` (R56/R57 default).
 
         Args:
             omega: shape (N,), 转速 p.u.
             omega_dot: shape (N,), 转速变化率
-            delta_M: shape (N,), 物理惯量增量 ΔM (s); ΔH = ΔM/2
+            delta_M: shape (N,), 物理惯量增量 ΔM (s)
             delta_D: shape (N,), 物理阻尼增量 ΔD (p.u.)
         """
-        d_omega = (omega - 1.0) * self.FN  # Hz 偏差
+        # R58 audit A3: paper Eq.15-16 use Δω which paper §III physics
+        # convention reads as angular frequency (rad/s). Project default
+        # "hz" matches the eval formula (paper §IV-C); "rad_per_s"
+        # multiplies internal r^f by (2π·FN)² for paper-faithful test.
+        units = getattr(self, "r_f_freq_units", "hz")
+        if units == "rad_per_s":
+            freq_scale = self._omega_scale  # 2π·FN
+        else:
+            freq_scale = self.FN  # Hz
+        d_omega = (omega - 1.0) * freq_scale
 
-        # Eq.17-18: 物理调整量全局均值 (先均值再平方, 与 Simulink 路径一致)
-        # Default 'physical' mode uses the paper Eq.17-18 form. The
-        # 'normalized' mode (CLM-0043 follow-up) divides by half-range
-        # so the action-penalty term stays O(1) regardless of action
-        # range, restoring the paper's intended PHI scaling semantics
-        # without changing the PHI numbers.
+        # R58 audit A1: obs-side neighbor frequency cache when delay > 0.
+        # Reward must reflect what the agent observed (paper §2.4.5),
+        # not the simulator's true current value. The deque stores
+        # delayed values in rad/s (always); convert to the active freq
+        # unit here so r^f comparisons stay scale-consistent.
+        use_obs_neighbors = (
+            getattr(self, "comm_delay_steps", 0) > 0
+            and getattr(self, "_delayed_omega", None) is not None
+            and len(self._delayed_omega) > 0
+        )
+
+        def neighbor_d_omega(i: int, j: int) -> float:
+            """Return the obs-side neighbor frequency deviation in the
+            active ``freq_scale`` unit, or fall back to the true current
+            value when no delay cache is active."""
+            if use_obs_neighbors and (i, j) in self._delayed_omega:
+                # Deque[0] = "what obs read at THIS step" (delayed value).
+                # Always stored in rad/s; convert to active unit.
+                d_omega_radsec = self._delayed_omega[(i, j)][0]
+                if units == "rad_per_s":
+                    return d_omega_radsec
+                else:  # hz
+                    return d_omega_radsec / (2.0 * np.pi)
+            return float(d_omega[j])
+
+        # Eq.17-18: ΔH/ΔD action-cost mean (then squared)
         mode = getattr(self, "action_penalty_mode", "physical")
+        h_interp = getattr(self, "h_paper_interpretation", "mechanical_H")
         if mode == "normalized":
             m_half_range = max(self.DM_MAX, abs(self.DM_MIN))
             d_half_range = max(self.DD_MAX, abs(self.DD_MIN))
-            ah_avg = float(np.mean(delta_M)) / max(m_half_range, 1e-9)
-            ad_avg = float(np.mean(delta_D)) / max(d_half_range, 1e-9)
+            global_ah_avg = float(np.mean(delta_M)) / max(m_half_range, 1e-9)
+            global_ad_avg = float(np.mean(delta_D)) / max(d_half_range, 1e-9)
         else:
-            ah_avg = float(np.mean(delta_M)) / 2.0   # ΔH_avg = mean(ΔM)/2
-            ad_avg = float(np.mean(delta_D))          # ΔD_avg
+            # R58 audit A2: paper H = mechanical H/2 (default) or = ANDES M.
+            h_div = 2.0 if h_interp == "mechanical_H" else 1.0
+            global_ah_avg = float(np.mean(delta_M)) / h_div
+            global_ad_avg = float(np.mean(delta_D))
+
+        # R58 audit A5: paper §13 Q-B leaves ΔH_avg scope ambiguous.
+        # Default "global" = mean over all 4 ESS (matches paper §0.5
+        # "system total ... unchanged"). "neighbor" = per-agent mean
+        # over self + active neighbors.
+        avg_scope = getattr(self, "r_avg_scope", "global")
 
         rewards = {}
         r_f_total, r_h_total, r_d_total = 0.0, 0.0, 0.0
         for i in range(self.N_AGENTS):
-            # Eq. 16: 局部加权平均频率
-            sum_w = d_omega[i]
+            # Eq. 16: 局部加权平均频率 (Δω̄_i)
+            sum_w = float(d_omega[i])
             n_active = 1
+            active_neighbors = []
             for j in self.COMM_ADJ[i]:
                 if self.comm_eta.get((i, j), 0) == 1:
-                    sum_w += d_omega[j]
+                    sum_w += neighbor_d_omega(i, j)
                     n_active += 1
+                    active_neighbors.append(j)
             omega_bar = sum_w / n_active
 
             # Eq. 15: 频率同步惩罚 (局部)
-            r_f = -(d_omega[i] - omega_bar) ** 2
-            for j in self.COMM_ADJ[i]:
-                if self.comm_eta.get((i, j), 0) == 1:
-                    r_f -= (d_omega[j] - omega_bar) ** 2
+            r_f = -(float(d_omega[i]) - omega_bar) ** 2
+            for j in active_neighbors:
+                r_f -= (neighbor_d_omega(i, j) - omega_bar) ** 2
 
-            # 绝对频率偏差惩罚 (补充项: 给 agent "把频率拉回 50Hz" 的信号)
-            r_abs = -(d_omega[i]) ** 2
+            # 绝对频率偏差惩罚 (非论文项, PHI_ABS=0 时归零)
+            r_abs = -(float(d_omega[i])) ** 2
+
+            # R58 audit A5: per-agent vs global ΔH/ΔD mean
+            if avg_scope == "neighbor":
+                # mean over self + active neighbors
+                local_idxs = [i, *active_neighbors]
+                if mode == "normalized":
+                    ah_avg = float(np.mean(delta_M[local_idxs])) / max(
+                        max(self.DM_MAX, abs(self.DM_MIN)), 1e-9
+                    )
+                    ad_avg = float(np.mean(delta_D[local_idxs])) / max(
+                        max(self.DD_MAX, abs(self.DD_MIN)), 1e-9
+                    )
+                else:
+                    h_div_local = 2.0 if h_interp == "mechanical_H" else 1.0
+                    ah_avg = float(np.mean(delta_M[local_idxs])) / h_div_local
+                    ad_avg = float(np.mean(delta_D[local_idxs]))
+            else:
+                ah_avg = global_ah_avg
+                ad_avg = global_ad_avg
 
             r_h = -(ah_avg) ** 2
             r_d = -(ad_avg) ** 2

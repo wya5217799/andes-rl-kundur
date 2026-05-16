@@ -126,6 +126,22 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--hidden-size", type=int, default=None,
                    help="Uniform width across all hidden layers.")
 
+    # R58 — reward-config selector (ADR-0002)
+    p.add_argument(
+        "--reward-config",
+        choices=["paper_faithful", "paper_strict_pure",
+                 "paper_strict_rescaled", "paper_strict_pure_radsec"],
+        default=None,
+        help="Base V4Config classmethod. Default (None) = paper_faithful "
+             "(R56/R57 behaviour, PHI_ABS=50, PHI_H/D=0.0056). "
+             "paper_strict_pure: paper Eq.14 nominal (PHI_ABS=0, "
+             "PHI_H=PHI_D=1.0). paper_strict_rescaled: PHI_ABS=0 but "
+             "R18 PHI_H/D rescale retained. paper_strict_pure_radsec: "
+             "as paper_strict_pure but with rad/s frequency units for "
+             "r^f (R58 audit A3). Individual --phi-* flags still "
+             "override fields of the selected base config.",
+    )
+
     # R57-α — LSTM-specific lr warmup
     p.add_argument("--lstm-lr-warmup-eps", type=int, default=0,
                    help="(--algo td3_lstm only) ramp lr from "
@@ -147,7 +163,23 @@ def build_v4_config(args: argparse.Namespace) -> V4Config:
     + ``restore_env_class_attrs`` monkey-patch pair (root cause of
     CLM-0040 silent inheritance class of bugs).
     """
-    base = V4Config.paper_faithful()
+    # R58: pick the BASE config from --reward-config. The per-field
+    # --phi-* / --vsg-* overrides below still win (programmer intent
+    # precedence).
+    reward_cfg = getattr(args, "reward_config", None)
+    if reward_cfg is None or reward_cfg == "paper_faithful":
+        base = V4Config.paper_faithful()
+    elif reward_cfg == "paper_strict_pure":
+        base = V4Config.paper_strict_pure()
+    elif reward_cfg == "paper_strict_rescaled":
+        base = V4Config.paper_strict_rescaled()
+    elif reward_cfg == "paper_strict_pure_radsec":
+        base = V4Config.paper_strict_pure_radsec()
+    else:
+        raise ValueError(
+            f"Unknown --reward-config: {reward_cfg!r}. "
+            f"Choices: paper_faithful | paper_strict_pure | paper_strict_rescaled"
+        )
     overrides = {
         field: getattr(args, flag)
         for flag, field in [

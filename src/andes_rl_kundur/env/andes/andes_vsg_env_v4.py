@@ -189,6 +189,11 @@ class AndesMultiVSGEnvV4(AndesBaseEnv):
         self.PHI_SETTLE = cfg.phi_settle
         self.ZERO_G4_INERTIA = cfg.zero_g4_inertia
         self.action_penalty_mode = cfg.action_penalty_mode
+        # R58 audit-A escape hatches (paper-ambiguity resolution).
+        # Defaults preserve R30–R57 behaviour bit-identically.
+        self.r_f_freq_units = cfg.r_f_freq_units
+        self.h_paper_interpretation = cfg.h_paper_interpretation
+        self.r_avg_scope = cfg.r_avg_scope
         # R50 opt B: V4Config-driven anti-smoothness + own-action obs.
         # Only override if cfg explicitly non-default; otherwise keep
         # base_env's env-var-derived value (R55 preserves LAMBDA_SMOOTH=-N

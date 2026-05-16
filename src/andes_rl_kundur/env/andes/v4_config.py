@@ -100,6 +100,33 @@ class V4Config:
     # ``include_own_action_obs`` for the R52 minimal-diff slot layout.
     include_time_obs: bool = False
 
+    # ─── R58 audit-A escape hatches (paper-ambiguity resolution) ─────
+    # Three paper-implementation choices that the paper text doesn't
+    # nail down. Defaults preserve R30–R57 behaviour bit-identically.
+    # Documented as paper-§13 ambiguities Q-A / Q-B + R58 audit A3:
+
+    # A3: paper Eq.15-16 use "Δω" which physics convention reads as
+    # rad/s. Paper Sec.IV-C eval explicitly uses Hz. Project default is
+    # "hz" (matches eval + R30–R57). "rad_per_s" multiplies the internal
+    # r^f scale by (2π·FN)² ≈ 39.5× — i.e., effective PHI_F is ~40×
+    # stronger. Used by `paper_strict_pure_radsec()` classmethod to
+    # test whether the R18 verdict's "PHI=1 diverges" conclusion holds
+    # under paper-faithful radians interpretation.
+    r_f_freq_units: Literal["hz", "rad_per_s"] = "hz"
+
+    # A2: paper §1.1 / §13 Q-A leaves H_es,i dimensions unspecified.
+    # "mechanical_H" (default) interprets paper H = M/2 (Eq.1 form
+    # H·Δω̇ + D·Δω = Δu - ΔP, M = 2H mechanical convention).
+    # "andes_M" interprets paper H = ANDES M directly (no /2 in r^h).
+    # Effect: changes r^h magnitude by 4× (since (ΔM/2)² vs (ΔM)²).
+    h_paper_interpretation: Literal["mechanical_H", "andes_M"] = "mechanical_H"
+
+    # A5: paper §13 Q-B leaves "ΔH_avg / ΔD_avg" scope unspecified.
+    # "global" (default) = mean over all N=4 ESS agents (consistent
+    # with paper §0.5 "system total inertia ... basically unchanged").
+    # "neighbor" = each agent uses its own + neighbors' mean.
+    r_avg_scope: Literal["global", "neighbor"] = "global"
+
     def __post_init__(self) -> None:
         if self.action_penalty_mode not in ("physical", "normalized"):
             raise ValueError(
@@ -112,8 +139,83 @@ class V4Config:
                 "not yet supported (slot-layout conflict). Pick one or open "
                 "a follow-up round to refactor the obs slot indexing."
             )
+        if self.r_f_freq_units not in ("hz", "rad_per_s"):
+            raise ValueError(
+                f"r_f_freq_units must be 'hz' or 'rad_per_s', "
+                f"got {self.r_f_freq_units!r}"
+            )
+        if self.h_paper_interpretation not in ("mechanical_H", "andes_M"):
+            raise ValueError(
+                f"h_paper_interpretation must be 'mechanical_H' or 'andes_M', "
+                f"got {self.h_paper_interpretation!r}"
+            )
+        if self.r_avg_scope not in ("global", "neighbor"):
+            raise ValueError(
+                f"r_avg_scope must be 'global' or 'neighbor', "
+                f"got {self.r_avg_scope!r}"
+            )
 
     @classmethod
     def paper_faithful(cls) -> "V4Config":
-        """Alias for the default config — explicit at the call site."""
+        """Alias for the default config — explicit at the call site.
+
+        NOTE (R58 / ADR-0002): "paper_faithful" is a historical name. The
+        config it returns matches the paper on **topology, observation
+        space, action space, and algorithm scaffolding** but adds a non-
+        paper ``phi_abs=50`` reward term and rescales ``phi_h=phi_d=0.0056``
+        (1/178 of paper Eq.14 nominal 1.0) for ANDES numerical stability.
+        For exact paper Eq.14 weights, use :meth:`paper_strict_pure` or
+        :meth:`paper_strict_rescaled`.
+        """
         return cls()
+
+    @classmethod
+    def paper_strict_pure(cls) -> "V4Config":
+        """R58 — paper Eq.14 nominal weights, no project deviations.
+
+        Returns a config matching Yang et al., IEEE TPWRS 2023, Eq.14
+        exactly on the reward weights: ``phi_f=100, phi_h=1, phi_d=1``
+        and no ``phi_abs`` term. All other fields (physics, action
+        range, smoothness, obs augmentation) match :meth:`paper_faithful`.
+
+        Expected behaviour: R18 verdict mechanism predicts this config
+        will diverge during training (``r_h/r_f ≈ 36000:1`` at standard
+        SAC explore magnitude). R58 verifies this empirically.
+
+        Used to answer: does the algorithm ranking under V4 depend on
+        the R18 PHI rescale? See R58 verdict / ADR-0002.
+        """
+        return cls(phi_abs=0.0, phi_h=1.0, phi_d=1.0)
+
+    @classmethod
+    def paper_strict_rescaled(cls) -> "V4Config":
+        """R58 — paper Eq.14 form (no ``phi_abs``) but keep R18 PHI rescale.
+
+        Returns a config with ``phi_abs=0`` (removes the non-paper term)
+        but retains ``phi_h=phi_d=0.0056`` (R18 1/178 rescale).
+
+        Used to isolate the question: does the algorithm ranking under
+        V4 depend on the non-paper ``phi_abs=50`` term, or on the
+        R18 PHI rescale? Comparing this against :meth:`paper_strict_pure`
+        (rescale removed) and :meth:`paper_faithful` (both deviations
+        in play) discriminates the two effects.
+        """
+        return cls(phi_abs=0.0)
+
+    @classmethod
+    def paper_strict_pure_radsec(cls) -> "V4Config":
+        """R58 audit-A3 — paper Eq.14 nominal + rad/s frequency units.
+
+        Same as :meth:`paper_strict_pure` (PHI_ABS=0, PHI_H=PHI_D=1.0)
+        but additionally interprets paper Eq.15-16 frequency deviation
+        as rad/s rather than Hz. The (2π·FN)² ≈ 39.5× internal scaling
+        on r^f is the "true paper-faithful" interpretation; the Hz
+        choice is a project convention inherited from the eval formula.
+
+        Why R58 audits this: R18 verdict measured r_h/r_f ≈ 3600:1 with
+        PHI_H=1 + Hz r^f → concluded "PHI=1 diverges." Under rad/s r^f
+        the ratio drops to ~91:1 → may be trainable. This config tests
+        the hypothesis empirically.
+        """
+        return cls(phi_abs=0.0, phi_h=1.0, phi_d=1.0,
+                   r_f_freq_units="rad_per_s")
