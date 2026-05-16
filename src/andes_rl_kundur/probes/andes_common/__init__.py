@@ -22,9 +22,10 @@ Public API:
         compute_settling_time,    # paper-faithful settling around final_df
     )
 
-    # Verdict resolution
+    # Probe classification ladder (R45 C4 rename from "verdict" to disambiguate
+    # from memory/rounds/RNN/verdict.md round ledger entity)
     from probes.andes_common import (
-        Verdict, VerdictRule, resolve_verdict_ladder,
+        ProbeClassification, ClassificationRule, resolve_probe_ladder,
         governor_wiring_ladder,   # R10 standard ladder
         root3_residual_ladder,    # R14/R15/R16 standard ladder
     )
@@ -80,11 +81,11 @@ from andes_rl_kundur.probes.andes_common.utils import (
     safe_get,
     try_read_v,
 )
-from andes_rl_kundur.probes.andes_common.verdict import (
-    Verdict,
-    VerdictRule,
+from andes_rl_kundur.probes.andes_common.probe_classifier import (
+    ClassificationRule,
+    ProbeClassification,
     governor_wiring_ladder,
-    resolve_verdict_ladder,
+    resolve_probe_ladder,
     root3_residual_ladder,
 )
 
@@ -95,8 +96,8 @@ __all__ = [
     "run_zero_action_trace", "run_trained_policy_trace",
     "run_h_scan", "run_variant_ablation",
     "compute_settling_time",
-    # verdict
-    "Verdict", "VerdictRule", "resolve_verdict_ladder",
+    # probe classification (renamed from "verdict" in R45 C4)
+    "ProbeClassification", "ClassificationRule", "resolve_probe_ladder",
     "governor_wiring_ladder", "root3_residual_ladder",
     # paper constants
     "LS1_DELTA_U", "LS2_DELTA_U", "LS1_NAME", "LS2_NAME", "SCENARIOS",

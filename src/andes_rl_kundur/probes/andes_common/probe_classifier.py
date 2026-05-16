@@ -1,25 +1,31 @@
-"""Multi-layer verdict ladder resolver for ANDES forensic probes.
+"""Multi-layer classification ladder resolver for ANDES forensic probes.
 
-Pattern emerged across R10/R14/R15/R16: each probe has a verdict matrix where
-multiple gate flags (L0/L1/L2/L3/L4) collapse to ONE classification string
+Pattern emerged across R10/R14/R15/R16: each probe has a classification matrix
+where multiple gate flags (L0/L1/L2/L3/L4) collapse to ONE classification tag
 ("L1_FAIL — ...", "ROOT3_REAL — ...", "ALL_PASS").
 
-Without this helper each probe re-implements the same chain of `if elif elif`.
-With it, define a verdict ladder declaratively::
+Module name was previously ``verdict.py`` (R45 C4 rename, 2026-05-16) — the
+name collided with the round ledger's ``memory/rounds/RNN/verdict.md`` first-
+class entity. ``probe_classifier`` keeps the concept local to probes/.
 
-    from probes.andes_common.verdict import resolve_verdict_ladder, VerdictRule
+Without this helper each probe re-implements the same chain of ``if elif elif``.
+With it, define a classification ladder declaratively::
+
+    from andes_rl_kundur.probes.andes_common.probe_classifier import (
+        resolve_probe_ladder, ClassificationRule,
+    )
 
     rules = [
-        VerdictRule("L1_FAIL", lambda r: r.get("L1_pass") is False,
-                    "IEEEG1.syn does not match GENROU.idx"),
-        VerdictRule("DAE_INACTIVE",
-                    lambda r: r.get("ieeeg1_in_dae") is False
-                              and r.get("L0_max_df_pass") is False,
-                    "IEEEG1 added but 0 Algeb/State in DAE"),
-        VerdictRule("ALL_PASS", lambda r: True,
-                    "wiring works, residual is platform-level"),
+        ClassificationRule("L1_FAIL", lambda r: r.get("L1_pass") is False,
+                           "IEEEG1.syn does not match GENROU.idx"),
+        ClassificationRule("DAE_INACTIVE",
+                           lambda r: r.get("ieeeg1_in_dae") is False
+                                     and r.get("L0_max_df_pass") is False,
+                           "IEEEG1 added but 0 Algeb/State in DAE"),
+        ClassificationRule("ALL_PASS", lambda r: True,
+                           "wiring works, residual is platform-level"),
     ]
-    verdict = resolve_verdict_ladder(probe_results, rules)
+    classification = resolve_probe_ladder(probe_results, rules)
 
 First matching rule wins. Final rule is typically a catch-all "ALL_PASS" or
 "INCONCLUSIVE".
@@ -31,7 +37,7 @@ from typing import Any, Callable
 
 
 @dataclass(frozen=True)
-class Verdict:
+class ProbeClassification:
     """One classification result with optional explanation + extras."""
     classification: str        # short tag, e.g. "ALL_PASS", "L1_FAIL", "ROOT3_REAL"
     explanation: str = ""      # human-readable reason
@@ -44,8 +50,8 @@ class Verdict:
 
 
 @dataclass(frozen=True)
-class VerdictRule:
-    """One rung of the verdict ladder.
+class ClassificationRule:
+    """One rung of the classification ladder.
 
     classification: tag to emit if predicate passes.
     predicate:      fn(probe_results: dict) -> bool. First True wins.
@@ -57,11 +63,11 @@ class VerdictRule:
     explanation: str | Callable[[dict[str, Any]], str] = ""
 
 
-def resolve_verdict_ladder(
+def resolve_probe_ladder(
     probe_results: dict[str, Any],
-    rules: list[VerdictRule],
+    rules: list[ClassificationRule],
     on_predicate_error: str = "warn",
-) -> Verdict:
+) -> ProbeClassification:
     """Walk rules in order. First predicate that returns True wins.
 
     Args:
@@ -72,7 +78,7 @@ def resolve_verdict_ladder(
 
     Always pass a final catch-all rule (``predicate=lambda r: True``) so the
     resolver never returns INCONCLUSIVE silently. If no rule matches, returns
-    ``Verdict("INCONCLUSIVE", ...)``.
+    ``ProbeClassification("INCONCLUSIVE", ...)``.
     """
     import warnings
     for rule in rules:
@@ -83,7 +89,7 @@ def resolve_verdict_ladder(
                 raise
             if on_predicate_error == "warn":
                 warnings.warn(
-                    f"VerdictRule predicate {rule.classification!r} raised "
+                    f"ClassificationRule predicate {rule.classification!r} raised "
                     f"{type(e).__name__}: {e}; treating as non-match. "
                     f"Fix the predicate.",
                     RuntimeWarning,
@@ -99,55 +105,55 @@ def resolve_verdict_ladder(
                 expl = ""
         else:
             expl = rule.explanation
-        return Verdict(rule.classification, expl)
-    return Verdict(
+        return ProbeClassification(rule.classification, expl)
+    return ProbeClassification(
         "INCONCLUSIVE",
-        "no verdict rule matched; check probe outputs / add catch-all rule",
+        "no classification rule matched; check probe outputs / add catch-all rule",
     )
 
 
-# ─── Common verdict ladder factories ─────────────────────────────────────
+# ─── Common classification ladder factories ─────────────────────────────────────
 
 
-def governor_wiring_ladder() -> list[VerdictRule]:
+def governor_wiring_ladder() -> list[ClassificationRule]:
     """R10-style ladder for "is governor in DAE + does it affect dynamics".
 
     Expects probe_results with keys:
       L1_pass, ieeeg1_in_dae, L2_pass, L3_pass, L0_max_df_pass, L4_pass
     """
     return [
-        VerdictRule(
+        ClassificationRule(
             "L1_FAIL",
             lambda r: r.get("L1_pass") is False,
             "IEEEG1.syn does not match GENROU.idx",
         ),
-        VerdictRule(
+        ClassificationRule(
             "DAE_INACTIVE",
             lambda r: (r.get("ieeeg1_in_dae") is False
                        and r.get("L0_max_df_pass") is False),
             "IEEEG1 added but 0 Algeb/State in DAE — silent ss.setup() failure",
         ),
-        VerdictRule(
+        ClassificationRule(
             "L2_FAIL",
             lambda r: r.get("L1_pass") and r.get("L2_pass") is False,
             "IEEEG1 internal Pgv frozen, governor model not solving",
         ),
-        VerdictRule(
+        ClassificationRule(
             "L3_FAIL",
             lambda r: r.get("L2_pass") and r.get("L3_pass") is False,
             "Pgv moves but Pm frozen — Pgv→Pm not auto-wired",
         ),
-        VerdictRule(
+        ClassificationRule(
             "L4_WEAK",
             lambda r: r.get("L3_pass") and r.get("L4_pass") is False,
             "Pm changes but tiny, governor effect ~0",
         ),
-        VerdictRule(
+        ClassificationRule(
             "ALL_PASS",
             lambda r: r.get("L1_pass") and r.get("L4_pass") is True,
             "wiring works, residual (if any) is platform-level",
         ),
-        VerdictRule(
+        ClassificationRule(
             "INCONCLUSIVE",
             lambda r: True,
             "see error/traceback fields",
@@ -155,7 +161,7 @@ def governor_wiring_ladder() -> list[VerdictRule]:
     ]
 
 
-def root3_residual_ladder(paper_max_df: float, max_df_key: str = "max_df") -> list[VerdictRule]:
+def root3_residual_ladder(paper_max_df: float, max_df_key: str = "max_df") -> list[ClassificationRule]:
     """R14/R15/R16-style ladder for "is platform residual to paper level".
 
     Returns ROOT3_FAKE / ROOT3_PARTIAL / ROOT3_REAL based on best-variant ratio.
@@ -167,22 +173,22 @@ def root3_residual_ladder(paper_max_df: float, max_df_key: str = "max_df") -> li
         return (v / paper_max_df) if v else 999.0
 
     return [
-        VerdictRule(
+        ClassificationRule(
             "ROOT3_FAKE",
             lambda r: _ratio(r) <= 1.3,
             lambda r: f"max_df {r.get(max_df_key, 0):.3f} ≈ paper {paper_max_df} ({_ratio(r):.2f}×)",
         ),
-        VerdictRule(
+        ClassificationRule(
             "ROOT3_PARTIAL",
             lambda r: _ratio(r) <= 2.0,
             lambda r: f"max_df {r.get(max_df_key, 0):.3f}, {_ratio(r):.2f}× paper, partial fix",
         ),
-        VerdictRule(
+        ClassificationRule(
             "ROOT3_REAL",
             lambda r: _ratio(r) <= 99.0,
             lambda r: f"max_df {r.get(max_df_key, 0):.3f}, {_ratio(r):.2f}× paper, real residual",
         ),
-        VerdictRule(
+        ClassificationRule(
             "INCONCLUSIVE",
             lambda r: True,
             "max_df not measured",
@@ -191,9 +197,9 @@ def root3_residual_ladder(paper_max_df: float, max_df_key: str = "max_df") -> li
 
 
 __all__ = [
-    "Verdict",
-    "VerdictRule",
-    "resolve_verdict_ladder",
+    "ProbeClassification",
+    "ClassificationRule",
+    "resolve_probe_ladder",
     "governor_wiring_ladder",
     "root3_residual_ladder",
 ]

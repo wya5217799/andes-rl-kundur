@@ -20,7 +20,7 @@ from probes.andes_common import (
     LS1_DELTA_U, PAPER_FIG6, H_PAPER_AREA1,
     run_zero_action_trace, introspect_model,
     run_variant_ablation,
-    resolve_verdict_ladder, VerdictRule,
+    resolve_probe_ladder, ClassificationRule,
 )
 ```
 

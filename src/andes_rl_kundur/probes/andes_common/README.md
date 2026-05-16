@@ -49,7 +49,7 @@
 | H sweep 看 inertia 单调性 | `run_h_scan(env_cls, LS1_DELTA_U, H_TEST_POINTS)` |
 | 多 variant 同 scenario 对比 | `run_variant_ablation({"A": {...}, "B": {...}}, ...)` |
 | paper-faithful settling 时间 | `compute_settling_time(df_traj, dt=DT, final_df_target=None)` (None 自动取 traj 末值) |
-| 多层 gate verdict 解析 | `resolve_verdict_ladder(results, [VerdictRule(...), ...])` |
+| 多层 gate 分类解析 | `resolve_probe_ladder(results, [ClassificationRule(...), ...])` |
 
 ---
 
@@ -90,7 +90,7 @@ sys.path.insert(0, str(ROOT))
 from probes.andes_common import (
     LS1_DELTA_U, PAPER_FIG6, H_PAPER_AREA1,
     run_zero_action_trace,
-    resolve_verdict_ladder, VerdictRule,
+    resolve_probe_ladder, ClassificationRule,
 )
 from env.andes.andes_vsg_env_v3 import AndesMultiVSGEnvV3
 
@@ -102,14 +102,14 @@ def main() -> int:
     out["paper_ratio"] = (out["max_df"] / PAPER_FIG6.max_abs_df_Hz) if out.get("max_df") else None
 
     rules = [
-        VerdictRule("PAPER_MATCH", lambda r: r.get("paper_ratio", 99) <= 1.3,
-                    lambda r: f"max_df={r['max_df']:.3f} ≈ paper {PAPER_FIG6.max_abs_df_Hz}"),
-        VerdictRule("RESIDUAL", lambda r: True,
-                    lambda r: f"max_df={r['max_df']:.3f}, ratio={r['paper_ratio']:.2f}× paper"),
+        ClassificationRule("PAPER_MATCH", lambda r: r.get("paper_ratio", 99) <= 1.3,
+                           lambda r: f"max_df={r['max_df']:.3f} ≈ paper {PAPER_FIG6.max_abs_df_Hz}"),
+        ClassificationRule("RESIDUAL", lambda r: True,
+                           lambda r: f"max_df={r['max_df']:.3f}, ratio={r['paper_ratio']:.2f}× paper"),
     ]
-    verdict = resolve_verdict_ladder(out, rules)
-    out["verdict"] = str(verdict)
-    print(verdict)
+    classification = resolve_probe_ladder(out, rules)
+    out["classification"] = str(classification)
+    print(classification)
 
     p = ROOT / "results" / "research_loop" / "r{NN}_{topic}.json"
     p.parent.mkdir(parents=True, exist_ok=True)
@@ -130,7 +130,7 @@ if __name__ == "__main__":
 | 在 probe 里硬编码 `LS1 = {"PQ_Bus14": -2.48}` | `from probes.andes_common import LS1_DELTA_U` |
 | 在 probe 里硬编码 paper 0.13 数字 | `PAPER_FIG6.max_abs_df_Hz` |
 | 在 probe 里重写 30 行 zero-action loop | `run_zero_action_trace(...)` |
-| 写 `if elif elif` verdict | `resolve_verdict_ladder(results, rules)` |
+| 写 `if elif elif` 分类 | `resolve_probe_ladder(results, rules)` |
 | 看 `info["max_df"]` 当 paper 0.13 (transient peak vs settled) | 区分 `max_df` 和 `final_df`, 跟 paper benchmark match |
 | 在 probe PASS 后 直接信 governor "active" | introspect → Algeb/State count > 0 才 active |
 
