@@ -19,14 +19,19 @@ sys.path.insert(0, str(ROOT / "src"))
 
 
 def test_check_protocol_recognises_simple_callable_check():
-    """A class with ``name`` + ``run(episode) -> CheckResult`` satisfies
-    the ``Check`` Protocol structurally — no inheritance required."""
+    """A class with ``name`` + ``run(monitor, episode) -> CheckResult``
+    satisfies the ``Check`` Protocol structurally — no inheritance required.
+
+    Updated R42 hotfix: signature is now 2-arg (monitor, episode). The
+    old 1-arg form would still satisfy ``isinstance(chk, Check)`` because
+    ``@runtime_checkable`` only checks method presence, not arity — but
+    the monitor would crash when it dispatches with 2 args."""
     from andes_rl_kundur.utils.checks import Check, CheckResult
 
     class MaxFreqGate:
         name = "max_freq_gate"
 
-        def run(self, episode) -> CheckResult:
+        def run(self, monitor, episode) -> CheckResult:
             return CheckResult(
                 name=self.name,
                 triggered=episode["max_freq_deviation_hz"] > 1.5,
@@ -36,9 +41,69 @@ def test_check_protocol_recognises_simple_callable_check():
 
     chk = MaxFreqGate()
     assert isinstance(chk, Check)
-    out = chk.run({"max_freq_deviation_hz": 2.0})
+    out = chk.run(None, {"max_freq_deviation_hz": 2.0})
     assert out.triggered
     assert out.severity == "warn"
+
+
+def test_summary_tolerates_legacy_trigger_history_schema():
+    """B6 regression: pre-R42 _trigger_history entries used either
+    ``{check, episode, action, message}`` (baked-in path) or
+    ``{episode, name, severity, message, source}`` (plug-in path).
+    Post-R42 only writes the first form, but ``load_checkpoint`` may
+    hydrate either. ``summary()`` must read with a fallback so an old
+    checkpoint with plug-in entries doesn't KeyError."""
+    from andes_rl_kundur.utils.monitor import TrainingMonitor
+
+    monitor = TrainingMonitor()
+    # Inject minimum state for summary() to render at all.
+    monitor._episode_rewards = [-100.0]
+    monitor._env_health = [{"tds_failed": False, "max_freq_deviation_hz": 0.1}]
+    # Old plug-in schema (name / severity instead of check / action)
+    monitor._trigger_history = [{
+        "episode": 0,
+        "name": "old_plugin_check",
+        "severity": "warn",
+        "message": "legacy entry",
+        "source": "plugin",
+    }]
+    # Should not raise
+    monitor.summary()
+
+
+def test_monitor_dispatches_with_two_args_to_registered_check():
+    """B2 regression: monitor.log_and_check must dispatch via
+    ``check.run(monitor, episode)``; a Check written for the new 2-arg
+    Protocol receives both args. This locks the seam against the silent
+    1-arg drift the old MaxFreqGate hid."""
+    from andes_rl_kundur.utils.checks import CheckResult
+    from andes_rl_kundur.utils.monitor import TrainingMonitor
+
+    seen: list[tuple[object, dict]] = []
+
+    class TwoArgCheck:
+        name = "two_arg"
+
+        def run(self, monitor, episode) -> CheckResult:
+            seen.append((monitor, episode))
+            return CheckResult(name=self.name, triggered=False)
+
+    monitor = TrainingMonitor()
+    monitor.register_check(TwoArgCheck())
+    monitor.log_and_check(
+        episode=0,
+        rewards=-100.0,
+        reward_components={"r_f": -60.0, "r_h": -20.0, "r_d": -20.0},
+        actions=np.zeros((50, 4, 2)),
+        info={"tds_failed": False, "max_freq_deviation_hz": 0.5},
+        per_agent_rewards={i: -25.0 for i in range(4)},
+    )
+
+    assert len(seen) == 1
+    received_monitor, received_episode = seen[0]
+    assert received_monitor is monitor, \
+        "monitor argument must be the same TrainingMonitor instance"
+    assert received_episode["max_freq_deviation_hz"] == 0.5
 
 
 def test_monitor_invokes_registered_check():

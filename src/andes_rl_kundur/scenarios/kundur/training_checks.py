@@ -17,6 +17,7 @@ import numpy as np
 from andes_rl_kundur.utils.checks import CheckResult, Severity
 
 if TYPE_CHECKING:
+    from andes_rl_kundur.utils.checks import Check
     from andes_rl_kundur.utils.monitor import TrainingMonitor
 
 
@@ -390,47 +391,6 @@ class ActionSaturationCheck:
         return _no_trigger(self.name)
 
 
-def kundur_default_checks() -> list:
-    """Return a **fresh** list of the 12 default Check instances (Kundur
-    paper tolerances).
-
-    Fresh-list discipline is important: :class:`EarlyStoppingCheck`
-    carries per-monitor state and must not be shared across monitors.
-    """
-    return [
-        RewardMagnitudeCheck(),
-        RewardComponentRatioCheck(),
-        ActionCollapseCheck(),
-        ActionSaturationCheck(),
-        RewardPlateauCheck(),
-        RewardDivergenceCheck(),
-        TDSFailureRateCheck(),
-        FreqOutOfRangeCheck(),
-        PhysicsFrozenCheck(),
-        AgentRewardDisparityCheck(),
-        LossExplosionCheck(),
-        EarlyStoppingCheck(),
-    ]
-
-
-def register_kundur_default_checks(monitor: "TrainingMonitor") -> None:
-    """Register the 12 default Kundur Check instances on a TrainingMonitor.
-
-    Use in ``train.py`` after constructing the monitor::
-
-        monitor = TrainingMonitor(best_reward_callback=on_best_reward)
-        register_kundur_default_checks(monitor)
-    """
-    for chk in kundur_default_checks():
-        monitor.register_check(chk)
-
-
-# ──────────────────────────────────────────────────────────────────────
-# RewardMagnitudeCheck — added here because it didn't have its own batch
-# (single-step state; mirrors the other simple checks already covered).
-# ──────────────────────────────────────────────────────────────────────
-
-
 @dataclass
 class RewardMagnitudeCheck:
     """Reward grossly outside expected envelope (auto-calibrated or manual)."""
@@ -515,3 +475,43 @@ class ActionCollapseCheck:
                     ),
                 )
         return _no_trigger(self.name)
+
+
+# ──────────────────────────────────────────────────────────────────────
+# Registration helpers — declared last so all Check classes are in scope.
+# ──────────────────────────────────────────────────────────────────────
+
+
+def kundur_default_checks() -> list["Check"]:
+    """Return a **fresh** list of the 12 default Check instances (Kundur
+    paper tolerances).
+
+    Fresh-list discipline is important: :class:`EarlyStoppingCheck`
+    carries per-monitor state and must not be shared across monitors.
+    """
+    return [
+        RewardMagnitudeCheck(),
+        RewardComponentRatioCheck(),
+        ActionCollapseCheck(),
+        ActionSaturationCheck(),
+        RewardPlateauCheck(),
+        RewardDivergenceCheck(),
+        TDSFailureRateCheck(),
+        FreqOutOfRangeCheck(),
+        PhysicsFrozenCheck(),
+        AgentRewardDisparityCheck(),
+        LossExplosionCheck(),
+        EarlyStoppingCheck(),
+    ]
+
+
+def register_kundur_default_checks(monitor: "TrainingMonitor") -> None:
+    """Register the 12 default Kundur Check instances on a TrainingMonitor.
+
+    Use in ``train.py`` after constructing the monitor::
+
+        monitor = TrainingMonitor(best_reward_callback=on_best_reward)
+        register_kundur_default_checks(monitor)
+    """
+    for chk in kundur_default_checks():
+        monitor.register_check(chk)
