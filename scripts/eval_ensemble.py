@@ -92,7 +92,7 @@ def main():
     if args.agg == "weighted":
         print(f"  weights = {weights}")
 
-    all_actors = [load_agents(Path(cd), suf) for cd, suf in zip(args.ckpt_dirs, args.suffixes)]
+    all_actors = [load_agents(Path(cd), suffix=suf) for cd, suf in zip(args.ckpt_dirs, args.suffixes)]
     print(f"[V4 ensemble] loaded {len(all_actors)} actor sets × 4 agents")
 
     action_fn = _ensemble_action_fn(all_actors, args.agg, weights)
