@@ -2,7 +2,7 @@
 
 Loads 4 SAC actors from each of M ckpt-dirs, then per env step combines their
 actions via {mean, median, weighted}. Outputs trace JSON same format as
-eval_v4_ddic.py for paper_grade_axes.py + Fig.7/9 ranker.
+eval_ddic.py for paper_grade_axes.py + Fig.7/9 ranker.
 
 Usage:
     PY=/home/wya/andes_venv/bin/python
@@ -19,6 +19,7 @@ import argparse
 import json
 import sys
 from pathlib import Path
+
 import numpy as np
 import torch
 
@@ -26,28 +27,44 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from andes_rl_kundur.agents.sac import SACAgent  # noqa: E402
+from andes_rl_kundur.agents.td3 import TD3Agent  # noqa: E402
 from andes_rl_kundur.env.andes.andes_vsg_env_v4 import AndesMultiVSGEnvV4  # noqa: E402
+from andes_rl_kundur.evaluation.paper_path import run_scenario  # noqa: E402
 from andes_rl_kundur.probes.andes_common.paper_constants import SCENARIOS  # noqa: E402
+
 EVAL_SEED = 42
 STEPS = 150
 
 
-def load_actors(ckpt_dir: Path, suffix: str) -> list[SACAgent]:
+def _detect_algo(ckpt_path: Path) -> str:
+    """Inspect the ckpt's self-described algo field. Default to 'sac' for
+    pre-2026-05-17 ckpts that don't carry it."""
+    ckpt = torch.load(ckpt_path, map_location="cpu", weights_only=True)
+    return ckpt.get("algo", "sac")
+
+
+def load_actors(ckpt_dir: Path, suffix: str) -> list:
+    """Load 4 actors. Detects SAC vs TD3 from the ckpt's algo field."""
     from andes_rl_kundur.config import HIDDEN_SIZES
     obs_dim = AndesMultiVSGEnvV4.OBS_DIM
     actors = []
     for i in range(AndesMultiVSGEnvV4.N_AGENTS):
-        a = SACAgent(obs_dim=obs_dim, action_dim=2,
-                     hidden_sizes=HIDDEN_SIZES, device="cpu")
         ckpt_path = ckpt_dir / f"agent_{i}_{suffix}.pt"
         if not ckpt_path.exists():
             raise FileNotFoundError(ckpt_path)
+        algo = _detect_algo(ckpt_path)
+        if algo == "td3":
+            a = TD3Agent(obs_dim=obs_dim, action_dim=2,
+                         hidden_sizes=HIDDEN_SIZES, device="cpu")
+        else:
+            a = SACAgent(obs_dim=obs_dim, action_dim=2,
+                         hidden_sizes=HIDDEN_SIZES, device="cpu")
         a.load(str(ckpt_path))
         actors.append(a)
     return actors
 
 
-def ensemble_action(all_actors_per_agent: list[list[SACAgent]],
+def ensemble_action(all_actors_per_agent: list[list],
                     agent_idx: int, obs_i: np.ndarray,
                     agg: str, weights: np.ndarray) -> np.ndarray:
     """Combine N actors' deterministic actions for this agent (returns 2D array)."""
@@ -65,64 +82,16 @@ def ensemble_action(all_actors_per_agent: list[list[SACAgent]],
         raise ValueError(f"unknown agg: {agg}")
 
 
-def eval_scenario(scen_name: str, delta_u: dict,
-                  all_actors_per_agent: list[list[SACAgent]],
-                  agg: str, weights: np.ndarray,
-                  label: str, seed: int = EVAL_SEED) -> dict:
-    env = AndesMultiVSGEnvV4(random_disturbance=False, comm_fail_prob=0.0)
-    env.seed(seed)
-    env.STEPS_PER_EPISODE = STEPS
-    obs = env.reset(delta_u=delta_u)
-
-    N = env.N_AGENTS
-    F_NOM = env.FN
-    traces: list[dict] = []
-    cum_rf = 0.0
-    max_df = 0.0
-
-    for step in range(STEPS):
-        actions = {
+def _ensemble_action_fn(all_actors_per_agent: list[list],
+                        agg: str, weights: np.ndarray):
+    """Build an ``action_fn`` (per ``paper_path.ActionFn``) that returns the
+    per-step ensembled action for every agent."""
+    def _fn(step: int, obs: dict[int, np.ndarray], n_agents: int) -> dict[int, np.ndarray]:
+        return {
             i: ensemble_action(all_actors_per_agent, i, obs[i], agg, weights)
-            for i in range(N)
+            for i in range(n_agents)
         }
-        obs, rewards, done, info = env.step(actions)
-        if info.get("tds_failed"):
-            break
-        freq_hz = info["freq_hz"].astype(float).tolist()
-        delta_f = [(f - F_NOM) for f in freq_hz]
-        f_bar = float(np.mean(freq_hz))
-        step_rf = float(np.mean([(d - (f_bar - F_NOM)) ** 2 for d in delta_f]))
-        cum_rf -= step_rf
-        max_df = max(max_df, float(np.max(np.abs(delta_f))))
-
-        traces.append({
-            "step":       step,
-            "t":          float(info["time"]),
-            "freq_hz":    freq_hz,
-            "f_bar":      f_bar,
-            "step_rf":    step_rf,
-            "delta_P_es": info["P_es"].astype(float).tolist(),
-            "delta_f_es": delta_f,
-            "M_es":       info["M_es"].astype(float).tolist(),
-            "D_es":       info["D_es"].astype(float).tolist(),
-            "delta_M":    info["delta_M"].astype(float).tolist(),
-            "delta_D":    info["delta_D"].astype(float).tolist(),
-        })
-        if done:
-            break
-
-    env.close()
-    return {
-        "controller":   label,
-        "scenario":     scen_name,
-        "env_version":  "v4",
-        "ensemble_agg": agg,
-        "n_actors":     len(all_actors_per_agent),
-        "cum_rf_total": cum_rf,
-        "max_df":       max_df,
-        "n_steps":      len(traces),
-        "traces":       traces,
-    }
+    return _fn
 
 
 def main():
@@ -157,9 +126,19 @@ def main():
     all_actors = [load_actors(Path(cd), suf) for cd, suf in zip(args.ckpt_dirs, args.suffixes)]
     print(f"[V4 ensemble] loaded {len(all_actors)} actor sets × 4 agents")
 
+    action_fn = _ensemble_action_fn(all_actors, args.agg, weights)
+    extra = {"ensemble_agg": args.agg, "n_actors": len(all_actors)}
+
     for scen, delta_u in SCENARIOS.items():
         print(f"[V4 ensemble] {args.label} on {scen}...")
-        res = eval_scenario(scen, delta_u, all_actors, args.agg, weights, args.label, args.seed)
+        res = run_scenario(
+            scen, delta_u,
+            action_fn=action_fn,
+            label=args.label,
+            seed=args.seed,
+            steps=STEPS,
+            extra_keys=extra,
+        )
         out_p = out / f"{args.label}_{scen}.json"
         with open(out_p, "w") as f:
             json.dump(res, f)
