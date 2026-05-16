@@ -1,10 +1,15 @@
-"""TrainingMonitor: domain-level training diagnostics for GridGym.
+"""TrainingMonitor: data accumulation + plug-in Check dispatch.
 
-Detects reward scaling bugs, action collapse, simulation failures,
-and other domain-specific issues during RL training on power systems.
+Domain-aware diagnostic checks (reward_magnitude, action_collapse, etc.)
+live in :mod:`andes_rl_kundur.scenarios.kundur.training_checks` and are
+attached via :func:`register_kundur_default_checks`. This module owns
+only the data layer (episode-by-episode storage, calibration, summary
+output, save/load) and the Check Protocol dispatch with cooldown +
+formatted printing.
 
 Callers invoke ``log_and_check()`` directly from the training loop after
-each episode.
+each episode; it returns ``True`` when any registered check returns a
+``stop`` severity result.
 """
 from __future__ import annotations
 
@@ -17,46 +22,25 @@ from typing import Any
 import numpy as np
 
 
-# Default check configurations
-_DEFAULT_CHECKS = {
-    "reward_magnitude":       {"action": "stop"},
-    "reward_component_ratio": {"dominant": "r_f", "dominance_threshold": 0.5, "action": "warn"},
-    "action_collapse":        {"std_threshold": 0.05, "window": 50, "action": "warn"},
-    "action_saturation":      {"threshold": 0.8, "action": "warn"},
-    "reward_plateau":         {"window": 100, "improvement_threshold": 0.01, "action": "warn"},
-    "reward_divergence":      {"window": 50, "action": "warn"},  # was "stop" (R27 2026-05-07: best ckpt always captured at attractor ep, divergence stop blocked longer-horizon search)
-    "tds_failure_rate":       {"threshold": 0.2, "window": 50, "action": "warn"},
-    "freq_out_of_range":      {"threshold_hz": 2.0, "window": 10, "min_episodes": 3, "action": "warn"},
-    "physics_frozen":         {"window": 10, "epsilon": 1e-9, "action": "stop"},
-    "agent_reward_disparity": {"window": 50, "std_threshold": 2.0, "action": "warn"},
-    "loss_explosion":         {"multiplier": 10.0, "window": 20, "action": "warn"},
-    "early_stopping":         {"patience": 500, "min_improvement": 0.02, "action": "warn"},
-}
-
-
 class TrainingMonitor:
-    """Domain-level training diagnostics for power system RL environments.
+    """Episode-level data accumulator + plug-in Check dispatcher.
 
-    Call ``log_and_check()`` from the training loop after each episode.
-    Returns ``True`` when a stop condition fires.
+    Construct, attach checks via :py:meth:`register_check` (or the
+    Kundur default suite via
+    :func:`andes_rl_kundur.scenarios.kundur.training_checks.register_kundur_default_checks`),
+    then call :py:meth:`log_and_check` from the training loop after each
+    episode. Returns ``True`` when a registered check returns
+    ``severity='stop'``.
     """
 
     def __init__(
         self,
         calibration_episodes: int = 20,
-        checks: dict[str, dict] | None = None,
         log_interval: int = 10,
         best_reward_callback: callable | None = None,
     ):
         self.calibration_episodes = calibration_episodes
         self.log_interval = log_interval
-
-        # Merge user checks with defaults; track which keys user explicitly set
-        self._user_checks = checks or {}
-        self._checks = {}
-        for name, defaults in _DEFAULT_CHECKS.items():
-            user = self._user_checks.get(name, {})
-            self._checks[name] = {**defaults, **user}
 
         # Data storage
         self._episode_rewards: list[float] = []
@@ -86,25 +70,66 @@ class TrainingMonitor:
         self._last_trigger_ep: dict[str, int] = {}
         self._cooldown_episodes = 50  # minimum episodes between same warning
 
-        # Plug-in checks (extension seam — see utils/checks.py).
-        # The baked-in 12 checks remain in this file; user-supplied checks
-        # added via register_check() run alongside them.
+        # Registered Check Protocol instances (single execution path).
+        # Domain defaults are registered by
+        # andes_rl_kundur.scenarios.kundur.training_checks.register_kundur_default_checks.
         from andes_rl_kundur.utils.checks import Check  # noqa: F401 — type hint only
         self._plugin_checks: list = []
 
+    # ─── Public read-only accessors (Check Protocol view) ───
+    # Plug-in Check implementations read accumulated state through these
+    # properties rather than reaching into the private underscored lists.
+    # Keeps the seam clean and lets the storage details evolve.
+
+    @property
+    def episode_rewards(self) -> list[float]:
+        return self._episode_rewards
+
+    @property
+    def action_stats(self) -> list[dict[str, Any]]:
+        return self._action_stats
+
+    @property
+    def env_health(self) -> list[dict[str, Any]]:
+        return self._env_health
+
+    @property
+    def reward_components(self) -> list[dict[str, float]]:
+        return self._reward_components
+
+    @property
+    def per_agent_rewards(self) -> list[dict[int, float]]:
+        return self._per_agent_rewards
+
+    @property
+    def sac_losses(self) -> list[list[dict[str, float]]]:
+        return self._sac_losses
+
+    @property
+    def calibration_data(self) -> dict[str, Any]:
+        return self._calibration_data
+
+    @property
+    def is_calibrated(self) -> bool:
+        return self._calibrated
+
     def register_check(self, check) -> None:
-        """Append a plug-in :class:`Check` instance to the registry.
+        """Append a :class:`Check` Protocol instance to the registry.
 
         The monitor invokes every registered check on each
-        :py:meth:`log_and_check` call. Returning ``triggered=True`` with
-        ``severity="stop"`` causes ``log_and_check`` to return ``True``,
-        which the training loop watches as its halt signal.
+        :py:meth:`log_and_check` call, passing ``(self, episode_record)``.
+        Returning ``triggered=True`` with ``severity="stop"`` causes
+        ``log_and_check`` to return ``True``, which the training loop
+        watches as its halt signal. ``warn`` triggers print but do not
+        stop training; repeated warnings from the same check name are
+        suppressed by the cooldown window (``self._cooldown_episodes``).
         """
         from andes_rl_kundur.utils.checks import Check
         if not isinstance(check, Check):
             raise TypeError(
                 f"Check must satisfy the Check Protocol "
-                f"(name: str + run(dict) -> CheckResult); got {type(check).__name__}"
+                f"(name: str + run(monitor, episode) -> CheckResult); "
+                f"got {type(check).__name__}"
             )
         self._plugin_checks.append(check)
 
@@ -178,13 +203,10 @@ class TrainingMonitor:
         if n > 0 and n % self.log_interval == 0:
             self._log_summary(episode)
 
-        # Run baked-in checks (skip during calibration unless user set manual thresholds)
-        if n < self.calibration_episodes:
-            baked_stop = self._run_manual_checks(episode)
-        else:
-            baked_stop = self._run_all_checks(episode)
-
-        # Run plug-in checks (extension seam). Plug-in stop wins.
+        # Run registered checks. Pass `self` so checks can read accumulated
+        # state via the public read-only accessors (episode_rewards,
+        # action_stats, etc.). Apply cooldown to repeated `warn` triggers
+        # so the log doesn't get spammed; `stop` always prints + halts.
         episode_record = {
             "episode": episode,
             "rewards": rewards,
@@ -194,21 +216,31 @@ class TrainingMonitor:
             "tds_failed": info.get("tds_failed", False),
             "per_agent_rewards": dict(per_agent_rewards or {}),
         }
-        plugin_stop = False
+        any_stop = False
         for chk in self._plugin_checks:
-            result = chk.run(episode_record)
-            if result.triggered:
-                self._trigger_history.append({
-                    "episode": episode,
-                    "name": result.name,
-                    "severity": result.severity,
-                    "message": result.message,
-                    "source": "plugin",
-                })
-                if result.severity == "stop":
-                    plugin_stop = True
-
-        return baked_stop or plugin_stop
+            result = chk.run(self, episode_record)
+            if not result.triggered:
+                continue
+            self._trigger_history.append({
+                "check": result.name,
+                "episode": episode,
+                "action": result.severity,
+                "message": result.message,
+            })
+            # Cooldown suppression for warn-class triggers only.
+            if result.severity != "stop":
+                last_ep = self._last_trigger_ep.get(result.name, -10 ** 9)
+                if episode - last_ep < self._cooldown_episodes:
+                    continue
+            self._last_trigger_ep[result.name] = episode
+            icon = "[STOP]" if result.severity == "stop" else "[!]"
+            label = "TRAINING STOPPED" if result.severity == "stop" else "WARNING"
+            print(f"\n{icon} [Monitor] {label}: {result.name} @ Ep {episode}")
+            print(f"  {result.message}")
+            if result.severity == "stop":
+                print("  Training terminated.\n")
+                any_stop = True
+        return any_stop
 
     # ─── Calibration ───
 
@@ -339,437 +371,6 @@ class TrainingMonitor:
 
         print()
 
-    # ─── Check infrastructure ───
-
-    def _emit_check(self, check_name: str, episode: int, action: str, message: str):
-        """Record trigger and print warning/stop message (with cooldown)."""
-        self._trigger_history.append({
-            "check": check_name, "episode": episode, "action": action, "message": message,
-        })
-
-        # Cooldown: suppress repeated warnings (stops always print)
-        if action != "stop":
-            last_ep = self._last_trigger_ep.get(check_name, -999)
-            if episode - last_ep < self._cooldown_episodes:
-                return  # suppress
-        self._last_trigger_ep[check_name] = episode
-
-        icon = "[STOP]" if action == "stop" else "[!]"
-        label = "TRAINING STOPPED" if action == "stop" else "WARNING"
-        print(f"\n{icon} [Monitor] {label}: {check_name} @ Ep {episode}")
-        print(f"  {message}")
-        if action == "stop":
-            print(f"  Training terminated.\n")
-
-    def _run_all_checks(self, episode: int) -> bool:
-        results = []
-        results.append(self._check_reward_magnitude(episode))
-        results.append(self._check_reward_component_ratio(episode))
-        results.append(self._check_action_collapse(episode))
-        results.append(self._check_action_saturation(episode))
-        results.append(self._check_reward_plateau(episode))
-        results.append(self._check_reward_divergence(episode))
-        results.append(self._check_tds_failure_rate(episode))
-        results.append(self._check_freq_out_of_range(episode))
-        results.append(self._check_physics_frozen(episode))
-        results.append(self._check_agent_reward_disparity(episode))
-        results.append(self._check_loss_explosion(episode))
-        results.append(self._check_early_stopping(episode))
-        return "stop" in results
-
-    def _run_manual_checks(self, episode: int) -> bool:
-        """During calibration, run checks with explicit thresholds or severe physics checks."""
-        results = []
-        if "expected_range" in self._user_checks.get("reward_magnitude", {}):
-            results.append(self._check_reward_magnitude(episode))
-        results.append(self._check_physics_frozen(episode))
-        return "stop" in results
-
-    # ─── Check: reward_magnitude ───
-
-    def _check_reward_magnitude(self, episode: int) -> str | None:
-        """Returns 'stop', 'warn', or None."""
-        cfg = self._checks["reward_magnitude"]
-        if cfg["action"] == "ignore":
-            return None
-
-        current = self._episode_rewards[-1]
-
-        # Manual mode: user specified expected_range
-        if "expected_range" in cfg:
-            lo, hi = cfg["expected_range"]
-            if current < lo or current > hi:
-                deviation = abs(current / min(abs(lo), abs(hi), 1e-8))
-                self._emit_check("reward_magnitude", episode, cfg["action"],
-                    f"Observed reward = {current:.0f}, expected range ({lo}, {hi}). "
-                    f"Deviation: {deviation:.0f}x.")
-                return cfg["action"]
-            return None
-
-        # Auto mode: relative detection from calibration baseline
-        if not self._calibrated:
-            return None
-        mu = self._calibration_data["reward_mean"]
-        if abs(mu) < 1e-8:
-            return None
-        ratio = abs(current / mu)
-        if ratio >= 100:
-            self._emit_check("reward_magnitude", episode, cfg["action"],
-                f"Reward {current:.0f} is {ratio:.0f}x baseline ({mu:.0f}).")
-            return cfg["action"]
-        return None
-
-    # ─── Check: reward_component_ratio ───
-
-    def _check_reward_component_ratio(self, episode: int) -> str | None:
-        cfg = self._checks["reward_component_ratio"]
-        if cfg["action"] == "ignore":
-            return None
-
-        components = self._reward_components[-1]
-        dominant_name = cfg.get("dominant", "r_f")
-        threshold = cfg.get("dominance_threshold", 0.5)
-
-        if dominant_name not in components:
-            return None
-
-        total_abs = sum(abs(v) for v in components.values())
-        if total_abs < 1e-8:
-            return None
-
-        dominant_ratio = abs(components[dominant_name]) / total_abs
-        if dominant_ratio < threshold:
-            breakdown = ", ".join(f"{k}: {abs(v)/total_abs*100:.1f}%" for k, v in components.items())
-            self._emit_check("reward_component_ratio", episode, cfg["action"],
-                f"'{dominant_name}' is only {dominant_ratio*100:.1f}% of total reward "
-                f"(threshold: {threshold*100:.0f}%). Breakdown: {breakdown}")
-            return cfg["action"]
-        return None
-
-    # ─── Check: action_collapse ───
-
-    def _check_action_collapse(self, episode: int) -> str | None:
-        cfg = self._checks["action_collapse"]
-        if cfg["action"] == "ignore":
-            return None
-
-        window = cfg.get("window", 50)
-        if len(self._action_stats) < window:
-            return None
-
-        # Use auto-calibrated threshold unless user explicitly set one
-        threshold = cfg.get("std_threshold", 0.05)
-        if self._calibrated and "std_threshold" not in self._user_checks.get("action_collapse", {}):
-            baseline = self._calibration_data.get("action_std_baseline", 0.5)
-            threshold = baseline * 0.1
-
-        recent = self._action_stats[-window:]
-        n_agents = len(recent[0]["per_agent_std"])
-
-        for agent_idx in range(n_agents):
-            agent_stds = [s["per_agent_std"][agent_idx] for s in recent]
-            if all(s < threshold for s in agent_stds):
-                avg_std = np.mean(agent_stds)
-                self._emit_check("action_collapse", episode, cfg["action"],
-                    f"Agent {agent_idx} action std = {avg_std:.4f} "
-                    f"(threshold: {threshold:.4f}) over last {window} episodes.\n"
-                    f"  Interpretation: Agent may be learning a near-zero policy (\"do nothing\").\n"
-                    f"  Suggestion: Check reward scaling -- ensure frequency reward dominates.")
-                return cfg["action"]
-        return None
-
-    # ─── Check: action_saturation ───
-
-    def _check_action_saturation(self, episode: int) -> str | None:
-        cfg = self._checks["action_saturation"]
-        if cfg["action"] == "ignore":
-            return None
-
-        threshold = cfg.get("threshold", 0.8)
-        sat_ratio = self._action_stats[-1]["saturation_ratio"]
-
-        if sat_ratio > threshold:
-            self._emit_check("action_saturation", episode, cfg["action"],
-                f"Action saturation = {sat_ratio*100:.1f}% (threshold: {threshold*100:.0f}%).\n"
-                f"  Most actions are at boundary +/-0.95. Action space may be too small.")
-            return cfg["action"]
-        return None
-
-    # ─── Check: reward_plateau ───
-
-    def _check_reward_plateau(self, episode: int) -> str | None:
-        cfg = self._checks["reward_plateau"]
-        if cfg["action"] == "ignore":
-            return None
-
-        window = cfg.get("window", 100)
-        threshold = cfg.get("improvement_threshold", 0.01)
-        if len(self._episode_rewards) < window:
-            return None
-
-        recent = self._episode_rewards[-window:]
-        min_r, max_r = min(recent), max(recent)
-
-        if abs(min_r) < 1e-8:
-            # Near-zero rewards: use absolute difference
-            if max_r - min_r < 1e-6:
-                self._emit_check("reward_plateau", episode, cfg["action"],
-                    f"Reward stuck near zero for {window} episodes.")
-                return cfg["action"]
-            return None
-
-        improvement = (max_r - min_r) / max(abs(min_r), 1e-8)
-        if improvement < threshold:
-            self._emit_check("reward_plateau", episode, cfg["action"],
-                f"Reward range [{min_r:.1f}, {max_r:.1f}] over last {window} episodes.\n"
-                f"  Improvement: {improvement*100:.2f}% (threshold: {threshold*100:.1f}%).\n"
-                f"  Training may be stuck in a local optimum.")
-            return cfg["action"]
-        return None
-
-    # ─── Check: reward_divergence ───
-
-    def _check_reward_divergence(self, episode: int) -> str | None:
-        cfg = self._checks["reward_divergence"]
-        if cfg["action"] == "ignore":
-            return None
-
-        window = cfg.get("window", 50)
-        if len(self._episode_rewards) < window:
-            return None
-
-        recent = np.array(self._episode_rewards[-window:])
-        x = np.arange(window)
-
-        # Linear fit: reward = slope * x + intercept
-        coeffs = np.polyfit(x, recent, 1)
-        slope = coeffs[0]
-
-        if slope >= 0:
-            return None  # Not declining
-
-        # R-squared
-        predicted = np.polyval(coeffs, x)
-        ss_res = np.sum((recent - predicted) ** 2)
-        ss_tot = np.sum((recent - np.mean(recent)) ** 2)
-        r_squared = 1.0 - ss_res / max(ss_tot, 1e-8)
-
-        if r_squared < 0.3:
-            return None  # Too noisy, not a real trend
-
-        # Normalized slope: total change over window relative to mean
-        mean_reward = abs(np.mean(recent))
-        if mean_reward < 1e-8:
-            return None
-        normalized = abs(slope * window) / mean_reward
-
-        if normalized > 0.1:
-            self._emit_check("reward_divergence", episode, cfg["action"],
-                f"Reward declining over last {window} episodes.\n"
-                f"  Slope: {slope:.1f}/ep, R^2={r_squared:.2f}, "
-                f"total change: {abs(slope * window):.0f} ({normalized*100:.0f}% of mean).\n"
-                f"  Training may be diverging.")
-            return cfg["action"]
-        return None
-
-    # ─── Check: tds_failure_rate ───
-
-    def _check_tds_failure_rate(self, episode: int) -> str | None:
-        cfg = self._checks["tds_failure_rate"]
-        if cfg["action"] == "ignore":
-            return None
-
-        window = cfg.get("window", 50)
-        if len(self._env_health) < window:
-            return None
-
-        # Use auto-calibrated threshold unless user explicitly set one
-        threshold = cfg.get("threshold", 0.2)
-        if self._calibrated and "threshold" not in self._user_checks.get("tds_failure_rate", {}):
-            baseline = self._calibration_data.get("tds_failure_baseline", 0.0)
-            threshold = max(baseline * 2, 0.3)
-
-        recent = self._env_health[-window:]
-        fail_count = sum(1 for h in recent if h["tds_failed"])
-        rate = fail_count / window
-
-        if rate > threshold:
-            self._emit_check("tds_failure_rate", episode, cfg["action"],
-                f"TDS failure rate: {fail_count}/{window} = {rate*100:.1f}% "
-                f"(threshold: {threshold*100:.0f}%).\n"
-                f"  Simulation may be numerically unstable.")
-            return cfg["action"]
-        return None
-
-    # ─── Check: freq_out_of_range ───
-
-    def _check_freq_out_of_range(self, episode: int) -> str | None:
-        cfg = self._checks["freq_out_of_range"]
-        if cfg["action"] == "ignore":
-            return None
-
-        window = cfg.get("window", 10)
-        min_episodes = cfg.get("min_episodes", 3)
-        threshold_hz = cfg.get("threshold_hz", 2.0)
-
-        if len(self._env_health) < window:
-            return None
-
-        recent = self._env_health[-window:]
-        violations = sum(1 for h in recent if h["max_freq_deviation_hz"] > threshold_hz)
-
-        if violations >= min_episodes:
-            self._emit_check("freq_out_of_range", episode, cfg["action"],
-                f"Frequency exceeded +/-{threshold_hz} Hz in {violations}/{window} recent episodes "
-                f"(threshold: {min_episodes} episodes).\n"
-                f"  VSG parameters may be causing system instability.")
-            return cfg["action"]
-        return None
-
-    # ─── Check: physics_frozen ───
-
-    def _check_physics_frozen(self, episode: int) -> str | None:
-        cfg = self._checks["physics_frozen"]
-        if cfg["action"] == "ignore":
-            return None
-
-        window = cfg.get("window", 10)
-        epsilon = cfg.get("epsilon", 1e-9)
-        if len(self._env_health) < window:
-            return None
-
-        recent = self._env_health[-window:]
-        swings = [h.get("max_power_swing") for h in recent]
-        if any(s is None for s in swings):
-            return None
-
-        if all(abs(float(s)) <= epsilon for s in swings):
-            self._emit_check("physics_frozen", episode, cfg["action"],
-                f"max_power_swing <= {epsilon:g} for the last {window} episodes.\n"
-                f"  Electrical power response appears frozen; M/D changes may not reach the grid.")
-            return cfg["action"]
-        return None
-
-    # ─── Check: agent_reward_disparity ───
-
-    def _check_agent_reward_disparity(self, episode: int) -> str | None:
-        cfg = self._checks["agent_reward_disparity"]
-        if cfg["action"] == "ignore":
-            return None
-
-        window = cfg.get("window", 50)
-        std_threshold = cfg.get("std_threshold", 2.0)
-
-        if len(self._per_agent_rewards) < window:
-            return None
-
-        recent = self._per_agent_rewards[-window:]
-        agent_ids = sorted(recent[0].keys())
-        if len(agent_ids) < 2:
-            return None
-
-        # Compute mean reward per agent over the window
-        agent_means = {}
-        for aid in agent_ids:
-            agent_means[aid] = float(np.mean([r[aid] for r in recent]))
-
-        values = np.array(list(agent_means.values()))
-        overall_mean = float(np.mean(values))
-        overall_std = float(np.std(values))
-
-        if overall_std < 1e-8:
-            return None
-
-        for aid in agent_ids:
-            if agent_means[aid] < overall_mean - std_threshold * overall_std:
-                self._emit_check("agent_reward_disparity", episode, cfg["action"],
-                    f"Agent {aid} mean reward = {agent_means[aid]:.1f} over last {window} episodes.\n"
-                    f"  Cross-agent mean = {overall_mean:.1f}, std = {overall_std:.1f}.\n"
-                    f"  Agent is >{std_threshold:.1f} std devs below mean.")
-                return cfg["action"]
-        return None
-
-    # ─── Check: loss_explosion ───
-
-    def _check_loss_explosion(self, episode: int) -> str | None:
-        cfg = self._checks["loss_explosion"]
-        if cfg["action"] == "ignore":
-            return None
-
-        window = cfg.get("window", 20)
-        multiplier = cfg.get("multiplier", 10.0)
-
-        if len(self._sac_losses) < window:
-            return None
-        if not self._calibrated:
-            return None
-
-        baseline = self._calibration_data.get("critic_loss_baseline")
-        if baseline is None or baseline < 1e-8:
-            return None
-
-        recent = self._sac_losses[-window:]
-        if not recent or not recent[0]:
-            return None
-        for agent_idx in range(len(recent[0])):
-            agent_losses = [
-                ep_losses[agent_idx]["critic_loss"]
-                for ep_losses in recent
-                if agent_idx < len(ep_losses) and "critic_loss" in ep_losses[agent_idx]
-            ]
-            if not agent_losses:
-                continue
-            mean_loss = float(np.mean(agent_losses))
-            if mean_loss > multiplier * baseline:
-                self._emit_check("loss_explosion", episode, cfg["action"],
-                    f"Agent {agent_idx} critic_loss = {mean_loss:.2f} over last {window} episodes.\n"
-                    f"  Baseline: {baseline:.2f}, ratio: {mean_loss/baseline:.1f}x "
-                    f"(threshold: {multiplier:.0f}x).")
-                return cfg["action"]
-        return None
-
-    # ─── Check: early_stopping ───
-
-    def _check_early_stopping(self, episode: int) -> str | None:
-        cfg = self._checks["early_stopping"]
-        if cfg["action"] == "ignore":
-            return None
-
-        patience = cfg.get("patience", 150)
-        min_improvement = cfg.get("min_improvement", 0.02)
-
-        current = self._episode_rewards[-1]
-        ep_idx = len(self._episode_rewards) - 1
-
-        # Update best
-        if self._early_stop_best_reward < -1e30:
-            # First episode
-            self._early_stop_best_reward = current
-            self._early_stop_best_ep_idx = ep_idx
-            return None
-
-        # Check for improvement (relative or absolute if near zero)
-        if abs(self._early_stop_best_reward) > 1e-8:
-            improvement = (current - self._early_stop_best_reward) / abs(self._early_stop_best_reward)
-        else:
-            improvement = current - self._early_stop_best_reward
-
-        if improvement > min_improvement:
-            self._early_stop_best_reward = current
-            self._early_stop_best_ep_idx = ep_idx
-            return None
-
-        # Check patience
-        episodes_since = ep_idx - self._early_stop_best_ep_idx
-        if episodes_since >= patience:
-            self._emit_check("early_stopping", episode, cfg["action"],
-                f"No improvement >{min_improvement*100:.1f}% for {episodes_since} episodes "
-                f"(patience: {patience}).\n"
-                f"  Best reward: {self._early_stop_best_reward:.1f} @ ep {self._early_stop_best_ep_idx}.\n"
-                f"  Current: {current:.1f}. Consider stopping or adjusting hyperparameters.")
-            return cfg["action"]
-        return None
-
     # ─── Persistence & export ───
 
     def save_checkpoint(self, path: str):
@@ -790,7 +391,6 @@ class TrainingMonitor:
             "_early_stop_best_reward": self._early_stop_best_reward,
             "_early_stop_best_ep_idx": self._early_stop_best_ep_idx,
             "_last_trigger_ep": self._last_trigger_ep,
-            "_user_checks": self._user_checks,
         }
         Path(path).parent.mkdir(parents=True, exist_ok=True)
         with open(path, "w") as f:
@@ -802,8 +402,7 @@ class TrainingMonitor:
         with open(path) as f:
             data = json.load(f)
 
-        user_checks = data.get("_user_checks", {})
-        monitor = cls(calibration_episodes=data["calibration_episodes"], checks=user_checks)
+        monitor = cls(calibration_episodes=data["calibration_episodes"])
         monitor._episode_rewards = data["_episode_rewards"]
         monitor._reward_components = data["_reward_components"]
         monitor._action_stats = data["_action_stats"]

@@ -52,7 +52,7 @@ def test_monitor_invokes_registered_check():
     class Recorder:
         name = "recorder"
 
-        def run(self, episode) -> CheckResult:
+        def run(self, monitor, episode) -> CheckResult:
             calls.append(episode)
             return CheckResult(name=self.name, triggered=False)
 
@@ -79,7 +79,7 @@ def test_monitor_stops_when_registered_check_says_so():
     class HardStop:
         name = "hard_stop"
 
-        def run(self, episode) -> CheckResult:
+        def run(self, monitor, episode) -> CheckResult:
             return CheckResult(
                 name=self.name, triggered=True, severity="stop",
                 message="research-rule violation",

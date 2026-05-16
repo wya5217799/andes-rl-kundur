@@ -43,6 +43,9 @@ from andes_rl_kundur.agents.sac_ctde import CTDECoordinator, SACAgentCTDE  # noq
 from andes_rl_kundur.agents.td3 import TD3Agent  # noqa: E402
 from andes_rl_kundur.env.andes.andes_vsg_env_v4 import AndesMultiVSGEnvV4  # noqa: E402
 from andes_rl_kundur.env.andes.v4_config import V4Config  # noqa: E402
+from andes_rl_kundur.scenarios.kundur.training_checks import (  # noqa: E402
+    register_kundur_default_checks,
+)
 from andes_rl_kundur.utils.monitor import TrainingMonitor  # noqa: E402
 
 # ─── CLI ───────────────────────────────────────────────────────────────
@@ -447,6 +450,7 @@ def main() -> None:
             )
 
     monitor = TrainingMonitor(best_reward_callback=on_best_reward)
+    register_kundur_default_checks(monitor)
 
     # Comm-failure override (M1 review 2026-05-07)
     comm_fail = args.comm_fail if args.comm_fail is not None else 0.1

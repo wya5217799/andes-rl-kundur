@@ -1,21 +1,26 @@
-"""Extension seam for ``TrainingMonitor``: structural Check Protocol.
+"""Check Protocol — the sole extension seam for ``TrainingMonitor`` diagnostics.
 
-Any class with a ``name: str`` attribute and a ``run(episode_dict) ->
-CheckResult`` method satisfies the Protocol and can be registered with
-:py:meth:`TrainingMonitor.register_check`. The monitor invokes
-registered checks each ``log_and_check`` cycle alongside its 12 baked-in
-diagnostics.
+A Check is anything with a ``name: str`` attribute and a
+``run(monitor, episode) -> CheckResult`` method. The monitor invokes
+every registered check on each ``log_and_check`` call. The 12
+ANDES-Kundur baked-in checks (reward_magnitude, action_collapse, etc.)
+live in :mod:`andes_rl_kundur.scenarios.kundur.training_checks` and are
+registered via :func:`register_kundur_default_checks` from ``train.py``.
 
-The baked-in checks are not refactored to use this seam — they carry
-calibration state machines that would be risky to rewrite without
-regression. New checks added during continuing research should be
-written against this Protocol; over time, the baked-in set can migrate
-one check at a time.
+The monitor passes ``self`` to ``Check.run`` so checks can query
+accumulated state via the monitor's public read-only accessors:
+``episode_rewards``, ``action_stats``, ``env_health``,
+``reward_components``, ``per_agent_rewards``, ``sac_losses``,
+``calibration_data``, ``is_calibrated``. This avoids defining a parallel
+``MonitorView`` Protocol — the monitor *is* the view.
 """
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Literal, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Any, Literal, Protocol, runtime_checkable
+
+if TYPE_CHECKING:
+    from andes_rl_kundur.utils.monitor import TrainingMonitor
 
 
 Severity = Literal["info", "warn", "stop"]
@@ -33,5 +38,9 @@ class CheckResult:
 class Check(Protocol):
     name: str
 
-    def run(self, episode: dict[str, Any]) -> CheckResult:
+    def run(
+        self,
+        monitor: "TrainingMonitor",
+        episode: dict[str, Any],
+    ) -> CheckResult:
         ...
