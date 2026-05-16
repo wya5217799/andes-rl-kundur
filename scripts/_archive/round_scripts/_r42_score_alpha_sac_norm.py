@@ -1,5 +1,15 @@
-"""R41 part B — score TD3 normalized-mode sweep (paper-faithful PHI
-preserved + reward asymmetry fixed in env-level reward computation)."""
+"""R42 part α — score SAC normalized-mode sweep.
+
+Mirrors `_r41_score_B_normalized.py` but for SAC + --normalize-actions.
+Tests whether the right reward shape (normalized action penalty) is
+sufficient on its own, or whether algorithm choice (SAC vs TD3) still
+matters after the reward asymmetry is fixed.
+
+Predictions (from handoff):
+  - If SAC norm >= 0.20: reward shape alone explains everything.
+  - If SAC norm ~ 0.13 (at attractor): H3 confirmed — SAC entropy
+    variance hurts even at correct reward shape.
+"""
 from __future__ import annotations
 
 import json
@@ -8,7 +18,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT / "src"))
 
 from andes_rl_kundur.evaluation.paper_grade_axes import (  # noqa: E402
@@ -47,10 +57,10 @@ def score(label):
 
 rows = []
 for seed in SEEDS:
-    ckpt = ROOT/"results"/f"td3_norm_s{seed}"
+    ckpt = ROOT/"results"/f"sac_norm_s{seed}"
     if not ckpt.exists():
         continue
-    label = f"td3_norm_s{seed}"
+    label = f"sac_norm_s{seed}"
     run_eval(ckpt, label)
     s = score(label)
     s["seed"] = seed
@@ -62,13 +72,14 @@ for seed in SEEDS:
 
 if rows:
     sc = [r["combined_6axis"] for r in rows]
-    print(f"\n=== R41-B TD3 normalized mode 75ep sweep ===")
+    print(f"\n=== R42-α SAC normalized mode 75ep sweep ===")
     print(f"  6-axis: mean={sum(sc)/len(sc):.4f}  range=[{min(sc):.4f}, {max(sc):.4f}]")
     print("  vs:")
-    print("    R40 TD3 phi=0:        0.2590 (extreme — no action cost)")
-    print("    R41-C TD3 phi=0 200ep: 0.2681 (5-seed)")
-    print("    R38 TD3 phi=paper:    0.0841 (physical mode, action cost dominates)")
+    print("    R41-B TD3 norm 75ep:     0.275  (production setting)")
+    print("    R41-A SAC phi=0 75ep:    0.117  (algorithm not enough)")
+    print("    SAC multi-seed attractor: 0.137  (R23-R27 mean)")
+    print("    no_control:               0.104")
 
-out = ROOT/"results"/"research_loop"/"r41B_normalized_sweep.json"
-out.write_text(json.dumps({"r41B": rows}, indent=2), encoding="utf-8")
+out = ROOT/"results"/"research_loop"/"r42_alpha_sac_norm_sweep.json"
+out.write_text(json.dumps({"r42_alpha": rows}, indent=2), encoding="utf-8")
 print(f"\n-> {out}")
