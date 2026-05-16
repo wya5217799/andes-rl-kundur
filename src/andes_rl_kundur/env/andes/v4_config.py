@@ -76,11 +76,30 @@ class V4Config:
     # exists for reproducibility / future ablations; default OFF.
     include_own_action_obs: bool = False
 
+    # ─── Observation augmentation — time-in-obs (R52 probe) ──────────
+    # When True, OBS_DIM += 1 and each agent's obs is appended with
+    # normalized episode progress ``step_count / STEPS_PER_EPISODE``
+    # in [0, 1]. Gives the deterministic-mode policy explicit phase
+    # info so it can output time-varying action even at eval.
+    # Addresses the structural temporal-flatness finding (CLM-0057/
+    # CLM-0058/CLM-0059): deterministic policies on V4 converge to
+    # static setpoint independent of algorithm/obs/reward shaping
+    # because they lack trajectory-phase information.
+    # Default OFF (paper-faithful). Mutually exclusive with
+    # ``include_own_action_obs`` for the R52 minimal-diff slot layout.
+    include_time_obs: bool = False
+
     def __post_init__(self) -> None:
         if self.action_penalty_mode not in ("physical", "normalized"):
             raise ValueError(
                 f"action_penalty_mode must be 'physical' or 'normalized', "
                 f"got {self.action_penalty_mode!r}"
+            )
+        if self.include_time_obs and self.include_own_action_obs:
+            raise NotImplementedError(
+                "Simultaneous include_time_obs + include_own_action_obs is "
+                "not yet supported (slot-layout conflict). Pick one or open "
+                "a follow-up round to refactor the obs slot indexing."
             )
 
     @classmethod

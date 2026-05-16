@@ -201,6 +201,11 @@ class AndesMultiVSGEnvV4(AndesBaseEnv):
             # Cfg explicitly says OFF; honour it even if env var said ON.
             self._include_own_action_obs = False
             self.OBS_DIM = self.__class__.OBS_DIM
+        # R52 probe: time-in-obs late-enable (mutually exclusive with
+        # include_own_action_obs per V4Config.__post_init__ check).
+        if cfg.include_time_obs:
+            self._include_time_obs = True
+            self.OBS_DIM = self.__class__.OBS_DIM + 1
 
         # R05 disturbance-scale env var (calibrate against paper cum_rf).
         scale = float(os.environ.get("DISTURB_SCALE", "1.0"))

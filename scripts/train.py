@@ -169,10 +169,24 @@ def pick_device() -> str:
 
 
 def obs_dim_with_optional_action(base_dim: int) -> tuple[int, bool]:
-    """Apply the INCLUDE_OWN_ACTION_OBS env-var augmentation (+2)."""
-    include = bool(int(os.environ.get("INCLUDE_OWN_ACTION_OBS", "0")))
-    if include:
+    """Apply env-var obs augmentations (+2 own_action, +1 time).
+
+    R52 (CLM-0059 follow-up): added INCLUDE_TIME_OBS env var to bump
+    obs_dim by 1 (normalized episode progress slot). Mutually exclusive
+    with INCLUDE_OWN_ACTION_OBS — enforced both by V4Config.__post_init__
+    and inline below.
+    """
+    include_action = bool(int(os.environ.get("INCLUDE_OWN_ACTION_OBS", "0")))
+    include_time = bool(int(os.environ.get("INCLUDE_TIME_OBS", "0")))
+    if include_action and include_time:
+        raise ValueError(
+            "INCLUDE_OWN_ACTION_OBS=1 and INCLUDE_TIME_OBS=1 are mutually "
+            "exclusive (slot-layout conflict); pick one."
+        )
+    if include_action:
         return base_dim + 2, True
+    if include_time:
+        return base_dim + 1, True
     return base_dim, False
 
 
@@ -415,7 +429,8 @@ def main() -> None:
         AndesMultiVSGEnvV4.OBS_DIM
     )
     if include_action_obs:
-        print(f"[obs] INCLUDE_OWN_ACTION_OBS=1 -> obs_dim {AndesMultiVSGEnvV4.OBS_DIM} -> {obs_dim}")
+        probe = "INCLUDE_TIME_OBS" if os.environ.get("INCLUDE_TIME_OBS", "0") == "1" else "INCLUDE_OWN_ACTION_OBS"
+        print(f"[obs] {probe}=1 -> obs_dim {AndesMultiVSGEnvV4.OBS_DIM} -> {obs_dim}")
     action_dim = 2
 
     # SAC hyperparameters

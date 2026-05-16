@@ -143,6 +143,22 @@ class AndesBaseEnv(ABC):
             self.OBS_DIM = self.__class__.OBS_DIM + 2
             self._last_action = np.zeros((self.N_AGENTS, 2), dtype=np.float32)
 
+        # R52 probe: include normalized episode progress in obs (mutually
+        # exclusive with include_own_action_obs to avoid slot conflict).
+        # Default OFF; both env var ``INCLUDE_TIME_OBS=1`` and
+        # ``V4Config.include_time_obs=True`` can late-enable it (latter
+        # checked in V4 env __init__).
+        self._include_time_obs = bool(int(
+            os.environ.get("INCLUDE_TIME_OBS", "0")
+        ))
+        if self._include_time_obs:
+            if self._include_own_action_obs:
+                raise ValueError(
+                    "INCLUDE_TIME_OBS=1 and INCLUDE_OWN_ACTION_OBS=1 are "
+                    "mutually exclusive (slot-layout conflict); pick one."
+                )
+            self.OBS_DIM = self.__class__.OBS_DIM + 1
+
     def close(self):
         """Clean up ANDES system resources."""
         self.ss = None
@@ -493,6 +509,11 @@ class AndesBaseEnv(ABC):
             if self._include_own_action_obs:
                 o[-2] = self._last_action[i, 0]
                 o[-1] = self._last_action[i, 1]
+            # R52 probe: append normalized episode progress (mutually
+            # exclusive with include_own_action_obs — V4Config.__post_init__
+            # enforces this so slot -1 is unambiguous here).
+            elif self._include_time_obs:
+                o[-1] = float(self.step_count) / float(max(self.STEPS_PER_EPISODE, 1))
             obs[i] = o
         return obs
 
