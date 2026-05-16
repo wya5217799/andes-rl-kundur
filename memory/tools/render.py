@@ -86,7 +86,19 @@ def _round_is_in_flight(round_dir: Path) -> bool:
     return plan.exists() and _round_verdict_path(round_dir) is None
 
 
-def _extract_tldr(verdict_path: Path) -> str | None:
+def _extract_tldr(verdict_path: Path | None) -> str | None:
+    """Return the first non-trivial line of a verdict's `## TL;DR` block, or None.
+
+    Skips:
+    - empty lines
+    - HTML comments (`<!-- ... -->`)
+    - Markdown horizontal rules (`---`, `***`, `___`)
+
+    If the body is entirely a blockquote (lines starting with `>`), returns
+    the first quoted line with the `>` prefix stripped. This way verdicts
+    that put their summary in a single blockquote still surface a usable
+    one-line summary in STATE.md.
+    """
     if verdict_path is None or not verdict_path.exists():
         return None
     text = verdict_path.read_text(encoding="utf-8")
@@ -94,12 +106,37 @@ def _extract_tldr(verdict_path: Path) -> str | None:
     if not match:
         return None
     body = match.group(1).strip()
-    # First non-empty, non-html-comment line of the block
+
+    def _is_skip(line: str) -> bool:
+        if not line:
+            return True
+        if line.startswith("<!--"):
+            return True
+        # Markdown horizontal rules: a line that is only -, *, or _ chars
+        if set(line) <= {"-"} and len(line) >= 3:
+            return True
+        if set(line) <= {"*"} and len(line) >= 3:
+            return True
+        if set(line) <= {"_"} and len(line) >= 3:
+            return True
+        return False
+
+    # First pass: take any non-trivial non-blockquote line.
     for raw in body.splitlines():
         line = raw.strip()
-        if not line or line.startswith("<!--") or line.startswith(">"):
+        if _is_skip(line) or line.startswith(">"):
             continue
         return line
+
+    # Fallback: body is entirely blockquoted. Return first quoted line
+    # with the leading `>` (and optional space) stripped.
+    for raw in body.splitlines():
+        line = raw.strip()
+        if not line.startswith(">"):
+            continue
+        stripped = line.lstrip("> ").strip()
+        if stripped and not _is_skip(stripped):
+            return stripped
     return None
 
 
@@ -150,18 +187,35 @@ def render_state(
     ]
 
     in_flight_rounds = [d for d in round_dirs if _round_is_in_flight(d)]
+    completed_rounds = [d for d in round_dirs if not _round_is_in_flight(d)]
 
     open_qs = [
         q for q in questions
         if q.get("status") in ("open", "in-flight")
     ]
+
+    def _closed_round_num(q: dict[str, Any]) -> int:
+        """Numeric key for sorting closed Qs by closing round.
+        Lexicographic sort would put `R10` before `R9`; this parses the
+        digit suffix so the sort is correct regardless of zero-padding."""
+        cr = q.get("closed_round") or ""
+        m = ROUND_DIR_RE.match(cr)
+        return int(m.group(1)) if m else -1
+
     closed_qs = sorted(
         (q for q in questions if (q.get("status") or "").startswith("closed-")),
-        key=lambda q: q.get("closed_round") or "",
+        key=_closed_round_num,
         reverse=True,
     )[:3]
 
-    latest_round = round_dirs[-1] if round_dirs else None
+    # "Latest Round" is the newest *completed* round, so it doesn't double
+    # up with the In-Flight section when the highest-numbered round is
+    # plan-only. Fallback: if no round has a verdict, point at the newest
+    # in-flight round (so STATE.md isn't empty during the very first round).
+    latest_round = (
+        completed_rounds[-1] if completed_rounds
+        else (round_dirs[-1] if round_dirs else None)
+    )
     latest_tldr = (
         _extract_tldr(_round_verdict_path(latest_round)) if latest_round else None
     )

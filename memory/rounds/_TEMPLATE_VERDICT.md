@@ -1,3 +1,9 @@
+<!-- Filename convention: prefer `verdict.md` (canonical). validate.py uses
+     canonical-preempt semantics: if `RNN/verdict.md` exists, it is the only
+     file validated for that round; any sibling `*verdict*.md` (e.g.
+     `round_28_to_34_final_verdict.md`) is treated as a supplementary note
+     and not enforced to the Q-section schema. -->
+
 # R## verdict — <one-line title>
 
 **Date**: YYYY-MM-DD

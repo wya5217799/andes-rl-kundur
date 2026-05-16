@@ -267,6 +267,96 @@ def test_warn_verdict_missing_tldr_emits_warning(tmp_path):
     assert any("TL;DR" in w for w in warnings)
 
 
+# ---------- Hotfix regressions (R39 review punch list) ----------
+
+
+def test_iter_verdicts_ignores_non_round_directories(tmp_path):
+    """H2: only directories matching ^R\\d+$ should be iterated as rounds.
+    A `README` or `R-legacy` subdir under memory/rounds/ must be skipped."""
+    from validate import _iter_verdicts  # noqa: E402
+    rounds_dir = tmp_path / "rounds"
+    # Real round
+    (rounds_dir / "R01").mkdir(parents=True)
+    (rounds_dir / "R01" / "verdict.md").write_text(
+        "# R01\n## Questions opened\n## Questions closed\n## Questions advanced\n",
+        encoding="utf-8",
+    )
+    # Decoy: directory starting with R but not a round
+    (rounds_dir / "README").mkdir()
+    (rounds_dir / "README" / "verdict.md").write_text(
+        "# bogus\n", encoding="utf-8",
+    )
+    (rounds_dir / "R-legacy").mkdir()
+    (rounds_dir / "R-legacy" / "verdict.md").write_text(
+        "# bogus\n", encoding="utf-8",
+    )
+    found = list(_iter_verdicts(rounds_dir))
+    assert len(found) == 1
+    assert found[0].parent.name == "R01"
+
+
+def test_load_claims_raises_value_error_on_missing_id(tmp_path):
+    """M1: a CLM file with valid YAML frontmatter but no `id` key should raise
+    a helpful ValueError naming the file, not a bare KeyError."""
+    (tmp_path / "CLM-0099.md").write_text(
+        "---\ntype: finding\ntrust: V\nstatus: current\nstatement: x\n---\n",
+        encoding="utf-8",
+    )
+    import pytest
+    with pytest.raises(ValueError, match="CLM-0099"):
+        load_claims(tmp_path)
+
+
+def test_load_questions_raises_value_error_on_missing_id(tmp_path):
+    """M1: same guarantee for Q files."""
+    from validate import load_questions  # noqa: E402
+    (tmp_path / "Q-0099.md").write_text(
+        "---\nstatus: open\ntitle: x\nopened_round: R01\n---\n",
+        encoding="utf-8",
+    )
+    import pytest
+    with pytest.raises(ValueError, match="Q-0099"):
+        load_questions(tmp_path)
+
+
+def test_validate_question_rules_closed_by_must_be_string(tmp_path):
+    """M1: closed_by must be a single CLM id string, not a list. Per schema
+    a Q is closed by exactly one claim. Catch the misuse as an error,
+    don't let it propagate as TypeError into the dict lookup."""
+    from validate import validate_question_rules  # noqa: E402
+    questions = {
+        "Q-0001": {
+            "id": "Q-0001", "status": "closed-positive", "title": "x",
+            "opened_round": "R01", "closed_round": "R02",
+            "closed_by": ["CLM-0001", "CLM-0002"],  # invalid: list
+        },
+    }
+    rounds_dir = tmp_path / "rounds"
+    rounds_dir.mkdir()
+    for r in ("R01", "R02"):
+        (rounds_dir / r).mkdir()
+    errors = validate_question_rules(
+        questions, claims={"CLM-0001": {}, "CLM-0002": {}}, rounds_dir=rounds_dir,
+    )
+    assert any("Q-0001" in e and "closed_by" in e for e in errors), \
+        f"expected closed_by-type error; got: {errors}"
+
+
+def test_load_claims_tolerates_crlf_line_endings(tmp_path):
+    """M2: a CLM file checked out with CRLF line endings (Windows
+    autocrlf=true) must still be loadable. Without normalisation, the
+    `^---\\n` regex misses the frontmatter delimiter and validate.py
+    treats every claim as malformed."""
+    text_lf = (
+        "---\nid: CLM-0001\ntype: finding\ntrust: V\n"
+        "status: current\nstatement: crlf-test\n---\n"
+    )
+    text_crlf = text_lf.replace("\n", "\r\n")
+    (tmp_path / "CLM-0001.md").write_bytes(text_crlf.encode("utf-8"))
+    claims = load_claims(tmp_path)
+    assert claims["CLM-0001"]["statement"] == "crlf-test"
+
+
 def test_fix_back_edges_writes_superseded_by_and_flips_status(tmp_path):
     src = FIXTURES
     dst = tmp_path / "claims"

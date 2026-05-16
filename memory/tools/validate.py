@@ -9,6 +9,10 @@ from typing import Any
 import yaml
 
 FRONTMATTER_RE = re.compile(r"^---\n(.*?)\n---\n", re.DOTALL)
+# Strict round-directory pattern. Shared with render.py so both tools agree
+# on what counts as a "round" dir under memory/rounds/. README/, _SKIPPED.md,
+# R-legacy/ etc. are intentionally excluded.
+ROUND_DIR_RE = re.compile(r"^R(\d+)$")
 
 QUESTION_STATUS_ENUM = {
     "open",
@@ -43,7 +47,11 @@ def load_claims(claims_dir: Path) -> dict[str, dict[str, Any]]:
         meta["_path"] = path
         meta.setdefault("superseded_by", [])
         meta.setdefault("supersedes", [])
-        cid = meta["id"]
+        cid = meta.get("id")
+        if not cid:
+            raise ValueError(
+                f"{path.name}: frontmatter missing required 'id' field"
+            )
         if cid in claims:
             raise ValueError(
                 f"duplicate id {cid} in {path.name} and "
@@ -68,7 +76,11 @@ def load_questions(questions_dir: Path) -> dict[str, dict[str, Any]]:
             raise ValueError(f"{path.name}: no YAML frontmatter")
         meta = yaml.safe_load(match.group(1)) or {}
         meta["_path"] = path
-        qid = meta["id"]
+        qid = meta.get("id")
+        if not qid:
+            raise ValueError(
+                f"{path.name}: frontmatter missing required 'id' field"
+            )
         if qid in questions:
             raise ValueError(
                 f"duplicate id {qid} in {path.name} and "
@@ -105,6 +117,13 @@ def validate_question_rules(
                 errors.append(
                     f"{qid}: status={status} but missing "
                     f"closed_round/closed_by"
+                )
+            elif not isinstance(closed_by, str):
+                # Schema is one closing claim per Q. A list (or any non-string)
+                # is rejected here rather than crashing inside the dict lookup.
+                errors.append(
+                    f"{qid}: closed_by must be a single CLM-id string, "
+                    f"got {type(closed_by).__name__}: {closed_by!r}"
                 )
             else:
                 if not (rounds_dir / closed_round).exists():
@@ -269,14 +288,23 @@ def fix_back_edges(claims: dict[str, dict[str, Any]], *, write: bool) -> list[st
 
 
 def _iter_verdicts(rounds_dir: Path):
-    """Yield Path objects for every existing round verdict.md (any filename
-    matching *verdict*.md inside RNN/ dirs)."""
+    """Yield Path objects for every round-verdict file to be validated.
+
+    Canonical-preempt semantics (matches `render.py`):
+    - If `RNN/verdict.md` exists, yield only it. Sibling `*verdict*.md`
+      files are then treated as supplementary notes (cross-round summaries,
+      audit verdicts, etc.) and are NOT validated as per-round verdicts.
+    - Otherwise yield every `*verdict*.md` in the directory.
+
+    Directory filter is strict: only `R\\d+` dirs are considered. This is
+    intentionally tighter than `startswith("R")` so directories like
+    `README`, `R-legacy`, or `R_archive` cannot leak in.
+    """
     if not rounds_dir.exists():
         return
     for round_dir in sorted(rounds_dir.iterdir()):
-        if not round_dir.is_dir() or not round_dir.name.startswith("R"):
+        if not round_dir.is_dir() or not ROUND_DIR_RE.match(round_dir.name):
             continue
-        # Prefer canonical verdict.md; fall back to any *verdict*.md in the dir.
         canonical = round_dir / "verdict.md"
         if canonical.exists():
             yield canonical
