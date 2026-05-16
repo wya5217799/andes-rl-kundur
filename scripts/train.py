@@ -126,6 +126,13 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--hidden-size", type=int, default=None,
                    help="Uniform width across all hidden layers.")
 
+    # R57-α — LSTM-specific lr warmup
+    p.add_argument("--lstm-lr-warmup-eps", type=int, default=0,
+                   help="(--algo td3_lstm only) ramp lr from "
+                        "target/N at ep 1 to target at ep N. Mitigates "
+                        "early critic-loss explosion that caused the "
+                        "R56 s50 collapse. Default 0 = no warmup.")
+
     return p.parse_args()
 
 
@@ -253,9 +260,11 @@ def build_agents(
         # LSTMCell is a single-layer cell; only the first hidden width
         # is used. lr clamped to 1e-4 for RNN stability (vs 3e-4 baseline).
         lstm_lr = min(lr, 1e-4)
+        warmup_eps = getattr(args, "lstm_lr_warmup_eps", 0) or 0
+        warmup_note = f" warmup_eps={warmup_eps}" if warmup_eps > 0 else ""
         print(
             f"[algo] TD3+LSTM — recurrent actor/critic, hidden={hidden_sizes[0]}, "
-            f"seq=25 burn=5, batch={lstm_batch_size} seq, lr={lstm_lr}"
+            f"seq=25 burn=5, batch={lstm_batch_size} seq, lr={lstm_lr}{warmup_note}"
         )
         agents = [
             TD3LSTMAgent(
@@ -266,6 +275,7 @@ def build_agents(
                 batch_size=lstm_batch_size,
                 device=device,
                 seq_len=25, burn_in=5,
+                lr_warmup_eps=warmup_eps,
             )
             for _ in range(N)
         ]
@@ -389,8 +399,14 @@ def run_episode(
                 # hidden state even when the action is overridden by
                 # warmup-random — call select_action then discard, so
                 # the LSTM sees the obs sequence during warmup.
+                # ``deterministic=True`` makes the intent explicit: the
+                # noise added inside ``select_action`` is irrelevant here
+                # (the action is overridden), and we don't want a reader
+                # to think the LSTM hidden state is influenced by
+                # exploration noise (it isn't, but the call shouldn't
+                # invite that misreading).
                 if getattr(agents[i], "is_recurrent", False):
-                    agents[i].select_action(obs[i])
+                    agents[i].select_action(obs[i], deterministic=True)
             else:
                 actions[i] = agents[i].select_action(obs[i])
 

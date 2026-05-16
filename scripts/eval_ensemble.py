@@ -15,9 +15,11 @@ Usage:
         --out-dir results/research_loop/eval_v4_baseline
 """
 from __future__ import annotations
+
 import argparse
 import json
 import sys
+from collections.abc import Callable
 from pathlib import Path
 
 import numpy as np
@@ -51,11 +53,26 @@ def ensemble_action(all_actors_per_agent: list[list],
         raise ValueError(f"unknown agg: {agg}")
 
 
-def _ensemble_action_fn(all_actors_per_agent: list[list],
-                        agg: str, weights: np.ndarray):
+def _ensemble_action_fn(
+    all_actors_per_agent: list[list],
+    agg: str,
+    weights: np.ndarray,
+) -> Callable[[int, dict[int, np.ndarray], int], dict[int, np.ndarray]]:
     """Build an ``action_fn`` (per ``paper_path.ActionFn``) that returns the
-    per-step ensembled action for every agent."""
+    per-step ensembled action for every agent.
+
+    R57-β: at scenario boundaries (``step == 0``), call ``begin_episode``
+    on every recurrent actor across every ckpt set so the LSTM hidden
+    states reset. Without this, R56 LSTM ckpts evaluated through this
+    closure would silently carry hidden state from a prior scenario,
+    corrupting the eval. No-op for MLP actors (no ``is_recurrent``).
+    """
     def _fn(step: int, obs: dict[int, np.ndarray], n_agents: int) -> dict[int, np.ndarray]:
+        if step == 0:
+            for actors in all_actors_per_agent:
+                for ag in actors:
+                    if getattr(ag, "is_recurrent", False):
+                        ag.begin_episode()
         return {
             i: ensemble_action(all_actors_per_agent, i, obs[i], agg, weights)
             for i in range(n_agents)

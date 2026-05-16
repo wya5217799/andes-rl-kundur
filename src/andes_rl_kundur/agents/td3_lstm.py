@@ -45,6 +45,7 @@ Interface
 from __future__ import annotations
 
 import copy
+from collections.abc import Sequence
 from typing import Any
 
 import numpy as np
@@ -81,7 +82,7 @@ class TD3LSTMAgent:
         self,
         obs_dim: int,
         action_dim: int,
-        hidden_sizes,
+        hidden_sizes: int | Sequence[int],
         lr: float = 1e-4,
         gamma: float = 0.99,
         tau: float = 0.005,
@@ -95,14 +96,15 @@ class TD3LSTMAgent:
         seq_len: int = 25,
         burn_in: int = 5,
         max_grad_norm: float = 10.0,
+        lr_warmup_eps: int = 0,
     ) -> None:
-        # ``hidden_sizes`` is accepted as a list for API symmetry with
-        # the MLP agents; only the first element is used (LSTMCell is a
-        # single-layer cell).
-        if hasattr(hidden_sizes, "__len__") and len(hidden_sizes) > 0:
-            hidden = int(hidden_sizes[0])
+        # ``hidden_sizes`` is accepted as a Sequence for API symmetry
+        # with the MLP agents; only the first element is used (LSTMCell
+        # is a single-layer cell). A bare int is also accepted.
+        if isinstance(hidden_sizes, int):
+            hidden = hidden_sizes
         else:
-            hidden = int(hidden_sizes)
+            hidden = int(hidden_sizes[0])
 
         self.obs_dim = obs_dim
         self.action_dim = action_dim
@@ -119,6 +121,11 @@ class TD3LSTMAgent:
         self.seq_len = seq_len
         self.burn_in = burn_in
         self.max_grad_norm = max_grad_norm
+        # R57-α — lr warmup: ramp lr from lr/warmup_eps at ep 1 up to
+        # lr at ep ``lr_warmup_eps``; constant lr thereafter. 0 disables.
+        self.lr_warmup_eps = max(0, int(lr_warmup_eps))
+        self._target_lr = float(lr)
+        self._episode_count = 0
 
         # Actor + target actor
         self.actor = RecurrentActor(obs_dim, action_dim, hidden=hidden).to(device)
@@ -145,17 +152,76 @@ class TD3LSTMAgent:
 
         # Stateful rollout bookkeeping
         self._h_rollout: HiddenState | None = None
-        self._current_episode: list = []
+        self._current_episode: list[
+            tuple[np.ndarray, np.ndarray, float, np.ndarray, bool]
+        ] = []
         self._update_count = 0
+        # R57 — lr-warmup counter is the number of episodes that have
+        # actually exercised ``update()`` at least once (i.e., the env-
+        # warmup phase doesn't count toward warmup). Counting raw episodes
+        # would mean the warmup window expires before training begins.
+        self._this_episode_seen_update = False
+        # One-shot flag so ``_apply_lr_warmup`` snaps lr back to target
+        # exactly once (not on every post-warmup ``update()`` call).
+        self._warmup_done = False
 
     # ─── Stateful rollout interface ─────────────────────────────────
 
     def begin_episode(self) -> None:
         """Reset the per-rollout hidden state and the in-progress
         episode transition buffer. Call once per training/eval episode
-        BEFORE the first ``select_action`` of that episode."""
+        BEFORE the first ``select_action`` of that episode.
+
+        The lr-warmup counter (``_episode_count``) is NOT incremented
+        here — instead it advances inside ``update()`` the first time
+        the buffer has enough data to actually train. This makes the
+        warmup window robust against env-warmup episodes (the first
+        ~20 episodes in train.py where ``update()`` is a no-op) which
+        would otherwise consume the warmup budget before any gradient
+        steps occur.
+        """
         self._h_rollout = None
         self._current_episode = []
+        self._this_episode_seen_update = False
+
+    def _current_warmup_lr(self) -> float:
+        """Linear ramp from ``target_lr / lr_warmup_eps`` (at training
+        episode 1) to ``target_lr`` (at training episode
+        ``lr_warmup_eps``). Training episode counts only episodes where
+        ``update()`` actually fires."""
+        if self.lr_warmup_eps <= 0:
+            return self._target_lr
+        ep = max(1, min(self._episode_count, self.lr_warmup_eps))
+        return self._target_lr * (ep / self.lr_warmup_eps)
+
+    def _apply_lr_warmup(self) -> None:
+        """If lr-warmup is active, update the actor/critic optimizers'
+        lr in-place. Called only after ``_episode_count`` reflects
+        training episodes (post env-warmup).
+
+        Behaviour:
+        - During warmup (``n <= lr_warmup_eps``): set lr to the ramp value
+          ``target_lr * n / lr_warmup_eps``.
+        - First call after warmup completes (``n > lr_warmup_eps``): snap
+          lr to ``target_lr`` exactly once and set ``_warmup_done = True``.
+        - Subsequent calls: no-op. This avoids overwriting any future
+          per-step scheduler (none in the repo today, but future-proofs
+          the seam).
+        """
+        if self.lr_warmup_eps <= 0 or self._warmup_done:
+            return
+        n = self._episode_count
+        if n > self.lr_warmup_eps:
+            # Just exited warmup window — restore target lr exactly once.
+            for opt in (self.actor_optimizer, self.critic_optimizer):
+                for pg in opt.param_groups:
+                    pg["lr"] = self._target_lr
+            self._warmup_done = True
+            return
+        lr_now = self._current_warmup_lr()
+        for opt in (self.actor_optimizer, self.critic_optimizer):
+            for pg in opt.param_groups:
+                pg["lr"] = lr_now
 
     def select_action(
         self,
@@ -222,10 +288,16 @@ class TD3LSTMAgent:
 
     def flush_episode(self) -> None:
         """Force-flush the in-progress episode (e.g., on training
-        interrupt where ``done`` was never observed)."""
+        interrupt where ``done`` was never observed).
+
+        Also resets ``_this_episode_seen_update`` so any subsequent
+        ``update()`` call (in a non-standard call order that skips
+        ``begin_episode``) advances the warmup counter exactly once.
+        """
         if self._current_episode:
             self.buffer.add_episode(self._current_episode)
             self._current_episode = []
+        self._this_episode_seen_update = False
 
     # ─── Gradient update ────────────────────────────────────────────
 
@@ -234,6 +306,13 @@ class TD3LSTMAgent:
         if batch is None:
             return None
 
+        # Mark this episode as a "training-phase episode" the first
+        # time update() succeeds in it. This advances the lr-warmup
+        # counter only on real training episodes (post env-warmup).
+        if not self._this_episode_seen_update:
+            self._episode_count += 1
+            self._this_episode_seen_update = True
+        self._apply_lr_warmup()
         self._update_count += 1
 
         obs = batch["obs"]            # (B, T, obs_dim)
@@ -340,6 +419,11 @@ class TD3LSTMAgent:
         metadata: dict | None = None,
         save_buffer: bool = False,
     ) -> None:
+        # NOTE: warmup state (``_episode_count``, ``_warmup_done``,
+        # ``lr_warmup_eps``) is NOT persisted. ``--resume`` with
+        # td3_lstm will therefore restart the warmup ramp from
+        # episode 1 even mid-run. Add if needed for a future R58+
+        # round that supports resume.
         torch.save(
             {
                 "actor": self.actor.state_dict(),

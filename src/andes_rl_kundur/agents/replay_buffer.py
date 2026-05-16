@@ -204,7 +204,9 @@ class SequenceReplayBuffer:
 
         T = self.T
         chosen = np.random.choice(valid_idxs, size=batch_size, replace=True)
-        out = {k: [] for k in ("obs", "actions", "rewards", "next_obs", "dones")}
+        out: dict[str, list[np.ndarray]] = {
+            k: [] for k in ("obs", "actions", "rewards", "next_obs", "dones")
+        }
         for ep_idx in chosen:
             ep = self._episodes[ep_idx]
             ep_len = len(ep["obs"])

@@ -25,6 +25,11 @@ from andes_rl_kundur.env.andes.andes_vsg_env_v4 import AndesMultiVSGEnvV4
 
 CKPT_NAME_FMT = "agent_{i}_{suffix}.pt"
 
+# nn.LSTMCell stacks the input/forget/cell/output gate weights into one
+# ``weight_ih`` tensor with first dim ``4 * hidden`` (standard PyTorch
+# layout). Use this constant when recovering ``hidden`` from a ckpt.
+LSTM_GATE_COUNT = 4
+
 
 def detect_algo(ckpt_path: Path) -> str:
     """Inspect the ckpt's self-described ``algo`` field. Defaults to ``"sac"``
@@ -53,9 +58,9 @@ def detect_actor_dims(ckpt_path: Path) -> tuple[int, int]:
     ckpt = torch.load(ckpt_path, map_location="cpu", weights_only=True)
     actor = ckpt["actor"]
     if "lstm.weight_ih" in actor:
-        # RecurrentActor: weight_ih shape is (4*hidden, obs_dim)
+        # RecurrentActor: weight_ih shape is (LSTM_GATE_COUNT*hidden, obs_dim)
         w = actor["lstm.weight_ih"]
-        return int(w.shape[1]), int(w.shape[0] // 4)
+        return int(w.shape[1]), int(w.shape[0] // LSTM_GATE_COUNT)
     w = actor["net.0.weight"]
     return int(w.shape[1]), int(w.shape[0])
 
