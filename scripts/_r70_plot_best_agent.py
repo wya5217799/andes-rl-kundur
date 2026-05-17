@@ -29,9 +29,9 @@ OUT_DIR = ROOT / "results" / "r70_paper_figures"
 # Paper Fig 6/8 reference benchmarks
 PAPER_BENCH = {
     "load_step_1": {"max_df": 0.13, "final_df": 0.08, "settling_s": 3.0,
-                    "noctrl_max_df": 0.36, "label": "LS1 (Δu=-2.48 PU @ Bus 14)"},
+                    "label": "LS1 (Δu=-2.48 PU @ Bus 14)"},
     "load_step_2": {"max_df": 0.10, "final_df": 0.05, "settling_s": 2.5,
-                    "noctrl_max_df": 0.28, "label": "LS2 (Δu=-1.86 PU @ Bus 16)"},
+                    "label": "LS2 (Δu=-1.86 PU @ Bus 16)"},
 }
 
 ES_NAMES = ["ES1 (Bus 12)", "ES2 (Bus 14)", "ES3 (Bus 15)", "ES4 (Bus 16)"]

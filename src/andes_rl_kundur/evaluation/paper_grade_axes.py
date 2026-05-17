@@ -594,17 +594,14 @@ def evaluate_trace(trace_json_path: Path, paper: PaperBenchmark, is_ddic: bool,
     # v2.x (8-axis) and "v3 axes disabled" still use plain geo_mean (no
     # gating split).
     if is_ddic and enable_v3_axes and len(axes) >= 9:
-        # Split axes into continuous (1..8) and gating (9..11+)
-        continuous = [a.score for a in axes[:-3] if not a.name.startswith("agent_") and a.name != "late_oscillation_inv"]
-        # In practice the last 3 axes appended in this branch are always
-        # agent_min_activity, late_oscillation_inv, agent_P_balance — but
-        # agent_P_balance may have been skipped if P data missing. Use name
-        # filter to be robust.
+        # Split axes by name filter (robust against agent_P_balance being
+        # skipped when P data is missing). The 3 gating axes are
+        # agent_min_activity, late_oscillation_inv, agent_P_balance;
+        # everything else is continuous.
         gating = [a.score for a in axes
                   if a.name in ("agent_min_activity",
                                 "late_oscillation_inv",
                                 "agent_P_balance")]
-        # The non-gating axes are everything else
         continuous = [a.score for a in axes
                       if a.name not in ("agent_min_activity",
                                         "late_oscillation_inv",

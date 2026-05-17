@@ -716,16 +716,15 @@ def main() -> None:
                 )
                 # Save+restore numpy/torch RNG state to avoid eval probe
                 # shifting training stochastics (Q-0010 secondary cause).
-                import torch as _torch
                 np_state = np.random.get_state()
-                torch_state = _torch.get_rng_state()
+                torch_state = torch.get_rng_state()
                 try:
                     eval_score = evaluate_agents_paper_metric(
                         agents, config=env_config,
                     )
                 finally:
                     np.random.set_state(np_state)
-                    _torch.set_rng_state(torch_state)
+                    torch.set_rng_state(torch_state)
                 is_new_best = monitor.update_eval_score(ep, eval_score)
                 if not is_new_best:
                     print(

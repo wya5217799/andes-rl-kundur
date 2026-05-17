@@ -19,7 +19,6 @@ from __future__ import annotations
 import argparse
 import json
 import sys
-from collections.abc import Callable
 from pathlib import Path
 
 import numpy as np
@@ -28,56 +27,19 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from andes_rl_kundur.agents.checkpoint_loader import load_agents  # noqa: E402
+from andes_rl_kundur.evaluation.ensemble import (  # noqa: E402
+    build_ensemble_action_fn,
+    ensemble_action,
+)
 from andes_rl_kundur.evaluation.paper_path import run_scenario  # noqa: E402
 from andes_rl_kundur.probes.andes_common.paper_constants import SCENARIOS  # noqa: E402
 
 EVAL_SEED = 42
 STEPS = 150
 
-
-def ensemble_action(all_actors_per_agent: list[list],
-                    agent_idx: int, obs_i: np.ndarray,
-                    agg: str, weights: np.ndarray) -> np.ndarray:
-    """Combine N actors' deterministic actions for this agent (returns 2D array)."""
-    acts = np.array([
-        actors[agent_idx].select_action(obs_i, deterministic=True)
-        for actors in all_actors_per_agent
-    ])  # shape (N_actors, 2)
-    if agg == "mean":
-        return acts.mean(axis=0)
-    elif agg == "median":
-        return np.median(acts, axis=0)
-    elif agg == "weighted":
-        return (weights[:, None] * acts).sum(axis=0)
-    else:
-        raise ValueError(f"unknown agg: {agg}")
-
-
-def _ensemble_action_fn(
-    all_actors_per_agent: list[list],
-    agg: str,
-    weights: np.ndarray,
-) -> Callable[[int, dict[int, np.ndarray], int], dict[int, np.ndarray]]:
-    """Build an ``action_fn`` (per ``paper_path.ActionFn``) that returns the
-    per-step ensembled action for every agent.
-
-    R57-β: at scenario boundaries (``step == 0``), call ``begin_episode``
-    on every recurrent actor across every ckpt set so the LSTM hidden
-    states reset. Without this, R56 LSTM ckpts evaluated through this
-    closure would silently carry hidden state from a prior scenario,
-    corrupting the eval. No-op for MLP actors (no ``is_recurrent``).
-    """
-    def _fn(step: int, obs: dict[int, np.ndarray], n_agents: int) -> dict[int, np.ndarray]:
-        if step == 0:
-            for actors in all_actors_per_agent:
-                for ag in actors:
-                    if getattr(ag, "is_recurrent", False):
-                        ag.begin_episode()
-        return {
-            i: ensemble_action(all_actors_per_agent, i, obs[i], agg, weights)
-            for i in range(n_agents)
-        }
-    return _fn
+# Back-compat alias: legacy callers (and prior round drivers that may be
+# resurrected for re-runs) import ``_ensemble_action_fn`` from this module.
+_ensemble_action_fn = build_ensemble_action_fn
 
 
 def main():

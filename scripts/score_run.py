@@ -40,7 +40,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import math
 import statistics
 import sys
 from pathlib import Path
@@ -109,6 +108,7 @@ def score_seed(
     ``<label>_<scenario>.json`` naming so paper_grade_axes can re-score.
     """
     from andes_rl_kundur.agents.checkpoint_loader import load_agents
+    from andes_rl_kundur.evaluation.aggregation import floor_geo_mean
     from andes_rl_kundur.evaluation.paper_grade_axes import (
         PAPER, evaluate_trace,
     )
@@ -141,9 +141,7 @@ def score_seed(
         per_scen_cum_rf[scen_name] = compute_global_cum_rf(rec)
 
     ls1, ls2 = per_scen.get("load_step_1"), per_scen.get("load_step_2")
-    geo = math.exp(
-        sum(math.log(max(v, 0.01)) for v in per_scen.values()) / len(per_scen)
-    )
+    geo = floor_geo_mean(per_scen.values())
     # Total cum_rf across all scenarios (matches _r58_paper_strict_eval convention).
     cum_rf_total = sum(per_scen_cum_rf.values())
     return {

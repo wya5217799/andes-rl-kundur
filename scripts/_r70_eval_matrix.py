@@ -11,11 +11,11 @@ Output: markdown table + JSON dump for paper-writing reference.
 from __future__ import annotations
 
 import json
-import math
 from pathlib import Path
 
 import numpy as np
 
+from andes_rl_kundur.evaluation.aggregation import floor_geo_mean
 from andes_rl_kundur.evaluation.paper_grade_axes import PAPER, evaluate_trace
 from andes_rl_kundur.evaluation.paper_strict_eval import compute_global_cum_rf
 
@@ -130,12 +130,8 @@ def _eval_one(label: str) -> dict | None:
     # Aggregate: total cum_rf + geo-mean v2/v3
     scens = res["scenarios"]
     res["total_cum_rf"] = sum(s["cum_rf"] for s in scens.values())
-    res["v2_geo"] = math.exp(
-        sum(math.log(max(s["v2_overall"], 0.01)) for s in scens.values()) / len(scens)
-    )
-    res["v3_geo"] = math.exp(
-        sum(math.log(max(s["v3_overall"], 0.01)) for s in scens.values()) / len(scens)
-    )
+    res["v2_geo"] = floor_geo_mean(s["v2_overall"] for s in scens.values())
+    res["v3_geo"] = floor_geo_mean(s["v3_overall"] for s in scens.values())
 
     return res
 

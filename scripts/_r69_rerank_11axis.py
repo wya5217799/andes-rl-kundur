@@ -10,11 +10,11 @@ Usage: python scripts/_r69_rerank_11axis.py [label1 label2 ...]
 """
 from __future__ import annotations
 
-import math
 import os
 import sys
 from pathlib import Path
 
+from andes_rl_kundur.evaluation.aggregation import floor_geo_mean
 from andes_rl_kundur.evaluation.paper_grade_axes import PAPER, evaluate_trace
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -57,10 +57,8 @@ def _score_label(label: str, is_ddic: bool = True) -> dict | None:
     if not per_scen_v2 or not per_scen_v3:
         return None
 
-    geo_v2 = math.exp(sum(math.log(max(x, 0.01)) for x in per_scen_v2.values())
-                      / len(per_scen_v2))
-    geo_v3 = math.exp(sum(math.log(max(x, 0.01)) for x in per_scen_v3.values())
-                      / len(per_scen_v3))
+    geo_v2 = floor_geo_mean(per_scen_v2.values())
+    geo_v3 = floor_geo_mean(per_scen_v3.values())
 
     return {
         "label": label,
