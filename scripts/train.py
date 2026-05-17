@@ -578,9 +578,11 @@ def main() -> None:
         hidden_sizes = new_hidden
 
     device = pick_device()
+    # R64 — LR env var override (hyper sweep)
+    lr = float(os.environ.get("LR", str(cfg.LR)))
     agents, coordinator = build_agents(
         args, obs_dim, action_dim, hidden_sizes,
-        lr=cfg.LR, gamma=cfg.GAMMA, tau=cfg.TAU_SOFT,
+        lr=lr, gamma=cfg.GAMMA, tau=cfg.TAU_SOFT,
         buffer_size=cfg.BUFFER_SIZE, batch_size=batch_size, device=device,
     )
 

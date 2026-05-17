@@ -66,7 +66,9 @@ class TD3Agent(_SACBase):
         self.tau = tau
         self.policy_noise = policy_noise
         self.noise_clip = noise_clip
-        self.explore_noise = explore_noise
+        # R64 — env var override for hyper sweep
+        import os as _os
+        self.explore_noise = float(_os.environ.get("EXPLORE_NOISE", str(explore_noise)))
         self.policy_delay = policy_delay
         self._update_count = 0
 
