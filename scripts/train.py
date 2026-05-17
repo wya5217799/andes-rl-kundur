@@ -676,28 +676,6 @@ def main() -> None:
                     f"Time: {elapsed:.0f}s",
                 )
 
-            # Q-0007 (R61) — periodic paper-metric eval probe.
-            # Skipped during warmup phase (total_steps < args.warmup) so
-            # the probe doesn't fire on pre-training random policies
-            # — that was the exact pathology Q-0007 fixes (CLM-0073).
-            if (
-                args.eval_every_n_eps > 0
-                and (ep + 1) % args.eval_every_n_eps == 0
-                and total_steps >= args.warmup
-            ):
-                from andes_rl_kundur.evaluation.paper_strict_eval import (
-                    evaluate_agents_paper_metric,
-                )
-                eval_score = evaluate_agents_paper_metric(
-                    agents, config=env_config,
-                )
-                is_new_best = monitor.update_eval_score(ep, eval_score)
-                if not is_new_best:
-                    print(
-                        f"  [Eval probe] ep {ep+1}: cum_rf = {eval_score:.4f} "
-                        f"(best = {monitor._best_eval_score:.4f} @ ep {monitor._best_eval_episode})"
-                    )
-
             if (ep + 1) % 100 == 0:
                 for i in range(N):
                     agents[i].save(os.path.join(args.save_dir, f"agent_{i}_ep{ep+1}.pt"))
@@ -707,6 +685,41 @@ def main() -> None:
                     )
 
             env.close()
+
+            # Q-0007 (R61) — periodic paper-metric eval probe.
+            # **R66 Q-0010 fix**: moved AFTER env.close(). ANDES has
+            # single-session-per-process limit (paper_path.py:148-152
+            # NOTES_ANDES.md). Pre-R66 placement before env.close()
+            # caused training env / eval env conflict for LSTM training,
+            # silently corrupting policy (CLM-0099 mechanism narrowed).
+            # Skipped during warmup phase to avoid pre-training spikes
+            # (CLM-0073).
+            if (
+                args.eval_every_n_eps > 0
+                and (ep + 1) % args.eval_every_n_eps == 0
+                and total_steps >= args.warmup
+            ):
+                from andes_rl_kundur.evaluation.paper_strict_eval import (
+                    evaluate_agents_paper_metric,
+                )
+                # Save+restore numpy/torch RNG state to avoid eval probe
+                # shifting training stochastics (Q-0010 secondary cause).
+                import torch as _torch
+                np_state = np.random.get_state()
+                torch_state = _torch.get_rng_state()
+                try:
+                    eval_score = evaluate_agents_paper_metric(
+                        agents, config=env_config,
+                    )
+                finally:
+                    np.random.set_state(np_state)
+                    _torch.set_rng_state(torch_state)
+                is_new_best = monitor.update_eval_score(ep, eval_score)
+                if not is_new_best:
+                    print(
+                        f"  [Eval probe] ep {ep+1}: cum_rf = {eval_score:.4f} "
+                        f"(best = {monitor._best_eval_score:.4f} @ ep {monitor._best_eval_episode})"
+                    )
 
     except KeyboardInterrupt:
         interrupted = True
