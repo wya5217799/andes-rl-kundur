@@ -1,8 +1,11 @@
-# Handoff — R58 paper-strict audit + ranking validity
+# Handoff — R58 paper-strict + R59 PI-briefing + R60 dual-probe (3-round commit pending)
 
-**Prepared**: 2026-05-17 (mid-R58, eval done, sanity running)
-**Estimated remaining wall**: ~85 min (s51 _pure 500-ep sanity in progress) + ~45 min finalize verdict + commit
-**Status of R58**: code done, training done, eval done; **awaiting sanity result + final verdict write + commit**
+**Prepared**: 2026-05-17 (R58 sanity done, R59 user-completed, R60 parallel-completed)
+**Estimated remaining wall**: ~30-45 min (commit all 3 rounds + minor verdict touch-ups)
+**Status**:
+- R58: code + training + eval + sanity + verdict DONE. CLM-0073 written for sanity. Only commit left.
+- R59: user-completed (PI briefing layer + glossary.yml + render/validate.py updates + ADR-0003). Verdict written by user.
+- R60: parallel agent session completed (Q-0007 cheap probe + Q-0006 LSTM × anti-smoothness pilot). CLM-0074, CLM-0075 written. Verdict written.
 
 ---
 
@@ -125,17 +128,12 @@ Paper Sec.IV-C reports DDIC: LS1 = -0.68, LS2 = -0.52. Our best LSTM s51 warmup:
 
 ## What's left to do (for next session)
 
-### Phase 1 — verdict + claims (~30 min)
+### Phase 1 — verdict + claims (~30 min) — **MOSTLY DONE**
 
-1. Update `memory/rounds/R58/verdict.md`:
-   - Replace pre-eval prediction sections with final numbers (table above)
-   - Add "Ranking validity verdict" section with the 3 big findings
-   - Add s51 _pure 500-ep sanity result table when training completes
-   - Fill in `Q-section` 3-tier (opened/closed/advanced):
-     - **Opened**: Q-0008 (paper convergence on all 3 algos × 4 configs at 500 ep; out of R58 scope), Q-0009 (why disturbance scale differs from paper — investigate paper §IV-A "random disturbances by load/wind capacity range")
-     - **Closed**: none (R58 doesn't directly close pre-existing Qs)
-     - **Advanced**: Q-0007 (best-by-eval-score) — R58 confirms it's still load-bearing for s50 collapse
-2. **R58 is grandfathered — does NOT need ADR-0003's `## 给 PI 的话` section.** (R59 onwards does.)
+- ✓ `memory/rounds/R58/verdict.md` — user finalised (status=closed-positive). Reads `closed-positive (eval complete; sanity run conditional, see CLM-0073 if produced)`. Optional polish: drop the "conditional" wording since CLM-0073 now exists.
+- ✓ `CLM-0068..0072` — likely already drafted by user; verify by `ls memory/claims/CLM-006[8-9].md CLM-007[0-2].md` (may need verification)
+- ✓ `CLM-0073` (s51 _pure 500-ep sanity) — **just written by this session** (`memory/claims/CLM-0073.md`)
+- ⏸ Q-0008 / Q-0009 — verify whether user added them in R58 verdict. May need to write if missing.
 
 ### Phase 2 — CLM ledger entries (~30 min)
 
@@ -151,51 +149,59 @@ Paper Sec.IV-C reports DDIC: LS1 = -0.68, LS2 = -0.52. Our best LSTM s51 warmup:
 Conditional CLM (after sanity finishes):
 - `CLM-0073` (finding/V) — s51 _pure 500-ep sanity result
 
-### Phase 3 — Memory validation + commit (~15 min)
+### Phase 3 — Memory validation + commit (~15-25 min)
 
-1. `python memory/tools/validate.py` — expect 67+5=72 claims, 7+1=8 questions (Q-0008 maybe Q-0009)
-2. `python memory/tools/render.py` — refresh STATE.md (note: user's R59 changes may have changed render output format with PI briefing; R58 verdict is grandfathered without 给 PI 的话 section but should still render fine)
-3. Git status check — ensure only R58 files in stage:
-   ```
-   src/andes_rl_kundur/env/andes/v4_config.py
-   src/andes_rl_kundur/env/andes/base_env.py
-   src/andes_rl_kundur/env/andes/andes_vsg_env_v4.py
-   scripts/train.py
-   scripts/_r58_*.py / .sh
-   src/andes_rl_kundur/evaluation/paper_strict_eval.py
-   tests/test_paper_strict_*.py + test_r58_*.py
-   memory/rounds/R58/
-   memory/claims/CLM-0068..0072(.0073).md
-   memory/questions/Q-0008.md (Q-0009.md)
-   memory/STATE.md
-   docs/adr/0002-paper-strict-vs-paper-faithful.md
-   CONTEXT.md (term split — already changed)
-   ```
-4. Commit message:
-   ```
-   round: R58 — Paper-strict audit + ranking validity (V4 TD3 wins on paper metric)
-   
-   - Audit A line-by-line vs paper Eq.11/15-18 found 5 deviations
-     beyond critic's verdict; A1+A3 fixed, A2/A5 flag-exposed
-   - paper_strict_pure_radsec validates Audit A3 empirically:
-     R18 "PHI=1 diverges" was Hz-unit artifact, rad/s makes
-     all 3 algos trainable
-   - 36-ckpt paper-metric eval: V4 TD3 norm wins (-0.196 best,
-     -0.267 mean), beating paper-strict variants by 2×
-   - Algorithm ranking under paper metric: V4 TD3 > LSTM > SAC
-     (historical), or strict-radsec: SAC > LSTM > TD3
-   - CLM-0067 (TD3+LSTM as production) needs scope split:
-     correct on 6-axis, wrong on paper Sec.IV-C metric
-   - 161 tests pass (149 + 12 new audit-A/eval/scen tests)
-   ```
+Three rounds in one go (R58 + R59 + R60). Recommended **3 separate commits** for clean memory log:
 
-### Phase 4 — Open items left for R59+ (not R58 scope)
+**1. Validate first:**
+```
+python memory/tools/validate.py
+```
+Expect: 65 + (CLM-0068..0075) = 73 claims, 7 + Q-0008 + maybe Q-0009 = ~9 questions. If validator complains, fix before commit.
 
-- Q-0008 should be opened: "Run paper convergence (500 ep) on all 12 cells (3 algo × 4 config) to confirm 75-ep ranking persists"
+**2. Render STATE.md:**
+```
+python memory/tools/render.py
+```
+R59's updated render.py supports the PI briefing layer; R60 verdict likely already has 给 PI 的话 section per the new convention. R58 is grandfathered.
+
+**3. Three-commit option (recommended for clean history):**
+- Commit A (R58 — paper-strict + audit-A): src/.../v4_config.py + base_env.py + andes_vsg_env_v4.py + scripts/train.py + scripts/_r58_*.{py,sh} + src/.../paper_strict_eval.py + tests/test_paper_strict_*.py + tests/test_r58_*.py + memory/rounds/R58/ + memory/claims/CLM-0068..0073.md + maybe Q-0008.md + Q-0009.md + docs/adr/0002 + CONTEXT.md term split
+- Commit B (R59 — PI briefing infra): docs/adr/0003 + memory/glossary.yml + memory/rounds/R59/ + memory/tools/render.py + memory/tools/validate.py + memory/tools/tests/test_*.py + memory/rounds/_TEMPLATE_VERDICT.md + CONTEXT.md PI-briefing terms + CLAUDE.md
+- Commit C (R60 — Q-0007 + Q-0006 dual probe): memory/rounds/R60/ + memory/claims/CLM-0074.md + CLM-0075.md + memory/questions/Q-0006.md + Q-0007.md
+
+Then a final commit D (memory/STATE.md) since render needs all 3 rounds present.
+
+**3-alt commit option (one commit):** if user wants atomic landing:
+```
+round: R58 + R59 + R60 — Paper-strict audit + PI briefing + Q-0007/Q-0006 dual probe
+```
+
+Either way ensure:
+- Validator is green before commit
+- All tests still pass: `pytest tests/ -q` should yield 161 passed (or 162 if user added more)
+- `git status` after commit shows only file-system artifacts as untracked (results/, .claude/scheduled_tasks.lock)
+
+### Phase 4 — Open items left for R61+ (not R58/R59/R60 scope)
+
+- Q-0008 should be opened by R58 verdict (paper convergence sweep across 3 algos × 4 configs at 500 ep). R58 sanity (CLM-0073) showed LSTM stable but Q-0007-locked, so Q-0008 should note: convergence is fine, the issue is ckpt selection.
 - Q-0009 should be opened: "Why is our paper-metric magnitude 13-15× tighter than paper's reported DDIC? Investigate exact disturbance distribution + Kundur param values"
-- Q-0010 candidate: "Implement adaptive inertia [25] baseline so we have a paper-side reference value (paper -12.93 cumulative)"
+- Q-0010 candidate (R61+ scope C/D): "Implement adaptive inertia [25] baseline so we have a paper-side reference value (paper -12.93 cumulative)"
 
-User's parallel R59 work (PI briefing layer infrastructure) is independent and likely already committed by them.
+R59 user-completed work:
+- `docs/adr/0003-pi-briefing-layer.md`
+- `memory/glossary.yml`
+- Updates to `memory/tools/render.py`, `validate.py`, their tests
+- Updates to `_TEMPLATE_VERDICT.md`, `CONTEXT.md` PI-briefing terms
+- `CLAUDE.md` likely updated to reference the new convention
+- R59/plan.md + R59/verdict.md
+
+R60 parallel-completed work:
+- `memory/rounds/R60/plan.md` + `verdict.md`
+- `CLM-0074` (Q-0007 cheap probe: s50 final.pt = 0.270 → 5-seed mean 0.396)
+- `CLM-0075` (Q-0006 closed-negative: LSTM × anti-smoothness antagonistic, -16 %)
+- Q-0006.md updated: `status: closed-negative`, `closed_round: R60`, `closed_by: CLM-0075`
+- Q-0007.md log appended with R60 advance entry
 
 ---
 
