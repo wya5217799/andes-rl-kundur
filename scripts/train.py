@@ -125,6 +125,14 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--batch-size",  type=int, default=None)
     p.add_argument("--hidden-size", type=int, default=None,
                    help="Uniform width across all hidden layers.")
+    # R67 — discount factor sweep (CLI flag, not env var, to avoid
+    # import-time RNG state shift suspected in CLM-0104 LSTM drift).
+    p.add_argument("--gamma", type=float, default=None,
+                   help="Discount factor override (default cfg.GAMMA=0.99).")
+    p.add_argument("--tau", type=float, default=None,
+                   help="Target soft update rate (default cfg.TAU_SOFT=0.005).")
+    p.add_argument("--buffer-size", type=int, default=None,
+                   help="Replay buffer size (default cfg.BUFFER_SIZE=10000).")
 
     # R58 — reward-config selector (ADR-0002)
     p.add_argument(
@@ -584,10 +592,14 @@ def main() -> None:
     device = pick_device()
     # R64 — LR env var override (hyper sweep)
     lr = float(os.environ.get("LR", str(cfg.LR)))
+    # R67 — gamma / tau / buffer_size CLI overrides
+    gamma = args.gamma if args.gamma is not None else cfg.GAMMA
+    tau = args.tau if args.tau is not None else cfg.TAU_SOFT
+    buf_size = args.buffer_size if args.buffer_size is not None else cfg.BUFFER_SIZE
     agents, coordinator = build_agents(
         args, obs_dim, action_dim, hidden_sizes,
-        lr=lr, gamma=cfg.GAMMA, tau=cfg.TAU_SOFT,
-        buffer_size=cfg.BUFFER_SIZE, batch_size=batch_size, device=device,
+        lr=lr, gamma=gamma, tau=tau,
+        buffer_size=buf_size, batch_size=batch_size, device=device,
     )
 
     apply_resume(agents, args, coordinator)
