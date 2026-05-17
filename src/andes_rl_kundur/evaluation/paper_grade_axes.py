@@ -1,5 +1,17 @@
 """11-axis paper-alignment evaluator for ANDES Kundur 4-VSG traces.
 
+v3.1 改进 (2026-05-18, R71):
+  - Aggregation now SEPARATES continuous axes (1..8, frequency/smoothness)
+    from gating axes (9..11, per-agent/oscillation):
+      overall = geo_mean(axes 1..8) × min(axes 9, 10, 11)
+  - Motivation (CLM-0119): v3.0 geo_mean diluted axis-11 P_balance penalty.
+    R70 saw R69 W3 v3=0.5474 win numerically over R68 W2 v3=0.5329 despite
+    worse P_balance (0.56 vs 0.85) — paper-figure intuition disagreed.
+    v3.1 multiplicative gating ensures any single ugly axis caps the score.
+  - Backwards-compat: enable_v3_axes=False still triggers plain geo_mean
+    (v2.x reference). v3.0 score reproducible via separate utility if
+    needed (not exposed in default path — v3.1 is the new default).
+
 v3.0 改进 (2026-05-18, R69):
   - Added 3 axes (9-11) gating paper-figure-equivalent qualitative checks:
       Axis 9  agent_min_activity:   gates agent collapse (min over 4 agents
@@ -565,12 +577,47 @@ def evaluate_trace(trace_json_path: Path, paper: PaperBenchmark, is_ddic: bool,
                 note=f"P_final=[{P_str}]",
             ))
 
-    # Geometric mean with soft-clamp at 0.01 per axis.
-    # Soft-clamp prevents log(-∞) on zero-scoring axes.
-    # A zero-scoring axis contributes log(0.01)≈-4.6 to the log-sum,
-    # pulling the overall score down sharply (but not to 0).
-    scores = [a.score for a in axes]
-    overall = math.exp(sum(math.log(max(s, 0.01)) for s in scores) / len(scores))
+    # ── Aggregation: v3.0 (geo_mean) vs v3.1 (multiplicative gating) ──
+    #
+    # v3.0: geo_mean over ALL axes — gating axes 9-11 can be diluted by
+    #       strong axes 1-8. R70 saw R69 W3 v3=0.5474 win numerically over
+    #       R68 W2 v3=0.5329 despite worse P_balance (0.56 vs 0.85).
+    #
+    # v3.1 (R71 default if `enable_v3_axes=True`): SEPARATE the role of the
+    # gating axes from the continuous axes:
+    #     overall = geo_mean(axes 1..8) × min(axes 9, 10, 11)
+    # Effect: any single gating axis with score = 0.5 caps the overall at
+    #         half of the continuous geo_mean, regardless of how strong the
+    #         frequency-alignment axes are. Matches paper-figure-quality
+    #         intuition: "any one ugly axis = ugly paper figure" (CLM-0119).
+    #
+    # v2.x (8-axis) and "v3 axes disabled" still use plain geo_mean (no
+    # gating split).
+    if is_ddic and enable_v3_axes and len(axes) >= 9:
+        # Split axes into continuous (1..8) and gating (9..11+)
+        continuous = [a.score for a in axes[:-3] if not a.name.startswith("agent_") and a.name != "late_oscillation_inv"]
+        # In practice the last 3 axes appended in this branch are always
+        # agent_min_activity, late_oscillation_inv, agent_P_balance — but
+        # agent_P_balance may have been skipped if P data missing. Use name
+        # filter to be robust.
+        gating = [a.score for a in axes
+                  if a.name in ("agent_min_activity",
+                                "late_oscillation_inv",
+                                "agent_P_balance")]
+        # The non-gating axes are everything else
+        continuous = [a.score for a in axes
+                      if a.name not in ("agent_min_activity",
+                                        "late_oscillation_inv",
+                                        "agent_P_balance")]
+        cont_geo = math.exp(
+            sum(math.log(max(s, 0.01)) for s in continuous) / len(continuous)
+        )
+        gate_min = min(gating) if gating else 1.0
+        overall = cont_geo * gate_min
+    else:
+        # v2.x / no-control / disabled-v3: plain geo_mean over all axes.
+        scores = [a.score for a in axes]
+        overall = math.exp(sum(math.log(max(s, 0.01)) for s in scores) / len(scores))
     return TraceScore(label=label, scenario=paper.scenario, is_ddic=is_ddic,
                       axes=axes, overall=overall)
 
