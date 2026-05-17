@@ -1,4 +1,23 @@
-"""7-axis paper-alignment evaluator for ANDES Kundur 4-VSG traces.
+"""11-axis paper-alignment evaluator for ANDES Kundur 4-VSG traces.
+
+v3.0 改进 (2026-05-18, R69):
+  - Added 3 axes (9-11) gating paper-figure-equivalent qualitative checks:
+      Axis 9  agent_min_activity:   gates agent collapse (min over 4 agents
+              of max_t(|dH|+|dD|), normalized). Forces SOTA to require ALL
+              4 agents to contribute. v2.x missed this — cross-agent mean
+              dH/dD looks fine even if 1+ agent is dead.
+      Axis 10 late_oscillation_inv: gates persistent oscillation
+              (1 - clip(std(df_avg(t > 3s)) / 0.01)). Catches controllers
+              that overshoot then oscillate forever. v2.x scalar max/final
+              checks don't catch this.
+      Axis 11 agent_P_balance:      gates per-agent ΔP monopolization
+              (1 - (max-min)/mean of |P_final_i|). Catches "agent 1 absorbs
+              80% ΔP, agent 2-4 absorb 7% each" — paper Fig.7 demands ~1:1:1:1.
+              v2.x dH/dD axes are blind to this.
+  - All 3 new axes are DDIC-only (no-control has no agent behavior).
+  - enable_v3_axes=True default; set False for v2.x-strict re-ranking.
+  - Threshold constants AGENT_MIN_ACTIVITY_THRESHOLD=50,
+      LATE_OSCILLATION_STD_THRESHOLD=0.01 (engineering judgment, tunable).
 
 v2 改进 (2026-05-09):
   - Axis 6: _action_utilization 替代 _box_containment
@@ -225,6 +244,126 @@ def _action_utilization(proj_span: float, paper_span: float) -> float:
     return float(min(1.0, max(0.0, proj_span / paper_span)))
 
 
+# ─── R69 v3.0: per-agent + oscillation gating helpers ─────────────────────────
+# Added 2026-05-18 to close gaps in v2.x (8-axis) that allowed agent collapse,
+# late-time oscillation, and per-agent ΔP imbalance to pass undetected.
+# Each new axis returns score ∈ [0, 1] for direct geo-mean combination.
+
+# Thresholds (engineering judgment, tunable per ADR-0001):
+# AGENT_MIN_ACTIVITY_THRESHOLD: sum of max|dH|+max|dD| below which agent is
+#   considered "collapsed" (not contributing). 50 ≈ 1/8 of paper full action
+#   span (400 + 800 = 1200) — agent doing < 4% of paper action authority.
+AGENT_MIN_ACTIVITY_THRESHOLD = 50.0
+# LATE_OSCILLATION_STD_THRESHOLD: late-time (t > 3s) std of cross-agent mean
+#   Δf above which score → 0. paper Fig.6 DDIC late-time std ≈ 0.005 Hz;
+#   0.01 = 2× that, conservatively flagging actual oscillation as bad.
+LATE_OSCILLATION_STD_THRESHOLD = 0.01
+
+
+def _agent_min_activity(dH: np.ndarray, dD: np.ndarray) -> tuple[float, float, float]:
+    """min over agents of (max_t |dH_i| + max_t |dD_i|), normalized.
+
+    Gates "agent collapse": when 1+ of 4 agents emits ≈ 0 action throughout the
+    response window, that agent is dead. cross-agent mean dH/dD (axes 4-7) can
+    still look reasonable because the live agents pull the average. This axis
+    forces SOTA to require ALL 4 agents to contribute meaningfully.
+
+    Returns (score, min_activity, max_activity) for reporting.
+
+    >>> import numpy as np
+    >>> # all 4 agents active (50 each)
+    >>> dH = np.tile([50, 50, 50, 50], (10, 1)).astype(float)
+    >>> dD = np.zeros_like(dH)
+    >>> score, min_a, max_a = _agent_min_activity(dH, dD)
+    >>> round(score, 2)
+    1.0
+    >>> # 1 agent dead
+    >>> dH[:, 2] = 0
+    >>> score, _, _ = _agent_min_activity(dH, dD)
+    >>> round(score, 2)
+    0.0
+    """
+    per_agent = np.max(np.abs(dH), axis=0) + np.max(np.abs(dD), axis=0)
+    min_act = float(per_agent.min())
+    max_act = float(per_agent.max())
+    score = float(min(1.0, max(0.0, min_act / AGENT_MIN_ACTIVITY_THRESHOLD)))
+    return score, min_act, max_act
+
+
+def _late_oscillation_inv(t: np.ndarray, df: np.ndarray) -> tuple[float, float]:
+    """1 - clip(std(df_avg(t) for t >= t[0]+3s) / threshold).
+
+    Gates persistent oscillation: max_|df| / final_|df| / settling can all
+    PASS for a controller that overshoots to 0.15 Hz, settles to 0.04 Hz at
+    t=3s, then oscillates ±0.05 Hz forever. paper Fig.6 DDIC late-time is
+    flat (std ≈ 0.005). This axis penalizes any sustained late-time variance.
+
+    Returns (score, late_std) for reporting.
+
+    >>> import numpy as np
+    >>> t = np.linspace(0, 6, 60)
+    >>> # flat late-time (good)
+    >>> df_flat = np.tile([0.04, 0.04, 0.04, 0.04], (60, 1)).astype(float)
+    >>> score, std = _late_oscillation_inv(t, df_flat)
+    >>> round(score, 2)
+    1.0
+    >>> # oscillating late-time (bad)
+    >>> df_osc = df_flat.copy()
+    >>> df_osc[t >= 3.0, :] += 0.02 * np.sin(20 * t[t >= 3.0])[:, None]
+    >>> score, std = _late_oscillation_inv(t, df_osc)
+    >>> score < 0.5
+    True
+    """
+    if t.size < 5:
+        return 1.0, 0.0
+    late_mask = t >= (t[0] + 3.0)
+    if late_mask.sum() < 5:
+        return 1.0, 0.0  # not enough late samples
+    df_avg_late = df[late_mask].mean(axis=1)
+    late_std = float(np.std(df_avg_late))
+    score = float(max(0.0, 1.0 - late_std / LATE_OSCILLATION_STD_THRESHOLD))
+    return score, late_std
+
+
+def _agent_P_balance(P: np.ndarray) -> tuple[float, list[float]]:
+    """1 - (max - min) / (mean + eps) of |P_final_i| per agent, clipped [0, 1].
+
+    Gates per-agent ΔP imbalance: paper Fig.7 DDIC shows ~balanced ΔP across
+    4 ESS (each ~1/4 of total demand). axes 4-7 (dH/dD smoothness/utilization)
+    use the cross-agent MEAN — completely blind to "agent 1 absorbs 80% ΔP,
+    agent 2-4 absorb 7% each". This axis penalizes such monopolization.
+
+    P shape (T, N_agents). Uses mean of last 10 timesteps as "final" to smooth
+    out single-step jitter.
+
+    Returns (score, per_agent_P_final) for reporting.
+
+    >>> import numpy as np
+    >>> # balanced (good)
+    >>> P_bal = np.tile([1.0, 1.0, 1.0, 1.0], (20, 1))
+    >>> score, _ = _agent_P_balance(P_bal)
+    >>> round(score, 2)
+    1.0
+    >>> # monopolized (bad)
+    >>> P_mono = np.tile([4.0, 0.0, 0.0, 0.0], (20, 1)).astype(float)
+    >>> score, _ = _agent_P_balance(P_mono)
+    >>> score < 0.1
+    True
+    """
+    if P.shape[0] < 10:
+        return 1.0, list(np.abs(P[-1]).tolist())
+    P_final = np.abs(P[-10:].mean(axis=0))
+    mean_P = float(P_final.mean())
+    if mean_P < 1e-3:
+        # All agents near-zero output — no controller action.
+        # Skip-equivalent: score 1.0 (no penalty), but the activity axis
+        # will catch this case as collapse.
+        return 1.0, list(P_final.tolist())
+    range_P = float(P_final.max() - P_final.min())
+    score = float(max(0.0, min(1.0, 1.0 - range_P / (mean_P + 1e-6))))
+    return score, list(P_final.tolist())
+
+
 def _improvement_score(ctrl_max_df: float, no_ctrl_max_df: float) -> Optional[float]:
     """Relative frequency improvement over no-control baseline.
 
@@ -278,12 +417,20 @@ def _load_no_ctrl_max_df(eval_dir: Path, scenario: str) -> float:
 # ─── Main evaluator ───────────────────────────────────────────────────────────
 
 def evaluate_trace(trace_json_path: Path, paper: PaperBenchmark, is_ddic: bool,
-                   label: str, no_ctrl_max_df: float = 0.0) -> TraceScore:
-    """Compute up to 8-axis score for one trace JSON.
+                   label: str, no_ctrl_max_df: float = 0.0,
+                   enable_v3_axes: bool = True) -> TraceScore:
+    """Compute up to 11-axis score for one trace JSON.
 
     Axes 1-7 apply to ALL traces (frequency alignment, smoothness, action utilization).
     For no-ctrl traces axes 6-7 score near 0 (no action → no utilization), which is correct.
     Axis 8 applies to DDIC only when a no-ctrl reference is available.
+
+    Axes 9-11 (R69 v3.0, enable_v3_axes=True) gate paper-figure-equivalent
+    qualitative checks that 8 cross-agent-mean axes miss:
+      - Axis 9 (agent_min_activity): blocks SOTA with any collapsed agent
+      - Axis 10 (late_oscillation_inv): blocks SOTA with persistent oscillation
+      - Axis 11 (agent_P_balance): blocks SOTA with per-agent ΔP monopolization
+    All 3 apply to DDIC only (no-control has no agent behaviour to assess).
 
     Args:
         trace_json_path: Path to trace JSON (keys: 'traces', 'tds_failed').
@@ -388,6 +535,34 @@ def evaluate_trace(trace_json_path: Path, paper: PaperBenchmark, is_ddic: bool,
             axes.append(AxisScore(
                 "improvement_vs_noctrl", proj_max_df, ref, impr,
                 note=f"ctrl={proj_max_df:.3f} noctrl_ref={ref:.3f}",
+            ))
+
+    # ── Axes 9-11 (R69 v3.0): per-agent + late-oscillation gates ──
+    # DDIC only — no-control has no agent behaviour to assess.
+    if is_ddic and enable_v3_axes:
+        # Axis 9: agent_min_activity — gate agent collapse
+        act_score, min_act, max_act = _agent_min_activity(dH, dD)
+        axes.append(AxisScore(
+            "agent_min_activity", min_act, AGENT_MIN_ACTIVITY_THRESHOLD, act_score,
+            note=f"min={min_act:.1f} max={max_act:.1f} threshold={AGENT_MIN_ACTIVITY_THRESHOLD:.0f}",
+        ))
+
+        # Axis 10: late_oscillation_inv — gate persistent oscillation
+        # Uses full-trace t (not 6s window) so we see actual late-time behaviour.
+        osc_score, late_std = _late_oscillation_inv(t, df_full)
+        axes.append(AxisScore(
+            "late_oscillation_inv", late_std, 0.0, osc_score,
+            note=f"late_std={late_std:.5f} Hz threshold={LATE_OSCILLATION_STD_THRESHOLD:.3f}",
+        ))
+
+        # Axis 11: agent_P_balance — gate per-agent ΔP monopolization
+        P = np.array([s.get("delta_P_es", [0.0] * 4) for s in tr])
+        if P.ndim == 2 and P.shape[1] >= 2 and not np.isnan(P).any():
+            bal_score, P_final = _agent_P_balance(P)
+            P_str = ",".join(f"{p:+.2f}" for p in P_final)
+            axes.append(AxisScore(
+                "agent_P_balance", float(max(P_final) - min(P_final)), 0.0, bal_score,
+                note=f"P_final=[{P_str}]",
             ))
 
     # Geometric mean with soft-clamp at 0.01 per axis.
