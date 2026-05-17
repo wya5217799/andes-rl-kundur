@@ -1,4 +1,4 @@
-"""R58 paper-strict evaluation primitives.
+"""R58 / R61 paper-strict evaluation primitives.
 
 Implements the **paper's actual evaluation protocol** from Yang et al.,
 IEEE TPWRS 2023, Sec.IV-C:
@@ -134,3 +134,78 @@ def generate_test_scenarios(
         })
 
     return scenarios
+
+
+# Paper-aligned anchor pair (LS1 + LS2). Used by Q-0007's in-training
+# eval probe to score the current actors without running the full
+# 20-scen test set (which would cost ~60 s per call → kill training).
+ANCHOR_PAIR = [dict(_ANCHOR_LS1), dict(_ANCHOR_LS2)]
+
+
+def evaluate_agents_paper_metric(
+    agents: list,
+    *,
+    config: "V4Config | None" = None,
+    scenarios: list[dict[str, Any]] | None = None,
+    seed: int = 42,
+    steps: int = 50,
+) -> float:
+    """R61 — in-training paper-metric eval helper for Q-0007.
+
+    Runs deterministic actor rollouts on a small fixed scenario set
+    (defaults to paper LS1 + LS2 anchors) and returns the **mean
+    cum_rf** (less negative = better policy). Designed for cheap
+    repeated calls from inside the training loop.
+
+    Args:
+        agents: Sequence of trained agent objects with a deterministic
+            ``select_action`` interface.
+        config: Optional ``V4Config`` (R58 paper-strict variants).
+            When ``None`` the env uses ``V4Config.paper_faithful()``.
+        scenarios: Override the default LS1+LS2 anchor pair. Each entry
+            is a ``{"name": ..., "delta_u": ...}`` dict matching
+            ``generate_test_scenarios`` output.
+        seed: Env seed (default 42, matches paper).
+        steps: Max steps per scenario (default 50, paper M=50).
+
+    Returns:
+        Mean ``cum_rf`` (negative or zero). On any scenario where TDS
+        diverges, that scenario contributes the worst observed
+        cum_rf so the average penalises instability. Returns a fixed
+        sentinel ``-1e6`` if every scenario fails — caller can treat
+        this as "do not save eval-tracked best.pt".
+
+    Cost: ~5 s per LS1+LS2 pair on CPU. Designed to be called every
+    N episodes (Q-0007's ``--eval-every-n-eps`` knob), where N is
+    chosen so eval overhead is < 10 % of training wall.
+    """
+    from andes_rl_kundur.evaluation.paper_path import (
+        deterministic_actor_action_fn,
+        run_scenario,
+    )
+
+    if scenarios is None:
+        scenarios = ANCHOR_PAIR
+
+    action_fn = deterministic_actor_action_fn(agents)
+    cum_rfs: list[float] = []
+    any_ok = False
+    for scen in scenarios:
+        trace = run_scenario(
+            scen_name=scen["name"],
+            delta_u=scen["delta_u"],
+            action_fn=action_fn,
+            label="eval_probe",
+            seed=seed,
+            steps=steps,
+            config=config,
+        )
+        if trace.get("traces"):
+            cum_rfs.append(compute_global_cum_rf(trace))
+            any_ok = True
+        else:
+            cum_rfs.append(-1.0)  # TDS failure penalty
+
+    if not any_ok:
+        return -1e6
+    return float(np.mean(cum_rfs))

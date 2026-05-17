@@ -38,6 +38,7 @@ class TrainingMonitor:
         calibration_episodes: int = 20,
         log_interval: int = 10,
         best_reward_callback: Callable[[int, float], None] | None = None,
+        best_eval_callback: Callable[[int, float], None] | None = None,
         algo_name: str = "sac",
     ):
         self.calibration_episodes = calibration_episodes
@@ -60,6 +61,14 @@ class TrainingMonitor:
         self._best_reward_callback = best_reward_callback
         self._best_reward = float('-inf')
         self._best_episode = -1
+
+        # Q-0007 — Best-by-eval-score tracking (R61). Independent of
+        # best-by-train-reward; both can fire on the same episode.
+        # ``best_eval_callback(episode, eval_score)`` is invoked only
+        # when eval_score > self._best_eval_score (strict improvement).
+        self._best_eval_callback = best_eval_callback
+        self._best_eval_score = float('-inf')
+        self._best_eval_episode = -1
 
         # (Early-stopping state moved to scenarios.kundur.training_checks.
         # EarlyStoppingCheck owns its own _best_reward / _best_ep_idx
@@ -246,6 +255,32 @@ class TrainingMonitor:
                 any_stop = True
         return any_stop
 
+    def update_eval_score(self, episode: int, eval_score: float) -> bool:
+        """Q-0007 — Best-by-eval-score tracking (R61).
+
+        Caller (training loop) decides when to run an eval probe via
+        ``--eval-every-n-eps`` knob. Each probe returns a scalar score
+        (paper-metric cum_rf, higher is better). This method updates
+        the internal best and fires ``self._best_eval_callback`` on
+        strict improvement.
+
+        Args:
+            episode: Current training episode (0-indexed or 1-indexed
+                — caller chooses convention).
+            eval_score: Higher = better. For paper Sec.IV-C cum_rf,
+                this is a negative-or-zero scalar.
+
+        Returns:
+            ``True`` if a new best was recorded (callback fired).
+        """
+        if eval_score > self._best_eval_score:
+            self._best_eval_score = eval_score
+            self._best_eval_episode = episode
+            if self._best_eval_callback is not None:
+                self._best_eval_callback(episode, eval_score)
+            return True
+        return False
+
     # ─── Calibration ───
 
     def _calibrate(self):
@@ -392,6 +427,8 @@ class TrainingMonitor:
             "_sac_losses": self._sac_losses,
             "_best_reward": self._best_reward,
             "_best_episode": self._best_episode,
+            "_best_eval_score": self._best_eval_score,
+            "_best_eval_episode": self._best_eval_episode,
             "_last_trigger_ep": self._last_trigger_ep,
         }
         Path(path).parent.mkdir(parents=True, exist_ok=True)
@@ -419,6 +456,8 @@ class TrainingMonitor:
         monitor._sac_losses = data.get("_sac_losses", [])
         monitor._best_reward = data.get("_best_reward", float('-inf'))
         monitor._best_episode = data.get("_best_episode", -1)
+        monitor._best_eval_score = data.get("_best_eval_score", float('-inf'))
+        monitor._best_eval_episode = data.get("_best_eval_episode", -1)
         # _early_stop_best_* keys silently ignored: pre-R42 checkpoints
         # carried them but EarlyStoppingCheck now owns its own state.
         monitor._last_trigger_ep = data.get("_last_trigger_ep", {})

@@ -149,6 +149,17 @@ def parse_args() -> argparse.Namespace:
                         "early critic-loss explosion that caused the "
                         "R56 s50 collapse. Default 0 = no warmup.")
 
+    # R61 — Q-0007 eval-tracked best.pt
+    p.add_argument("--eval-every-n-eps", type=int, default=0,
+                   help="Q-0007 (R61): every N episodes, run a paper-"
+                        "metric eval probe (LS1+LS2 anchors, ~5s each) "
+                        "and save 'agent_i_best_eval.pt' on score "
+                        "improvement. Parallel to best.pt (train-reward) "
+                        "tracking. Default 0 = disabled. "
+                        "Typical N=5 → ~5% wall overhead; insulates "
+                        "downstream eval from pre-training best.pt "
+                        "spike artifact (R57 s50 collapse mechanism).")
+
     return p.parse_args()
 
 
@@ -586,7 +597,20 @@ def main() -> None:
                 os.path.join(args.save_dir, "ctde_critic_best.pt"),
             )
 
-    monitor = TrainingMonitor(best_reward_callback=on_best_reward)
+    # Q-0007 (R61) — eval-tracked best.pt callback
+    def on_best_eval(ep: int, eval_score: float) -> None:
+        print(f"  [Monitor] New best eval cum_rf: {eval_score:.4f} @ ep {ep}")
+        for i in range(N):
+            agents[i].save(os.path.join(args.save_dir, f"agent_{i}_best_eval.pt"))
+        if coordinator is not None:
+            coordinator.save_critic(
+                os.path.join(args.save_dir, "ctde_critic_best_eval.pt"),
+            )
+
+    monitor = TrainingMonitor(
+        best_reward_callback=on_best_reward,
+        best_eval_callback=on_best_eval if args.eval_every_n_eps > 0 else None,
+    )
     register_kundur_default_checks(monitor)
 
     # Comm-failure override (M1 review 2026-05-07)
@@ -645,6 +669,28 @@ def main() -> None:
                     f"Steps: {total_steps} | "
                     f"Time: {elapsed:.0f}s",
                 )
+
+            # Q-0007 (R61) — periodic paper-metric eval probe.
+            # Skipped during warmup phase (total_steps < args.warmup) so
+            # the probe doesn't fire on pre-training random policies
+            # — that was the exact pathology Q-0007 fixes (CLM-0073).
+            if (
+                args.eval_every_n_eps > 0
+                and (ep + 1) % args.eval_every_n_eps == 0
+                and total_steps >= args.warmup
+            ):
+                from andes_rl_kundur.evaluation.paper_strict_eval import (
+                    evaluate_agents_paper_metric,
+                )
+                eval_score = evaluate_agents_paper_metric(
+                    agents, config=env_config,
+                )
+                is_new_best = monitor.update_eval_score(ep, eval_score)
+                if not is_new_best:
+                    print(
+                        f"  [Eval probe] ep {ep+1}: cum_rf = {eval_score:.4f} "
+                        f"(best = {monitor._best_eval_score:.4f} @ ep {monitor._best_eval_episode})"
+                    )
 
             if (ep + 1) % 100 == 0:
                 for i in range(N):
