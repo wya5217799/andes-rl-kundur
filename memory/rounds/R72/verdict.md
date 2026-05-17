@@ -118,9 +118,17 @@ paper-strict reward shape is **structural incompatibility**.
   (W6 = 0.0100) fail catastrophically. Generalizes CLM-0107 (was specific to
   paper_strict_pure_radsec).
 
-## Questions opened / closed / advanced
+## Questions opened (this round)
+
+(none)
+
+## Questions closed (this round)
 
 (none — R72 confirms existing direction + finds incremental SOTA)
+
+## Questions advanced (this round)
+
+(none)
 
 ## 给 PI 的话
 

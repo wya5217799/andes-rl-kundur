@@ -67,3 +67,65 @@ def test_aggregate_scores_includes_std_when_multiple_seeds():
 
     # 0.1 and 0.2 → mean 0.15, sample std = 0.0707...
     assert abs(summary["std_geo"] - 0.07071067811865477) < 1e-6
+
+
+# ─── R74 dual-eval enhancement: cum_rf alongside 6-axis geo ──────────────────
+
+def test_aggregate_scores_computes_mean_cum_rf_when_present():
+    """When per-seed records include cum_rf, summary should aggregate it
+    (mean / min / max) so paper-metric and 6-axis are reported together."""
+    from score_run import aggregate_scores
+
+    per_seed = {
+        49: {"LS1": 0.20, "LS2": 0.30, "geo": 0.25, "cum_rf": -0.10},
+        50: {"LS1": 0.30, "LS2": 0.40, "geo": 0.35, "cum_rf": -0.20},
+        51: {"LS1": 0.40, "LS2": 0.50, "geo": 0.45, "cum_rf": -0.30},
+    }
+    summary = aggregate_scores(per_seed)
+
+    # Existing 6-axis aggregates still work:
+    assert summary["n_seeds"] == 3
+    assert abs(summary["mean_geo"] - 0.35) < 1e-9
+    # NEW: cum_rf aggregates appear when present in per-seed
+    assert abs(summary["mean_cum_rf"] - (-0.20)) < 1e-9
+    assert summary["min_cum_rf"] == -0.30
+    assert summary["max_cum_rf"] == -0.10
+
+
+def test_aggregate_scores_omits_cum_rf_keys_when_records_lack_field():
+    """Backwards compat: existing callers pass only LS1/LS2/geo. Summary
+    must not invent mean_cum_rf or crash on KeyError."""
+    from score_run import aggregate_scores
+
+    per_seed = {
+        49: {"LS1": 0.2, "LS2": 0.3, "geo": 0.25},
+        50: {"LS1": 0.3, "LS2": 0.4, "geo": 0.35},
+    }
+    summary = aggregate_scores(per_seed)
+
+    # geo aggregates work as before
+    assert summary["n_seeds"] == 2
+    assert "mean_geo" in summary
+    # No cum_rf keys when records don't carry the field
+    assert "mean_cum_rf" not in summary
+    assert "min_cum_rf" not in summary
+    assert "max_cum_rf" not in summary
+
+
+def test_aggregate_scores_partial_cum_rf_records_use_only_present():
+    """Mixed input: some seeds have cum_rf, some don't. Aggregate over the
+    seeds that DO have it (don't crash on missing key)."""
+    from score_run import aggregate_scores
+
+    per_seed = {
+        49: {"LS1": 0.2, "LS2": 0.3, "geo": 0.25, "cum_rf": -0.10},
+        50: {"LS1": 0.3, "LS2": 0.4, "geo": 0.35},  # no cum_rf
+        51: {"LS1": 0.4, "LS2": 0.5, "geo": 0.45, "cum_rf": -0.30},
+    }
+    summary = aggregate_scores(per_seed)
+
+    assert summary["n_seeds"] == 3
+    # cum_rf aggregates use only seeds 49 + 51 → mean = -0.20
+    assert abs(summary["mean_cum_rf"] - (-0.20)) < 1e-9
+    assert summary["min_cum_rf"] == -0.30
+    assert summary["max_cum_rf"] == -0.10

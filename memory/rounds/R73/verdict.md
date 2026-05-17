@@ -106,7 +106,15 @@ with higher overall v3.1 in supplementary.
   (CLM-0123) for paper Fig 7. R73 W3 reported as supplementary single SOTA
   (higher v3.1 but slightly less paper-fig-clean).
 
-## Questions opened / closed / advanced
+## Questions opened (this round)
+
+(none)
+
+## Questions closed (this round)
+
+(none)
+
+## Questions advanced (this round)
 
 (none)
 

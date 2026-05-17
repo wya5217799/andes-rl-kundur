@@ -72,7 +72,7 @@ def aggregate_scores(
             "std_geo": None,
             "per_seed": dict(per_seed),
         }
-    return {
+    out: dict[str, Any] = {
         "n_seeds": len(geos),
         "mean_geo": sum(geos) / len(geos),
         "min_geo": min(geos),
@@ -80,6 +80,14 @@ def aggregate_scores(
         "std_geo": statistics.stdev(geos) if len(geos) > 1 else 0.0,
         "per_seed": dict(per_seed),
     }
+    # R74 dual-eval: if records carry cum_rf (paper-metric), aggregate it too
+    # so summary reports paper-metric and 6-axis side-by-side.
+    cum_rfs = [rec["cum_rf"] for rec in per_seed.values() if "cum_rf" in rec]
+    if cum_rfs:
+        out["mean_cum_rf"] = sum(cum_rfs) / len(cum_rfs)
+        out["min_cum_rf"] = min(cum_rfs)
+        out["max_cum_rf"] = max(cum_rfs)
+    return out
 
 
 def score_seed(
@@ -107,6 +115,9 @@ def score_seed(
     from andes_rl_kundur.evaluation.paper_path import (
         deterministic_actor_action_fn, run_scenario,
     )
+    from andes_rl_kundur.evaluation.paper_strict_eval import (
+        compute_global_cum_rf,
+    )
     from andes_rl_kundur.probes.andes_common.paper_constants import SCENARIOS
 
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -114,6 +125,7 @@ def score_seed(
     action_fn = deterministic_actor_action_fn(agents)
 
     per_scen: dict[str, float] = {}
+    per_scen_cum_rf: dict[str, float] = {}
     for scen_name, delta_u in SCENARIOS.items():
         rec = run_scenario(
             scen_name, delta_u,
@@ -125,12 +137,21 @@ def score_seed(
         out_path.write_text(json.dumps(rec), encoding="utf-8")
         ts = evaluate_trace(out_path, PAPER[scen_name], is_ddic=True, label=label)
         per_scen[scen_name] = ts.overall
+        # R74 dual-eval: also compute paper-metric cum_rf from the same trace.
+        per_scen_cum_rf[scen_name] = compute_global_cum_rf(rec)
 
     ls1, ls2 = per_scen.get("load_step_1"), per_scen.get("load_step_2")
     geo = math.exp(
         sum(math.log(max(v, 0.01)) for v in per_scen.values()) / len(per_scen)
     )
-    return {"LS1": ls1, "LS2": ls2, "geo": geo}
+    # Total cum_rf across all scenarios (matches _r58_paper_strict_eval convention).
+    cum_rf_total = sum(per_scen_cum_rf.values())
+    return {
+        "LS1": ls1, "LS2": ls2, "geo": geo,
+        "cum_rf": cum_rf_total,
+        "cum_rf_LS1": per_scen_cum_rf.get("load_step_1"),
+        "cum_rf_LS2": per_scen_cum_rf.get("load_step_2"),
+    }
 
 
 def _seed_from_ckpt_dir(ckpt_dir: Path) -> int:
@@ -169,6 +190,7 @@ def _main() -> int:
         per_seed[seed_id] = rec
         print(
             f"  LS1={rec['LS1']:.4f}  LS2={rec['LS2']:.4f}  geo={rec['geo']:.4f}"
+            f"  cum_rf={rec['cum_rf']:.4f}"
         )
 
     summary = aggregate_scores(per_seed)
@@ -180,6 +202,11 @@ def _main() -> int:
             f"range=[{summary['min_geo']:.4f}, {summary['max_geo']:.4f}]  "
             f"std={summary['std_geo']:.4f}"
         )
+        if "mean_cum_rf" in summary:
+            print(
+                f"  cum_rf: mean={summary['mean_cum_rf']:.4f}  "
+                f"range=[{summary['min_cum_rf']:.4f}, {summary['max_cum_rf']:.4f}]"
+            )
 
     summary_path = args.out_dir / f"{args.label}_summary.json"
     summary_path.write_text(json.dumps(summary, indent=2), encoding="utf-8")
