@@ -302,7 +302,11 @@ def build_agents(
         lstm_capacity_episodes = 200
         # LSTMCell is a single-layer cell; only the first hidden width
         # is used. lr clamped to 1e-4 for RNN stability (vs 3e-4 baseline).
-        lstm_lr = min(lr, 1e-4)
+        # R65 — LSTM_LR_UNCLAMP=1 env var disables the clamp (hyper sweep).
+        if os.environ.get("LSTM_LR_UNCLAMP") == "1":
+            lstm_lr = lr
+        else:
+            lstm_lr = min(lr, 1e-4)
         warmup_eps = getattr(args, "lstm_lr_warmup_eps", 0) or 0
         warmup_note = f" warmup_eps={warmup_eps}" if warmup_eps > 0 else ""
         print(
