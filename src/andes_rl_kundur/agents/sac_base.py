@@ -53,7 +53,9 @@ class _SACBase:
         self._log_alpha_max = math.log(alpha_max)
 
         self.buffer = ReplayBuffer(obs_dim, action_dim, capacity=buffer_size)
-        self.max_grad_norm = 1.0
+        # R63 — env var override for hyper sweeps. Default 1.0 (project standard).
+        import os as _os
+        self.max_grad_norm = float(_os.environ.get("MAX_GRAD_NORM", "1.0"))
 
     @property
     def alpha(self) -> torch.Tensor:

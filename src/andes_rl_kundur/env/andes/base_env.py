@@ -133,6 +133,16 @@ class AndesBaseEnv(ABC):
             os.environ.get("LAMBDA_SMOOTH", str(self.LAMBDA_SMOOTH))
         )
 
+        # R63 — N_SUBSTEPS env var override (ODE-integration precision sweep).
+        # Default 5 (R37). 1 = single Euler step; 10 = finer integration.
+        # Affects only TDS solver granularity, not control timing.
+        n_sub_env = os.environ.get("N_SUBSTEPS")
+        if n_sub_env is not None:
+            ns = int(n_sub_env)
+            if ns < 1:
+                raise ValueError(f"N_SUBSTEPS must be >= 1, got {ns}")
+            self.N_SUBSTEPS = ns
+
         # Optional: include own previous action in obs (R03 probe).
         # Off by default to keep V1/V2 actor compatibility. When ON, OBS_DIM += 2
         # at instance level (class attr untouched).
