@@ -1,7 +1,7 @@
 # CONTEXT — andes-rl-kundur
 
 **Purpose:** canonical glossary + architecture decisions for this repo.
-**Last updated:** 2026-05-16
+**Last updated:** 2026-05-17
 
 This file captures terms and decisions that are not derivable from the code
 alone. For research-state facts (numerical results, round verdicts, claims),
@@ -58,14 +58,48 @@ Four-entity research memory system (active oracle since R39):
   / `abandoned`. Closure cites a closing claim + round.
 - **Round** (`memory/rounds/RNN/`): plan.md + verdict.md, bundles an
   experiment or infrastructure change. Verdict has 3 mandatory
-  Q-sections (opened / closed / advanced).
-- **STATE.md** (`memory/STATE.md`): auto-rendered 6-section active
-  oracle (headlines / in-flight / open Qs / recently closed / latest
-  round / stats). Reads claims + questions + rounds.
+  Q-sections (opened / closed / advanced) and — for R≥59 — a
+  mandatory `## 给 PI 的话` section (see `PI 简报` below, ADR-0003).
+- **STATE.md** (`memory/STATE.md`): auto-rendered active oracle. From
+  R59 onward, top section is `## 给 PI 的简报（最新一轮）` (lifted
+  from the newest R≥59 verdict, with glossary annotation). Followed
+  by the legacy 6 sections (headlines / in-flight / open Qs / recently
+  closed / latest round / stats) plus `## 历史简报` at the bottom.
+  Reads claims + questions + rounds + `memory/glossary.yml`.
 - `memory/handoffs/` is **out of schema** — informal session-end
   scratchpad, not read by `validate.py` or `render.py`. See
   `memory/handoffs/README.md`.
 Full design rationale: `memory/rounds/R39/plan.md`.
+
+### `PI 简报` / briefing layer
+The fourth mandatory section of `memory/rounds/RNN/verdict.md` (for
+R≥59), titled `## 给 PI 的话`. Written for the user as research
+partner, not as sign-off authority. Five fixed sub-segments:
+
+1. **这周干了啥** — 1–2 sentences of context
+2. **结果（一句话）** — headline number / outcome
+3. **意外** — surprising finding / risk flag — the participation hook
+4. **我默认下一步做** — agent's intended default action
+5. **你想插一脚就说** — explicit invitation; silence = default proceeds
+
+Soft cap ≤ 30 lines (validator warns, does not block). `render.py`
+lifts the latest one to STATE.md's `## 给 PI 的简报（最新一轮）`.
+Designed in ADR-0003 (2026-05-17).
+
+### `术语速查` / glossary inline-annotation
+`memory/glossary.yml` maps project jargon to ≤ 30-char definitions.
+`render.py` annotates each term on **first occurrence per briefing**
+as `term(definition)`; subsequent uses bare. Goal: PI never hits an
+unexplained acronym in the briefing. ASCII-word lookarounds make the
+match Chinese-safe (`用LSTM时` matches `LSTM`).
+
+### `AI 自治 vs PI 参与`
+Operational principle (R59 / ADR-0003). AI agents retain autonomous
+decision-making on technical choices (training configs, code refactors,
+eval scripts). The PI exercises **participation, not approval**, via
+the briefing's `你想插一脚就说` segment. Silence = AI default proceeds;
+explicit pushback = redirect. Distinct from a sign-off model where PI
+silence blocks.
 
 ### `WSL-only` (ANDES)
 ANDES (the power system DAE simulator) is installed inside WSL only:
@@ -74,17 +108,31 @@ a historical mis-install; do not use. Hard limit: ≤3 parallel ANDES
 Python processes (R23 finding — TDS internal stiffness mis-judges
 under contention).
 
-### `paper-cited / paper-grade / paper-faithful`
-Three different concepts:
+### `paper-cited / paper-grade / paper-faithful-modified / paper-strict-pure / paper-strict-rescaled`
+Five different concepts (term-split via ADR-0002, R58):
+
 - **paper-cited**: file or checkpoint is directly referenced from the
   paper's reproducibility appendix. Cannot be deleted/moved without
   new round. Currently: `paper_grade_axes.py`, contents of
   `results/whitelist/`.
 - **paper-grade**: code that passes the 6-axis evaluation framework
   (Asset 4). Not the same as paper-cited.
-- **paper-faithful**: matches the original paper's equations and
-  parameter regime (H₀=100, Eq.14 strict). V4 env is paper-faithful;
-  V1–V3 are not.
+- **paper-faithful-modified** *(was: `paper-faithful` until R58)*:
+  topology + obs + action space match paper, but the V4 reward adds
+  a non-paper `PHI_ABS=50` term and rescales `PHI_H/D` to `0.0056`
+  for ANDES numerical stability. Eval uses project-invented 6-axis.
+  V4 env is paper-faithful-modified; V1–V3 are not.
+- **paper-strict-pure** *(new, R58)*: paper Eq.14 reward exactly
+  (`PHI_ABS=0, PHI_H=PHI_D=1.0`); paper Sec.IV-C global cum-rf eval.
+  Used to empirically verify the R18 verdict's PHI-divergence claim.
+  Accessed via `V4Config.paper_strict_pure()`.
+- **paper-strict-rescaled** *(new, R58)*: `PHI_ABS=0` (no non-paper
+  term) but `PHI_H/D=0.0056` retained from R18; paper Sec.IV-C eval.
+  Isolates the question "does the algorithm ranking depend on
+  PHI_ABS, or on the H/D rescale?". Accessed via
+  `V4Config.paper_strict_rescaled()`.
+
+ADR-0002 documents the rationale for the term split.
 
 ---
 

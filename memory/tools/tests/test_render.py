@@ -325,3 +325,230 @@ def test_latest_round_picks_newest_completed_when_newest_is_in_flight(tmp_path):
     # R02 (newest completed) should be Latest Round
     assert "R02" in latest, f"R02 should be Latest Round; got: {latest}"
     assert "R02 did stuff" in latest, "TL;DR should be extracted for R02"
+
+
+# ── ADR-0003: PI briefing layer (R59+) ─────────────────────────────────────────
+
+
+def _build_briefing_fixture(tmp_path, *, rounds: list[tuple[str, str | None]]):
+    """Build a minimal valid (claims, rounds, questions) trio. Each (round_id,
+    briefing_body) tuple either gets a briefing section or no briefing
+    (body=None — verdict still has the 3 Q-sections so it's structurally
+    valid for non-R59 cases)."""
+    claims_dir = tmp_path / "claims"
+    claims_dir.mkdir()
+    questions_dir = tmp_path / "questions"
+    questions_dir.mkdir()
+    rounds_dir = tmp_path / "rounds"
+    for round_id, body in rounds:
+        d = rounds_dir / round_id
+        d.mkdir(parents=True)
+        briefing = (
+            f"## 给 PI 的话\n\n{body}\n\n" if body else ""
+        )
+        (d / "verdict.md").write_text(
+            f"# {round_id} verdict\n**Status**: COMPLETE\n"
+            f"## TL;DR\n{round_id} TL;DR text.\n\n"
+            "## Questions opened (this round)\n- none\n\n"
+            "## Questions closed (this round)\n- none\n\n"
+            "## Questions advanced (this round)\n- none\n\n"
+            f"{briefing}",
+            encoding="utf-8",
+        )
+    return claims_dir, rounds_dir, questions_dir
+
+
+def test_pi_briefing_section_absent_when_no_r59_verdict(tmp_path):
+    """STATE.md must NOT carry the briefing section header when no R≥59
+    verdict has been written yet. Prevents an empty/awkward top section
+    in the early phase before R59 closes."""
+    claims_dir, rounds_dir, questions_dir = _build_briefing_fixture(
+        tmp_path,
+        rounds=[("R58", "**结果（一句话）**：pre-cutoff round.")],  # R58 < 59
+    )
+    out = tmp_path / "STATE.md"
+    render_state(claims_dir, rounds_dir, questions_dir, out)
+    text = out.read_text(encoding="utf-8")
+    assert "## 给 PI 的简报" not in text, \
+        "briefing header must be absent until first R≥59 verdict exists"
+
+
+def test_pi_briefing_section_extracted_from_r59(tmp_path):
+    """A single R59 verdict with a briefing populates the top section."""
+    body = (
+        "**这周干了啥**：跑测试。\n"
+        "**结果（一句话）**：通过了。\n"
+        "**意外**：无。\n"
+        "**我默认下一步做**：归档。\n"
+        "**你想插一脚就说**：无需。"
+    )
+    claims_dir, rounds_dir, questions_dir = _build_briefing_fixture(
+        tmp_path, rounds=[("R59", body)],
+    )
+    out = tmp_path / "STATE.md"
+    render_state(claims_dir, rounds_dir, questions_dir, out)
+    text = out.read_text(encoding="utf-8")
+    assert "## 给 PI 的简报（最新一轮 — R59）" in text
+    # All five sub-segments must appear verbatim in the briefing
+    briefing = text.split("## 给 PI 的简报")[1].split("## ")[0]
+    for label in (
+        "这周干了啥", "结果（一句话）", "意外",
+        "我默认下一步做", "你想插一脚就说",
+    ):
+        assert label in briefing, f"missing sub-segment {label!r}"
+
+
+def test_pi_briefing_picks_newest_round(tmp_path):
+    """When multiple R≥59 verdicts have briefings, the newest one wins
+    the top spot."""
+    claims_dir, rounds_dir, questions_dir = _build_briefing_fixture(
+        tmp_path,
+        rounds=[
+            ("R59", "**结果（一句话）**：older briefing."),
+            ("R60", "**结果（一句话）**：newer briefing."),
+        ],
+    )
+    out = tmp_path / "STATE.md"
+    render_state(claims_dir, rounds_dir, questions_dir, out)
+    text = out.read_text(encoding="utf-8")
+    assert "## 给 PI 的简报（最新一轮 — R60）" in text
+    briefing = text.split("## 给 PI 的简报")[1].split("## ")[0]
+    assert "newer briefing" in briefing
+    assert "older briefing" not in briefing  # belongs in 历史简报 instead
+
+
+def test_pi_briefing_historical_section_lists_past_rounds(tmp_path):
+    """The 历史简报 section shows one-line headlines from older R≥59 rounds,
+    newest first. The current latest round is excluded (it's at the top
+    instead)."""
+    claims_dir, rounds_dir, questions_dir = _build_briefing_fixture(
+        tmp_path,
+        rounds=[
+            ("R59", "**结果（一句话）**：first briefing ever."),
+            ("R60", "**结果（一句话）**：second briefing."),
+            ("R61", "**结果（一句话）**：latest briefing."),
+        ],
+    )
+    out = tmp_path / "STATE.md"
+    render_state(claims_dir, rounds_dir, questions_dir, out)
+    text = out.read_text(encoding="utf-8")
+    assert "## 历史简报" in text
+    historical = text.split("## 历史简报")[1]
+    # R59 and R60 appear as historical; R61 (latest) does not
+    assert "R59" in historical and "first briefing ever" in historical
+    assert "R60" in historical and "second briefing" in historical
+    assert "R61" not in historical
+    # Newest historical first
+    pos_r60 = historical.find("R60")
+    pos_r59 = historical.find("R59")
+    assert 0 <= pos_r60 < pos_r59, "newer historical briefings must come first"
+
+
+def test_pi_briefing_glossary_annotates_first_use_only(tmp_path):
+    """Glossary auto-annotation appends `(definition)` to the FIRST
+    occurrence of each term in the briefing; subsequent occurrences in
+    the same briefing are bare."""
+    glossary = tmp_path / "glossary.yml"
+    glossary.write_text(
+        "LSTM: 记前几步的网络\nHAWE: 加权融合集成\n",
+        encoding="utf-8",
+    )
+    body = (
+        "**这周干了啥**：跑 LSTM 实验，然后 HAWE 集成。\n"
+        "**结果（一句话）**：LSTM 表现好。\n"  # second LSTM — must NOT annotate
+        "**意外**：无。\n"
+        "**我默认下一步做**：扩展。\n"
+        "**你想插一脚就说**：无。"
+    )
+    claims_dir, rounds_dir, questions_dir = _build_briefing_fixture(
+        tmp_path, rounds=[("R59", body)],
+    )
+    out = tmp_path / "STATE.md"
+    render_state(
+        claims_dir, rounds_dir, questions_dir, out,
+        glossary_path=glossary,
+    )
+    text = out.read_text(encoding="utf-8")
+    briefing = text.split("## 给 PI 的简报")[1].split("## ")[0]
+
+    # First LSTM occurrence is annotated
+    assert "LSTM(记前几步的网络)" in briefing
+    # First HAWE occurrence is annotated
+    assert "HAWE(加权融合集成)" in briefing
+    # Second LSTM occurrence is bare — only ONE annotated form should appear
+    assert briefing.count("LSTM(记前几步的网络)") == 1, \
+        "subsequent LSTM occurrence should NOT be annotated"
+
+
+def test_pi_briefing_glossary_handles_chinese_embedded_terms(tmp_path):
+    """ASCII-word lookarounds — Chinese characters around a term don't
+    break the boundary. `用LSTM时` still matches `LSTM`."""
+    glossary = tmp_path / "glossary.yml"
+    glossary.write_text("LSTM: 记前几步的网络\n", encoding="utf-8")
+    body = (
+        "**这周干了啥**：用LSTM时遇到问题。\n"
+        "**结果（一句话）**：解决了。\n"
+        "**意外**：无。\n"
+        "**我默认下一步做**：归档。\n"
+        "**你想插一脚就说**：无。"
+    )
+    claims_dir, rounds_dir, questions_dir = _build_briefing_fixture(
+        tmp_path, rounds=[("R59", body)],
+    )
+    out = tmp_path / "STATE.md"
+    render_state(
+        claims_dir, rounds_dir, questions_dir, out,
+        glossary_path=glossary,
+    )
+    text = out.read_text(encoding="utf-8")
+    assert "LSTM(记前几步的网络)" in text
+
+
+def test_pi_briefing_longer_term_matches_before_shorter_substring(tmp_path):
+    """When glossary has both `6-axis geo` and `6-axis`, a verdict text
+    containing `6-axis geo` must annotate as the longer phrase (not split
+    `6-axis` + leftover `geo`)."""
+    glossary = tmp_path / "glossary.yml"
+    glossary.write_text(
+        "6-axis: 6 项性能复合评分\n6-axis geo: 6 项性能几何平均\n",
+        encoding="utf-8",
+    )
+    body = (
+        "**这周干了啥**：算了 6-axis geo 分数。\n"
+        "**结果（一句话）**：0.5。\n"
+        "**意外**：无。\n"
+        "**我默认下一步做**：归档。\n"
+        "**你想插一脚就说**：无。"
+    )
+    claims_dir, rounds_dir, questions_dir = _build_briefing_fixture(
+        tmp_path, rounds=[("R59", body)],
+    )
+    out = tmp_path / "STATE.md"
+    render_state(
+        claims_dir, rounds_dir, questions_dir, out,
+        glossary_path=glossary,
+    )
+    text = out.read_text(encoding="utf-8")
+    assert "6-axis geo(6 项性能几何平均)" in text
+    # Shorter form must NOT also be annotated separately in this briefing
+    assert "6-axis(6 项性能复合评分)" not in text
+
+
+def test_pi_briefing_no_glossary_path_no_annotation(tmp_path):
+    """When no glossary path is passed, briefing renders without annotation
+    (backward-compatible with the old render_state signature)."""
+    body = (
+        "**这周干了啥**：用 LSTM。\n"
+        "**结果（一句话）**：好。\n"
+        "**意外**：无。\n"
+        "**我默认下一步做**：归档。\n"
+        "**你想插一脚就说**：无。"
+    )
+    claims_dir, rounds_dir, questions_dir = _build_briefing_fixture(
+        tmp_path, rounds=[("R59", body)],
+    )
+    out = tmp_path / "STATE.md"
+    render_state(claims_dir, rounds_dir, questions_dir, out)  # no glossary_path
+    text = out.read_text(encoding="utf-8")
+    assert "## 给 PI 的简报" in text
+    assert "LSTM(" not in text  # no annotation

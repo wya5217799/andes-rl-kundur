@@ -83,11 +83,35 @@ have `closed_round` (existing dir) and `closed_by` (existing claim id).
 - `## Questions opened (this round)`
 - `## Questions closed (this round)`
 - `## Questions advanced (this round, status unchanged)`
+- `## 给 PI 的话` **(R≥59 only — ADR-0003)**
 
 Recommended (warning if missing): `## TL;DR` + `**Status**:` line.
+Briefing soft cap ≤ 30 non-blank lines (warning above; not blocking).
 Template at `memory/rounds/_TEMPLATE_VERDICT.md`. Forward-going rounds
 should use it. Legacy R01..R38 verdicts have retrofit placeholders for
-the 3 mandatory Q-sections.
+the 3 mandatory Q-sections; R01..R58 are exempt from the PI briefing
+section.
+
+### Agent chat-delivery contract (ADR-0003)
+
+When you close a round (i.e. write `verdict.md`), you **MUST** paste
+the body of `## 给 PI 的话` verbatim into the active chat as your
+closing turn. Pointing at the file ("see verdict.md", "rendered to
+STATE.md", "check the briefing") is **not** compliant.
+
+Why: the PI is a research partner, not a sign-off authority. They
+get participation by hearing the briefing in conversation, not by
+context-switching to read a file. STATE.md is archival backup.
+
+Format:
+
+> 我已经把简报写进 verdict.md，下面是 `## 给 PI 的话` 全文：
+>
+> [briefing body verbatim]
+
+This contract is text-only — no tooling detects violations. If you
+skip the chat-delivery step, the user loses research-story continuity
+even though the file system looks correct.
 
 ### Tools
 

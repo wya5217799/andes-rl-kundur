@@ -1,14 +1,19 @@
 """Render memory/STATE.md as an active oracle.
 
-Six sections, in order:
+Sections, in order:
+0. (R≥59) 给 PI 的简报（最新一轮） — extracted from newest R≥59 verdict's
+   `## 给 PI 的话` body, with `memory/glossary.yml` first-use annotation
 1. Headline Numbers — claims tagged `headline`, status=current
 2. In-Flight — round dirs with plan.md but no verdict*.md
 3. Open Questions — Q files with status in {open, in-flight}
 4. Recently Closed — last 3 Q files with status starting with `closed-`
 5. Latest Round — newest RNN dir + one-line TL;DR from its verdict
+5b. Leaderboard (optional) — claims with structured metric block
 6. Stats — counts
+7. (R≥59) 历史简报 — one-line headline per past R≥59 round (newest 5)
 
 Handoffs are intentionally not rendered (see memory/handoffs/README.md).
+PI briefing layer designed in ADR-0003.
 """
 from __future__ import annotations
 import argparse
@@ -26,6 +31,22 @@ TLDR_BLOCK_RE = re.compile(
     r"^##\s+TL;DR\s*\n+(.*?)(?=\n##\s|\Z)", re.MULTILINE | re.DOTALL
 )
 ROUND_DIR_RE = re.compile(r"^R(\d+)$")
+
+# PI briefing extraction (ADR-0003). Mirrors validate.py constants.
+PI_BRIEFING_CUTOFF = 59
+PI_BRIEFING_SECTION = "## 给 PI 的话"
+PI_BRIEFING_BLOCK_RE = re.compile(
+    rf"^{re.escape(PI_BRIEFING_SECTION)}\s*\n+(.*?)(?=\n##\s|\Z)",
+    re.MULTILINE | re.DOTALL,
+)
+# The "结果（一句话）" sub-segment line — used for the 历史简报 section.
+# Matches a bolded "结果（一句话）" label followed by its content on the
+# same line.
+PI_BRIEFING_HEADLINE_RE = re.compile(
+    r"\*\*结果（一句话）\*\*[：:]\s*(.+?)(?:\n|$)"
+)
+# Historical briefings section: how many past R≥59 rounds to surface.
+HISTORICAL_BRIEFINGS_KEEP = 5
 
 
 # ---------- loaders ----------
@@ -140,6 +161,98 @@ def _extract_tldr(verdict_path: Path | None) -> str | None:
     return None
 
 
+# ---------- PI briefing layer (ADR-0003) ----------
+
+
+def _round_num(round_dir: Path) -> int:
+    """Numeric round id from a directory name like R59. Used for cutoff
+    filtering and chronological sort."""
+    m = ROUND_DIR_RE.match(round_dir.name)
+    return int(m.group(1)) if m else -1
+
+
+def _extract_pi_briefing(verdict_path: Path | None) -> str | None:
+    """Return the body of `## 给 PI 的话` from a verdict, or None.
+
+    Body is stripped of surrounding whitespace; sub-segment formatting
+    (the five **bold** labels) is preserved verbatim.
+    """
+    if verdict_path is None or not verdict_path.exists():
+        return None
+    text = verdict_path.read_text(encoding="utf-8")
+    match = PI_BRIEFING_BLOCK_RE.search(text)
+    if not match:
+        return None
+    body = match.group(1).strip()
+    return body or None
+
+
+def _extract_pi_briefing_headline(verdict_path: Path | None) -> str | None:
+    """Extract just the `**结果（一句话）**` line from a briefing.
+
+    Used for the `## 历史简报` section so older rounds appear as one-liners
+    rather than full briefings.
+    """
+    body = _extract_pi_briefing(verdict_path)
+    if not body:
+        return None
+    m = PI_BRIEFING_HEADLINE_RE.search(body)
+    return m.group(1).strip() if m else None
+
+
+def _load_glossary(glossary_path: Path) -> dict[str, str]:
+    """Load memory/glossary.yml. Returns empty dict on missing file or
+    parse error — annotation gracefully no-ops in that case."""
+    if not glossary_path.exists():
+        return {}
+    try:
+        data = yaml.safe_load(glossary_path.read_text(encoding="utf-8")) or {}
+    except yaml.YAMLError:
+        return {}
+    if not isinstance(data, dict):
+        return {}
+    return {
+        str(k): str(v).strip()
+        for k, v in data.items()
+        if isinstance(v, (str, int, float)) and str(v).strip()
+    }
+
+
+def _annotate_first_use(text: str, glossary: dict[str, str]) -> str:
+    """Annotate first occurrence of each glossary term as `term(definition)`.
+
+    Subsequent occurrences in the same text are left bare. Matching uses
+    ASCII-word lookarounds (`(?<![A-Za-z0-9_])` / `(?![A-Za-z0-9_])`)
+    so embedded Chinese characters don't break term boundaries — e.g.
+    `用LSTM时` still matches `LSTM`.
+
+    Longer terms match first (e.g. `6-axis geo` before `6-axis`) via
+    length-descending sort, so the longer phrase is annotated as a unit.
+    """
+    if not glossary:
+        return text
+    terms = sorted(glossary.keys(), key=len, reverse=True)
+    pattern = re.compile(
+        "|".join(
+            rf"(?<![A-Za-z0-9_]){re.escape(t)}(?![A-Za-z0-9_])"
+            for t in terms
+        )
+    )
+    seen: set[str] = set()
+    out_parts: list[str] = []
+    pos = 0
+    for m in pattern.finditer(text):
+        matched = m.group(0)
+        if matched in seen:
+            continue
+        seen.add(matched)
+        out_parts.append(text[pos:m.end()])
+        out_parts.append(f"({glossary[matched]})")
+        pos = m.end()
+    out_parts.append(text[pos:])
+    return "".join(out_parts)
+
+
 # ---------- section formatters ----------
 
 
@@ -205,10 +318,41 @@ def render_state(
     rounds_dir: Path,
     questions_dir: Path,
     out_path: Path,
+    glossary_path: Path | None = None,
 ) -> None:
     claims = _load_claims(claims_dir)
     questions = _load_questions(questions_dir)
     round_dirs = _iter_round_dirs(rounds_dir)
+    glossary = _load_glossary(glossary_path) if glossary_path else {}
+
+    # PI briefing layer (ADR-0003): newest R≥59 round whose verdict actually
+    # carries a `## 给 PI 的话` section. Returns (round_dir, briefing_body)
+    # or (None, None) if no R≥59 verdict has been written yet.
+    pi_eligible = sorted(
+        (d for d in round_dirs if _round_num(d) >= PI_BRIEFING_CUTOFF),
+        key=_round_num,
+    )
+    latest_briefing_round: Path | None = None
+    latest_briefing_body: str | None = None
+    for d in reversed(pi_eligible):
+        body = _extract_pi_briefing(_round_verdict_path(d))
+        if body:
+            latest_briefing_round = d
+            latest_briefing_body = body
+            break
+
+    # Historical briefings: every R≥59 round older than the latest one,
+    # one-line headline each, newest first, capped at HISTORICAL_BRIEFINGS_KEEP.
+    historical_briefings: list[tuple[str, str]] = []
+    if latest_briefing_round is not None:
+        for d in reversed(pi_eligible):
+            if d == latest_briefing_round:
+                continue
+            headline = _extract_pi_briefing_headline(_round_verdict_path(d))
+            if headline:
+                historical_briefings.append((d.name, headline))
+                if len(historical_briefings) >= HISTORICAL_BRIEFINGS_KEEP:
+                    break
 
     headlines = [
         c for c in claims
@@ -264,6 +408,17 @@ def render_state(
     lines.append("")
     lines.append("> Do not edit this file. Regenerate via `python memory/tools/render.py`.")
     lines.append("")
+
+    # 0. (R≥59) PI briefing — top of file, before the agent-facing sections.
+    # Omitted entirely until the first R≥59 verdict with a briefing exists.
+    if latest_briefing_body and latest_briefing_round:
+        lines.append(
+            f"## 给 PI 的简报（最新一轮 — {latest_briefing_round.name}）"
+        )
+        lines.append("")
+        annotated = _annotate_first_use(latest_briefing_body, glossary)
+        lines.append(annotated)
+        lines.append("")
 
     # 1. Headlines
     lines.append("## Headline Numbers")
@@ -347,6 +502,16 @@ def render_state(
     lines.append(stats)
     lines.append("")
 
+    # 7. (R≥59) Historical briefings — one-line headlines from past
+    # R≥59 rounds (newest first). Omitted entirely until at least one
+    # historical briefing exists.
+    if historical_briefings:
+        lines.append("## 历史简报")
+        lines.append("")
+        for round_name, headline in historical_briefings:
+            lines.append(f"- {round_name}: {headline}")
+        lines.append("")
+
     out_path.write_text("\n".join(lines), encoding="utf-8")
 
 
@@ -357,8 +522,20 @@ def main() -> int:
     parser.add_argument("--rounds-dir", type=Path, default=base / "rounds")
     parser.add_argument("--questions-dir", type=Path, default=base / "questions")
     parser.add_argument("--out", type=Path, default=base / "STATE.md")
+    parser.add_argument(
+        "--glossary",
+        type=Path,
+        default=base / "glossary.yml",
+        help="path to glossary.yml for PI briefing first-use annotation",
+    )
     args = parser.parse_args()
-    render_state(args.claims_dir, args.rounds_dir, args.questions_dir, args.out)
+    render_state(
+        args.claims_dir,
+        args.rounds_dir,
+        args.questions_dir,
+        args.out,
+        glossary_path=args.glossary,
+    )
     print(f"Rendered {args.out}")
     return 0
 

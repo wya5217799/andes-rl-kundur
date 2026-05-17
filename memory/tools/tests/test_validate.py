@@ -631,3 +631,128 @@ def test_decision_with_decimal_does_not_trigger_metric_warn():
     assert not any(
         "CLM-0001" in w and "metric" in w for w in warnings
     ), f"decision should not trigger metric soft-warn: {warnings}"
+
+
+# ── ADR-0003: PI briefing layer (R59+) ─────────────────────────────────────────
+
+
+def _verdict_with_q_sections(extra_body: str = "") -> str:
+    """Helper: build a minimal-but-valid post-Q-sections verdict body. Extra
+    content is inserted before the Q-sections to compose new section tests."""
+    return (
+        "# R99 verdict — test\n\n"
+        "**Date**: 2026-05-17\n**Status**: COMPLETE\n\n"
+        "## TL;DR\nx\n\n"
+        f"{extra_body}"
+        "## Questions opened (this round)\n- none\n\n"
+        "## Questions closed (this round)\n- none\n\n"
+        "## Questions advanced (this round)\n- none\n"
+    )
+
+
+def _briefing_section(body: str = "**结果（一句话）**：占位。") -> str:
+    return f"## 给 PI 的话\n\n{body}\n\n"
+
+
+def test_pre_r59_verdict_without_briefing_passes(tmp_path):
+    """ADR-0003: cutoff is R59. A pre-cutoff verdict (R58) without
+    `## 给 PI 的话` MUST continue to validate — legacy verdicts are not
+    retrofit."""
+    from validate import validate_verdict_structure  # noqa: E402
+    rounds_dir = tmp_path / "rounds"
+    r58 = rounds_dir / "R58"
+    r58.mkdir(parents=True)
+    verdict_path = r58 / "verdict.md"
+    verdict_path.write_text(_verdict_with_q_sections(), encoding="utf-8")
+    errors = validate_verdict_structure(verdict_path)
+    assert errors == [], f"pre-R59 verdict must pass without briefing: {errors}"
+
+
+def test_r59_verdict_without_briefing_fails(tmp_path):
+    """ADR-0003: R≥59 verdict MUST have `## 给 PI 的话` (hard rule)."""
+    from validate import validate_verdict_structure  # noqa: E402
+    rounds_dir = tmp_path / "rounds"
+    r59 = rounds_dir / "R59"
+    r59.mkdir(parents=True)
+    verdict_path = r59 / "verdict.md"
+    verdict_path.write_text(_verdict_with_q_sections(), encoding="utf-8")
+    errors = validate_verdict_structure(verdict_path)
+    assert any("给 PI 的话" in e for e in errors), \
+        f"expected briefing-missing error for R59, got: {errors}"
+
+
+def test_r60_verdict_with_briefing_passes(tmp_path):
+    """ADR-0003: a properly-formed R60 verdict with the briefing section
+    validates clean."""
+    from validate import validate_verdict_structure  # noqa: E402
+    rounds_dir = tmp_path / "rounds"
+    r60 = rounds_dir / "R60"
+    r60.mkdir(parents=True)
+    verdict_path = r60 / "verdict.md"
+    verdict_path.write_text(
+        _verdict_with_q_sections(extra_body=_briefing_section()),
+        encoding="utf-8",
+    )
+    errors = validate_verdict_structure(verdict_path)
+    assert errors == [], f"unexpected errors for valid R60 verdict: {errors}"
+
+
+def test_pi_briefing_under_cap_no_warning(tmp_path):
+    """A briefing with <= 30 non-blank lines produces no length warning."""
+    from validate import warn_verdict_recommended  # noqa: E402
+    r59 = tmp_path / "rounds" / "R59"
+    r59.mkdir(parents=True)
+    short_briefing = "\n".join([
+        "**这周干了啥**：测试简短简报。",
+        "**结果（一句话）**：通过。",
+        "**意外**：无。",
+        "**我默认下一步做**：归档。",
+        "**你想插一脚就说**：无需。",
+    ])
+    verdict_path = r59 / "verdict.md"
+    verdict_path.write_text(
+        _verdict_with_q_sections(extra_body=_briefing_section(short_briefing)),
+        encoding="utf-8",
+    )
+    warnings = warn_verdict_recommended(verdict_path)
+    assert not any("给 PI 的话" in w for w in warnings), \
+        f"unexpected briefing-length warning: {warnings}"
+
+
+def test_pi_briefing_over_cap_emits_warning(tmp_path):
+    """A briefing exceeding 30 non-blank lines emits a soft warning."""
+    from validate import warn_verdict_recommended, PI_BRIEFING_LINE_CAP  # noqa: E402
+    r59 = tmp_path / "rounds" / "R59"
+    r59.mkdir(parents=True)
+    bloated = "\n".join(
+        f"line {i}: filler" for i in range(PI_BRIEFING_LINE_CAP + 5)
+    )
+    verdict_path = r59 / "verdict.md"
+    verdict_path.write_text(
+        _verdict_with_q_sections(extra_body=_briefing_section(bloated)),
+        encoding="utf-8",
+    )
+    warnings = warn_verdict_recommended(verdict_path)
+    assert any("给 PI 的话" in w and "lines" in w for w in warnings), \
+        f"expected briefing-length warning, got: {warnings}"
+
+
+def test_pre_r59_no_briefing_length_warning(tmp_path):
+    """Length cap only applies to R≥59. A pre-cutoff round with no briefing
+    section never triggers a length warning regardless of verdict length."""
+    from validate import warn_verdict_recommended  # noqa: E402
+    r58 = tmp_path / "rounds" / "R58"
+    r58.mkdir(parents=True)
+    verdict_path = r58 / "verdict.md"
+    verdict_path.write_text(_verdict_with_q_sections(), encoding="utf-8")
+    warnings = warn_verdict_recommended(verdict_path)
+    assert not any("给 PI 的话" in w for w in warnings), \
+        f"pre-R59 should not get briefing warnings: {warnings}"
+
+
+def test_round_num_from_verdict_path(tmp_path):
+    """Helper correctly extracts round number from R<N>/verdict.md."""
+    from validate import _round_num_from_verdict_path  # noqa: E402
+    assert _round_num_from_verdict_path(Path("/x/R59/verdict.md")) == 59
+    assert _round_num_from_verdict_path(Path("/x/R01/verdict.md")) == 1
+    assert _round_num_from_verdict_path(Path("/x/README/verdict.md")) is None

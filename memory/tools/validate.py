@@ -34,6 +34,18 @@ VERDICT_REQUIRED_SECTIONS = (
 VERDICT_RECOMMENDED_SECTIONS = ("## TL;DR",)
 VERDICT_STATUS_HEADER_RE = re.compile(r"^\*\*Status\*\*\s*:", re.MULTILINE)
 
+# PI Briefing Layer (ADR-0003, R59 introduction).
+# Verdicts from round R59 onward must include the PI briefing section.
+# Pre-cutoff verdicts (R01..R58) are not retrofit — extracting the
+# section from them in render.py would also yield nothing.
+PI_BRIEFING_CUTOFF = 59
+PI_BRIEFING_SECTION = "## 给 PI 的话"
+PI_BRIEFING_LINE_CAP = 30  # soft-warn above this; does not block
+PI_BRIEFING_BLOCK_RE = re.compile(
+    rf"^{re.escape(PI_BRIEFING_SECTION)}\s*\n+(.*?)(?=\n##\s|\Z)",
+    re.MULTILINE | re.DOTALL,
+)
+
 
 def _load_entities(
     entity_dir: Path,
@@ -169,11 +181,23 @@ def validate_question_rules(
     return errors
 
 
+def _round_num_from_verdict_path(verdict_path: Path) -> int | None:
+    """Extract integer round number from a path like .../rounds/R59/verdict.md.
+
+    Returns None if the parent directory doesn't match R\\d+ — caller then
+    skips round-dependent checks (e.g. PI briefing cutoff).
+    """
+    m = ROUND_DIR_RE.match(verdict_path.parent.name)
+    return int(m.group(1)) if m else None
+
+
 def validate_verdict_structure(verdict_path: Path) -> list[str]:
-    """Round verdict must have the 3 mandatory Q-section H2s.
+    """Round verdict must have the 3 mandatory Q-section H2s, plus — for
+    R≥59 (ADR-0003) — the `## 给 PI 的话` PI briefing section.
 
     Historical verdicts (R01..R38) use varied Status header text and not all
     have explicit TL;DR — those checks live in the warnings path, not here.
+    Pre-R59 verdicts are not retrofit for the briefing requirement.
     """
     errors: list[str] = []
     if not verdict_path.exists():
@@ -182,11 +206,22 @@ def validate_verdict_structure(verdict_path: Path) -> list[str]:
     for section in VERDICT_REQUIRED_SECTIONS:
         if section not in text:
             errors.append(f"{verdict_path}: missing section '{section}'")
+    round_num = _round_num_from_verdict_path(verdict_path)
+    if round_num is not None and round_num >= PI_BRIEFING_CUTOFF:
+        if PI_BRIEFING_SECTION not in text:
+            errors.append(
+                f"{verdict_path}: missing section '{PI_BRIEFING_SECTION}' "
+                f"(mandatory from R{PI_BRIEFING_CUTOFF} onward — see ADR-0003)"
+            )
     return errors
 
 
 def warn_verdict_recommended(verdict_path: Path) -> list[str]:
-    """Soft checks: TL;DR + Status header. Returns warning strings (not errors)."""
+    """Soft checks: TL;DR + Status header + (R≥59) PI briefing length cap.
+
+    Returns warning strings (not errors). Briefing length is checked only
+    for R≥59 since pre-cutoff verdicts have no briefing section.
+    """
     warnings: list[str] = []
     if not verdict_path.exists():
         return warnings
@@ -196,7 +231,30 @@ def warn_verdict_recommended(verdict_path: Path) -> list[str]:
             warnings.append(f"{verdict_path}: missing recommended section '{section}'")
     if not VERDICT_STATUS_HEADER_RE.search(text):
         warnings.append(f"{verdict_path}: missing '**Status**:' header line")
+    round_num = _round_num_from_verdict_path(verdict_path)
+    if round_num is not None and round_num >= PI_BRIEFING_CUTOFF:
+        warnings.extend(_warn_pi_briefing_length(verdict_path, text))
     return warnings
+
+
+def _warn_pi_briefing_length(verdict_path: Path, text: str) -> list[str]:
+    """Soft cap on `## 给 PI 的话` body length (non-blank lines only).
+
+    The user explicitly asked for brevity ("要简洁"). 30 lines is the
+    soft ceiling; verdicts exceeding it get a warning but still pass.
+    Promote to hard ERROR after 5+ rounds of consistent discipline.
+    """
+    match = PI_BRIEFING_BLOCK_RE.search(text)
+    if not match:
+        return []  # absence already errored in validate_verdict_structure
+    body = match.group(1).strip()
+    non_blank = [ln for ln in body.splitlines() if ln.strip()]
+    if len(non_blank) > PI_BRIEFING_LINE_CAP:
+        return [
+            f"{verdict_path}: 给 PI 的话 is {len(non_blank)} non-blank lines, "
+            f"recommended ≤ {PI_BRIEFING_LINE_CAP} (要简洁 — see ADR-0003)"
+        ]
+    return []
 
 
 def validate_rules(claims: dict[str, dict[str, Any]]) -> tuple[list[str], list[str]]:

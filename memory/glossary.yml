@@ -1,0 +1,38 @@
+# memory/glossary.yml
+# Maps project jargon to one-line human definitions.
+# Used by memory/tools/render.py to auto-annotate the FIRST occurrence of
+# each term in the PI briefing section (`## 给 PI 的话`). Subsequent
+# occurrences in the same briefing render bare.
+#
+# Conventions:
+#   - Keys are case-sensitive (LSTM ≠ lstm). Use the spelling that
+#     appears in verdicts.
+#   - Values < 30 chars. Definitions are parenthesized inline, so
+#     longer ones break reading flow.
+#   - Add a term the first time it appears in a briefing; do NOT
+#     explain inline manually.
+#   - When a term's meaning shifts in the project (rare), update the
+#     definition here — single source of truth.
+#
+# See ADR-0003 for the design rationale.
+
+# RL algorithms
+LSTM: 能记前几步状态的网络
+TD3: 一种稳健的连续动作 RL 算法
+SAC: 一种带熵奖励的 RL 算法
+HAWE: 多策略加权融合的集成方法
+
+# Metrics
+6-axis: 项目的 6 项性能复合评分
+6-axis geo: 6 项性能指标的几何平均
+SOTA: 当前最好水平
+ablation: 消融实验，移除组件看影响
+
+# Artifacts
+ckpt: 训练保存的模型权重
+best.pt: 训练中保存的"最好"权重
+lr-warmup: 学习率热身，前 N episode 慢启动
+
+# Environment
+ANDES: 项目用的电力系统仿真器
+V4: 当前在用的环境版本
