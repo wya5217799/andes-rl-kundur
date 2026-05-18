@@ -1,0 +1,82 @@
+{
+  "andes_version": "2.0.0",
+  "experiments": [
+    {
+      "label": "exp1_v4_baseline",
+      "setup": true,
+      "pflow": true,
+      "tds_1step": true,
+      "n_buses": 14,
+      "n_regca1": 0,
+      "n_reeca1": 0,
+      "n_genrou_active": 4,
+      "n_gencls_active": 5,
+      "max_freq_dev_pu": 0.0,
+      "error": null,
+      "n_tgov1_active": 4,
+      "n_exdc2_active": 4
+    },
+    {
+      "label": "exp2_w2_regca1_only",
+      "setup": true,
+      "pflow": true,
+      "tds_1step": true,
+      "n_buses": 14,
+      "n_regca1": 1,
+      "n_reeca1": 1,
+      "n_genrou_active": 4,
+      "n_gencls_active": 4,
+      "max_freq_dev_pu": 0.0,
+      "error": null,
+      "n_tgov1_active": 4,
+      "n_exdc2_active": 4
+    },
+    {
+      "label": "exp3_g4_regca1_only",
+      "setup": true,
+      "pflow": true,
+      "tds_1step": true,
+      "n_buses": 14,
+      "n_regca1": 1,
+      "n_reeca1": 1,
+      "n_genrou_active": 3,
+      "n_gencls_active": 5,
+      "max_freq_dev_pu": 0.0,
+      "error": null,
+      "n_tgov1_active": 3,
+      "n_exdc2_active": 3,
+      "g4_genrou_disabled_idx": {
+        "GENROU": 4,
+        "TGOV1": 4,
+        "EXDC2": 4
+      },
+      "g4_static_slot_idx": 4
+    },
+    {
+      "label": "exp4_v5_target_both",
+      "setup": true,
+      "pflow": true,
+      "tds_1step": true,
+      "n_buses": 14,
+      "n_regca1": 2,
+      "n_reeca1": 2,
+      "n_genrou_active": 3,
+      "n_gencls_active": 4,
+      "max_freq_dev_pu": 0.0,
+      "error": null,
+      "n_tgov1_active": 3,
+      "n_exdc2_active": 3,
+      "g4_genrou_disabled_idx": {
+        "GENROU": 4,
+        "TGOV1": 4,
+        "EXDC2": 4
+      },
+      "g4_static_slot_idx": 4
+    }
+  ],
+  "model_availability": {
+    "REGCA1_in_andes": true,
+    "REECA1_in_andes": true,
+    "REPCA1_in_andes": true
+  }
+}

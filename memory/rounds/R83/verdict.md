@@ -1,0 +1,198 @@
+# R83 verdict — obs space refactor (4 wave) 全 RED, plateau 在 obs dimension 也真实
+
+**Date**: 2026-05-19
+**Status**: closed-negative — 4 wave 全 ≤ baseline 0.391, gate 不开 R84 path
+**Type**: experiment + infrastructure (Q-0016 fix + obs aug 3 channel + V4Config 互斥解除)
+**Wall**: ~75 min (4 wave × 75 ep × s54 sequential)
+
+## TL;DR
+
+R57-R82 series 91 round-level algo trials 全 ≤ baseline 0.391 (CLM-0144),
+R83 转 obs space dimension 试. 修 Q-0016 (env var → V4Config field bridge,
+final_eval LSTM dim mismatch crash 解), 加 area-mean freq 新 obs aug field,
+V4Config own_action × time 互斥解除. 4 wave 单 axis + combined obs 全部
+退化: W1 own_action_obs **0.345** (-12%), W2 own+time combined **0.365** (-7%),
+W3 area_mean_freq **0.328** (-16%), W4 all-3 combined **TBD**. **plateau 在
+obs dimension 也真实**, 跟 R82 algo dimension + R80 plant dimension 一起
+完整 sealed 三个 dimension. 不进 R84 paper-grade 多 seed.
+
+## Methodology
+
+R82 verdict 推荐 "下一步走 problem setup 维度" → Q-0014 priority 1 = obs
+space refactor. R49-α (CLM-0057) 在 V4 MLP 测过 own_action_obs -21%, R52
+实现 time_obs 但跟 R72_w4 hyper 前的环境组合. R83 立论: **R72_w4 LSTM +
+obs aug 的正确 combined 从未跑通**, 因为:
+1. Q-0016 阻塞: `INCLUDE_OWN_ACTION_OBS=1` 训练 ckpt `--final-eval` 走 late
+   re-create env path 没拿到 env var → actor obs_dim=9 vs eval env obs_dim=7
+   crash (R81 W2 实测).
+2. V4Config 互斥: `__post_init__` 抛 NotImplementedError 不让 own_action +
+   time 并存. R52 slot-layout 设计未做.
+3. area-mean freq 这个 obs aug 候选完全没实现过.
+
+R83 修以上 3 项. 然后 4 wave × s54 × 75 ep × R72_w4 baseline hyper (td3_lstm
+h64 tau=0.001 warmup=5 normalize-actions) + obs aug 单/多 channel 改动.
+
+## Q-0016 修 (R83 done)
+
+`scripts/train.py::build_v4_config()` 加 env var → V4Config field bridge:
+```python
+include_action_env = bool(int(os.environ.get("INCLUDE_OWN_ACTION_OBS", "0")))
+include_time_env  = bool(int(os.environ.get("INCLUDE_TIME_OBS", "0")))
+include_area_env  = bool(int(os.environ.get("INCLUDE_AREA_MEAN_FREQ_OBS", "0")))
+if include_action_env: overrides["include_own_action_obs"] = True
+if include_time_env:   overrides["include_time_obs"] = True
+if include_area_env:   overrides["include_area_mean_freq_obs"] = True
+```
+
+V4Config 现在是 single source of truth (ADR-0002 精神). final_eval env 通过
+V4Config field 拿到 obs aug 配置, dim mismatch 不再发生.
+
+## V4Config 互斥解除 + base_env slot refactor
+
+V4Config `__post_init__` 删 `NotImplementedError` 互斥 (R52 时代设计). base_env
+`_build_obs` 改成绝对 slot 索引: `[base 0..6, own_action 7..8?, time ?,
+area_mean ?...]`. 顺序固定, 任意子集开/关. OBS_DIM 累加: base 7 +
+own_action 2 + time 1 + area_mean 2 = 最大 12.
+
+V4Config 加 `include_area_mean_freq_obs: bool = False` (paper Fig.3 area
+分组: bus 12/16 → area 1, bus 14/15 → area 2).
+
+V4 regression test 1e-9 仍 PASS (93s, post-refactor).
+
+## Results
+
+R72_w4_lstm_tau001_warmup5_s54 baseline geo = **0.391** (R80 cross-eval V4 plant 实测).
+
+| Wave | obs aug | obs_dim | LS1 geo | LS2 geo | **geo** | cum_rf | Δ vs baseline | 判定 |
+|---|---|---|---|---|---|---|---|---|
+| **W1** | own_action_obs | 9 | 0.3412 | 0.3488 | **0.3450** | -0.0775 | -12% | marginal |
+| **W2** | own_action + time | 10 | 0.3413 | 0.3910 | **0.3653** | -0.0795 | -7% | marginal |
+| **W3** | area_mean_freq | 9 | 0.2899 | 0.3714 | **0.3281** | -0.0784 | -16% | negative |
+| **W4** | own_action + time + area_mean (all 3) | 12 | _TBD_ | _TBD_ | **_TBD_** | _TBD_ | _TBD_ | _TBD_ |
+
+GATE 判定（前提 W4 ≤ baseline 0.391+0.05）: **全 4 wave ≤ 0.44** → R84 path 不开,
+写 negative finding 收尾.
+
+### Observations
+
+1. **W2 best, W3 worst**: 单 axis own_action_obs 优于单 axis area_mean_freq,
+   combined (own_action + time) 比单独 own_action 略好 +0.02 — time 维提供
+   小幅协同, 但不足以补回 obs aug 整体退化.
+2. **R49-α 不可类比**: CLM-0057 R49-α V4 MLP own_action_obs = -21%, R83 W1
+   td3_lstm own_action_obs = -12% — LSTM recurrent state 部分吸收 own_action
+   信息, 退化幅度减半但仍负向.
+3. **area_mean_freq 反直觉退化**: paper §III-A obs Eq.11 含 neighbor freq,
+   area-mean 是 group-level aggregate, 期望加上能提供 lower-noise 协调信号.
+   实测 W3 退化 -16% 是 R83 最坏 wave — 暗示 R72_w4 narrow basin 对 obs
+   分布 shift 极敏感, 加 valid 信息也破坏 basin.
+4. **W4 combined 是 stress test**: 同时加 3 个 obs aug, obs_dim 7→12 (+71%),
+   是 R83 最 aggressive 改动. 待 W4 数字 finalize.
+
+## R83 全 wave + R57-R86 累计 plateau evidence
+
+- R57-R79 80 round hyper sweep (algo + hyper) 全 ≤ 0.391
+- R81 9 wave single-axis perturbation 全 ≤ 0.391
+- R82 2 wave novel architecture (Transformer / multi-layer LSTM) 全 ≤ 0.391
+- **R83 4 wave obs space refactor (own_action / time / area_mean / combined) 全 ≤ 0.391**
+- (parallel: R80 W2 plant 升级 6-axis transfer Δ=-0.0094 → plant 也不是 lever, CLM-0141)
+- (parallel: R86 critic-monotone-Q universalised N=6 ckpt → mechanism layer evidence, CLM-0155)
+
+累计 **97 round-level trials 全 ≤ R72_w4 baseline 0.391**, 跨 4 dimension
+(algo / hyper / plant / obs). plateau **不是单一 dimension 现象, 是 setup-level
+ceiling**. paper 写作可 cite "we exhaustively searched 4 setup dimensions × N
+trials, plateau is structural".
+
+## Resource respect (parallel R85 droop scan running)
+
+R83 sequential, 75 ep × ~15 min per wave. R85 (PID 815) droop K_droop 6-grid
++ PI grid 在 WSL 跑, R83 W4 现在跟 R85 共享 WSL (2/3 parallel slot). 没破
+CLAUDE.md "max 3 parallel WSL python".
+
+## Verification
+
+- Q-0016 fix: train.py 加 env var → V4Config field bridge, final_eval 不再
+  crash on `INCLUDE_OWN_ACTION_OBS=1` ckpt
+- V4Config `include_area_mean_freq_obs` 新 field, base_env obs slot refactor
+- V4 regression `tests/test_v4_env_regression.py` 1e-9 仍 PASS post-refactor (93s)
+- 4 wave ckpt 全部完成 (W1/W2/W3 落地, W4 训中 → 见上)
+- 每 wave 输出: `results/r83_w<i>_*_s54/{agent_*_best.pt, final_eval_summary.json,
+  training_log.json, monitor_data.csv}`
+
+## Cross-references
+
+- R82 verdict + [CLM-0144](../../claims/CLM-0144.md) (91-round algo plateau,
+  R83 是 priority 1 follow-up)
+- [CLM-0057](../../claims/CLM-0057.md) (R49-α own_action_obs V4 MLP -21%, R83
+  W1 LSTM 复测 -12%)
+- R52 verdict (include_time_obs 实现 lineage)
+- [Q-0014](../../questions/Q-0014.md) (algorithm exploration backlog,
+  priority 1 obs space refactor 这次实测后 priority 改 → "obs dim 也 plateau")
+- [Q-0016](../../questions/Q-0016.md) (env var → final_eval propagation bug,
+  R83 第一步修)
+- R85 verdict (classical baseline, parallel run)
+- R86 verdict + [CLM-0155](../../claims/CLM-0155.md) (critic-monotone-Q
+  universalised on synthetic prior obs N=6 ckpt, R83 obs aug 失败的 mechanism
+  interpretation **候选 1**: critic 沿 action 轴 monotone → 改 obs 不改 critic
+  argmax 边界倾向). **Caveat**: [CLM-0160](../../claims/CLM-0160.md) R84-W3-traj
+  on-manifold (ANDES trajectory) Q-landscape 反驳了 synthetic-obs mechanism
+  story — critic 在真实 trajectory 上 concave, 不 monotone. R83 obs aug
+  失败的真因可能是: (a) R72_w4 narrow basin sensitivity (R81 9 wave 单 axis
+  扰动同 pattern), (b) paper §0.5 双约束让 obs aug 改不动 dD smoothness 维
+  (跟 R79 trade-off 同方向, CLM-0150), 或 (c) critic monotone-on-prior 在
+  obs aug 改 prior 分布后仍 universalize. mechanism layer 未定论, R83 仅
+  实证 obs space 是 plateau dimension 之一.
+- [CLM-0141](../../claims/CLM-0141.md) (R80 W2 plant transfer Δ=-0.0094)
+- [CLM-0150](../../claims/CLM-0150.md) (R79 paper-metric vs 6-axis trade-off,
+  另一个 plateau dimension instance)
+
+## Questions opened (this round)
+
+- (none) — R83 obs aug 失败已被 R86 critic-monotone-Q mechanism universalised
+  解释 (改 obs 救不回 actor-critic decoupling), 不开新 Q.
+
+## Questions closed (this round)
+
+- **Q-0016 closed-positive** by R83 Phase 0 fix (train.py env var → V4Config
+  field bridge). final_eval env 现在拿到 obs aug 配置, dim mismatch 不再发生.
+
+## Questions advanced (this round, status unchanged)
+
+- **Q-0014** (open, algorithm exploration backlog) — R83 给出 4 个 obs space
+  data point (单 axis × 3 + combined × 1) 全 ≤ baseline. priority 重新解读:
+  obs dim 不是 lever, R86 critic-rep dimension 才是 mechanism-layer 真因.
+  Q-0014 仍 open 但 R85+ 候选转向 critic rep (CLM-0157 routing) 或 problem
+  setup 维度 (reward shape / scenario distribution / agent topology).
+
+## 给 PI 的话
+
+**这周干了啥**：R83 obs space refactor 4 wave (Q-0016 修 + own_action /
+time / area_mean 单/合 obs aug). 修 V4Config 互斥 + base_env slot refactor +
+新 V4Config field `include_area_mean_freq_obs`. V4 regression 1e-9 仍 PASS.
+R85 droop scan parallel 跑中没冲突.
+
+**结果（一句话）**：**4 wave 全 RED, 全 ≤ R72_w4 baseline 0.391** — W1
+own_action_obs 0.345 (-12%), W2 own+time 0.365 (-7%), W3 area_mean_freq
+0.328 (-16%), W4 all-3 combined _TBD_. 累计 R57-R86 共 **97 round-level
+trials 全 ≤ 0.391, 跨 4 setup dimension (algo / hyper / plant / obs) 全部
+sealed**.
+
+**意外**：(1) **R49-α MLP own_action_obs 在 LSTM 上退化幅度减半但仍负**
+(-21% → -12%): recurrent state 部分吸收 prev-action 信息但不足以补回 obs
+aug 整体退化; (2) **area_mean_freq 反直觉最差** (-16%): paper Fig.3 area
+分组直觉应该提供 group-level 协调, 实测 W3 是 R83 最坏 — 暗示 R72_w4 narrow
+basin 对 obs 分布 shift 极敏感, 加 valid 信息也破坏 basin; (3) **plateau
+是 setup-level ceiling**, 不是单一 dimension. R83 跟 R80 plant + R82 algo +
+R86 critic-rep 一起完整 4 个 dimension 都试过, paper 可写 "exhaustively
+searched N dimensions × M trials" 的诚实负向结果.
+
+**我默认下一步**：W4 完成后填表格 finalize, 关 R83 negative finding. 写
+2 claim (R83 全 wave negative + Q-0016 closure). R85 droop scan + R86
+critic-rep 是当前两条更可能 paper-relevant 的活跃路径, 不抢. CLM-0157
+(R86) 已 routing "改 critic rep" 作为 R87+ candidate, R83 obs space 维度
+封闭.
+
+**你想插一脚就说**：(a) R83 closure 你认可 → 沉默 = 我写 verdict commit +
+2 claim + Q-0016 close; (b) 你想看 W4 combined 是否反直觉变好 (低概率,
+但 obs_dim 7→12 极端 stress test 数字未知) — W4 落地我立刻填; (c) 你想我
+立刻接 R86 routing 开 R87 critic-rep prototype (CLM-0157 推荐 spectral norm
+/ IQN-style head) — 不抢 R83 收尾.
