@@ -1,7 +1,7 @@
-# R83 verdict — obs space refactor (4 wave) 全 RED, plateau 在 obs dimension 也真实
+# R83 verdict — obs space refactor (4 wave) 全 ≤ baseline, plateau 在 obs dimension 也真实
 
 **Date**: 2026-05-19
-**Status**: closed-negative — 4 wave 全 ≤ baseline 0.391, gate 不开 R84 path
+**Status**: closed-negative — 4 wave 全 ≤ baseline 0.391, W4 marginal -1.8%, gate 不开 R84 path
 **Type**: experiment + infrastructure (Q-0016 fix + obs aug 3 channel + V4Config 互斥解除)
 **Wall**: ~75 min (4 wave × 75 ep × s54 sequential)
 
@@ -11,10 +11,10 @@ R57-R82 series 91 round-level algo trials 全 ≤ baseline 0.391 (CLM-0144),
 R83 转 obs space dimension 试. 修 Q-0016 (env var → V4Config field bridge,
 final_eval LSTM dim mismatch crash 解), 加 area-mean freq 新 obs aug field,
 V4Config own_action × time 互斥解除. 4 wave 单 axis + combined obs 全部
-退化: W1 own_action_obs **0.345** (-12%), W2 own+time combined **0.365** (-7%),
-W3 area_mean_freq **0.328** (-16%), W4 all-3 combined **TBD**. **plateau 在
-obs dimension 也真实**, 跟 R82 algo dimension + R80 plant dimension 一起
-完整 sealed 三个 dimension. 不进 R84 paper-grade 多 seed.
+≤ baseline: W1 own_action_obs **0.345** (-12%), W2 own+time combined
+**0.365** (-7%), W3 area_mean_freq **0.328** (-16%), **W4 all-3 combined
+0.384 (-1.8%)** marginal. 累计 R57-R86 **97 trials × 4 dimension all
+sealed** (algo / hyper / plant / obs). 不进 R84 paper-grade 多 seed.
 
 ## Methodology
 
@@ -67,26 +67,34 @@ R72_w4_lstm_tau001_warmup5_s54 baseline geo = **0.391** (R80 cross-eval V4 plant
 |---|---|---|---|---|---|---|---|---|
 | **W1** | own_action_obs | 9 | 0.3412 | 0.3488 | **0.3450** | -0.0775 | -12% | marginal |
 | **W2** | own_action + time | 10 | 0.3413 | 0.3910 | **0.3653** | -0.0795 | -7% | marginal |
-| **W3** | area_mean_freq | 9 | 0.2899 | 0.3714 | **0.3281** | -0.0784 | -16% | negative |
-| **W4** | own_action + time + area_mean (all 3) | 12 | _TBD_ | _TBD_ | **_TBD_** | _TBD_ | _TBD_ | _TBD_ |
+| **W3** | area_mean_freq | 9 | 0.2899 | 0.3714 | **0.3281** | -0.0784 | **-16%** | negative |
+| **W4** | own + time + area_mean (all 3) | 12 | 0.3449 | **0.4274** ⭐ | **0.3839** | -0.0893 | **-1.8%** | marginal |
 
-GATE 判定（前提 W4 ≤ baseline 0.391+0.05）: **全 4 wave ≤ 0.44** → R84 path 不开,
-写 negative finding 收尾.
+GATE 判定: 全 4 wave ≤ baseline + 0.05 → R84 path 不开, 写 closure 收尾.
+
+**W4 显著观察**: LS2 geo = **0.4274** 是 R83 第一次单 scenario 超过 R72_w4
+baseline LS2 0.4315 (差 -0.95%, 基本持平). LS1 geo 0.3449 拖累 overall geo
+到 0.384. 即"3 个 obs aug 同上对 LS2 scenarios 接近还原 baseline 性能,
+但对 LS1 不够". 没人 ≥ 0.44 → 仍是 negative finding.
 
 ### Observations
 
-1. **W2 best, W3 worst**: 单 axis own_action_obs 优于单 axis area_mean_freq,
-   combined (own_action + time) 比单独 own_action 略好 +0.02 — time 维提供
-   小幅协同, 但不足以补回 obs aug 整体退化.
-2. **R49-α 不可类比**: CLM-0057 R49-α V4 MLP own_action_obs = -21%, R83 W1
-   td3_lstm own_action_obs = -12% — LSTM recurrent state 部分吸收 own_action
-   信息, 退化幅度减半但仍负向.
-3. **area_mean_freq 反直觉退化**: paper §III-A obs Eq.11 含 neighbor freq,
-   area-mean 是 group-level aggregate, 期望加上能提供 lower-noise 协调信号.
-   实测 W3 退化 -16% 是 R83 最坏 wave — 暗示 R72_w4 narrow basin 对 obs
-   分布 shift 极敏感, 加 valid 信息也破坏 basin.
-4. **W4 combined 是 stress test**: 同时加 3 个 obs aug, obs_dim 7→12 (+71%),
-   是 R83 最 aggressive 改动. 待 W4 数字 finalize.
+1. **W4 best (-1.8%), W3 worst (-16%)**: combined obs aug (3 channel,
+   obs_dim 7→12 +71%) 反而是 R83 最好 wave, 接近 baseline (差 0.007
+   geo). 单 axis area_mean 是最坏. 反直觉 — 加更多 obs 维度比加少不退化更狠.
+2. **W4 LS2 突破 baseline**: LS2 geo 0.4274 vs R72_w4 LS2 0.4315 = -0.95%
+   (持平). LS1 0.3449 拖累 overall. 说明 3 channel combined 在 LS2 scenarios
+   足以还原 baseline 性能, 但 LS1 (LS=2.48 PU 重扰动) 不行.
+3. **R49-α MLP → LSTM 退化减半**: CLM-0057 R49-α V4 MLP own_action_obs
+   = -21%, R83 W1 td3_lstm own_action_obs = -12% — LSTM recurrent state
+   部分吸收 own_action 信息但仍负向.
+4. **area_mean_freq 单独反直觉最差**: paper §III-A obs Eq.11 含 neighbor
+   freq, area-mean 期望 lower-noise 协调信号. 实测 W3 单 axis -16% 是 R83
+   最坏 — 但 W4 加上 own_action+time 后 area_mean 不再是 net negative
+   (W4 0.384 > W3 0.328 + 0.02 area_mean 单独贡献), 说明 area_mean 在
+   combined 上下文里可能有部分价值, 但单独 deploy 破坏 basin.
+5. **W4 cum_rf -0.0893 更糟** (+31% vs baseline magnitude): 跟 W4 LS1 退化
+   一致, frequency synchronization 在 LS1 比 baseline 差.
 
 ## R83 全 wave + R57-R86 累计 plateau evidence
 
@@ -170,11 +178,11 @@ time / area_mean 单/合 obs aug). 修 V4Config 互斥 + base_env slot refactor 
 新 V4Config field `include_area_mean_freq_obs`. V4 regression 1e-9 仍 PASS.
 R85 droop scan parallel 跑中没冲突.
 
-**结果（一句话）**：**4 wave 全 RED, 全 ≤ R72_w4 baseline 0.391** — W1
-own_action_obs 0.345 (-12%), W2 own+time 0.365 (-7%), W3 area_mean_freq
-0.328 (-16%), W4 all-3 combined _TBD_. 累计 R57-R86 共 **97 round-level
-trials 全 ≤ 0.391, 跨 4 setup dimension (algo / hyper / plant / obs) 全部
-sealed**.
+**结果（一句话）**：**4 wave 全 ≤ R72_w4 baseline 0.391** — W1 own_action
+0.345 (-12%), W2 own+time 0.365 (-7%), W3 area_mean 0.328 (-16%), **W4
+all-3 combined 0.384 (-1.8%, marginal)**, **W4 LS2 0.4274 单 scenario 持平
+baseline LS2 0.4315 ⭐** 但 LS1 0.3449 拖累 overall. 累计 R57-R86 **97 trials
+× 4 setup dimension (algo/hyper/plant/obs) 全部 ≤ 0.391, plateau ceiling 严实**.
 
 **意外**：(1) **R49-α MLP own_action_obs 在 LSTM 上退化幅度减半但仍负**
 (-21% → -12%): recurrent state 部分吸收 prev-action 信息但不足以补回 obs
