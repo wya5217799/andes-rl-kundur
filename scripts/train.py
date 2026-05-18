@@ -530,15 +530,15 @@ def run_updates(
     else:
         for _ in range(n_epoch):
             for i in range(N):
+                ag = agents[i]
                 # Recurrent agents (R56) gate inside ``update`` itself
                 # (the buffer is episode-keyed and may have stored
                 # episodes that are too short for the seq window — the
                 # step-level ``len(buffer) >= batch_size`` precheck is
-                # not meaningful for them).
-                if getattr(agents[i], "is_recurrent", False):
-                    loss_info = agents[i].update()
-                elif len(agents[i].buffer) >= batch_size:
-                    loss_info = agents[i].update()
+                # not meaningful for them, so we short-circuit on
+                # ``is_recurrent`` and skip the precheck entirely).
+                if getattr(ag, "is_recurrent", False) or len(ag.buffer) >= batch_size:
+                    loss_info = ag.update()
                 else:
                     loss_info = None
                 if loss_info is not None:
@@ -547,6 +547,22 @@ def run_updates(
 
 
 # ─── Main ──────────────────────────────────────────────────────────────
+
+
+def _save_checkpoint(
+    agents: list,
+    coordinator,
+    save_dir: str,
+    actor_tag: str,
+    critic_filename: str,
+) -> None:
+    """Save all agent actors with the given tag and (optionally) the CTDE
+    shared critic to ``critic_filename``. Centralizes the 4 prior copies
+    (on_best_reward / on_best_eval / periodic ep%100 / final)."""
+    for i, ag in enumerate(agents):
+        ag.save(os.path.join(save_dir, f"agent_{i}_{actor_tag}.pt"))
+    if coordinator is not None:
+        coordinator.save_critic(os.path.join(save_dir, critic_filename))
 
 
 def main() -> None:
@@ -608,22 +624,15 @@ def main() -> None:
     # Best-reward callback saves best.pt
     def on_best_reward(ep: int, reward: float) -> None:
         print(f"  [Monitor] New best reward: {reward:.1f} @ ep {ep}")
-        for i in range(N):
-            agents[i].save(os.path.join(args.save_dir, f"agent_{i}_best.pt"))
-        if coordinator is not None:
-            coordinator.save_critic(
-                os.path.join(args.save_dir, "ctde_critic_best.pt"),
-            )
+        _save_checkpoint(agents, coordinator, args.save_dir,
+                         actor_tag="best", critic_filename="ctde_critic_best.pt")
 
     # Q-0007 (R61) — eval-tracked best.pt callback
     def on_best_eval(ep: int, eval_score: float) -> None:
         print(f"  [Monitor] New best eval cum_rf: {eval_score:.4f} @ ep {ep}")
-        for i in range(N):
-            agents[i].save(os.path.join(args.save_dir, f"agent_{i}_best_eval.pt"))
-        if coordinator is not None:
-            coordinator.save_critic(
-                os.path.join(args.save_dir, "ctde_critic_best_eval.pt"),
-            )
+        _save_checkpoint(agents, coordinator, args.save_dir,
+                         actor_tag="best_eval",
+                         critic_filename="ctde_critic_best_eval.pt")
 
     monitor = TrainingMonitor(
         best_reward_callback=on_best_reward,
@@ -689,12 +698,10 @@ def main() -> None:
                 )
 
             if (ep + 1) % 100 == 0:
-                for i in range(N):
-                    agents[i].save(os.path.join(args.save_dir, f"agent_{i}_ep{ep+1}.pt"))
-                if coordinator is not None:
-                    coordinator.save_critic(
-                        os.path.join(args.save_dir, f"ctde_critic_ep{ep+1}.pt"),
-                    )
+                tag = f"ep{ep+1}"
+                _save_checkpoint(agents, coordinator, args.save_dir,
+                                 actor_tag=tag,
+                                 critic_filename=f"ctde_critic_{tag}.pt")
 
             env.close()
 
@@ -741,10 +748,10 @@ def main() -> None:
     monitor.export_csv(os.path.join(args.save_dir, "monitor_data.csv"))
 
     if last_ep >= 0:
-        for i in range(N):
-            agents[i].save(os.path.join(args.save_dir, f"agent_{i}_final.pt"))
-        if coordinator is not None:
-            coordinator.save_critic(os.path.join(args.save_dir, "ctde_critic.pt"))
+        # Note: final ctde critic uses bare "ctde_critic.pt" (no tag) for
+        # historical compatibility with earlier rounds.
+        _save_checkpoint(agents, coordinator, args.save_dir,
+                         actor_tag="final", critic_filename="ctde_critic.pt")
 
         log = {
             "episode_rewards":   {str(i): episode_rewards[i] for i in range(N)},

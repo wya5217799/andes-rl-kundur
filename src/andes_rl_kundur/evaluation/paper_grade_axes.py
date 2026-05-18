@@ -73,11 +73,23 @@ from __future__ import annotations
 
 import json
 import math
+import os
+import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Optional
 
 import numpy as np
+
+# Numerical constants
+_MIN_DT_S = 1e-6  # floor on dt to avoid div-by-zero in window sizing
+_SCORE_BAR_WIDTH = 20  # ASCII bar columns used in TraceScore.summary()
+
+# Filename prefixes recognised as "no-control reference" traces. Used
+# both by ``_load_no_ctrl_max_df`` (to discover the reference file)
+# and by the CLI ``__main__`` (to exclude these labels from the ranked
+# list of controllers). Keep both call sites in sync.
+_NO_CTRL_PREFIXES = ("noctrl_", "no_ctrl_", "no_control_", "baseline_")
 
 
 # ─── Paper benchmarks (Yang2023 Fig.6/7/8/9, 2026-05-06 visual extraction) ──
@@ -160,7 +172,7 @@ class TraceScore:
     def summary(self) -> str:
         lines = [f"\n=== {self.label} / {self.scenario} (DDIC={self.is_ddic}) ==="]
         for a in self.axes:
-            bar = int(a.score * 20) * "#" + int((1 - a.score) * 20) * "."
+            bar = int(a.score * _SCORE_BAR_WIDTH) * "#" + int((1 - a.score) * _SCORE_BAR_WIDTH) * "."
             extra = f"  {a.note}" if a.note else ""
             lines.append(
                 f"  {a.name:24s} project={a.project_value:8.3f}  paper={a.paper_value:8.3f}  "
@@ -185,8 +197,8 @@ def _settling_time(t: np.ndarray, df: np.ndarray, residual_band_Hz: float = 0.02
     """Time after which max|Δf - final_df| stays < residual_band_Hz over dt_window window."""
     max_per_t = np.max(np.abs(df), axis=1)
     deviation_from_residual = np.abs(max_per_t - final_df_Hz)
-    dt = float(np.median(np.diff(t))) if len(t) > 1 else 1e-6
-    n_window = max(1, int(dt_window / max(dt, 1e-6)))
+    dt = float(np.median(np.diff(t))) if len(t) > 1 else _MIN_DT_S
+    n_window = max(1, int(dt_window / max(dt, _MIN_DT_S)))
     for i in range(len(t) - n_window):
         if np.all(deviation_from_residual[i : i + n_window] < residual_band_Hz):
             return float(t[i])
@@ -400,12 +412,7 @@ def _load_no_ctrl_max_df(eval_dir: Path, scenario: str) -> float:
 
     Returns 0.0 if not found or trace is invalid.
     """
-    candidates = [
-        eval_dir / f"noctrl_{scenario}.json",
-        eval_dir / f"no_ctrl_{scenario}.json",
-        eval_dir / f"no_control_{scenario}.json",
-        eval_dir / f"baseline_{scenario}.json",
-    ]
+    candidates = [eval_dir / f"{prefix}{scenario}.json" for prefix in _NO_CTRL_PREFIXES]
     for path in candidates:
         if not path.exists():
             continue
@@ -641,14 +648,9 @@ def rank_models(eval_dir: Path, ckpt_labels: list[str]) -> list[tuple[str, float
 
 
 if __name__ == "__main__":
-    import sys
-    import os
-
     ROOT = Path(__file__).resolve().parents[1]
     eval_dir = Path(sys.argv[1]) if len(sys.argv) > 1 else \
         ROOT / "results" / "andes_eval_paper_specific_v2_envV2_hetero"
-
-    _NO_CTRL_PREFIXES = ("noctrl_", "no_ctrl_", "no_control_", "baseline_")
 
     files = os.listdir(eval_dir)
     labels = sorted(set(

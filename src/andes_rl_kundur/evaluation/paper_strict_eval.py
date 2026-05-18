@@ -81,6 +81,17 @@ _PQ_BUS_CANDIDATES = ["PQ_0", "PQ_1", "PQ_Bus14", "PQ_Bus15"]
 # (-2.48) and LS2 (+1.88) plus surrounding ±300 MW range.
 _MAG_MIN_PU = -3.0
 _MAG_MAX_PU = 3.0
+# Reject random draws below this magnitude (noise, not a meaningful
+# disturbance — < 10 MW on 100 MVA base).
+_MIN_MAG_PU = 0.1
+
+# evaluate_agents_paper_metric sentinels
+# ---------------------------------------
+# Per-scenario penalty when TDS aborts before any logged step.
+_TDS_FAILURE_PENALTY = -1.0
+# Returned when *every* scenario fails — caller treats as "do not save
+# eval-tracked best.pt".
+_ALL_FAILED_SENTINEL = -1e6
 
 
 def generate_test_scenarios(
@@ -120,11 +131,11 @@ def generate_test_scenarios(
     rng = np.random.default_rng(seed)
     for i in range(n_random):
         bus = str(rng.choice(_PQ_BUS_CANDIDATES))
-        # Reject draws too close to zero (< 0.1 p.u. = < 10 MW: noise,
-        # not a meaningful disturbance) — redraw until > threshold.
+        # Reject draws too close to zero (noise, not a meaningful
+        # disturbance) — redraw until magnitude clears the floor.
         while True:
             mag = float(rng.uniform(_MAG_MIN_PU, _MAG_MAX_PU))
-            if abs(mag) >= 0.1:
+            if abs(mag) >= _MIN_MAG_PU:
                 break
         # Round to 4 decimals for clean serialization
         mag = round(mag, 4)
@@ -204,8 +215,8 @@ def evaluate_agents_paper_metric(
             cum_rfs.append(compute_global_cum_rf(trace))
             any_ok = True
         else:
-            cum_rfs.append(-1.0)  # TDS failure penalty
+            cum_rfs.append(_TDS_FAILURE_PENALTY)
 
     if not any_ok:
-        return -1e6
+        return _ALL_FAILED_SENTINEL
     return float(np.mean(cum_rfs))

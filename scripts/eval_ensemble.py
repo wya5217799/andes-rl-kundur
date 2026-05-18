@@ -54,9 +54,11 @@ def main():
     p.add_argument("--seed",      type=int, default=EVAL_SEED)
     args = p.parse_args()
 
-    assert len(args.ckpt_dirs) == len(args.suffixes), "ckpt-dirs/suffixes mismatch"
+    if len(args.ckpt_dirs) != len(args.suffixes):
+        p.error("--ckpt-dirs and --suffixes must have matching lengths")
     if args.agg == "weighted":
-        assert args.weights is not None and len(args.weights) == len(args.ckpt_dirs)
+        if args.weights is None or len(args.weights) != len(args.ckpt_dirs):
+            p.error("--agg weighted requires --weights with one value per --ckpt-dirs entry")
         weights = np.array(args.weights, dtype=np.float64)
         weights = weights / weights.sum()  # normalize
     else:
@@ -65,13 +67,14 @@ def main():
     out = Path(args.out_dir)
     out.mkdir(parents=True, exist_ok=True)
 
+    ckpt_suf_pairs = list(zip(args.ckpt_dirs, args.suffixes))
     print(f"[V4 ensemble eval] N={len(args.ckpt_dirs)} actors/agent, agg={args.agg}")
-    for cd, suf in zip(args.ckpt_dirs, args.suffixes):
+    all_actors = []
+    for cd, suf in ckpt_suf_pairs:
         print(f"  - {cd} (suffix={suf})")
+        all_actors.append(load_agents(Path(cd), suffix=suf))
     if args.agg == "weighted":
         print(f"  weights = {weights}")
-
-    all_actors = [load_agents(Path(cd), suffix=suf) for cd, suf in zip(args.ckpt_dirs, args.suffixes)]
     print(f"[V4 ensemble] loaded {len(all_actors)} actor sets × 4 agents")
 
     action_fn = _ensemble_action_fn(all_actors, args.agg, weights)
@@ -88,11 +91,10 @@ def main():
             extra_keys=extra,
         )
         out_p = out / f"{args.label}_{scen}.json"
-        with open(out_p, "w") as f:
-            json.dump(res, f)
+        out_p.write_text(json.dumps(res), encoding="utf-8")
         print(f"  saved {out_p} (max_df={res['max_df']:.3f}, n_steps={res['n_steps']})")
 
-    print(f"[V4 ensemble eval] done.")
+    print("[V4 ensemble eval] done.")
 
 
 if __name__ == "__main__":

@@ -22,6 +22,11 @@ from andes_rl_kundur.evaluation.paper_strict_eval import compute_global_cum_rf
 ROOT = Path(__file__).resolve().parents[1]
 EVAL_DIR = ROOT / "results" / "research_loop" / "eval_v4_baseline"
 
+# v3-geo below this threshold flags drift / collapse — see CLM-0117 +
+# v3.1 ranker spec. Used to partition family means into "clean" vs
+# "excluded".
+DRIFT_THRESHOLD = 0.2
+
 
 # Candidates with grouping for the matrix
 CANDIDATES = [
@@ -189,9 +194,9 @@ def main() -> None:
         by_family.setdefault(r["family"], []).append(r)
 
     for family, rs in by_family.items():
-        # Detect & exclude s49 broken seeds (v3 < 0.2 → drift / collapse)
-        clean = [r for r in rs if r["v3_geo"] >= 0.2]
-        excluded_seeds = [r["seed"] for r in rs if r["v3_geo"] < 0.2]
+        # Detect & exclude broken seeds (v3 < DRIFT_THRESHOLD → drift / collapse)
+        clean = [r for r in rs if r["v3_geo"] >= DRIFT_THRESHOLD]
+        excluded_seeds = [r["seed"] for r in rs if r["v3_geo"] < DRIFT_THRESHOLD]
         if not clean:
             continue
         cum_rf_mean = sum(r["total_cum_rf"] for r in clean) / len(clean)

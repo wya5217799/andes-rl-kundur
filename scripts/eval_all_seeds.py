@@ -28,6 +28,7 @@ from andes_rl_kundur.evaluation.paper_path import (  # noqa: E402
 from andes_rl_kundur.probes.andes_common.paper_constants import SCENARIOS  # noqa: E402
 
 STEPS = 150  # 30s @ DT=0.6 (matches eval_ddic.py)
+EVAL_SEED = 42  # Matches eval_ddic.py / score_run.py default.
 
 EVAL_OUT_DIR = ROOT / "results" / "research_loop" / "eval_v4_baseline"
 RESULTS_DIR = ROOT / "results"
@@ -72,7 +73,7 @@ def eval_one(variant: str, seed: int, ckpt_dir: Path) -> dict:
                 scen, du,
                 action_fn=action_fn,
                 label=label,
-                seed=42,
+                seed=EVAL_SEED,
                 steps=STEPS,
             )
             (EVAL_OUT_DIR / f"{label}_{scen}.json").write_text(
