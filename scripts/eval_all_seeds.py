@@ -132,7 +132,7 @@ def main() -> int:
         json.dumps({"detail": summary, "ranking": rank_rows}, indent=2, default=str),
         encoding="utf-8",
     )
-    print(f"\n=== Ranking by mean paper_ratio (lower = better) ===")
+    print("\n=== Ranking by mean paper_ratio (lower = better) ===")
     print(f"{'rank':<5}{'label':<40}{'LS1 max_df':>12}{'ratio':>8}{'LS2 max_df':>12}{'ratio':>8}")
     for i, r in enumerate(rank_rows, 1):
         print(f"{i:<5}{r['label']:<40}{r['ls1_max_df']:>12.3f}{r['ls1_paper_ratio']:>8.2f}"

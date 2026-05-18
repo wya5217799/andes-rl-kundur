@@ -264,7 +264,7 @@ def build_agents(
     buffer_size: int,
     batch_size: int,
     device: str,
-) -> tuple[list, "CTDECoordinator | None"]:
+) -> tuple[list, CTDECoordinator | None]:
     """Construct N actors (and optionally a shared CTDE critic)."""
     N = AndesMultiVSGEnvV4.N_AGENTS
     coordinator: CTDECoordinator | None = None
@@ -350,7 +350,7 @@ def build_agents(
 
 
 def apply_resume(agents: list, args: argparse.Namespace,
-                 coordinator: "CTDECoordinator | None") -> None:
+                 coordinator: CTDECoordinator | None) -> None:
     """Restore agent state from ``args.resume``."""
     if not args.resume:
         return
@@ -511,7 +511,7 @@ def run_episode(
 
 def run_updates(
     agents: list,
-    coordinator: "CTDECoordinator | None",
+    coordinator: CTDECoordinator | None,
     batch_size: int,
     n_epoch: int = 10,
 ) -> list[dict | None]:
@@ -537,7 +537,7 @@ def run_updates(
                 # step-level ``len(buffer) >= batch_size`` precheck is
                 # not meaningful for them, so we short-circuit on
                 # ``is_recurrent`` and skip the precheck entirely).
-                if getattr(ag, "is_recurrent", False) or len(ag.buffer) >= batch_size:
+                if ag.is_recurrent or len(ag.buffer) >= batch_size:
                     loss_info = ag.update()
                 else:
                     loss_info = None
@@ -551,7 +551,7 @@ def run_updates(
 
 def _save_checkpoint(
     agents: list,
-    coordinator,
+    coordinator: CTDECoordinator | None,
     save_dir: str,
     actor_tag: str,
     critic_filename: str,
@@ -671,7 +671,7 @@ def main() -> None:
             if result.ep_actions:
                 should_stop = monitor.log_and_check(
                     episode=ep,
-                    sac_losses=[l for l in ep_sac_losses if l is not None] or None,
+                    sac_losses=[loss for loss in ep_sac_losses if loss is not None] or None,
                     **result.to_monitor_kwargs(),
                 )
                 if should_stop:

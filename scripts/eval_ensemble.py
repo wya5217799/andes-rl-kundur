@@ -27,10 +27,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from andes_rl_kundur.agents.checkpoint_loader import load_agents  # noqa: E402
-from andes_rl_kundur.evaluation.ensemble import (  # noqa: E402
-    build_ensemble_action_fn,
-    ensemble_action,
-)
+from andes_rl_kundur.evaluation.ensemble import build_ensemble_action_fn  # noqa: E402
 from andes_rl_kundur.evaluation.paper_path import run_scenario  # noqa: E402
 from andes_rl_kundur.probes.andes_common.paper_constants import SCENARIOS  # noqa: E402
 

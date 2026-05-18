@@ -73,11 +73,8 @@ from __future__ import annotations
 
 import json
 import math
-import os
-import sys
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Optional
 
 import numpy as np
 
@@ -172,7 +169,12 @@ class TraceScore:
     def summary(self) -> str:
         lines = [f"\n=== {self.label} / {self.scenario} (DDIC={self.is_ddic}) ==="]
         for a in self.axes:
-            bar = int(a.score * _SCORE_BAR_WIDTH) * "#" + int((1 - a.score) * _SCORE_BAR_WIDTH) * "."
+            # Width is exactly _SCORE_BAR_WIDTH: round the hash count and
+            # fill the remainder with dots. The legacy
+            # int(score*W) + int((1-score)*W) formula could yield W-1
+            # when both truncations rounded down (e.g. score=0.333).
+            hashes = round(a.score * _SCORE_BAR_WIDTH)
+            bar = "#" * hashes + "." * (_SCORE_BAR_WIDTH - hashes)
             extra = f"  {a.note}" if a.note else ""
             lines.append(
                 f"  {a.name:24s} project={a.project_value:8.3f}  paper={a.paper_value:8.3f}  "
@@ -388,7 +390,7 @@ def _agent_P_balance(P: np.ndarray) -> tuple[float, list[float]]:
     return score, list(P_final.tolist())
 
 
-def _improvement_score(ctrl_max_df: float, no_ctrl_max_df: float) -> Optional[float]:
+def _improvement_score(ctrl_max_df: float, no_ctrl_max_df: float) -> float | None:
     """Relative frequency improvement over no-control baseline.
 
     score = (no_ctrl - ctrl) / no_ctrl, clipped [0, 1].
@@ -648,6 +650,9 @@ def rank_models(eval_dir: Path, ckpt_labels: list[str]) -> list[tuple[str, float
 
 
 if __name__ == "__main__":
+    import os
+    import sys
+
     ROOT = Path(__file__).resolve().parents[1]
     eval_dir = Path(sys.argv[1]) if len(sys.argv) > 1 else \
         ROOT / "results" / "andes_eval_paper_specific_v2_envV2_hetero"

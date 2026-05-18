@@ -29,6 +29,16 @@ import numpy as np
 class BaseAgent(Protocol):
     """Per-agent control loop surface for off-policy MARL."""
 
+    # Class-level flag read by the training loop's update-gate logic
+    # (see ``scripts/train.py:run_updates``). Recurrent agents
+    # (TD3+LSTM) set ``True`` so the trainer skips the
+    # ``len(buffer) >= batch_size`` precheck — recurrent buffers are
+    # episode-keyed and gate inside ``update()`` itself. Concrete
+    # implementations MUST declare this attribute (default ``False``
+    # on ``_SACBase``); the trainer reads it as ``ag.is_recurrent``,
+    # not via ``getattr`` fallback.
+    is_recurrent: bool
+
     def select_action(
         self,
         obs: np.ndarray,

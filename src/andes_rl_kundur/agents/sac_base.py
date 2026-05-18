@@ -26,6 +26,12 @@ from andes_rl_kundur.agents.replay_buffer import ReplayBuffer
 class _SACBase:
     """Per-agent SAC scaffold — actor + alpha + replay buffer + select/store."""
 
+    # SAC variants use a transition-keyed replay buffer; the trainer
+    # gates ``update()`` on ``len(buffer) >= batch_size``. Recurrent
+    # agents (TD3+LSTM) override to ``True`` so the trainer skips that
+    # precheck (they gate internally on episode-window length).
+    is_recurrent: bool = False
+
     def __init__(
         self,
         obs_dim: int,

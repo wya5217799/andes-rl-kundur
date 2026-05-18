@@ -53,6 +53,38 @@ def test_sac_agent_ctde_inherits_from_sac_base():
     assert not hasattr(agent, "critic")
 
 
+def test_sac_base_is_recurrent_false_by_default():
+    """``_SACBase`` (and SAC/SAC-CTDE) must expose ``is_recurrent=False``
+    explicitly so the training loop can read ``ag.is_recurrent`` directly
+    instead of falling back through ``getattr(ag, "is_recurrent", False)``.
+
+    Pinned in R77 follow-up to R76 review IMPORTANT-1: without an
+    explicit attribute, a future agent that forgets the flag silently
+    inherits the legacy MLP buffer-size branch, which is correct for
+    SAC but a latent bug for any new recurrent agent."""
+    from andes_rl_kundur.agents.sac import SACAgent
+    from andes_rl_kundur.agents.sac_base import _SACBase
+    from andes_rl_kundur.agents.sac_ctde import SACAgentCTDE
+    assert _SACBase.is_recurrent is False
+    sac = SACAgent(obs_dim=7, action_dim=2, hidden_sizes=[64, 64])
+    ctde = SACAgentCTDE(obs_dim=7, action_dim=2, hidden_sizes=[64, 64])
+    assert sac.is_recurrent is False
+    assert ctde.is_recurrent is False
+
+
+def test_td3_lstm_is_recurrent_true():
+    """Cross-check: the only recurrent agent in the repo keeps
+    ``is_recurrent=True``. Pins the contract from the other side."""
+    from andes_rl_kundur.agents.td3_lstm import TD3LSTMAgent
+    assert TD3LSTMAgent.is_recurrent is True
+
+
+def test_td3_mlp_is_recurrent_false():
+    """Non-recurrent TD3 also exposes the flag explicitly."""
+    from andes_rl_kundur.agents.td3 import TD3Agent
+    assert TD3Agent.is_recurrent is False
+
+
 def test_select_action_works_identically_for_both():
     """Both variants share select_action; they should produce a valid
     action shape from the same obs+seed."""
