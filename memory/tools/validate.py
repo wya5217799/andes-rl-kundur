@@ -124,6 +124,106 @@ def load_questions(questions_dir: Path) -> dict[str, dict[str, Any]]:
     )
 
 
+# ---------- Note entity (R-this-round addition) ----------
+
+NOTE_SOURCE_ENUM = {
+    "handoff",
+    "eng-note",
+    "adr-rationale",
+    "legacy",
+    "session-report",
+}
+
+NOTE_TOPIC_TOP_LEVEL = {
+    "env",
+    "training-infra",
+    "evaluation",
+    "agents",
+    "scenarios",
+    "paper",
+    "memory-system",
+    "pipeline",
+}
+
+
+def load_notes(notes_dir: Path) -> dict[str, dict[str, Any]]:
+    """Load every NOTE-*.md frontmatter into a dict keyed by id.
+
+    Returns empty dict if ``notes_dir`` does not exist (Note entity is
+    optional — a repo without notes is valid).
+    """
+    return _load_entities(
+        notes_dir,
+        glob_pattern="NOTE-*.md",
+        require_dir=False,
+    )
+
+
+def validate_note_rules(
+    notes: dict[str, dict[str, Any]],
+    claims: dict[str, dict[str, Any]],
+    repo_root: Path,
+) -> list[str]:
+    """Five hard rules on Note entities. Returns list of error strings.
+
+    N1: filename matches frontmatter ``id``
+    N2: ``source`` ∈ NOTE_SOURCE_ENUM
+    N3: ``source_path`` resolves to an existing file under ``repo_root``
+    N4: every id in ``extracted_claims`` exists in ``claims``
+    N5: ``topics[0]`` (top-level) ∈ NOTE_TOPIC_TOP_LEVEL
+    """
+    errors: list[str] = []
+    for note in notes.values():
+        nid = note["id"]
+
+        # N1: filename ↔ id
+        path: Path | None = note.get("_path")
+        if path is not None and path.stem != nid:
+            errors.append(
+                f"{nid}: filename {path.name!r} does not match id"
+            )
+
+        # N2: source enum
+        source = note.get("source")
+        if source not in NOTE_SOURCE_ENUM:
+            errors.append(
+                f"{nid}: source {source!r} not in "
+                f"{sorted(NOTE_SOURCE_ENUM)}"
+            )
+
+        # N3: source_path exists on disk
+        src_path_raw = note.get("source_path")
+        if not isinstance(src_path_raw, str) or not src_path_raw:
+            errors.append(f"{nid}: source_path missing or empty")
+        else:
+            resolved = (repo_root / src_path_raw).resolve()
+            if not resolved.exists():
+                errors.append(
+                    f"{nid}: source_path does not exist on disk: {src_path_raw}"
+                )
+
+        # N4: extracted_claims must reference existing claim ids
+        for clm_id in note.get("extracted_claims", []) or []:
+            if clm_id not in claims:
+                errors.append(
+                    f"{nid}: extracted_claims references {clm_id} which is not a known claim"
+                )
+
+        # N5: topics[0] in top-level whitelist
+        topics = note.get("topics") or []
+        if not topics:
+            errors.append(f"{nid}: topics list is empty (need at least top-level)")
+        else:
+            top = topics[0]
+            if top not in NOTE_TOPIC_TOP_LEVEL:
+                errors.append(
+                    f"{nid}: topics[0]={top!r} not a valid top-level "
+                    f"(allowed: {sorted(NOTE_TOPIC_TOP_LEVEL)})"
+                )
+
+    return errors
+
+
 def validate_question_rules(
     questions: dict[str, dict[str, Any]],
     claims: dict[str, dict[str, Any]],
@@ -543,6 +643,8 @@ def main() -> int:
                         help="path to memory/questions/")
     parser.add_argument("--rounds-dir", type=Path, default=base / "rounds",
                         help="path to memory/rounds/")
+    parser.add_argument("--notes-dir", type=Path, default=base / "notes",
+                        help="path to memory/notes/")
     parser.add_argument("--fix", action="store_true",
                         help="auto-write missing back edges and flip status")
     parser.add_argument("--skip-verdicts", action="store_true",
@@ -561,6 +663,12 @@ def main() -> int:
     questions = load_questions(args.questions_dir)
     q_errors = validate_question_rules(questions, claims, args.rounds_dir)
     errors.extend(q_errors)
+
+    notes_dir = args.notes_dir
+    notes = load_notes(notes_dir)
+    repo_root = Path(__file__).resolve().parents[2]
+    n_errors = validate_note_rules(notes, claims, repo_root=repo_root)
+    errors.extend(n_errors)
 
     if not args.skip_verdicts:
         for verdict_path in _iter_verdicts(args.rounds_dir):
@@ -581,7 +689,7 @@ def main() -> int:
         return 1
     print(
         f"OK: {len(claims)} claims, {len(questions)} questions, "
-        f"{len(warnings)} warnings"
+        f"{len(notes)} notes, {len(warnings)} warnings"
     )
     return 0
 

@@ -756,3 +756,95 @@ def test_round_num_from_verdict_path(tmp_path):
     assert _round_num_from_verdict_path(Path("/x/R59/verdict.md")) == 59
     assert _round_num_from_verdict_path(Path("/x/R01/verdict.md")) == 1
     assert _round_num_from_verdict_path(Path("/x/README/verdict.md")) is None
+
+
+# ---------- Note entity rules (N1-N5) ----------
+NOTE_FIXTURES = Path(__file__).parent / "fixtures" / "notes"
+REPO_ROOT_FOR_TESTS = Path(__file__).parent.parent.parent.parent  # andes-rl-kundur/
+
+
+def test_load_notes_returns_dict_of_id_to_frontmatter():
+    from validate import load_notes  # noqa: E402
+    notes = load_notes(NOTE_FIXTURES)
+    assert set(notes.keys()) == {"NOTE-0001", "NOTE-0002", "NOTE-0003"}
+    assert notes["NOTE-0001"]["source"] == "handoff"
+    assert notes["NOTE-0002"]["topics"][0] == "pipeline"
+
+
+def test_rule_N1_filename_must_match_id():
+    from validate import validate_note_rules  # noqa: E402
+    notes = {
+        "NOTE-0001": {
+            "id": "NOTE-0001", "source": "handoff",
+            "source_path": "memory/tools/tests/fixtures/notes_handoff_src/2026-05-17_demo.md",
+            "topics": ["training-infra"], "extracted_claims": [],
+            "_path": Path("NOTE-0099.md"),
+        },
+    }
+    errors = validate_note_rules(notes, claims={}, repo_root=REPO_ROOT_FOR_TESTS)
+    assert any("filename" in e.lower() and "NOTE-0001" in e for e in errors)
+
+
+def test_rule_N2_source_in_whitelist():
+    from validate import validate_note_rules  # noqa: E402
+    notes = {
+        "NOTE-0001": {
+            "id": "NOTE-0001", "source": "blog",
+            "source_path": "memory/tools/tests/fixtures/notes_handoff_src/2026-05-17_demo.md",
+            "topics": ["training-infra"], "extracted_claims": [],
+            "_path": NOTE_FIXTURES / "NOTE-0001.md",
+        },
+    }
+    errors = validate_note_rules(notes, claims={}, repo_root=REPO_ROOT_FOR_TESTS)
+    assert any("source" in e and "blog" in e for e in errors)
+
+
+def test_rule_N3_source_path_must_exist():
+    from validate import validate_note_rules  # noqa: E402
+    notes = {
+        "NOTE-0001": {
+            "id": "NOTE-0001", "source": "handoff",
+            "source_path": "memory/this/file/does/not/exist.md",
+            "topics": ["training-infra"], "extracted_claims": [],
+            "_path": NOTE_FIXTURES / "NOTE-0001.md",
+        },
+    }
+    errors = validate_note_rules(notes, claims={}, repo_root=REPO_ROOT_FOR_TESTS)
+    assert any("source_path" in e and "exist" in e.lower() for e in errors)
+
+
+def test_rule_N4_extracted_claims_must_exist():
+    from validate import validate_note_rules  # noqa: E402
+    notes = {
+        "NOTE-0001": {
+            "id": "NOTE-0001", "source": "handoff",
+            "source_path": "memory/tools/tests/fixtures/notes_handoff_src/2026-05-17_demo.md",
+            "topics": ["training-infra"], "extracted_claims": ["CLM-9999"],
+            "_path": NOTE_FIXTURES / "NOTE-0001.md",
+        },
+    }
+    errors = validate_note_rules(notes, claims={"CLM-0001": {}}, repo_root=REPO_ROOT_FOR_TESTS)
+    assert any("CLM-9999" in e and "extracted" in e.lower() for e in errors)
+
+
+def test_rule_N5_topic_top_level_in_whitelist():
+    from validate import validate_note_rules  # noqa: E402
+    notes = {
+        "NOTE-0001": {
+            "id": "NOTE-0001", "source": "handoff",
+            "source_path": "memory/tools/tests/fixtures/notes_handoff_src/2026-05-17_demo.md",
+            "topics": ["not-a-real-bucket", "lstm"],
+            "extracted_claims": [],
+            "_path": NOTE_FIXTURES / "NOTE-0001.md",
+        },
+    }
+    errors = validate_note_rules(notes, claims={}, repo_root=REPO_ROOT_FOR_TESTS)
+    assert any("topics[0]" in e or "top-level" in e for e in errors)
+
+
+def test_clean_note_fixtures_have_no_errors():
+    from validate import load_notes, validate_note_rules  # noqa: E402
+    notes = load_notes(NOTE_FIXTURES)
+    fake_claims = {"CLM-0001": {}}
+    errors = validate_note_rules(notes, claims=fake_claims, repo_root=REPO_ROOT_FOR_TESTS)
+    assert errors == [], f"unexpected errors on clean fixtures: {errors}"
