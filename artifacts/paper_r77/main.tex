@@ -63,20 +63,21 @@ analytic ranking and the paper-figure-equivalent visual ranking
 (canonical-best controller v3.1 = 0.391 with $P_{\text{balance}} =
 0.96$, vs.\ a pre-fix top-of-leaderboard agent that visibly collapsed
 in the time-domain plot). Second, we apply a recurrent multi-agent
-policy: \emph{TD3+LSTM} with an episode-keyed sequence replay and a
-twenty-episode learning-rate warm-up reaches a single-seed peak
-of v3.1 = 0.430 on seed 59. We note this is +9\% over the strongest
-feed-forward TD3 controller (Table~\ref{tab:headline}) but only
-+4.9\% over the prior LSTM controller at the same $\tau$ but
-shorter warm-up: the latter gap is within the seed-variance band
-(per-seed SD across the healthy set $\sim 0.05$,
-Table~\ref{tab:warmup}) and should be read as a within-class
-sensitivity result rather than an architecture-level improvement.
-The six-seed mean is 0.369 on the healthy seed set
-$\{50, 52, 54, 55, 56, 59\}$ (the broader healthy set
-$\{50, 51, 52, 54, 55, 56, 59\}$ excludes only the warm-up-20
-collapse of seed 51, which we treat as a per-seed warm-up
-sensitivity rather than a drift failure). Third, we report a clean
+policy -- \emph{TD3+LSTM} with an episode-keyed sequence replay
+and a twenty-episode learning-rate warm-up -- and report a
+six-seed mean of $v_{3.1} = 0.369 \pm 0.020$ on the healthy seed
+set $\{50, 52, 54, 55, 56, 59\}$ (the broader healthy set adds
+seed 51, which has a per-seed warm-up sensitivity and is excluded
+from the headline mean for the warm-up-20 cell). This is a $+9\%$
+improvement over the strongest feed-forward TD3 controller
+(Table~\ref{tab:headline}). \textbf{Single-seed peaks
+($v_{3.1} = 0.430$ on s59) are reported as the maximum of the
+healthy set but are not robust:} Phase 3 within-config re-runs at
+the same hyperparameters but different RNG offsets gave
+$v_{3.1}$ in the range $[0.01, 0.30]$ across $n=3$
+(Sec.~\ref{sec:phase3} E2). The six-seed mean above is the
+reproducible architecture-level claim; single-seed numbers in
+this paper should be read as illustrative. Third, we report a clean
 \emph{negative} result for inference-time ensembling: a
 heterogeneous-actor weighted ensemble (HAWE) of the top-2, top-3,
 and full 6-seed actor pool consistently underperforms the single-best
@@ -1055,16 +1056,19 @@ $> 0.6$ of the total $|\Delta P|$.
 
 The negative on noise rules out exploration-driven collapse; the
 negative on $\tau$ rules out additional target-network smoothing.
-We hypothesise (untested) that the collapse is critic-network
-initialisation-driven: a small fraction of random critic initialisations
-fall into a basin from which the warm-up ramp cannot escape, regardless
-of further training time. A definitive root-cause analysis is out of
-scope for this paper but is a natural follow-up. \textbf{Testable
-prediction:} re-running the five dead seeds with the actor
-initialisation fixed and only the critic initialisation re-rolled
-should recover roughly the $\sim$56\% healthy rate observed over our
-twelve-seed pool; failure to recover would falsify the critic-init
-hypothesis and shift suspicion to the actor side.
+We initially hypothesised that the collapse is critic-network
+initialisation-driven (a small fraction of random critic
+initialisations fall into a basin from which the warm-up ramp
+cannot escape). We tested this hypothesis in Phase~3 experiment
+E4 (see Sec.~\ref{sec:phase3}, Table~\ref{tab:phase3}): re-running
+all five dead seeds with a full-RNG re-roll (\texttt{--seed-offset
+1000}) left all five collapsed (mean $v_{3.1} = 0.06$, LS1 score
+$\leq 0.08$ in every case). The critic-init hypothesis is
+\textbf{falsified} by this test. We leave two new candidate
+hypotheses for future work: (a) an ANDES backend numerical artifact
+triggered by the seed-determined load-step sequence, and (b) a
+PyTorch \texttt{LSTMCell} initialisation / replay-buffer ordering
+interaction. A definitive root-cause analysis remains open.
 
 \subsection{HAWE negative result}\label{sec:results-hawe}
 
@@ -1131,6 +1135,99 @@ which together push the headline down by 2.1\%.
   a quiet but uniform action profile that under-actuates LS1.}
   \label{fig:hawe-fail}
 \end{figure*}
+
+\subsection{Phase~3 stress-test experiments}\label{sec:phase3}
+
+To stress-test the headline numbers we ran three follow-up
+experiments after the first peer-review round. All three were
+sequential / parallel background runs on the SHA pinned in
+\texttt{README.md}. Table~\ref{tab:phase3} summarises; the full
+per-cell results are in
+\texttt{results/r77\_phase3/} on the released repository.
+
+\begin{table}[!t]
+  \centering
+  \caption{Phase 3 stress tests. ``Within-config variance'' (E2)
+  measures how stable the single-seed SOTA is to RNG re-seeding at
+  the same hyperparameter setting. ``Critic re-roll'' (E4) tests
+  the critic-init drift hypothesis of Sec.~\ref{sec:warmup}.
+  ``Long horizon'' (E1) extends training to the paper's full
+  500-episode budget.}
+  \label{tab:phase3}
+  \scriptsize
+  \begin{tabular}{lccl}
+    \toprule
+    Run                & Config      & $v_{3.1}$ & Notes \\
+    \midrule
+    \multicolumn{4}{l}{\emph{E2: within-config init variance}
+      (s59, $\tau$=0.001, wu=20)} \\
+    rerun-1            & offset=100  & 0.0100 & full collapse (LS1=0) \\
+    rerun-2            & offset=200  & 0.3015 & --- \\
+    rerun-3            & offset=300  & 0.0898 & near-collapse \\
+    \textbf{aggregate} & $n=3$       & \textbf{$0.13 \pm 0.15$} & range $[0.01, 0.30]$; 2/3 in drift basin \\
+    \midrule
+    \multicolumn{4}{l}{\emph{E4: drift-seed full-RNG re-roll}
+      (offset=1000, wu=20)} \\
+    s49 & re-roll      & 0.0623 & LS1$=$0.00 \\
+    s53 & re-roll      & 0.0524 & LS1$=$0.00 \\
+    s57 & re-roll      & 0.1120 & LS1$=$0.08 \\
+    s58 & re-roll      & 0.0465 & LS1$=$0.02 \\
+    s60 & re-roll      & 0.0436 & LS1$=$0.00 \\
+    \textbf{5/5 still collapsed} & & \textbf{$0.06 \pm 0.03$} & critic-init hypothesis falsified \\
+    \midrule
+    \multicolumn{4}{l}{\emph{E1: 500-episode long-horizon convergence}
+      ($\tau$=0.001, wu=20)} \\
+    s54 & 500 ep       & 0.2662 & vs.\ 75-ep 0.4099 (\textbf{$-35\%$}) \\
+    s56 & 500 ep       & 0.2208 & vs.\ 75-ep 0.3763 (\textbf{$-41\%$}) \\
+    s59 & 500 ep       & 0.2392 & vs.\ 75-ep 0.4301 (\textbf{$-44\%$}) \\
+    \textbf{aggregate} & $n=3$       & \textbf{$0.24 \pm 0.02$} & long horizon degrades, not improves \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\paragraph{E2 (within-config variance).} Re-running the
+single-seed SOTA configuration at three different RNG offsets gave
+$v_{3.1} \in \{0.0100, 0.3015, 0.0898\}$; two of three re-runs
+landed in the drift basin. The +4.9\,\% gap in the headline
+(s59 vs s54 at the same $\tau$ and warm-up; Table~\ref{tab:headline})
+is therefore well within the natural re-run variance of the
+training procedure -- it should not be read as a within-architecture
+improvement. The architecture-level statement (LSTM mean
+$\sim$0.37 over the healthy seed set vs $\sim$0.34 for the strongest
+feed-forward variant) does survive, but at lower confidence than
+the original draft suggested.
+
+\paragraph{E4 (critic-init re-roll falsifies the drift hypothesis).}
+We had previously hypothesised (Sec.~\ref{sec:warmup}) that the
+44\,\% seed drift is critic-network initialisation-driven, with a
+testable prediction that re-initialisation of the critic should
+recover roughly the 56\,\% healthy rate observed across the
+12-seed pool. E4 ran the proxy of this test -- a full-RNG re-roll
+with seed-offset 1000 -- on all five dead seeds. \textbf{All five
+remained collapsed} (mean $v_{3.1} = 0.06$, maximum 0.11; LS1
+score $\leq 0.08$ in every case). The critic-init hypothesis is
+falsified by this proxy. New candidate mechanisms, untested:
+(i) an ANDES backend numerical artifact triggered by the specific
+seed-determined load-step sequence, or
+(ii) a PyTorch \texttt{LSTMCell} initialisation / replay-buffer
+ordering interaction. We leave the mechanism open.
+
+\paragraph{E1 (long horizon \emph{degrades}, not improves).}
+Q-0008 in our open-question ledger asked whether the policy-class
+ranking persists at Yang \emph{et al.}'s 2000-episode horizon.
+We tested an intermediate point (500 episodes) on three healthy
+seeds: \textbf{all three degraded by 35--44\,\%} relative to their
+75-episode result. The 75-episode budget on the ANDES backend is
+therefore the empirical \emph{optimum} we found, not a
+truncated-stopping artifact. Yang \emph{et al.}'s 2000-episode
+result on a Simulink backend is not directly comparable -- the
+training dynamics differ between the two simulators, and our
+attempt to validate at the longer horizon shows the policy
+\emph{degrades}, plausibly because the ANDES TDS sub-cycle
+smoothing interacts with the recurrent actor's hidden state
+differently from a hybrid Simulink integration. Q-0008 closes
+negative; the open question becomes ``why do LSTM policies
+degrade past episode 100 on ANDES?''.
 
 % ─────────────────────────────────────────────────────────────────────
 \section{Discussion}\label{sec:discussion}
@@ -1237,6 +1334,21 @@ supplementary materials.
         seed-sweep + ranker re-evaluation reported here cost
         $\approx 14$\,h. Resource requirements are modest by ML
         standards but non-trivial for a research lab without GPU.
+  \item \textbf{Long-horizon training degrades on this backend.}
+        Phase 3 experiment E1 (Sec.~\ref{sec:phase3}) extended
+        training of three healthy seeds (s54, s56, s59) from 75
+        episodes to 500 episodes and observed a systematic
+        \emph{degradation} of $35$--$44\%$ in $v_{3.1}$ across all
+        three. The 75-episode budget on the ANDES backend is the
+        empirical optimum we found, not an early-stopping
+        artifact. Yang \emph{et al.}'s 2000-episode result on a
+        Simulink backend is therefore not a directly comparable
+        upper bound; controllers trained to that horizon on our
+        backend would, by linear extrapolation of E1, fall well
+        below the no-control baseline. The mechanism (ANDES TDS
+        smoothing interacting with the recurrent hidden state,
+        or replay-buffer saturation under decreasing-magnitude
+        $\Delta P$ trajectories, or both) is untested.
   \item \textbf{Code-drift caveat.} The recurrent agent suffers a
         $\sim$19\% headline regression between two reproductions of
         the same training configuration nine rounds apart (CLM-0104):
@@ -1290,13 +1402,16 @@ boundary to a learned weighting rather than a uniform geometric
 mean; (iii) replication of the LSTM result on the modified NE-39
 benchmark from \cite[Sec.~IV-G]{yang2023ddic}, conditional on
 resolving the $M_0 < 20$ TDS-divergence that prevented our prior
-NE-39 attempts; (iv) verification that the policy-class ranking
-\emph{persists at the paper's full 500-episode convergence
-horizon} -- our reported per-seed runs are 75 episodes (the
-empirical stabilisation point on the ANDES backend; see
-Sec.~\ref{sec:setup}), and the paper used 2000 (open question
-Q-0008 in the project ledger); and (v) isolation of the LSTM-only
-$\sim$19\% code-drift root cause (Sec.~\ref{sec:limits}).
+NE-39 attempts; (iv) \emph{root-cause investigation of the
+long-horizon degradation we observed} (Sec.~\ref{sec:phase3} E1: at
+500 episodes all three healthy seeds degraded $35$--$44\%$
+relative to their 75-episode result, falsifying our earlier
+expectation that ranking would persist at longer horizons --
+Q-0008 in the project ledger closes negative); and (v) isolation
+of the LSTM-only $\sim$19\% code-drift root cause
+(Sec.~\ref{sec:limits}) and of the still-open drift-collapse
+mechanism (Sec.~\ref{sec:warmup} E4 falsified the critic-init
+hypothesis).
 
 \section*{Reproducibility}
 

@@ -1,9 +1,11 @@
 #!/bin/bash
-# bisect.sh — E3 code-drift bisection R58 -> R65
-# Runs in parallel with launch.sh (Phase 3 E2/E4/E1) since ANDES allows
-# up to 3 parallel WSL python processes. Each commit gets its own git
-# worktree under .wt/bisect-<SHA>; ckpts go into the main worktree's
-# results/r77_phase3/ so cleanup just removes .wt/ entries.
+# bisect.sh — E3 code-drift bisection R58 -> R65 (v2: git-archive based)
+#
+# Original v1 used `git worktree add --detach` which failed with
+# `error: reset died of signal 1` under nohup detachment on WSL.
+# v2 uses `git archive` to extract the commit's tree into /tmp/bisect-<SHA>/
+# without touching the git index, then trains from there. No worktree
+# bookkeeping, no SIGHUP-triggered reset failure.
 #
 # Config: matches the R57-alpha baseline used by CLM-0104 to expose
 # the -19% LSTM regression — seed=51, warmup=5, tau=default (0.005),
@@ -14,7 +16,8 @@ REPO=/mnt/c/Users/27443/Desktop/andes-rl-kundur
 PY=/home/wya/andes_venv/bin/python
 OUT=$REPO/results/r77_phase3
 STATUS=$OUT/e3_STATUS.txt
-mkdir -p $OUT $REPO/.wt
+TMP=/tmp/r77_bisect
+mkdir -p $OUT $TMP
 
 declare -A SHA_R=(
   [e8427df]=R58
@@ -28,27 +31,26 @@ declare -A SHA_R=(
 )
 
 ts() { date '+%Y-%m-%d %H:%M:%S'; }
-status() { echo "[$(ts)] $*" >> $STATUS; echo "[$(ts)] $*"; }
+status() { echo "[$(ts)] $*" | tee -a $STATUS; }
 
-status "=== E3 bisect launch (parallel with Phase 3 main) ==="
-status "Target config: --algo td3_lstm --seed 51 --warmup 5 (default tau=0.005)"
-status "Reference: R57-alpha had v_6axis=0.526; R66 same config gave 0.4259 (-19%, CLM-0104)"
+status "=== E3 bisect v2 (git-archive based) ==="
+status "Target config: --algo td3_lstm --seed 51 --warmup 5 (default tau)"
+status "Reference: R57-alpha had v_6axis=0.526; R66 same config gave 0.4259 (CLM-0104)"
 
 for SHA in e8427df 43d203b 2752a8f 1a3a4ad 48c466c 6671e8d 6c27ae1 4c5327a; do
   R="${SHA_R[$SHA]}"
-  WT=$REPO/.wt/bisect-$SHA
+  EXTRACT=$TMP/bisect-$SHA
   SAVE=$OUT/e3_bisect_${R}_${SHA}
   mkdir -p $SAVE
 
-  status "[E3 $R $SHA] adding worktree $WT"
+  status "[E3 $R $SHA] extracting commit tree to $EXTRACT"
+  rm -rf $EXTRACT
+  mkdir -p $EXTRACT
   cd $REPO
-  if [ -d "$WT" ]; then
-    git worktree remove -f $WT 2>>$STATUS || true
-  fi
-  git worktree add -f --detach $WT $SHA >> $STATUS 2>&1
+  git archive --format=tar $SHA | tar -x -C $EXTRACT
 
   status "[E3 $R $SHA] training (save to $SAVE)"
-  cd $WT
+  cd $EXTRACT
   $PY scripts/train.py --algo td3_lstm --normalize-actions \
     --episodes 75 --seed 51 --hidden-size 64 \
     --lstm-lr-warmup-eps 5 --save-dir $SAVE \
@@ -56,9 +58,9 @@ for SHA in e8427df 43d203b 2752a8f 1a3a4ad 48c466c 6671e8d 6c27ae1 4c5327a; do
   status "[E3 $R $SHA] training done"
 
   cd $REPO
-  git worktree remove -f $WT >> $STATUS 2>&1 || true
+  rm -rf $EXTRACT
 done
 
 status "=== E3 bisect complete ==="
-status "Next: eval each ckpt with score_run.py from main worktree,"
-status "      look for the v3.1 cliff between adjacent commits."
+status "Next: eval each ckpt under current main-worktree score_run.py for"
+status "      a v3.1 score under the v3.1 ranker. Look for the cliff."
