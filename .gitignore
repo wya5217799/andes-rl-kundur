@@ -40,3 +40,6 @@ venv/
 # Editor
 .vscode/
 .idea/
+
+# Claude Code session state (per-machine lock, scheduled task state)
+.claude/
