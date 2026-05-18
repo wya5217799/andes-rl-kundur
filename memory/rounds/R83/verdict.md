@@ -184,14 +184,16 @@ all-3 combined 0.384 (-1.8%, marginal)**, **W4 LS2 0.4274 单 scenario 持平
 baseline LS2 0.4315 ⭐** 但 LS1 0.3449 拖累 overall. 累计 R57-R86 **97 trials
 × 4 setup dimension (algo/hyper/plant/obs) 全部 ≤ 0.391, plateau ceiling 严实**.
 
-**意外**：(1) **R49-α MLP own_action_obs 在 LSTM 上退化幅度减半但仍负**
-(-21% → -12%): recurrent state 部分吸收 prev-action 信息但不足以补回 obs
-aug 整体退化; (2) **area_mean_freq 反直觉最差** (-16%): paper Fig.3 area
-分组直觉应该提供 group-level 协调, 实测 W3 是 R83 最坏 — 暗示 R72_w4 narrow
-basin 对 obs 分布 shift 极敏感, 加 valid 信息也破坏 basin; (3) **plateau
-是 setup-level ceiling**, 不是单一 dimension. R83 跟 R80 plant + R82 algo +
-R86 critic-rep 一起完整 4 个 dimension 都试过, paper 可写 "exhaustively
-searched N dimensions × M trials" 的诚实负向结果.
+**意外**：(1) **W4 combined 反而是 R83 最好 (-1.8%, 接近 baseline)**, 单
+axis area_mean 最差 (-16%) — 加更多 obs 维度比加少更不破坏 basin, 反直觉.
+LSTM 综合 3 channel obs 后近似还原 R72_w4 narrow basin, 但不突破; (2) **W4
+LS2 geo 0.4274 持平 baseline LS2 0.4315** — R83 第一次单 scenario 没退化,
+说明 LS2 (较轻扰动) 下 obs aug 信息能被吸收, LS1 (重扰动) 下不行; (3) **R49-α
+MLP own_action_obs -21% → R83 W1 LSTM -12%**: recurrent state 部分吸收
+prev-action 信息但仍负; (4) **plateau 是 setup-level ceiling**, 不是单一
+dimension. R83 跟 R80 plant + R82 algo + R86 critic-rep 一起完整 4 个
+dimension 都试过, paper 可写 "exhaustively searched 4 dimensions × 97
+trials" 的诚实负向结果.
 
 **我默认下一步**：W4 完成后填表格 finalize, 关 R83 negative finding. 写
 2 claim (R83 全 wave negative + Q-0016 closure). R85 droop scan + R86
