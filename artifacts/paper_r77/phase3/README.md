@@ -6,7 +6,7 @@ Five experiments requested by the 5-reviewer round (commit 4a3fa72):
 |---|---|---|---|
 | E1 | 3 seeds × 500-ep convergence study | ~21 h | running (sequential after E4) |
 | E2 | s59 wu20 re-train ×3 for within-version SD | ~3 h | running (first up) |
-| E3 | Code-drift bisection R58→R65 (8 commits) | ~8 h | TODO (needs git worktree setup) |
+| E3 | Code-drift bisection R58→R65 (8 commits) | ~8 h | running (parallel with launch.sh via bisect.sh) |
 | E4 | Critic-init re-roll on 5 dead seeds (full-RNG re-roll proxy) | ~5 h | running (after E2) |
 | E5 | Simulink LS1 cross-render on s54 | 1 day | DEFERRED (user opted out) |
 | E6 | NE-39 second benchmark | 1 week+ | BLOCKED (ADR-01: M₀<20 TDS divergence) |
