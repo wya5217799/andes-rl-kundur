@@ -13,8 +13,10 @@ inertia/damping control on the modified Kundur 4-bus benchmark.
   numbers needed for submission).
 - Bibliography reuses `artifacts/dissertation/refs.bib` plus 6 added
   entries for LSTM-RL / Goodhart / ensemble-RL.
-- `poliquin2024hawe` is a **placeholder** — replace with the real HAWE
-  reference before submission.
+- `poliquin2024hawe` placeholder **removed** during R77 CoVe fact-check
+  (verify-claims skill). HAWE methodological territory is covered by
+  `wiering2008ensemble` + `kurutach2018modelens` + `wortsman2022modelsoup`,
+  all real and used in Sec. VII-C.
 
 ## Files
 
@@ -105,7 +107,7 @@ trace file referenced by the paper).
       (single-SOTA exhibit) and s54+wu5 (canonical exhibit). Source:
       `scripts/_archive/round_scripts/_r70_plot_best_agent.py`
       (post-R77 archive path).
-- [ ] Replace `poliquin2024hawe` placeholder with the real HAWE reference.
+- [x] ~~Replace `poliquin2024hawe` placeholder~~ — done (R77 CoVe fact-check removed it; HAWE territory covered by existing real refs).
 - [ ] Run `citation-audit` / `verify-claims` skill on the draft before
       sending out.
 - [ ] Generate Fig. for the 6-axis vs.\ 11-axis ranker comparison

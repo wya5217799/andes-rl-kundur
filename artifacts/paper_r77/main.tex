@@ -104,8 +104,10 @@ actor-critic (SAC) \cite{haarnoja2018sac} framework in which each VSG
 adjusts $\Delta H \in [-100, +300]$ and $\Delta D \in [-200, +600]$
 based on its local frequency and that of two communication neighbours.
 On the modified Kundur four-machine benchmark
-\cite{kundur1994power,klein1991study} their reported DDIC/adaptive
-cumulative-frequency-reward ratio is $0.62$, supporting the
+\cite{kundur1994power,klein1991study} their reported 50-scenario
+summed cum-$r_f$ is $-8.04$ (DDIC) versus $-12.93$ (adaptive)
+\cite[Sec.~IV-C, Fig.~5]{yang2023ddic} (DDIC/adaptive ratio
+$\approx 0.62$, our derivation), supporting the
 multi-agent framing as a structural contribution.
 
 A reproduction study on the ANDES phasor-equilibrium
@@ -198,9 +200,15 @@ action is the two-vector $(\Delta H_i, \Delta D_i)$ clipped to the
 bounds given in \cite[Sec.~IV-B]{yang2023ddic}. Simulation uses
 ANDES phasor equilibrium with control-step
 $\Delta t_{\text{ctrl}} = 0.2$\,s, episode length $M = 50$ steps
-(10\,s of physical time), and the paper-faithful
-communication-failure probability
-$p_{\text{cf}} = 0.1$~\cite[Sec.~IV-D]{yang2023ddic}.
+(10\,s of physical time), and a per-step communication-failure
+probability of $p_{\text{cf}} = 0.1$. The latter is a project
+default: Yang \emph{et al.}~\cite[Sec.~IV-D]{yang2023ddic}
+report that ``communication failure has little influence on
+control performance'' but do not specify a numerical
+$p_{\text{cf}}$; we adopt $0.1$ to keep the comparison
+conservative (a non-trivial dropout rate stresses the
+recurrent agent's hidden-state continuity), following the
+project-side convention of~\cite[ADR communication]{wei2026reproduction}.
 
 \begin{figure}[!t]
   \centering
@@ -219,7 +227,10 @@ $p_{\text{cf}} = 0.1$~\cite[Sec.~IV-D]{yang2023ddic}.
 
 \subsection{Reward formulation}
 
-Following the paper, the per-step reward is
+The paper's symbolic per-step reward (Eq.~14) decomposes into a
+frequency, an inertia, and a damping term weighted by
+$\varphi_f, \varphi_H, \varphi_D$; the V4 environment used here
+implements a simplified per-agent quadratic form,
 
 \begin{equation}\label{eq:reward}
 r_t = -\varphi_f \sum_i (\Delta \omega_{i,t})^2
@@ -227,7 +238,13 @@ r_t = -\varphi_f \sum_i (\Delta \omega_{i,t})^2
       - \varphi_D \sum_i (\Delta D_{i,t})^2,
 \end{equation}
 
-with $\varphi_f = 100$ (paper Eq.~14). For numerical stability
+(the paper's reward additionally contains a neighbour
+synchronisation term in $r^f$ and a mean-then-square aggregation
+in $r^H / r^D$; see~\cite[Eq.~15--18]{yang2023ddic} and the
+companion paper~\cite[ADR-0002]{wei2026reproduction} for the
+project-side simplification rationale). The numerical weights are
+$\varphi_f = 100$ from~\cite[Sec.~IV-B]{yang2023ddic}. For
+numerical stability
 under the ANDES backend we adopt the rescaled action-penalty
 weights $\varphi_H = \varphi_D = 0.0056$ (paper-faithful-modified,
 \cite[ADR-0002]{wei2026reproduction}); the paper's
@@ -298,7 +315,7 @@ Reported quantitative results use two evaluation families:
         \emph{not} directly comparable to the paper's
         50-scenario summed cum-$r_f = -8.04$ (DDIC) /
         $-12.93$ (adaptive) / $-15.2$ (no control)
-        \cite[Sec.~IV-C, Table~II]{yang2023ddic}; we report
+        \cite[Sec.~IV-C, Fig.~5]{yang2023ddic}; we report
         improvement percentages against our own no-control and
         adaptive baselines re-run on the same 20-scenario set.
 \end{itemize}

@@ -494,14 +494,15 @@
                gaming of the headline geometric mean.}
 }
 
-@inproceedings{wiering2008ensemble,
+@article{wiering2008ensemble,
   author    = {Wiering, Marco A. and van Hasselt, Hado},
   title     = {Ensemble Algorithms in Reinforcement Learning},
-  booktitle = {IEEE Transactions on Systems, Man, and Cybernetics, Part~B},
+  journal   = {IEEE Transactions on Systems, Man, and Cybernetics, Part~B (Cybernetics)},
   volume    = {38},
   number    = {4},
   pages     = {930--936},
   year      = {2008},
+  doi       = {10.1109/TSMCB.2008.920231},
   note      = {Ensemble of independently-trained value functions /
                policies for stability; predecessor of the HAWE
                inference-time mixture studied in Sec.\ \ref{sec:hawe}.}
@@ -517,16 +518,14 @@
                anchor for the HAWE methodological-boundary discussion.}
 }
 
-@article{poliquin2024hawe,
-  author    = {Poliquin, Renaud and Bilger, Mickael and Bellemare, Marc G.},
-  title     = {Heterogeneous Actor Weighted Ensembles for
-               Off-Policy Multi-Agent Control},
-  journal   = {arXiv preprint arXiv:2403.00000},
-  year      = {2024},
-  note      = {Placeholder citation: replace with the actual HAWE
-               reference once located. Used to motivate Sec.\
-               \ref{sec:hawe}.}
-}
+% poliquin2024hawe entry removed during R77 CoVe fact-check (verify-claims
+% skill): the entry was a placeholder for a HAWE-specific reference that
+% does not exist (Marc G. Bellemare publication page + arXiv search both
+% returned no match; arXiv ID 2403.00000 is a non-existent format). The
+% HAWE methodological territory is covered by wiering2008ensemble +
+% kurutach2018modelens + wortsman2022modelsoup, which are real and used
+% in Sec. VII-C. The paper text does not \cite{poliquin2024hawe}, so
+% removal causes no LaTeX error.
 
 @unpublished{wei2026reproduction,
   author = {Yuang Wei},
