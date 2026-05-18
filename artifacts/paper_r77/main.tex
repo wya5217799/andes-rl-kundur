@@ -18,11 +18,15 @@
   urlcolor=blue
 }
 
+% All paper figures live under figures/. The fallback paths are
+% kept so the source can be rebuilt against the original sources
+% when an upstream figure is regenerated; remove them if you only
+% want figures/ to be authoritative.
 \graphicspath{%
+  {figures/}%
   {../paper/figures/}%
   {../dissertation/figures/}%
   {../../results/r70_paper_figures/}%
-  {figures/}%
 }
 
 \begin{document}
@@ -991,15 +995,19 @@ which together push the headline down by 2.1\%.
   \caption{Best HAWE configuration: top-2 mean ensemble of s54 and
   s59 actors, $v_{3.1} = 0.4212$ ($-2.1\%$ vs.\ single best
   Fig.~\ref{fig:sota}). Layout as in Fig.~\ref{fig:sota}.
-  Middle-left ($\Delta P$ LS1) panel shows the recurrent-ensemble
-  failure signature: the four agents' $\Delta P$ traces overshoot
-  and reverse twice before settling, where the single-actor SOTA
-  (Fig.~\ref{fig:sota}) shows a single clean over-shoot and damp.
-  The traces in the ensemble are the average of four pairs of
-  actors whose LSTM hidden states evolved on independent
-  observation rollouts at training time; at inference the averaged
-  action is a compromise between two different disturbance
-  estimates, not two noisy estimates of the same disturbance.}
+  \textbf{The failure signature is magnitude collapse, not
+  imbalance}: the four agents'
+  $\Delta P$ traces overlap tightly (LS1 $P_{\text{balance}} =
+  0.90$, higher than the single-best 0.79 of Fig.~\ref{fig:sota})
+  but the peak magnitude is roughly $0.15$ p.u., an order of
+  magnitude smaller than the single-actor SOTA's
+  ES4-dominant peak of $\approx 1.7$ p.u.\ at the same instant.
+  Averaging the s54 actor (which produces a balanced
+  $\sim$0.3-p.u.\ 4-agent response) with the s59 actor (which
+  produces an ES4-dominant $\sim$1.75-p.u.\ response) destructively
+  cancels the actuation magnitude on the agents where the two
+  actors disagree about which is the dominant responder, leaving
+  a quiet but uniform action profile that under-actuates LS1.}
   \label{fig:hawe-fail}
 \end{figure*}
 
@@ -1010,24 +1018,32 @@ which together push the headline down by 2.1\%.
 
 We offer a hypothesis -- not a verified explanation -- for the
 recurrent regression, alongside a testable prediction (below).
+Fig.~\ref{fig:hawe-fail} narrows the mechanism beyond what
+Table~\ref{tab:hawe} alone shows: the HAWE regression is
+\emph{magnitude collapse}, not imbalance.
 
 For a recurrent actor $\pi(o, h)$, the deterministic output depends
 on the hidden state $h$, and HAWE in Eq.~\ref{eq:hawe} maintains a
-\emph{separate} hidden trajectory $\{h^{(m)}_t\}$ per actor. At
-step $t$, the $M$ actors are conditioned on $M$ distinct estimates
-of the unobserved disturbance, and the average of their actions is
-the average of $M$ \emph{different} response strategies, not $M$
-noisy estimates of the same strategy. When the underlying optimal
-disturbance estimate is sharply peaked (early settling regime of
-LS1, where a large disturbance demands fast power injection), one
-actor's estimate may be closer to optimum than the average; on
-this hypothesis the average smears the response in time and
-reduces the peak, which is consistent with the regression in
-Table~\ref{tab:hawe} and the visible double-overshoot in
+\emph{separate} hidden trajectory $\{h^{(m)}_t\}$ per actor. The
+two top-ranked healthy seeds in our pool produce qualitatively
+different response strategies on LS1: s54 (canonical, balanced)
+asks every agent for $\sim$0.3\,p.u.\ of $\Delta P$ in proportion,
+whereas s59 (single SOTA, ES4-dominant) asks ES4 for
+$\sim$1.75\,p.u.\ and the other three agents for $\sim$0.3\,p.u.
+At step $t$, the HAWE action is the per-agent average of the two
+deterministic outputs, which on agents where the two actors
+\emph{agree} (ES1, ES2, ES3) preserves the $\sim$0.3-p.u.\ level
+but on the agent where they \emph{disagree} (ES4) returns
+$\frac{1.75 + 0.3}{2} \approx 1.0$\,p.u. The full ensemble
+trajectory is then sustained at this lower bound, and because the
+critic-induced $\Delta H$/$\Delta D$ updates are conditioned on the
+new (lower) $\Delta P$ history, the LSTM hidden state of each
+ensembled actor drifts further from the regime its training data
+covered, producing the order-of-magnitude attenuation observed in
 Fig.~\ref{fig:hawe-fail}. By contrast, for a memoryless actor
 $\pi(o)$ at the same observation, HAWE reduces variance without
-this bias term, consistent with the $+2$--$5\%$ HAWE gains
-observed on memoryless TD3/SAC in earlier project rounds.
+this hidden-state drift, consistent with the $+2$--$5\%$ HAWE
+gains observed on memoryless TD3/SAC in earlier project rounds.
 
 \textbf{Testable prediction.} If the hypothesis is correct, HAWE
 could still work for recurrent actors if (i) the actors share a
