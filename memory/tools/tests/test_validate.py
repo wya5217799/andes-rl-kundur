@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Any
 import sys
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -848,3 +849,47 @@ def test_clean_note_fixtures_have_no_errors():
     fake_claims = {"CLM-0001": {}}
     errors = validate_note_rules(notes, claims=fake_claims, repo_root=REPO_ROOT_FOR_TESTS)
     assert errors == [], f"unexpected errors on clean fixtures: {errors}"
+
+
+# ---------- Cross-entity coverage warnings (X1, X2) ----------
+
+
+def test_warning_X1_adr_without_note_warns(tmp_path):
+    """X1: every docs/adr/*.md should have at least one note pointing to it."""
+    from validate import warn_cross_entity_adr_coverage  # noqa: E402
+    adr_dir = tmp_path / "adr"
+    adr_dir.mkdir()
+    (adr_dir / "0001-foo.md").write_text("# ADR placeholder\n")
+    notes: dict[str, dict[str, Any]] = {}
+    warnings = warn_cross_entity_adr_coverage(notes, adr_dir=adr_dir)
+    assert any("0001-foo.md" in w for w in warnings)
+
+
+def test_warning_X1_adr_with_note_silent(tmp_path):
+    from validate import warn_cross_entity_adr_coverage  # noqa: E402
+    adr_dir = tmp_path / "adr"
+    adr_dir.mkdir()
+    (adr_dir / "0001-foo.md").write_text("# ADR\n")
+    notes = {
+        "NOTE-0001": {
+            "id": "NOTE-0001", "source": "adr-rationale",
+            "source_path": str((adr_dir / "0001-foo.md").as_posix()),
+        }
+    }
+    warnings = warn_cross_entity_adr_coverage(notes, adr_dir=adr_dir)
+    assert warnings == []
+
+
+def test_warning_X2_handoff_without_note_warns(tmp_path):
+    from validate import warn_cross_entity_handoff_coverage  # noqa: E402
+    handoffs_dir = tmp_path / "handoffs"
+    handoffs_dir.mkdir()
+    (handoffs_dir / "2026-05-17_demo.md").write_text("handoff body\n")
+    (handoffs_dir / "README.md").write_text("intentionally excluded\n")
+    (handoffs_dir / "_archive").mkdir()
+    (handoffs_dir / "_archive" / "old.md").write_text("excluded\n")
+    warnings = warn_cross_entity_handoff_coverage({}, handoffs_dir=handoffs_dir)
+    # README.md and _archive/ excluded; only 2026-05-17_demo.md should warn.
+    assert any("2026-05-17_demo.md" in w for w in warnings)
+    assert not any("README.md" in w for w in warnings)
+    assert not any("_archive" in w for w in warnings)

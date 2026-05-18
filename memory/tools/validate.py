@@ -224,6 +224,69 @@ def validate_note_rules(
     return errors
 
 
+def _notes_referencing(notes: dict[str, dict[str, Any]], abs_path: Path) -> list[str]:
+    """Return note ids whose source_path resolves to ``abs_path``.
+
+    Both sides are resolved to absolute paths so that the comparison is
+    insensitive to ``./`` prefixes and casing differences on Windows.
+    """
+    hits: list[str] = []
+    target = abs_path.resolve()
+    for note in notes.values():
+        sp = note.get("source_path")
+        if not isinstance(sp, str):
+            continue
+        # source_path may be repo-relative; compare against the literal too.
+        if Path(sp).resolve() == target:
+            hits.append(note["id"])
+            continue
+        # also allow string equality (cheap fallback for the unit-test case
+        # where notes dict has POSIX path strings).
+        if Path(sp).as_posix() == abs_path.as_posix():
+            hits.append(note["id"])
+    return hits
+
+
+def warn_cross_entity_adr_coverage(
+    notes: dict[str, dict[str, Any]],
+    *,
+    adr_dir: Path,
+) -> list[str]:
+    """X1: every ``docs/adr/*.md`` should have at least one note with
+    ``source: adr-rationale`` pointing at it. Soft warning."""
+    if not adr_dir.exists():
+        return []
+    warnings: list[str] = []
+    for adr in sorted(adr_dir.glob("*.md")):
+        if not _notes_referencing(notes, adr):
+            warnings.append(
+                f"ADR {adr.name} has no Note pointing to it "
+                f"(X1: consider adding one with source: adr-rationale)"
+            )
+    return warnings
+
+
+def warn_cross_entity_handoff_coverage(
+    notes: dict[str, dict[str, Any]],
+    *,
+    handoffs_dir: Path,
+) -> list[str]:
+    """X2: every ``memory/handoffs/*.md`` (excluding README.md and
+    _archive/) should have at least one note pointing at it. Soft warning."""
+    if not handoffs_dir.exists():
+        return []
+    warnings: list[str] = []
+    for path in sorted(handoffs_dir.glob("*.md")):
+        if path.name == "README.md":
+            continue
+        if not _notes_referencing(notes, path):
+            warnings.append(
+                f"handoff {path.name} has no Note pointing to it "
+                f"(X2: consider adding one with source: handoff)"
+            )
+    return warnings
+
+
 def validate_question_rules(
     questions: dict[str, dict[str, Any]],
     claims: dict[str, dict[str, Any]],
@@ -668,6 +731,11 @@ def main() -> int:
     notes = load_notes(args.notes_dir)
     n_errors = validate_note_rules(notes, claims, repo_root=repo_root)
     errors.extend(n_errors)
+
+    adr_dir = repo_root / "docs" / "adr"
+    handoffs_dir = base / "handoffs"
+    warnings.extend(warn_cross_entity_adr_coverage(notes, adr_dir=adr_dir))
+    warnings.extend(warn_cross_entity_handoff_coverage(notes, handoffs_dir=handoffs_dir))
 
     if not args.skip_verdicts:
         for verdict_path in _iter_verdicts(args.rounds_dir):
