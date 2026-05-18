@@ -664,9 +664,8 @@ def main() -> int:
     q_errors = validate_question_rules(questions, claims, args.rounds_dir)
     errors.extend(q_errors)
 
-    notes_dir = args.notes_dir
-    notes = load_notes(notes_dir)
     repo_root = Path(__file__).resolve().parents[2]
+    notes = load_notes(args.notes_dir)
     n_errors = validate_note_rules(notes, claims, repo_root=repo_root)
     errors.extend(n_errors)
 
@@ -678,7 +677,6 @@ def main() -> int:
     # R50 opt K: soft check that provenance paths exist on disk.
     # Gitignored areas (results/, logs/) routinely produce warnings;
     # users skim past them. Never blocks validation.
-    repo_root = Path(__file__).resolve().parents[2]
     warnings.extend(check_provenance_paths(claims, repo_root=repo_root))
 
     for w in warnings:
