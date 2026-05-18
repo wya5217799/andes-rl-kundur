@@ -2,8 +2,11 @@
 
 ## Read first
 
-- `CONTEXT.md` — glossary + 14 architecture decisions (AD-01 … AD-14)
+- `CONTEXT.md` — glossary (incl. V4/V5/paper-faithful split) + 14 architecture decisions (AD-01 … AD-14)
 - `docs/adr/0001-src-layout.md` — long-form rationale for the src layout
+- `docs/adr/0003-pi-briefing-layer.md` — PI briefing contract (R≥59 mandatory)
+- `docs/adr/0004-v5-env-regca1-plant-paper-deviation.md` — V5 REGCA1 plant framing as paper-deviation (R80)
+- `docs/adr/0005-andes-only-drop-simulink-1to1.md` — ANDES-only, no Simulink 1:1 chase (R80)
 - `memory/STATE.md` — auto-rendered active oracle (headlines / in-flight /
   open Qs / recently closed / latest round)
 - Open `memory/questions/Q-*.md` files — what to address next
@@ -15,8 +18,10 @@
 ```
 andes-rl-kundur/
 ├── src/andes_rl_kundur/      Python package (library code)
-│   ├── agents/               SAC + SAC_CTDE + BaseAgent Protocol
-│   ├── env/andes/            V4 self-contained env + base_env
+│   ├── agents/               SAC + SAC_CTDE + TD3 + TD3-LSTM/LSTM2 +
+│   │                         TD3-Transformer (R82) + BaseAgent Protocol
+│   ├── env/andes/            V4 (paper-faithful) + V5 (REGCA1 plant, R80) +
+│   │                         base_env (shared obs/action + R83 area-mean aug)
 │   ├── evaluation/           paper_grade_axes (Asset 4, paper-cited)
 │   ├── probes/               andes_common reuse layer
 │   ├── scenarios/contract.py KUNDUR domain constants
@@ -28,11 +33,14 @@ andes-rl-kundur/
 │   ├── eval_ddic.py
 │   ├── eval_ensemble.py
 │   ├── eval_all_seeds.py
-│   └── _archive/             Frozen round drivers (R01..R36)
+│   ├── score_run.py          Paper-grade ranker entry (R72+)
+│   ├── r8x_*.py              Active round drivers (R80–R86; archive after R≥10 stale)
+│   └── _archive/             Frozen round drivers (R01..R36, R60..R79 later)
+├── probes/                   Round-level probe JSONs (r80+_*.json)
 ├── tests/                    pytest regression tests
-├── artifacts/                Frozen outputs (paper/, dissertation/)
+├── artifacts/                Frozen outputs (paper_r77/, dissertation/)
 ├── memory/                   Claim ledger + rounds + handoffs
-├── docs/                     ADRs, engineering notes, design specs
+├── docs/                     ADRs (0001..0005), engineering notes, design specs
 ├── results/                  Gitignored except whitelist/
 ├── _legacy/                  Frozen ancestors of refactored modules
 └── pyproject.toml            Package metadata + tool config
@@ -155,6 +163,19 @@ Read `docs/eng-notes/NOTES_ANDES.md` before changing any
 `AndesMultiVSGEnvV4` class is paper-faithful and silent-inheritance
 bug fixed (R37 / CLM-0040: `ZERO_G4_INERTIA = True` is now explicit).
 
+**V4 vs V5 (R80+)**: V5 (`andes_vsg_env_v5.py`) is a V4 subclass that
+swaps plant 风机 (GENROU+ZERO_INERTIA hack / GENCLS) for industry-
+standard REGCA1+REECA1. V5 is **paper-deviation** by design (paper
+Sec.II "neglect inner loop" → REGCA1 反方向; paper Sec.IV-A 风机
+silent → "对齐 paper" 无据). See ADR-0004. V5 ckpt 走 `r80+_*`
+namespace, 不污染 V4 ckpt 区. R57+ 全部 SOTA ckpt 依赖 V4
+bit-identical reproducibility, 修 V4 / V4Config / base_env /
+paper_grade_axes 必须新 round 文档化.
+
+**R83 obs aug**: `base_env` 现支持 area-mean freq obs augmentation
+(2 dim) via `V4Config.OBS_AREA_MEAN_FREQ_AUG`. 互斥已解除 (slot
+layout 改成绝对索引). 默认关闭 — 开启会改变 obs_dim, 与历史 ckpt 不兼容.
+
 ### Modifying paper_grade_axes.py
 
 Asset 4 is paper-cited. Any change requires a new round + new claim
@@ -181,7 +202,21 @@ Single-context layout: one `CONTEXT.md` + `docs/adr/` at the repo root. See `doc
   `_legacy/CONTEXT.md` style)
 - Single ANDES session at a time on Windows (16C/32T workstation), max
   3 parallel WSL python processes
-- Default model env: `andes_vsg_env_v4` (paper-faithful H₀=100,
-  ZERO_G4_INERTIA=True for reproducibility of paper numbers)
+- **Default model env: `andes_vsg_env_v4`** (paper-faithful H₀=100,
+  ZERO_G4_INERTIA=True for reproducibility of paper numbers). V5 is
+  opt-in for plant-deviation experiments only.
+- **No Simulink 1:1 chase** (ADR-0005): R08–R17 forensic 120 min 0
+  root cause 已证回报为零. ANDES = single platform of record.
+- **V5 ckpt namespace separation**: V5 ckpt 走 `r80+_*`, 不与 V4 ckpt 混.
+  Cross-eval 用 `r80_v5_cross_eval.py` 三 plant (V4 / V5_w2_only /
+  V5_gencls_fall) 一起跑.
 - Regression: `tests/test_v4_env_regression.py` must stay green at
   1e-9 tolerance against the PRE_REFACTOR baseline JSONs
+- **Plateau status (R86)**: critic Q is monotone along action axis +
+  argmax 在 boundary ±1 (CLM-0148/0149 universal N=6). R57–R82 共
+  91 算法侧 trial plateau 已确认结构性, 不是 hyper 调参问题. 突破
+  路径在 reward shaping / env physics / classical baseline 补强 (R85),
+  不在 algo dim.
+- **Novel architecture status (R82)**: TD3-Transformer / TD3-LSTM2 在
+  75 ep budget 下均 ≤ R72_w4 baseline (CLM-0144/0145). Transformer
+  deterministic-eval collapse 是 known issue.

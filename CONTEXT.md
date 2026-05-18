@@ -1,7 +1,7 @@
 # CONTEXT — andes-rl-kundur
 
 **Purpose:** canonical glossary + architecture decisions for this repo.
-**Last updated:** 2026-05-17
+**Last updated:** 2026-05-19 (R80–R86: V5 env entry + 风机沉默 framing)
 
 This file captures terms and decisions that are not derivable from the code
 alone. For research-state facts (numerical results, round verdicts, claims),
@@ -19,10 +19,30 @@ Any file outside this flow is research scaffolding, not load-bearing for
 the paper.
 
 ### `V4 env`
-`andes_vsg_env_v4.py`. The only env in active use. Paper-faithful:
+`andes_vsg_env_v4.py`. The paper-path canonical env. Paper-faithful:
 H₀=100, Eq.14 strict, φ_d rescaled to 0.0056 (lower clamp from R18–R19).
-V1/V2/V3 are historical ancestors; V4 will be made self-contained
-(no inheritance) during the 2026-05-16 refactor.
+V1/V2/V3 are historical ancestors. **Plant 风机近似**: G4 @ Bus 11 用
+GENROU + `ZERO_G4_INERTIA=True` (H=0 退化为风机), W2 @ Bus 8 用
+GENCLS M=0.1。两者都是 paper Sec.II "neglect inner loop" 声明下的
+合法近似。**R57+ 全部 SOTA ckpt 依赖 V4 bit-identical reproducibility**;
+不动 V4 / V4Config / base_env / paper_grade_axes.py。
+
+### `V5 env`
+`andes_vsg_env_v5.py` (R80 起新增, ADR-0004)。与 V4 并存。G4 + W2
+plant 风机近似升级为 ANDES REGCA1 (+REECA1 if needed)。Framing 是
+**ANDES 侧 plant 颗粒度工程升级, paper-deviation** — 不是 "更 paper-faithful"
+(paper Sec.II 显式 "neglect inner loop", REGCA1 反方向; paper Sec.IV-A
+风机模型沉默, "对齐" 无据)。Contribution path 阶梯 C3→C2→C1, 按结果定。
+新 ckpt 走 `r80+_*` namespace, 不污染 V4 ckpt 区。
+
+### `paper 风机沉默`
+paper Yang2023 Sec.IV-A 关于风电场模型的全部信息: "Generator 4...
+replaced by a wind farm with the same capacity" + "100 MW wind farm
+connected to bus 8"。**未指定** Type 3/4 / GFL/GFM / WECC trio /
+inertia emulation / 控制策略。任何 "对齐 paper 风机" 的论述都缺乏 paper
+文字支撑 (R80 grill 阶段 cross-reference 全文确认)。残留 2× max_df 残差
+(R08 实测 0.266 vs paper 0.13) 归因主要在 paper 未给的 line/load/SBASE/solver,
+不是风机模型 — 见 ADR-0004 / ADR-0005。
 
 ### `Asset 4 / ranker`
 `paper_grade_axes.py`. Paper-cited. Computes the 6-axis geometric mean
