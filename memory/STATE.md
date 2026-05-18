@@ -31,7 +31,6 @@
 - Q-0005 [opened R56] Why does TD3+LSTM seed 50 collapse while seeds 49/51 converge?
 - Q-0008 [opened R58] Verify paper-metric ranking persists at 500-ep paper convergence horizon
 - Q-0014 [opened R80] 算法侧能否突破 V4 attractor 0.137 / R72_w4 SOTA 0.391 — include_time_obs / centralized critic / SAC LSTM 等候选
-- Q-0015 [opened R81] train.py --gamma flag 对 td3_lstm 是否 silent ignore (R81 W9 6 数字 4 位小数 = baseline)
 - Q-0017 [opened R82] TransformerActor rollout zero-padding pathology 修复方案 (R82-W1 deterministic eval LS1=LS2=0)
 - Q-0019 [opened R86] Does distributional critic (IQN/QR head) break the monotone-Q pathology in CLM-0155?
 - Q-0020 [opened R88] Does transient-phase replay reweighting (×2-5 weight on step 0-5 samples) break the 0.391 plateau on R72_w4 hyper?
@@ -39,11 +38,11 @@
 
 ## Recently Closed (last 3)
 
+- Q-0015 closed-negative @ R91, by CLM-0164 — train.py --gamma flag 对 td3_lstm 是否 silent ignore (R81 W9 6 数字 4 位小数 = baseline)
 - Q-0018 closed-negative @ R84, by CLM-0160 — R84-D2 Q-landscape monotone-in-action pathology on prior obs —
 does it persist on the SOTA state distribution (ANDES trajectory)?
 
 - Q-0016 closed-positive @ R83, by CLM-0159 — INCLUDE_OWN_ACTION_OBS=1 训练 ckpt 不能 --final-eval (R81 W2 LSTM input dim mismatch crash)
-- Q-0012 closed-negative @ R67, by CLM-0106 — hidden_size U-curve flattens under lr=3e-3 — is h=96 (or h=32) marginally better than h=64 at 3-seed?
 
 ## Latest Round
 
@@ -66,7 +65,7 @@ see `memory/rounds/R95/plan.md` (in-flight)
 
 ## Stats
 
-165 claims (109 finding / 41 decision / 15 correction) · 84 rounds · 21 questions (9 open / 12 closed)
+166 claims (109 finding / 41 decision / 16 correction) · 84 rounds · 21 questions (8 open / 13 closed)
 
 ## 历史简报
 
