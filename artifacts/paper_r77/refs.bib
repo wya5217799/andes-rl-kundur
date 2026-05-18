@@ -539,3 +539,104 @@
             companion paper is on arXiv.},
   year   = {2026}
 }
+
+%% R77 review-round additions — MARL-recurrence literature (R3) + VSG (R2)
+
+@inproceedings{wang2020rmaddpg,
+  author    = {Wang, Yihan and Han, Beining and Wang, Tonghan and Dong, Heng and Zhang, Chongjie},
+  title     = {{R-MADDPG} for Partially Observable Environments and Limited Communication},
+  booktitle = {ICML Workshop on Reinforcement Learning for Real Life},
+  year      = {2020},
+  note      = {Recurrent MADDPG with centralised critic; reference for
+               multi-agent recurrent literature engaged in Sec.\ \ref{sec:lstm}.}
+}
+
+@inproceedings{rashid2018qmix,
+  author    = {Rashid, Tabish and Samvelyan, Mikayel and Schroeder, Christian and
+               Farquhar, Gregory and Foerster, Jakob and Whiteson, Shimon},
+  title     = {{QMIX}: Monotonic Value Function Factorisation for Deep Multi-Agent Reinforcement Learning},
+  booktitle = {International Conference on Machine Learning (ICML)},
+  year      = {2018},
+  note      = {Recurrent value functions + mixing network; SMAC benchmark baseline.}
+}
+
+@inproceedings{foerster2016rialdial,
+  author    = {Foerster, Jakob N. and Assael, Yannis M. and de Freitas, Nando and Whiteson, Shimon},
+  title     = {Learning to Communicate with Deep Multi-Agent Reinforcement Learning},
+  booktitle = {Neural Information Processing Systems (NeurIPS)},
+  year      = {2016},
+  note      = {RIAL / DIAL: differentiable communication between recurrent agents.}
+}
+
+@article{yu2022mappo,
+  author    = {Yu, Chao and Velu, Akash and Vinitsky, Eugene and Gao, Jiaxuan and
+               Wang, Yu and Bayen, Alexandre and Wu, Yi},
+  title     = {The Surprising Effectiveness of {PPO} in Cooperative Multi-Agent Games},
+  journal   = {Neural Information Processing Systems (NeurIPS)},
+  year      = {2022},
+  note      = {MAPPO + recurrence; current strong on-policy MARL baseline.}
+}
+
+@inproceedings{kapturowski2019r2d2,
+  author    = {Kapturowski, Steven and Ostrovski, Georg and Quan, John and
+               Munos, Remi and Dabney, Will},
+  title     = {Recurrent Experience Replay in Distributed Reinforcement Learning},
+  booktitle = {International Conference on Learning Representations (ICLR)},
+  year      = {2019},
+  note      = {R2D2: episode-keyed sequence-replay buffer + burn-in; foundational
+               recurrent-RL replay reference.}
+}
+
+@article{wu2016vsg,
+  author    = {Wu, Heng and Ruan, Xinbo and Yang, Donghua and Chen, Xuehua and
+               Zhao, Wenhao and Lv, Zhipeng and Zhong, Qing-Chang},
+  title     = {Small-Signal Modeling and Parameters Design for Virtual Synchronous Generators},
+  journal   = {IEEE Transactions on Industrial Electronics},
+  volume    = {63},
+  number    = {7},
+  pages     = {4292--4303},
+  year      = {2016},
+  doi       = {10.1109/TIE.2016.2535975},
+  note      = {Canonical VSG small-signal analysis; motivates the
+               $\Delta H / \Delta D$ action bounds and the 0.2-s control step.}
+}
+
+@article{poolla2017inertia,
+  author    = {Poolla, Bala Kameshwar and Bolognani, Saverio and D{\"o}rfler, Florian},
+  title     = {Optimal Placement of Virtual Inertia in Power Grids},
+  journal   = {IEEE Transactions on Automatic Control},
+  volume    = {62},
+  number    = {12},
+  pages     = {6209--6220},
+  year      = {2017},
+  doi       = {10.1109/TAC.2017.2703302},
+  note      = {Inertia-redistribution optimisation; relates to Yang's
+               Proposition 1 motivation that this work inherits.}
+}
+
+@article{tamrakar2017vsg,
+  author    = {Tamrakar, Ujjwol and Shrestha, Diptish and Maharjan, Manisha and
+               Bhattarai, Bishnu P. and Hansen, Timothy M. and Tonkoski, Reinaldo},
+  title     = {Virtual Inertia: Current Trends and Future Directions},
+  journal   = {Applied Sciences},
+  volume    = {7},
+  number    = {7},
+  pages     = {654},
+  year      = {2017},
+  doi       = {10.3390/app7070654},
+  note      = {Broad VSG / virtual-inertia survey reference.}
+}
+
+@article{rakhshani2017inertia,
+  author    = {Rakhshani, Elyas and Rodriguez, Pedro},
+  title     = {Inertia Emulation in {AC/DC} Interconnected Power Systems Using Derivative Technique Considering Frequency Measurement Effects},
+  journal   = {IEEE Transactions on Power Systems},
+  volume    = {32},
+  number    = {5},
+  pages     = {3338--3351},
+  year      = {2017},
+  doi       = {10.1109/TPWRS.2016.2644698},
+  note      = {Derivative-based inertia emulation; reference for the
+               $\Delta\dot\omega$ observation channel that Yang's
+               7-vector obs uses.}
+}

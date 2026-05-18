@@ -62,11 +62,17 @@ multiplied into the headline. This collapses the gap between the
 analytic ranking and the paper-figure-equivalent visual ranking
 (canonical-best controller v3.1 = 0.391 with $P_{\text{balance}} =
 0.96$, vs.\ a pre-fix top-of-leaderboard agent that visibly collapsed
-in the time-domain plot). Second, we discover a recurrent multi-agent
+in the time-domain plot). Second, we apply a recurrent multi-agent
 policy: \emph{TD3+LSTM} with an episode-keyed sequence replay and a
-twenty-episode learning-rate warm-up reaches a new single-seed peak
-of v3.1 = 0.430 on seed 59 ($+4.9\%$ over the previous tau-only
-SOTA), with a six-seed mean of 0.369 on the healthy seed set
+twenty-episode learning-rate warm-up reaches a single-seed peak
+of v3.1 = 0.430 on seed 59. We note this is +9\% over the strongest
+feed-forward TD3 controller (Table~\ref{tab:headline}) but only
++4.9\% over the prior LSTM controller at the same $\tau$ but
+shorter warm-up: the latter gap is within the seed-variance band
+(per-seed SD across the healthy set $\sim 0.05$,
+Table~\ref{tab:warmup}) and should be read as a within-class
+sensitivity result rather than an architecture-level improvement.
+The six-seed mean is 0.369 on the healthy seed set
 $\{50, 52, 54, 55, 56, 59\}$ (the broader healthy set
 $\{50, 51, 52, 54, 55, 56, 59\}$ excludes only the warm-up-20
 collapse of seed 51, which we treat as a per-seed warm-up
@@ -148,7 +154,20 @@ the original work did not test.
         across the episode, gated by an episode-keyed sequence
         replay buffer in the form of~\cite{ni2022recurrent}. With a twenty-episode learning-rate
         warm-up and $\tau = 0.001$, single-seed performance reaches
-        v3.1 = 0.430 (CLM-0131; +4.9\% over the previous tau-only
+        v3.1 = 0.430 (recorded in the project's append-only
+        claim ledger as CLM-0131\footnote{Throughout this paper,
+        identifiers of the form ``CLM-0NNN'' and ``R6N--R7N''
+        refer to the project's append-only research log, hosted
+        in the repository under \texttt{memory/claims/} and
+        \texttt{memory/rounds/}. The release SHA listed in the
+        \texttt{README.md} pins the exact code state that produced
+        every number in this paper; the trace JSONs underlying
+        Tables I--V are committed under
+        \texttt{results/research\_loop/eval\_v4\_baseline/} at
+        that SHA. A reader does not need to consult the ledger to
+        reproduce a number, but the identifiers are provided so
+        each table cell is traceable to a specific training run.};
+        +4.9\% over the previous LSTM tau-only
         SOTA), with a six-seed mean of 0.369 on the healthy seed
         subset. We additionally observe that one seed (s51) peaks at
         warm-up 10 rather than warm-up 20; the per-seed warm-up
@@ -194,21 +213,40 @@ We use the same modified Kundur four-machine system as
 second 100\,MW wind farm W2 is added at Bus~8, and four ESS-VSG
 agents (ES1@Bus~12, ES2@Bus~16, ES3@Bus~14, ES4@Bus~15) provide
 inertia and damping (Fig.~\ref{fig:topology}). Each agent's
-observation is a 7-vector ($\Delta f_i$, $\Delta f_{i-1}$,
-$\Delta f_{i+1}$, plus four auxiliary signals); each agent's
-action is the two-vector $(\Delta H_i, \Delta D_i)$ clipped to the
-bounds given in \cite[Sec.~IV-B]{yang2023ddic}. Simulation uses
+observation is the paper's 7-vector $o_i = (\Delta P_{es,i},
+\Delta\omega_i, \Delta\dot\omega_i, \Delta\omega^c_{i,j_1},
+\Delta\omega^c_{i,j_2}, \Delta\dot\omega^c_{i,j_1},
+\Delta\dot\omega^c_{i,j_2})$, where $j_1, j_2$ are the agent's
+two communication neighbours; the comm topology is the
+fully-connected pair-set $\{(\text{ES1, ES3}),
+(\text{ES1, ES4}), (\text{ES2, ES3}), (\text{ES2, ES4})\}$
+inferred from Fig.~3 of \cite{yang2023ddic} (the paper does not
+state the topology in text). Each agent's action is the two-vector
+$(\Delta H_i, \Delta D_i)$ clipped to
+$\Delta H_i \in [-100, +300]$\,s and $\Delta D_i \in [-200, +600]$
+\,p.u.\ on a 100\,MVA base, as specified in
+\cite[Sec.~IV-B]{yang2023ddic}; the V4 environment uses the
+IEEE-standard $2H/\omega_s$ swing convention and stores $H$ in
+seconds (consistent with the paper's numerical bounds).
+Simulation uses
 ANDES phasor equilibrium with control-step
 $\Delta t_{\text{ctrl}} = 0.2$\,s, episode length $M = 50$ steps
-(10\,s of physical time), and a per-step communication-failure
-probability of $p_{\text{cf}} = 0.1$. The latter is a project
-default: Yang \emph{et al.}~\cite[Sec.~IV-D]{yang2023ddic}
-report that ``communication failure has little influence on
-control performance'' but do not specify a numerical
-$p_{\text{cf}}$; we adopt $0.1$ to keep the comparison
-conservative (a non-trivial dropout rate stresses the
-recurrent agent's hidden-state continuity), following the
-project-side convention of~\cite[ADR communication]{wei2026reproduction}.
+(10\,s of physical time), and a per-step independent
+communication-failure probability of $p_{\text{cf}} = 0.1$. The
+latter is a project default: Yang \emph{et al.}\
+\cite[Sec.~IV-D]{yang2023ddic} report that ``communication
+failure has little influence on control performance'' but do not
+specify a numerical $p_{\text{cf}}$. The $0.1$ choice produces
+$\sim 5$ expected dropouts per 10-s episode -- closer to a
+``perpetually-degraded comms'' stress test than a typical
+SCADA/WAMS failure rate, which would be at least an
+order-of-magnitude lower. We chose this setting in the project's
+prior reproduction work~\cite[ADR communication]{wei2026reproduction}
+to stress-test the recurrent agent's hidden-state continuity; the
+same setting is retained here so the LSTM contribution is
+measured under identical communication conditions to the
+project's prior SAC and TD3 baselines. A lower $p_{\text{cf}}$
+ablation is left to future work.
 
 \begin{figure}[!t]
   \centering
@@ -238,11 +276,25 @@ r_t = -\varphi_f \sum_i (\Delta \omega_{i,t})^2
       - \varphi_D \sum_i (\Delta D_{i,t})^2,
 \end{equation}
 
-(the paper's reward additionally contains a neighbour
-synchronisation term in $r^f$ and a mean-then-square aggregation
-in $r^H / r^D$; see~\cite[Eq.~15--18]{yang2023ddic} and the
-companion paper~\cite[ADR-0002]{wei2026reproduction} for the
-project-side simplification rationale). The numerical weights are
+\textbf{which changes the control objective from synchronisation
+to absolute-deviation suppression}: the paper's reward uses
+$r^f_i = -(\Delta\omega_i - \overline{\Delta\omega}_i)^2 -
+\sum_j (\Delta\omega^c_{i,j} - \overline{\Delta\omega}_i)^2 \eta_j$
+which is zero when all agents are equally offset from nominal
+\cite[Eq.~15]{yang2023ddic}, and a mean-then-square aggregation
+$r^H_i = -(\overline{\Delta H})^2,\ r^D_i = -(\overline{\Delta D})^2$
+\cite[Eq.~17--18]{yang2023ddic} that permits redistribution
+($\Delta H_1 = +200, \Delta H_2 = -200$) at zero penalty. The V4
+form in Eq.~\ref{eq:reward} drops both: it penalises every agent's
+absolute frequency deviation and every agent's individual
+$|\Delta H|$. Consequently the V4 agent learns to \emph{restore}
+frequency (drive every $\Delta\omega_i \to 0$) rather than to
+\emph{synchronise} neighbours, and to keep every $|\Delta H|$
+individually small rather than to redistribute across agents. The
+project-side rationale (numerical stability + comparability to the
+project's prior project SAC SOTA) is in~\cite[ADR-0002]{wei2026reproduction};
+we adopt the V4 form here so the LSTM contribution is measured on
+the same training reward as the prior project SAC/TD3 baselines. The numerical weights are
 $\varphi_f = 100$ from~\cite[Sec.~IV-B]{yang2023ddic}. For
 numerical stability
 under the ANDES backend we adopt the rescaled action-penalty
@@ -257,10 +309,17 @@ weights here so the LSTM contribution can be measured against the
 prior project SOTA on the same training reward.
 
 All training numbers in this paper use the paper-faithful-modified
-reward (the default V4 configuration: paper Eq.~14 plus a
-non-paper $\varphi_{\text{abs}} = 50$ activation term and the R18
-rescale on $\varphi_H / \varphi_D$, which the companion
-study~\cite[ADR-0002]{wei2026reproduction} documents); three
+V4 reward: Eq.~\ref{eq:reward} above, plus a non-paper
+``action-activation'' term
+\begin{equation}\label{eq:phi_abs}
+  r_t^{\text{abs}} = -\varphi_{\text{abs}} \sum_i (|\Delta H_i| + |\Delta D_i|),
+  \quad \varphi_{\text{abs}} = 50,
+\end{equation}
+which encourages every agent to actuate (the gating-axis A9 of
+Sec.~\ref{sec:ranker} measures the same property at evaluation
+time, but the training-time activation term is what made the
+multi-agent participation property reliable across seeds; see
+\cite[ADR-0002]{wei2026reproduction} for the rationale). Three
 additional paper-strict reward variants are available in the V4
 environment for ablation but are not used in this paper. All
 \emph{evaluation} cum-$r_f$ values are computed under the
@@ -391,21 +450,26 @@ continuous axes leave undetected:
         does 70\,\% of the work even when all four are active.
 \end{itemize}
 
-The three gating axes form their own geometric mean
+The three gating axes are aggregated by a per-axis minimum
+(``any single gate near zero collapses the headline''):
 
 \begin{equation}\label{eq:gate}
-  G_{\text{gate}}
-    = \exp\!\left(
-        \frac{1}{3} \sum_{k=9}^{11} \log\max(s_k, 0.01)
-      \right),
+  G_{\text{gate}} = \min_{k \in \{9, 10, 11\}} s_k,
 \end{equation}
 
-which is \emph{multiplied} into the continuous mean to give the
-headline v3.1 score:
+and the headline v3.1 score multiplies this gate into the
+continuous geometric mean:
 
 \begin{equation}\label{eq:v31}
   G_{v3.1} = G_{\text{cont}} \cdot G_{\text{gate}}.
 \end{equation}
+
+(Earlier ranker iterations took a geometric mean over the three
+gating axes; for v3.1 we replaced the geometric mean with a $\min$
+because empirically the per-axis $\min$ produced rankings that
+agreed better with the visual paper-figure quality on the
+demotion case study of Sec.~\ref{sec:demotion}. The change is
+discussed further in Sec.~\ref{sec:results}.)
 
 \subsection{Why multiplicative gating}
 
@@ -529,6 +593,32 @@ to estimate disturbance type and magnitude, then condition action on
 that integrated state. The benchmark is partially observable in the
 formal sense \cite{hausknecht2015drqn,ni2022recurrent}, and a
 recurrent policy class is the principled fit.
+
+\subsection{Related work on recurrent multi-agent RL}
+
+Recurrent policies in MARL have a substantial literature. R-MADDPG
+\cite{wang2020rmaddpg} adds GRU/LSTM recurrence to MADDPG's
+centralised critic + decentralised actor; QMIX
+\cite{rashid2018qmix} pairs recurrent value functions with a mixing
+network; RIAL/DIAL \cite{foerster2016rialdial} introduces
+differentiable communication channels between recurrent agents;
+MAPPO-with-recurrence \cite{yu2022mappo} is the current strong
+on-policy baseline. R2D2 \cite{kapturowski2019r2d2} pioneered the
+episode-keyed sequence-replay buffer with burn-in for distributed
+value learning. Our architecture is deliberately
+\emph{less} expressive than this literature -- it is
+\emph{independent learners} (IL) with per-agent recurrence and
+no centralised critic, parameter sharing, or differentiable
+communication. The IL framing is appropriate here for two reasons:
+(i) the paper's communication model already provides each agent
+with its two neighbours' frequency, so the centralisation gain of
+a CTDE critic is limited; (ii) the contribution of this paper is
+the \emph{evaluation methodology} (Sec.~\ref{sec:ranker}) and the
+\emph{ensemble negative result} (Sec.~\ref{sec:hawe}), not a new
+MARL architecture. The TD3+LSTM controller is best read as an
+application of the Ni \emph{et al.}\ \cite{ni2022recurrent}
+recurrent-RL recipe to a 4-agent VSG setting, with the
+ranker and HAWE results as the methodological contribution.
 
 \subsection{Architecture}
 
@@ -758,10 +848,18 @@ settles below the paper's $\pm 0.13$\,Hz envelope within the paper's
     LSTM, $\tau$=0.001, warm-up 5 (R68)
                                & 0.391  & 0.348  \\
     \textbf{LSTM, $\tau$=0.001, warm-up 20 (R75)}
-                               & \textbf{0.4301} & \textbf{0.3694} \\
+                               & \textbf{0.4301} & \textbf{0.3694 $\pm$ 0.020} \\
     HAWE (top-2 mean, s54+s59) & 0.4212 & ---    \\
     \bottomrule
   \end{tabular}
+  \vspace{2pt}
+  {\footnotesize $\pm$ values are standard errors of the per-seed
+  mean (bootstrap 95\% CI on the LSTM SOTA row: $[0.333, 0.405]$,
+  $10^4$ resamples, RNG seed 2026). Per-seed SD across the
+  healthy subset is $0.050$; the LSTM SOTA / canonical gap
+  (Table~\ref{tab:warmup} row 7) of $0.0202$ is well within $1\,\sigma$
+  of this SD, so the within-policy-class ranking should be read as
+  a sensitivity result, not a definitive improvement.}
 \end{table}
 
 \subsection{Paper-metric cum-$r_f$ on the 20-scenario test set}\label{sec:cum-rf}
@@ -847,7 +945,9 @@ peak $|\Delta f|$.
     Controller & 3-seed mean cum-$r_f$ & vs.\ project SAC baseline \\
     \midrule
     No control (project re-run)                & $\sim -3.99$ & --- \\
-    Adaptive baseline ($K_H = 10, K_D = 400$)  & $\sim -1.06$ & ---  \\
+    Adaptive baseline ($K_H = 10, K_D = 400$, tuned by
+      grid-search on a held-out 4-scenario validation subset
+      disjoint from the 20-scenario test set)  & $\sim -1.06$ & ---  \\
     Project SAC baseline (paper-faithful)      & $-0.422$  & ---       \\
     SAC + $\tau$=0.001 + combo (R65/R68)       & $-0.188$  & $+55\%$   \\
     TD3 + Q-0007 + combo (R62)                 & $-0.225$  & $+47\%$   \\
@@ -891,8 +991,12 @@ robust to the noise reduction.
 
 Of twelve random seeds we tested for the warm-up~20 configuration,
 five collapsed to a degenerate policy with LS1 $\Delta f$-tracking
-score below 0.05 (axis A1; CLM-0133). The dead seed set is
-$\{49, 53, 57, 58, 60\}$. The drift mechanism is not exploration
+score below 0.05 (axis A1; pre-registered filter: any seed whose
+LS1 A1 score is below $0.05$ is excluded from the headline mean).
+The dead seed set under this filter is $\{49, 53, 57, 58, 60\}$.
+The drift rate $5/12 = 41.7\%$ has a Wilson 95\% confidence
+interval of $[19.3\%, 68.0\%]$; the small sample size means even
+the lower bound is non-trivial. The drift mechanism is not exploration
 noise (Sec.~\ref{sec:warmup}); we hypothesise initialisation-induced
 critic over-estimation in the first hundred episodes, before the
 warm-up ramp reaches its final value, but a definitive root-cause
