@@ -1152,7 +1152,11 @@ per-cell results are in
   the same hyperparameter setting. ``Critic re-roll'' (E4) tests
   the critic-init drift hypothesis of Sec.~\ref{sec:warmup}.
   ``Long horizon'' (E1) extends training to the paper's full
-  500-episode budget.}
+  500-episode budget. ``Code-drift bisection'' (E3) re-trains each
+  of the eight commits R58$\rightarrow$R59 in topological order at
+  the CLM-0104 LSTM s51 wu=5 configuration and scores under v3.1;
+  no single commit is the offender on this range under the v3.1
+  ranker.}
   \label{tab:phase3}
   \scriptsize
   \begin{tabular}{lccl}
@@ -1181,6 +1185,18 @@ per-cell results are in
     s56 & 500 ep       & 0.2208 & vs.\ 75-ep 0.3763 (\textbf{$-41\%$}) \\
     s59 & 500 ep       & 0.2392 & vs.\ 75-ep 0.4301 (\textbf{$-44\%$}) \\
     \textbf{aggregate} & $n=3$       & \textbf{$0.24 \pm 0.02$} & long horizon degrades, not improves \\
+    \midrule
+    \multicolumn{4}{l}{\emph{E3: code-drift bisection R58$\rightarrow$R59
+      (topological order; s51, wu=5, $\tau$=0.005)}} \\
+    R58 \texttt{e8427df} & paper-strict audit & 0.358 & --- \\
+    R60 \texttt{2752a8f} & probes (no-control) & 0.358 & --- \\
+    R61 \texttt{1a3a4ad} & monitor + Q-0007 & 0.358 & atexit handler added \\
+    R62 \texttt{48c466c} & Q-0007 verify & 0.358 & --- \\
+    R63 \texttt{6671e8d} & env-var overrides A & 0.358 & N\_SUBSTEPS / MAX\_GRAD\_NORM \\
+    R64 \texttt{6c27ae1} & env-var overrides B & 0.358 & LR / EXPLORE\_NOISE \\
+    R65 \texttt{4c5327a} & env-var overrides C & 0.358 & LSTM\_LR\_UNCLAMP \\
+    R59 \texttt{43d203b} & PI-briefing doc & 0.358 & doc-only on training path \\
+    \textbf{aggregate} & $n=8$ & \textbf{$0.358 \pm 0$} & max $|\Delta v_{3.1}| < 10^{-4}$; no cliff under v3.1 \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -1228,6 +1244,27 @@ smoothing interacts with the recurrent actor's hidden state
 differently from a hybrid Simulink integration. Q-0008 closes
 negative; the open question becomes ``why do LSTM policies
 degrade past episode 100 on ANDES?''.
+
+\paragraph{E3 (code-drift bisection: no v3.1 cliff on R58$\rightarrow$R59).}
+CLM-0104 in our claims ledger reported a $-19\%$ 6-axis regression
+between R57-$\alpha$ and R66 reproductions of the LSTM s51 wu=5
+configuration. To localise the offending commit we extracted each
+of the eight commits R58 (\texttt{e8427df}) $\rightarrow$ R65
+(\texttt{4c5327a}) $\rightarrow$ R59 (\texttt{43d203b}) via
+\texttt{git archive}, re-trained at the fixed
+(s51, wu=5, $\tau=$0.005, $h=$64) hyperparameter setting, and
+scored each ckpt under the v3.1 11-axis ranker.
+\emph{All eight commits reproduce bit-identically} at
+$v_{3.1}=0.358$ (max adjacent pair $|\Delta v_{3.1}| < 10^{-4}$).
+Under v3.1 there is therefore no commit-localised cliff on the
+R58--R65 range. This neither confirms nor refutes CLM-0104's
+6-axis observation -- two readings are consistent: (i) v3.1's
+multiplicative-gating policy dampens a perturbation that the
+legacy 6-axis ranker amplifies; (ii) the offending commit is
+earlier than R58 (e.g. between R49 and R57 where the env was
+refactored). Either way, the paper's headline numbers are stable
+under the project's current ranker. The Section~\ref{sec:limits}
+``Code-drift caveat'' bullet folds in this result.
 
 % ─────────────────────────────────────────────────────────────────────
 \section{Discussion}\label{sec:discussion}
@@ -1357,20 +1394,32 @@ supplementary materials.
         $0.426$ when re-trained nine rounds later under what we
         believed was the same code path. The memoryless TD3 and
         SAC variants reproduce cleanly under the same nine-round
-        gap. The candidate commit range was bisected to six
-        commits between rounds R58 and R65; the leading suspect is
-        the R61 monitor-extension commit, which added a Python
-        atexit handler that may interact with PyTorch's CUDA-less
-        RNG. We did not complete the bisection in time for this
-        submission. The numbers in this paper are pinned to the
-        post-regression code path. For reproducibility we publish
-        (a) the git SHA of the commit producing each table (see
-        \texttt{README.md}) and (b) the bit-identical regression
-        test \texttt{tests/test\_v4\_env\_regression.py} that has
-        held the V4 environment to $10^{-9}$ tolerance against the
-        pre-refactor baseline. Whether the LSTM-only $\sim$19\%
-        drift is a fundamental reproducibility limit or an
-        unidentified bug remains open.
+        gap. To localise the offending commit we ran Phase 3 E3:
+        bisecting the eight commits R58 (\texttt{e8427df}) $\rightarrow$
+        R60 (\texttt{2752a8f}) $\rightarrow$ R61 (\texttt{1a3a4ad})
+        $\rightarrow$ R62 (\texttt{48c466c}) $\rightarrow$ R63
+        (\texttt{6671e8d}) $\rightarrow$ R64 (\texttt{6c27ae1})
+        $\rightarrow$ R65 (\texttt{4c5327a}) $\rightarrow$ R59
+        (\texttt{43d203b}) in topological order, re-training each
+        from \texttt{git archive} at fixed (s51, wu=5, $\tau=$0.005)
+        and scoring under the project's current v3.1 11-axis ranker.
+        \emph{Every commit reproduced bit-identically: }
+        $v_{3.1} = 0.358$, $\text{cum\_rf} = -0.069$ at all eight
+        snapshots (max adjacent $|\Delta v_{3.1}| < 10^{-4}$). The
+        v3.1 ranker therefore does \emph{not} expose the CLM-0104
+        regression: either the drift is specific to the legacy
+        6-axis ranker (which v3.1's multiplicative gating may
+        dampen), or the offending commit lies outside the R58--R65
+        range we bisected. The numbers in this paper are pinned to
+        the post-regression code path. For reproducibility we
+        publish (a) the git SHA of the commit producing each table
+        (see \texttt{README.md}) and (b) the bit-identical
+        regression test \texttt{tests/test\_v4\_env\_regression.py}
+        that has held the V4 environment to $10^{-9}$ tolerance
+        against the pre-refactor baseline. Whether the LSTM-only
+        6-axis drift is a fundamental reproducibility limit, a
+        6-axis-ranker artifact, or an unidentified bug earlier than
+        R58 remains open.
 \end{enumerate}
 
 % ─────────────────────────────────────────────────────────────────────

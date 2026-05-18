@@ -1,13 +1,18 @@
-"""V4 batch DDIC eval — load every V4 trained seed, eval LS1+LS2, compute 6-axis,
-rank by mean overall score.
+"""V4 batch DDIC eval — load every V4 trained seed, eval LS1+LS2, compute
+canonical dual-eval (paper §IV-C cum_rf + 11-axis geo), rank by 6-axis geo.
 
 Auto-discovers ckpt dirs matching `results/v4_*_s{seed}/` pattern (must contain
 agent_{0..3}_best.pt OR agent_{0..3}_final.pt).
 
+R78: ranking switched from `max_df / paper_ratio` (frequency peak only)
+to the canonical 6-axis `geo` (eleven-axis paper_grade_axes). Each row
+carries both paper-metric ``cum_rf`` and the 6-axis ``geo`` so callers
+can re-sort by either. ``max_df`` is kept as a sanity-check column.
+
 Output:
   results/research_loop/eval_v4_baseline/
     ddic_v4_<variant>_s<seed>_load_step_{1,2}.json
-    eval_v4_summary.json   ← ranking by mean(LS1, LS2) overall score
+    eval_v4_summary.json   ← ranking by 6-axis geo (descending)
 """
 from __future__ import annotations
 
@@ -25,6 +30,7 @@ from andes_rl_kundur.evaluation.paper_path import (  # noqa: E402
     deterministic_actor_action_fn,
     run_scenario,
 )
+from andes_rl_kundur.evaluation.summary import score_trace_files  # noqa: E402
 from andes_rl_kundur.probes.andes_common.paper_constants import SCENARIOS  # noqa: E402
 
 STEPS = 150  # 30s @ DT=0.6 (matches eval_ddic.py)
@@ -60,13 +66,15 @@ def eval_one(variant: str, seed: int, ckpt_dir: Path) -> dict:
     suffix = "best" if (ckpt_dir / "agent_0_best.pt").exists() else "final"
     print(f"\n--- {label} (suffix={suffix}) ---")
     out: dict = {"variant": variant, "seed": seed, "ckpt_dir": str(ckpt_dir),
-                 "suffix": suffix, "label": label, "results": {}}
+                 "suffix": suffix, "label": label, "results": {}, "summary": None}
     try:
         agents = load_agents(ckpt_dir, suffix=suffix)
     except Exception as e:
         out["error"] = f"load_agents: {str(e)[:200]}"
         return out
     action_fn = deterministic_actor_action_fn(agents)
+
+    trace_paths: dict[str, Path] = {}
     for scen, du in SCENARIOS.items():
         try:
             rep = run_scenario(
@@ -76,25 +84,40 @@ def eval_one(variant: str, seed: int, ckpt_dir: Path) -> dict:
                 seed=EVAL_SEED,
                 steps=STEPS,
             )
-            (EVAL_OUT_DIR / f"{label}_{scen}.json").write_text(
+            trace_path = EVAL_OUT_DIR / f"{label}_{scen}.json"
+            trace_path.write_text(
                 json.dumps(rep, indent=2, default=str), encoding="utf-8"
             )
+            trace_paths[scen] = trace_path
             out["results"][scen] = {
                 "max_df": rep["max_df"],
-                "cum_rf": rep["cum_rf_total"],
+                "cum_rf_total_local": rep["cum_rf_total"],  # local r_f (not paper §IV-C)
                 "n_steps": rep["n_steps"],
             }
-            print(f"  {scen}: max_df={rep['max_df']:.3f} cum_rf={rep['cum_rf_total']:.1f}")
+            print(f"  {scen}: max_df={rep['max_df']:.3f} n_steps={rep['n_steps']}")
         except Exception as e:
             out["results"][scen] = {"error": str(e)[:200],
-                                     "trace": traceback.format_exc()[:500]}
+                                    "trace": traceback.format_exc()[:500]}
             print(f"  {scen} ERR: {str(e)[:100]}")
+
+    # R78: dual-eval (paper §IV-C cum_rf + 11-axis geo) via canonical helper.
+    if trace_paths:
+        try:
+            out["summary"] = score_trace_files(trace_paths, label=label, is_ddic=True)
+            s = out["summary"]
+            print(
+                f"  -> geo={s['geo']:.4f}  cum_rf={s['cum_rf']:.4f}"
+                if s.get("geo") is not None else "  -> dual-eval skipped (no traces)"
+            )
+        except Exception as e:
+            out["summary_error"] = str(e)[:200]
+            print(f"  dual-eval ERR: {str(e)[:100]}")
     return out
 
 
 def main() -> int:
     EVAL_OUT_DIR.mkdir(parents=True, exist_ok=True)
-    print(f"=== V4 batch eval (out → {EVAL_OUT_DIR}) ===\n")
+    print(f"=== V4 batch eval (out -> {EVAL_OUT_DIR}) ===\n")
 
     dirs = find_v4_ckpt_dirs()
     if not dirs:
@@ -109,34 +132,42 @@ def main() -> int:
         out = eval_one(variant, seed, ckpt_dir)
         summary.append(out)
 
-    # Ranking by mean(LS1, LS2) max_df (lower = better, since paper 0.13/0.10)
+    # R78: rank by canonical 6-axis geo (descending). Keep max_df for sanity-check.
     rank_rows = []
     for s in summary:
-        ls1 = s["results"].get("load_step_1", {}).get("max_df")
-        ls2 = s["results"].get("load_step_2", {}).get("max_df")
-        if ls1 is not None and ls2 is not None:
-            rank_rows.append({
-                "label": s["label"],
-                "variant": s["variant"],
-                "seed": s["seed"],
-                "ls1_max_df": ls1,
-                "ls2_max_df": ls2,
-                "ls1_paper_ratio": ls1 / 0.13,
-                "ls2_paper_ratio": ls2 / 0.10,
-                "mean_ratio": (ls1 / 0.13 + ls2 / 0.10) / 2,
-            })
-    rank_rows.sort(key=lambda r: r["mean_ratio"])
+        smry = s.get("summary") or {}
+        if smry.get("geo") is None:
+            continue
+        ls1_max_df = s["results"].get("load_step_1", {}).get("max_df")
+        ls2_max_df = s["results"].get("load_step_2", {}).get("max_df")
+        rank_rows.append({
+            "label": s["label"],
+            "variant": s["variant"],
+            "seed": s["seed"],
+            "geo": smry["geo"],
+            "LS1_geo": smry["LS1"],
+            "LS2_geo": smry["LS2"],
+            "cum_rf": smry["cum_rf"],
+            "cum_rf_LS1": smry["cum_rf_LS1"],
+            "cum_rf_LS2": smry["cum_rf_LS2"],
+            "ls1_max_df": ls1_max_df,
+            "ls2_max_df": ls2_max_df,
+        })
+    rank_rows.sort(key=lambda r: -r["geo"])
 
     summary_path = EVAL_OUT_DIR / "eval_v4_summary.json"
     summary_path.write_text(
         json.dumps({"detail": summary, "ranking": rank_rows}, indent=2, default=str),
         encoding="utf-8",
     )
-    print("\n=== Ranking by mean paper_ratio (lower = better) ===")
-    print(f"{'rank':<5}{'label':<40}{'LS1 max_df':>12}{'ratio':>8}{'LS2 max_df':>12}{'ratio':>8}")
+    print("\n=== Ranking by 6-axis geo (higher = better) ===")
+    print(f"{'rank':<5}{'label':<40}{'geo':>8}{'cum_rf':>10}"
+          f"{'LS1 max_df':>12}{'LS2 max_df':>12}")
     for i, r in enumerate(rank_rows, 1):
-        print(f"{i:<5}{r['label']:<40}{r['ls1_max_df']:>12.3f}{r['ls1_paper_ratio']:>8.2f}"
-              f"{r['ls2_max_df']:>12.3f}{r['ls2_paper_ratio']:>8.2f}")
+        print(
+            f"{i:<5}{r['label']:<40}{r['geo']:>8.4f}{r['cum_rf']:>10.3f}"
+            f"{(r['ls1_max_df'] or 0.0):>12.3f}{(r['ls2_max_df'] or 0.0):>12.3f}"
+        )
     print(f"\nSaved: {summary_path}")
     return 0
 

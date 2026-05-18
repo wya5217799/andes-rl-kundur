@@ -1,10 +1,14 @@
-"""Tests for eval_ensemble's recurrent-actor reset hook.
+"""Tests for the ensemble action-fn's recurrent-actor reset hook.
 
-R57-β: the ``_ensemble_action_fn`` closure must call ``begin_episode``
-on every recurrent actor at scenario boundaries (``step == 0``). The
-analog hook in ``paper_path.deterministic_actor_action_fn`` was added
-in R56, but the parallel code path here was not — silent miscompile
-risk for HAWE-LSTM ensembles.
+R57-β: ``build_ensemble_action_fn`` must call ``begin_episode`` on every
+recurrent actor at scenario boundaries (``step == 0``). The analog hook
+in ``paper_path.deterministic_actor_action_fn`` was added in R56, but
+the parallel code path here was not — silent miscompile risk for
+HAWE-LSTM ensembles.
+
+R78: tests now import the library function directly. The previous
+``scripts/eval_ensemble.py:_ensemble_action_fn`` alias was deleted along
+with the ``sys.path`` hack into ``scripts/``.
 """
 from __future__ import annotations
 
@@ -15,15 +19,14 @@ import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
-sys.path.insert(0, str(ROOT / "scripts"))
+
+from andes_rl_kundur.evaluation.ensemble import build_ensemble_action_fn
 
 
 def test_ensemble_action_fn_resets_recurrent_at_scenario_boundary():
-    """When ``_ensemble_action_fn`` is reused across scenarios, the
+    """When ``build_ensemble_action_fn`` is reused across scenarios, the
     closure must call ``begin_episode()`` at ``step == 0`` on each
     recurrent agent across every ckpt set."""
-    from eval_ensemble import _ensemble_action_fn
-
     class StubLSTMAgent:
         is_recurrent = True
 
@@ -50,7 +53,7 @@ def test_ensemble_action_fn_resets_recurrent_at_scenario_boundary():
     set_b = [StubMLPAgent() for _ in range(4)]
     all_actors = [set_a, set_b]
     weights = np.array([0.5, 0.5])
-    fn = _ensemble_action_fn(all_actors, agg="mean", weights=weights)
+    fn = build_ensemble_action_fn(all_actors, agg="mean", weights=weights)
 
     obs = {i: np.zeros(7, dtype=np.float32) for i in range(4)}
 
@@ -75,8 +78,6 @@ def test_ensemble_action_fn_handles_mixed_recurrent_and_mlp_sets():
     """Edge case: one ckpt set is LSTM, another is MLP — only the LSTM
     set should see begin_episode calls. The MLP set is silently skipped
     via the ``is_recurrent`` hasattr guard."""
-    from eval_ensemble import _ensemble_action_fn
-
     class StubLSTMAgent:
         is_recurrent = True
 
@@ -99,7 +100,7 @@ def test_ensemble_action_fn_handles_mixed_recurrent_and_mlp_sets():
     set_mlp = [StubMLPAgent() for _ in range(4)]
     all_actors = [set_lstm, set_mlp]
     weights = np.array([0.5, 0.5])
-    fn = _ensemble_action_fn(all_actors, agg="weighted", weights=weights)
+    fn = build_ensemble_action_fn(all_actors, agg="weighted", weights=weights)
     obs = {i: np.zeros(7, dtype=np.float32) for i in range(4)}
 
     fn(0, obs, 4)
@@ -114,8 +115,6 @@ def test_ensemble_action_fn_handles_mixed_recurrent_and_mlp_sets():
 def test_ensemble_action_fn_does_not_reset_mid_scenario():
     """begin_episode must NOT be called at step > 0. Otherwise the
     hidden state resets every step, defeating the LSTM."""
-    from eval_ensemble import _ensemble_action_fn
-
     class StubLSTMAgent:
         is_recurrent = True
 
@@ -129,7 +128,7 @@ def test_ensemble_action_fn_does_not_reset_mid_scenario():
             return np.zeros(2, dtype=np.float32)
 
     actors = [StubLSTMAgent() for _ in range(4)]
-    fn = _ensemble_action_fn([actors], agg="mean", weights=np.array([1.0]))
+    fn = build_ensemble_action_fn([actors], agg="mean", weights=np.array([1.0]))
     obs = {i: np.zeros(7, dtype=np.float32) for i in range(4)}
 
     fn(0, obs, 4)

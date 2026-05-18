@@ -13,8 +13,9 @@ Plus a deterministic 20-scenario test set generator (R58 plan) that
 includes the paper's named LS1/LS2 anchors plus 18 random disturbances
 drawn to cover the paper's load-step magnitude range.
 
-Used by ``scripts/_r58_paper_strict_eval.py`` to re-score historical
-ckpts and new paper-strict-trained ckpts on a comparable footing.
+Used by ``scripts/_archive/round_scripts/_r58_paper_strict_eval.py``
+(R58, archived) to re-score historical and paper-strict-trained ckpts
+on a comparable footing.
 
 See:
 - `docs/paper/kd_4agent_paper_facts.md` §8.2 (paper formula)

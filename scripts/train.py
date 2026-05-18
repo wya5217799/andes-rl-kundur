@@ -168,6 +168,15 @@ def parse_args() -> argparse.Namespace:
                         "downstream eval from pre-training best.pt "
                         "spike artifact (R57 s50 collapse mechanism).")
 
+    # R78 — auto post-training dual-eval (paper §IV-C cum_rf + 11-axis geo)
+    p.add_argument("--final-eval", dest="final_eval",
+                   action=argparse.BooleanOptionalAction, default=True,
+                   help="After training, run the canonical dual-eval "
+                        "(LS1+LS2 → paper §IV-C cum_rf + 11-axis geo) on "
+                        "the saved ckpt and write "
+                        "<save-dir>/final_eval_summary.json. Default on. "
+                        "Use --no-final-eval to skip (e.g. for smoke runs).")
+
     return p.parse_args()
 
 
@@ -781,7 +790,51 @@ def main() -> None:
         print("\nNo episodes completed, nothing to save.")
 
     print(f"\nTotal time: {time.time() - t_start:.0f}s")
+
+    # R78 — auto post-training dual-eval. Failures do NOT kill the run;
+    # the ckpt + training log are already saved. The library function
+    # owns the suffix-picker, score_seed call, summary persistence, and
+    # error swallowing — train.py only does CLI plumbing (print).
+    if last_ep >= 0 and args.final_eval:
+        _emit_final_eval(args, env_config)
+
     print("Done!")
+
+
+def _emit_final_eval(args: argparse.Namespace, env_config: V4Config) -> None:
+    """CLI shim around ``evaluation.final_eval.run_final_eval``.
+
+    The library function does the work + writes the sidecars; this
+    wrapper handles the human-readable terminal output. R79 — extracted
+    from the previous inline implementation so the contract (suffix
+    pick + swallow-and-log failure) is unit-tested via DI.
+    """
+    from andes_rl_kundur.evaluation.final_eval import (
+        pick_final_eval_suffix,
+        run_final_eval,
+    )
+    from andes_rl_kundur.evaluation.summary import format_headline
+
+    save_dir = Path(args.save_dir)
+    eval_tracked = args.eval_every_n_eps > 0
+    suffix = pick_final_eval_suffix(save_dir, eval_tracked=eval_tracked)
+    if suffix is None:
+        print("[final-eval] no ckpt found in save-dir; skipping.")
+        return
+
+    print("\n=== Final dual-eval (paper §IV-C cum_rf + 11-axis geo) ===")
+    print(f"[final-eval] ckpt suffix = {suffix}")
+    summary = run_final_eval(
+        save_dir, env_config, eval_tracked=eval_tracked,
+    )
+    if summary is not None:
+        label = f"final_eval_{save_dir.name}"
+        print(f"[final-eval] {label}: {format_headline(summary)}")
+        print(f"[final-eval] -> {save_dir / 'final_eval_summary.json'}")
+    else:
+        err_path = save_dir / "final_eval_error.txt"
+        print(f"[final-eval] FAILED — see {err_path}")
+        print("[final-eval] training ckpt is intact; re-run eval manually with score_run.py.")
 
 
 if __name__ == "__main__":

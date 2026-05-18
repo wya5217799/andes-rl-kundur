@@ -1,10 +1,10 @@
 """Tests for the floored geometric-mean helper extracted in R75.
 
-The function replaces 4 inline copies of the same formula in
-``scripts/score_run.py``, ``scripts/_r69_rerank_11axis.py``,
-``scripts/_r70_eval_matrix.py``, and ``scripts/_r75_ensemble_eval.py``.
-These tests pin the contract so future changes to the helper cannot
-silently shift the headline 6-axis number.
+The function replaces 4 inline copies of the same formula previously in
+``scripts/score_run.py`` and three R-driver scripts now archived under
+``scripts/_archive/round_scripts/_r{69,70,75}_*.py``. These tests pin
+the contract so future changes to the helper cannot silently shift the
+headline 6-axis number.
 """
 from __future__ import annotations
 

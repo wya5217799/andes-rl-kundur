@@ -1,6 +1,7 @@
 """Heterogeneous Actor Weighted Ensemble (HAWE) action helpers.
 
-Used by ``scripts/eval_ensemble.py`` and ``scripts/_r75_ensemble_eval.py``.
+Used by ``scripts/eval_ensemble.py`` (live) and
+``scripts/_archive/round_scripts/_r75_ensemble_eval.py`` (R75, archived).
 Before R75 each script kept its own private copy of these two functions
 (and ``_r75`` further needed a ``sys.path`` hack into ``scripts/`` to
 import the copy in ``eval_ensemble.py``). The logic is identical across

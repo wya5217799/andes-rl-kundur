@@ -1,8 +1,9 @@
 """Numerical aggregation helpers for evaluation scores.
 
 Single source of truth for the floored geometric mean used across the
-paper-path scripts (``score_run.py``, ``_r69_rerank_11axis.py``,
-``_r70_eval_matrix.py``, ``_r75_ensemble_eval.py``).
+paper-path scripts (``scripts/score_run.py``, the dual-eval helper
+``evaluation/summary.py``, and the archived round drivers
+``scripts/_archive/round_scripts/_r{69,70,75}_*.py``).
 
 Logic-preserving extraction (R75): every call site previously wrote the
 same ``math.exp(sum(math.log(max(v, 0.01))) / n)`` chain inline. This

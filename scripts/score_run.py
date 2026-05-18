@@ -89,67 +89,9 @@ def aggregate_scores(
     return out
 
 
-def score_seed(
-    ckpt_dir: Path,
-    *,
-    label: str,
-    out_dir: Path,
-    suffix: str = "best",
-    seed: int = 42,
-    steps: int = 150,
-    config: Any = None,
-) -> dict[str, float]:
-    """Run one ckpt's actors across the paper scenarios and return the
-    per-scenario overall scores + geo-mean.
-
-    Heavy: imports ANDES via the env, runs TDS for each scenario.
-    Returns ``{"LS1": overall_ls1, "LS2": overall_ls2, "geo": geo_mean}``.
-    Trace JSONs are written under ``out_dir`` with the standard
-    ``<label>_<scenario>.json`` naming so paper_grade_axes can re-score.
-    """
-    from andes_rl_kundur.agents.checkpoint_loader import load_agents
-    from andes_rl_kundur.evaluation.aggregation import floor_geo_mean
-    from andes_rl_kundur.evaluation.paper_grade_axes import (
-        PAPER, evaluate_trace,
-    )
-    from andes_rl_kundur.evaluation.paper_path import (
-        deterministic_actor_action_fn, run_scenario,
-    )
-    from andes_rl_kundur.evaluation.paper_strict_eval import (
-        compute_global_cum_rf,
-    )
-    from andes_rl_kundur.probes.andes_common.paper_constants import SCENARIOS
-
-    out_dir.mkdir(parents=True, exist_ok=True)
-    agents = load_agents(ckpt_dir, suffix=suffix)
-    action_fn = deterministic_actor_action_fn(agents)
-
-    per_scen: dict[str, float] = {}
-    per_scen_cum_rf: dict[str, float] = {}
-    for scen_name, delta_u in SCENARIOS.items():
-        rec = run_scenario(
-            scen_name, delta_u,
-            action_fn=action_fn,
-            label=label, seed=seed, steps=steps,
-            config=config,
-        )
-        out_path = out_dir / f"{label}_{scen_name}.json"
-        out_path.write_text(json.dumps(rec), encoding="utf-8")
-        ts = evaluate_trace(out_path, PAPER[scen_name], is_ddic=True, label=label)
-        per_scen[scen_name] = ts.overall
-        # R74 dual-eval: also compute paper-metric cum_rf from the same trace.
-        per_scen_cum_rf[scen_name] = compute_global_cum_rf(rec)
-
-    ls1, ls2 = per_scen.get("load_step_1"), per_scen.get("load_step_2")
-    geo = floor_geo_mean(per_scen.values())
-    # Total cum_rf across all scenarios (matches _r58_paper_strict_eval convention).
-    cum_rf_total = sum(per_scen_cum_rf.values())
-    return {
-        "LS1": ls1, "LS2": ls2, "geo": geo,
-        "cum_rf": cum_rf_total,
-        "cum_rf_LS1": per_scen_cum_rf.get("load_step_1"),
-        "cum_rf_LS2": per_scen_cum_rf.get("load_step_2"),
-    }
+# R78: ``score_seed`` lives in the library (re-exported here for back-compat
+# so existing callers keep working).
+from andes_rl_kundur.evaluation.score_seed import score_seed  # noqa: E402, F401
 
 
 def _seed_from_ckpt_dir(ckpt_dir: Path) -> int:
