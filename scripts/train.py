@@ -42,6 +42,8 @@ from andes_rl_kundur.agents.sac import SACAgent  # noqa: E402
 from andes_rl_kundur.agents.sac_ctde import CTDECoordinator, SACAgentCTDE  # noqa: E402
 from andes_rl_kundur.agents.td3 import TD3Agent  # noqa: E402
 from andes_rl_kundur.agents.td3_lstm import TD3LSTMAgent  # noqa: E402
+from andes_rl_kundur.agents.td3_transformer import TD3TransformerAgent  # noqa: E402
+from andes_rl_kundur.agents.td3_lstm2 import TD3LSTM2Agent  # noqa: E402
 from andes_rl_kundur.env.andes.andes_vsg_env_v4 import AndesMultiVSGEnvV4  # noqa: E402
 from andes_rl_kundur.env.andes.v4_config import V4Config  # noqa: E402
 from andes_rl_kundur.scenarios.kundur.training_checks import (  # noqa: E402
@@ -79,7 +81,7 @@ def parse_args() -> argparse.Namespace:
                    help="What to copy from --warmstart-shared.")
 
     # Algorithm selection
-    p.add_argument("--algo", choices=["sac", "td3", "td3_lstm"], default="sac",
+    p.add_argument("--algo", choices=["sac", "td3", "td3_lstm", "td3_transformer", "td3_lstm2"], default="sac",
                    help="Per-agent RL algorithm. 'sac' (default) uses "
                         "entropy-regularized soft AC; 'td3' uses "
                         "deterministic policy + target smoothing + delayed "
@@ -222,6 +224,19 @@ def build_v4_config(args: argparse.Namespace) -> V4Config:
     }
     if getattr(args, "normalize_actions", False):
         overrides["action_penalty_mode"] = "normalized"
+    # R83 fix (Q-0016): 把 obs augmentation env var 塞进 V4Config field, 让 final_eval
+    # 阶段 V4Config 是 single source of truth. 之前 env var path 只影响 base_env __init__
+    # 内部 flag, V4Config field 仍 False; final_eval 重建 env 时 V4 __init__ 触发
+    # late-disable 路径 → eval env obs_dim 不匹配 train obs_dim → LSTM input crash.
+    include_action_env = bool(int(os.environ.get("INCLUDE_OWN_ACTION_OBS", "0")))
+    include_time_env = bool(int(os.environ.get("INCLUDE_TIME_OBS", "0")))
+    include_area_env = bool(int(os.environ.get("INCLUDE_AREA_MEAN_FREQ_OBS", "0")))
+    if include_action_env:
+        overrides["include_own_action_obs"] = True
+    if include_time_env:
+        overrides["include_time_obs"] = True
+    if include_area_env:
+        overrides["include_area_mean_freq_obs"] = True
     if overrides:
         print(" [V4Config override]")
         for k, v in overrides.items():
@@ -248,18 +263,19 @@ def obs_dim_with_optional_action(base_dim: int) -> tuple[int, bool]:
     with INCLUDE_OWN_ACTION_OBS — enforced both by V4Config.__post_init__
     and inline below.
     """
+    # R83: 解除互斥, 支持 own_action + time 并存. obs slot layout:
+    # base 0..6 + own_action 7..8 (if flag) + time at next slot (if flag).
     include_action = bool(int(os.environ.get("INCLUDE_OWN_ACTION_OBS", "0")))
     include_time = bool(int(os.environ.get("INCLUDE_TIME_OBS", "0")))
-    if include_action and include_time:
-        raise ValueError(
-            "INCLUDE_OWN_ACTION_OBS=1 and INCLUDE_TIME_OBS=1 are mutually "
-            "exclusive (slot-layout conflict); pick one."
-        )
+    include_area = bool(int(os.environ.get("INCLUDE_AREA_MEAN_FREQ_OBS", "0")))
+    obs_dim = base_dim
     if include_action:
-        return base_dim + 2, True
+        obs_dim += 2
     if include_time:
-        return base_dim + 1, True
-    return base_dim, False
+        obs_dim += 1
+    if include_area:
+        obs_dim += 2
+    return obs_dim, (include_action or include_time or include_area)
 
 
 def build_agents(
@@ -278,7 +294,7 @@ def build_agents(
     N = AndesMultiVSGEnvV4.N_AGENTS
     coordinator: CTDECoordinator | None = None
 
-    if args.ctde and args.algo in ("td3", "td3_lstm"):
+    if args.ctde and args.algo in ("td3", "td3_lstm", "td3_transformer", "td3_lstm2"):
         raise ValueError(
             f"--ctde is SAC-only; pass --algo sac or drop --ctde "
             f"(got --algo {args.algo})"
@@ -343,6 +359,71 @@ def build_agents(
             )
             for _ in range(N)
         ]
+    elif args.algo == "td3_lstm2":
+        # R82-W2: multi-layer nn.LSTM (depth, default num_layers=2) vs R72_w4
+        # 单层 LSTMCell. R81 W8 单层 h128 退化, 试 depth 而非 width.
+        lstm2_batch_size = 32
+        lstm2_capacity_episodes = 200
+        if os.environ.get("LSTM_LR_UNCLAMP") == "1":
+            lstm2_lr = lr
+        else:
+            lstm2_lr = min(lr, 1e-4)
+        warmup_eps = getattr(args, "lstm_lr_warmup_eps", 0) or 0
+        warmup_note = f" warmup_eps={warmup_eps}" if warmup_eps > 0 else ""
+        num_layers = int(os.environ.get("LSTM2_NUM_LAYERS", "2"))
+        print(
+            f"[algo] TD3+LSTM2 — multi-layer nn.LSTM num_layers={num_layers}, "
+            f"hidden={hidden_sizes[0]}, seq=25 burn=5, batch={lstm2_batch_size} seq, "
+            f"lr={lstm2_lr}{warmup_note}"
+        )
+        agents = [
+            TD3LSTM2Agent(
+                obs_dim=obs_dim, action_dim=action_dim,
+                hidden_sizes=hidden_sizes,
+                lr=lstm2_lr, gamma=gamma, tau=tau,
+                buffer_size=lstm2_capacity_episodes,
+                batch_size=lstm2_batch_size,
+                device=device,
+                seq_len=25, burn_in=5,
+                lr_warmup_eps=warmup_eps,
+                num_layers=num_layers,
+            )
+            for _ in range(N)
+        ]
+    elif args.algo == "td3_transformer":
+        # R82: Transformer-based actor/critic. 跟 td3_lstm 同样的 sequence
+        # replay buffer + episodic rollout, 但 actor/critic 内部用 causal
+        # self-attention over rolling obs window K (default 10).
+        tx_batch_size = 32
+        tx_capacity_episodes = 200
+        if os.environ.get("LSTM_LR_UNCLAMP") == "1":
+            tx_lr = lr
+        else:
+            tx_lr = min(lr, 1e-4)
+        warmup_eps = getattr(args, "lstm_lr_warmup_eps", 0) or 0
+        warmup_note = f" warmup_eps={warmup_eps}" if warmup_eps > 0 else ""
+        window_k = int(os.environ.get("TX_WINDOW_K", "10"))
+        n_heads = int(os.environ.get("TX_N_HEADS", "4"))
+        n_layers = int(os.environ.get("TX_N_LAYERS", "1"))
+        print(
+            f"[algo] TD3+Transformer — actor/critic K={window_k} heads={n_heads} "
+            f"layers={n_layers}, hidden={hidden_sizes[0]}, "
+            f"seq=25 burn=5, batch={tx_batch_size} seq, lr={tx_lr}{warmup_note}"
+        )
+        agents = [
+            TD3TransformerAgent(
+                obs_dim=obs_dim, action_dim=action_dim,
+                hidden_sizes=hidden_sizes,
+                lr=tx_lr, gamma=gamma, tau=tau,
+                buffer_size=tx_capacity_episodes,
+                batch_size=tx_batch_size,
+                device=device,
+                seq_len=25, burn_in=5,
+                lr_warmup_eps=warmup_eps,
+                window_k=window_k, n_heads=n_heads, n_layers=n_layers,
+            )
+            for _ in range(N)
+        ]
     else:
         print("[algo] SAC — entropy-regularized")
         agents = [
@@ -395,13 +476,12 @@ def apply_warmstart_shared(agents: list, args: argparse.Namespace) -> None:
     """Copy one shared-actor checkpoint into every agent."""
     if not args.warmstart_shared:
         return
-    if args.algo == "td3_lstm":
-        # RecurrentActor state_dict has different keys (lstm.weight_ih /
-        # lstm.weight_hh / fc_out.*) from GaussianActor (net.*.weight /
-        # mean_head / log_std_head). Cross-architecture warmstart is
-        # undefined; refuse explicitly rather than silently fail.
+    if args.algo in ("td3_lstm", "td3_transformer", "td3_lstm2"):
+        # RecurrentActor / TransformerActor state_dict has different keys
+        # from GaussianActor. Cross-architecture warmstart is undefined;
+        # refuse explicitly rather than silently fail.
         raise ValueError(
-            "--warmstart-shared is incompatible with --algo td3_lstm "
+            f"--warmstart-shared is incompatible with --algo {args.algo} "
             "(MLP-actor and LSTM-actor state_dicts have disjoint keys)"
         )
     src = Path(args.warmstart_shared)

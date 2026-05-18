@@ -100,6 +100,17 @@ class V4Config:
     # ``include_own_action_obs`` for the R52 minimal-diff slot layout.
     include_time_obs: bool = False
 
+    # ─── R83 obs aug — area-mean freq (CLM-0057 follow-up alt) ────────
+    # 当 True, OBS_DIM += 2, 每 agent obs 末加 (area1_mean_d_omega,
+    # area2_mean_d_omega). paper Fig.3 area assignment: agent 0/1 (bus
+    # 12/16) → area 1, agent 2/3 (bus 14/15) → area 2. 给 decentralized
+    # agent 加 area-level coordination signal, 直接针对 CLM-0057
+    # temporal-flatness + obs-blindness bottleneck. R52 时间维 / R49-α
+    # own_action 维都试过但单独退化, area-mean freq 是第三个 obs aug
+    # 候选. 跟 include_own_action_obs / include_time_obs 可并存
+    # (R83 slot-layout refactor 后).
+    include_area_mean_freq_obs: bool = False
+
     # ─── R58 audit-A escape hatches (paper-ambiguity resolution) ─────
     # Three paper-implementation choices that the paper text doesn't
     # nail down. Defaults preserve R30–R57 behaviour bit-identically.
@@ -133,12 +144,10 @@ class V4Config:
                 f"action_penalty_mode must be 'physical' or 'normalized', "
                 f"got {self.action_penalty_mode!r}"
             )
-        if self.include_time_obs and self.include_own_action_obs:
-            raise NotImplementedError(
-                "Simultaneous include_time_obs + include_own_action_obs is "
-                "not yet supported (slot-layout conflict). Pick one or open "
-                "a follow-up round to refactor the obs slot indexing."
-            )
+        # R83: 互斥已解除. base_env._build_obs + V4 env __init__ 改成绝对 slot
+        # 索引 (own_action 占 7:9, time 占下一个), 支持 own_action + time 并存.
+        # OBS_DIM 计算: base 7 + (own_action ? 2 : 0) + (time ? 1 : 0).
+        pass
         if self.r_f_freq_units not in ("hz", "rad_per_s"):
             raise ValueError(
                 f"r_f_freq_units must be 'hz' or 'rad_per_s', "

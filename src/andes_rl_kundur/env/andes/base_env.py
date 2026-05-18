@@ -67,6 +67,11 @@ class AndesBaseEnv(ABC):
     MAX_NEIGHBORS = _DEFAULT_CONTRACT.max_neighbors
     OBS_DIM = 3 + 2 * MAX_NEIGHBORS  # = 7
 
+    # R83 area-mean freq obs aug: agent → area mapping (paper Fig.3).
+    # V4 env: agent 0/1 (bus 12/16) → area 1, agent 2/3 (bus 14/15) → area 2.
+    # V1/V2/V3 子类继承同一布局. 任何 paper-divergent 拓扑覆盖此 attr.
+    AREA_OF_AGENT: list[int] = [1, 1, 2, 2]
+
     # 奖励权重 (论文 Eq. 14)
     PHI_F = 100.0
     PHI_H = 1.0
@@ -143,31 +148,28 @@ class AndesBaseEnv(ABC):
                 raise ValueError(f"N_SUBSTEPS must be >= 1, got {ns}")
             self.N_SUBSTEPS = ns
 
-        # Optional: include own previous action in obs (R03 probe).
-        # Off by default to keep V1/V2 actor compatibility. When ON, OBS_DIM += 2
-        # at instance level (class attr untouched).
+        # R83: obs aug flag init. 互斥已解除, slot layout 用绝对索引 (见
+        # _build_obs). OBS_DIM 累加: base + 2 (own_action) + 1 (time).
         self._include_own_action_obs = bool(int(
             os.environ.get("INCLUDE_OWN_ACTION_OBS", "0")
         ))
-        if self._include_own_action_obs:
-            self.OBS_DIM = self.__class__.OBS_DIM + 2
-            self._last_action = np.zeros((self.N_AGENTS, 2), dtype=np.float32)
-
-        # R52 probe: include normalized episode progress in obs (mutually
-        # exclusive with include_own_action_obs to avoid slot conflict).
-        # Default OFF; both env var ``INCLUDE_TIME_OBS=1`` and
-        # ``V4Config.include_time_obs=True`` can late-enable it (latter
-        # checked in V4 env __init__).
         self._include_time_obs = bool(int(
             os.environ.get("INCLUDE_TIME_OBS", "0")
         ))
+        # R83 W3 area-mean freq obs aug (2 dim: area1 + area2 mean d_omega).
+        self._include_area_mean_freq_obs = bool(int(
+            os.environ.get("INCLUDE_AREA_MEAN_FREQ_OBS", "0")
+        ))
+        aug_dim = 0
+        if self._include_own_action_obs:
+            aug_dim += 2
+            self._last_action = np.zeros((self.N_AGENTS, 2), dtype=np.float32)
         if self._include_time_obs:
-            if self._include_own_action_obs:
-                raise ValueError(
-                    "INCLUDE_TIME_OBS=1 and INCLUDE_OWN_ACTION_OBS=1 are "
-                    "mutually exclusive (slot-layout conflict); pick one."
-                )
-            self.OBS_DIM = self.__class__.OBS_DIM + 1
+            aug_dim += 1
+        if self._include_area_mean_freq_obs:
+            aug_dim += 2
+        if aug_dim > 0:
+            self.OBS_DIM = self.__class__.OBS_DIM + aug_dim
 
         # R55 probe: windowed-horizon smoothness. Default 1 = per-step
         # (original R01/R50 behaviour). When > 1 the smoothness penalty
@@ -551,15 +553,31 @@ class AndesBaseEnv(ABC):
                         o[3 + k] = d_omega_j / 3.0
                         o[3 + self.MAX_NEIGHBORS + k] = od_j / 5.0
 
-            # Optional: append own last action (2 dims) for R03 obs probe
+            # R83: obs aug 用绝对 slot 索引, 支持 own_action + time + area_mean 并存.
+            # Layout: base 0..6 + own_action 7..8 + time + area_mean (顺序固定).
+            aug_slot = 7
             if self._include_own_action_obs:
-                o[-2] = self._last_action[i, 0]
-                o[-1] = self._last_action[i, 1]
-            # R52 probe: append normalized episode progress (mutually
-            # exclusive with include_own_action_obs — V4Config.__post_init__
-            # enforces this so slot -1 is unambiguous here).
-            elif self._include_time_obs:
-                o[-1] = float(self.step_count) / float(max(self.STEPS_PER_EPISODE, 1))
+                o[aug_slot] = self._last_action[i, 0]
+                o[aug_slot + 1] = self._last_action[i, 1]
+                aug_slot += 2
+            if self._include_time_obs:
+                o[aug_slot] = float(self.step_count) / float(max(self.STEPS_PER_EPISODE, 1))
+                aug_slot += 1
+            if self._include_area_mean_freq_obs:
+                # 用 d_omega (rad/s 偏差, 已 / self._omega_scale 标准化),
+                # 跟 o[1] 同单位. Sum per area / count.
+                a1_sum, a1_n, a2_sum, a2_n = 0.0, 0, 0.0, 0
+                for j in range(self.N_AGENTS):
+                    a = self.AREA_OF_AGENT[j]
+                    if a == 1:
+                        a1_sum += d_omega[j]
+                        a1_n += 1
+                    else:
+                        a2_sum += d_omega[j]
+                        a2_n += 1
+                o[aug_slot] = (a1_sum / a1_n / 3.0) if a1_n else 0.0
+                o[aug_slot + 1] = (a2_sum / a2_n / 3.0) if a2_n else 0.0
+                aug_slot += 2
             obs[i] = o
         return obs
 

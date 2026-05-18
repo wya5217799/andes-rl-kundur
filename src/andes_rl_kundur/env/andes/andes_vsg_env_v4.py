@@ -200,21 +200,32 @@ class AndesMultiVSGEnvV4(AndesBaseEnv):
         # env-var path so research probes work via env-var-only).
         if cfg.lambda_smooth != 0.0:
             self._lambda_smooth = cfg.lambda_smooth
+        # R83: V4Config 是 single source of truth (R37 / CLM-0040 fix 精神).
+        # Sync 内部 flag 跟 cfg, 然后 recompute OBS_DIM. 支持 own_action + time
+        # 并存 (V4Config 互斥已解除 R83 step 1).
         if cfg.include_own_action_obs and not self._include_own_action_obs:
-            # Late-enable: base_env init didn't see the env var, but cfg
-            # says we want the probe — bump OBS_DIM and init last_action.
             self._include_own_action_obs = True
-            self.OBS_DIM = self.__class__.OBS_DIM + 2
             self._last_action = np.zeros((self.N_AGENTS, 2), dtype=np.float32)
         elif not cfg.include_own_action_obs and self._include_own_action_obs:
-            # Cfg explicitly says OFF; honour it even if env var said ON.
             self._include_own_action_obs = False
-            self.OBS_DIM = self.__class__.OBS_DIM
-        # R52 probe: time-in-obs late-enable (mutually exclusive with
-        # include_own_action_obs per V4Config.__post_init__ check).
-        if cfg.include_time_obs:
+        if cfg.include_time_obs and not self._include_time_obs:
             self._include_time_obs = True
-            self.OBS_DIM = self.__class__.OBS_DIM + 1
+        elif not cfg.include_time_obs and self._include_time_obs:
+            self._include_time_obs = False
+        # R83 W3 area-mean freq obs aug
+        if cfg.include_area_mean_freq_obs and not self._include_area_mean_freq_obs:
+            self._include_area_mean_freq_obs = True
+        elif not cfg.include_area_mean_freq_obs and self._include_area_mean_freq_obs:
+            self._include_area_mean_freq_obs = False
+        # Recompute OBS_DIM from current flags
+        new_obs_dim = self.__class__.OBS_DIM
+        if self._include_own_action_obs:
+            new_obs_dim += 2
+        if self._include_time_obs:
+            new_obs_dim += 1
+        if self._include_area_mean_freq_obs:
+            new_obs_dim += 2
+        self.OBS_DIM = new_obs_dim
         # R55 probe: windowed-horizon smoothness late-enable from cfg.
         if cfg.smoothness_window > 1 and self._smoothness_window <= 1:
             self._smoothness_window = cfg.smoothness_window
