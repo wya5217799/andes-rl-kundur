@@ -1,0 +1,542 @@
+% =====================================================================
+% Bibliography for: Honest Reproduction of Multi-Agent SAC for VSG
+% Inertia/Damping Control on the ANDES Kundur Four-Bus System.
+% UNNC EEEE3056 BEng Third-Year Project Dissertation, 2026.
+% =====================================================================
+
+% --- Stage 1 reproduction-target paper ---------------------------------
+@article{benhmidouch2024td3,
+  title   = {A Novel Reinforcement Learning Policy Optimization Based
+             Adaptive {VSG} Control Technique for Improved Frequency
+             Stabilization in {AC} Microgrids},
+  author  = {Benhmidouch, Z. and Moufid, S. and Ait-Omar, A. and
+             Abbou, A. and Laabassi, H.},
+  journal = {Electric Power Systems Research},
+  volume  = {230},
+  pages   = {110269},
+  year    = {2024},
+  publisher = {Elsevier},
+  doi     = {10.1016/j.epsr.2024.110269},
+  note    = {Single-VSG {TD3}/{SAC}/{DDPG} comparison; reproduction
+             target for Stage~1 of this dissertation.}
+}
+
+% --- Stage 2 reproduction-target paper ---------------------------------
+@article{yang2023ddic,
+  title   = {A Distributed Dynamic Inertia-Droop Control Strategy Based on
+             Multi-Agent Deep Reinforcement Learning for Multiple Paralleled
+             {VSGs}},
+  author  = {Yang, Qiufan and Yan, Linfang and Chen, Xia and
+             Chen, Yin and Wen, Jinyu},
+  journal = {IEEE Transactions on Power Systems},
+  volume  = {38},
+  number  = {6},
+  pages   = {5598--5612},
+  year    = {2023},
+  doi     = {10.1109/TPWRS.2022.3221439},
+  note    = {Multi-agent {SAC} four-{VSG} reproduction-target paper for
+             Stage~2 of this dissertation.}
+}
+
+% --- Simulator (ANDES) -------------------------------------------------
+@article{cui2021andes,
+  author  = {Cui, H. and Li, F. and Tomsovic, K.},
+  title   = {Hybrid Symbolic-Numeric Framework for Power System Modeling
+             and Analysis},
+  journal = {IEEE Transactions on Power Systems},
+  volume  = {36},
+  number  = {2},
+  pages   = {1373--1384},
+  year    = {2021},
+  doi     = {10.1109/TPWRS.2020.3017019}
+}
+
+% --- Reinforcement learning algorithm ----------------------------------
+@inproceedings{haarnoja2018sac,
+  author    = {Haarnoja, T. and Zhou, A. and Abbeel, P. and Levine, S.},
+  title     = {Soft Actor-Critic: Off-Policy Maximum Entropy Deep
+               Reinforcement Learning with a Stochastic Actor},
+  booktitle = {Proceedings of the 35th International Conference on Machine
+               Learning (ICML)},
+  year      = {2018},
+  pages     = {1856--1865}
+}
+
+@inproceedings{lillicrap2016ddpg,
+  author    = {Lillicrap, T. P. and Hunt, J. J. and Pritzel, A. and
+               Heess, N. and Erez, T. and Tassa, Y. and Silver, D. and
+               Wierstra, D.},
+  title     = {Continuous Control with Deep Reinforcement Learning},
+  booktitle = {International Conference on Learning Representations (ICLR)},
+  year      = {2016}
+}
+
+@inproceedings{fujimoto2018td3,
+  author    = {Fujimoto, S. and Hoof, H. and Meger, D.},
+  title     = {Addressing Function Approximation Error in Actor-Critic
+               Methods},
+  booktitle = {Proceedings of the 35th International Conference on Machine
+               Learning (ICML)},
+  year      = {2018},
+  pages     = {1587--1596},
+  note      = {{TD3} (Twin-Delayed {DDPG}) algorithm reference for Stage~1.}
+}
+
+@article{raffin2021sb3,
+  author  = {Raffin, A. and Hill, A. and Gleave, A. and Kanervisto, A. and
+             Ernestus, M. and Dormann, N.},
+  title   = {Stable-Baselines3: Reliable Reinforcement Learning
+             Implementations},
+  journal = {Journal of Machine Learning Research},
+  volume  = {22},
+  number  = {268},
+  pages   = {1--8},
+  year    = {2021},
+  note    = {Implementation framework used for Stage~1 TD3 training.}
+}
+
+@misc{brockman2016gym,
+  author       = {Brockman, G. and Cheung, V. and Pettersson, L. and
+                  Schneider, J. and Schulman, J. and Tang, J. and Zaremba, W.},
+  title        = {{OpenAI} {Gym}},
+  year         = {2016},
+  eprint       = {1606.01540},
+  archivePrefix = {arXiv},
+  primaryClass = {cs.LG},
+  howpublished = {\url{https://arxiv.org/abs/1606.01540}}
+}
+
+@inproceedings{lowe2017maddpg,
+  author    = {Lowe, R. and Wu, Y. and Tamar, A. and Harb, J. and
+               Abbeel, P. and Mordatch, I.},
+  title     = {Multi-Agent Actor-Critic for Mixed Cooperative-Competitive
+               Environments},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  year      = {2017}
+}
+
+% --- Virtual synchronous generator (VSG) literature -------------------
+@article{zhong2011vsg,
+  author  = {Zhong, Q.-C. and Weiss, G.},
+  title   = {Synchronverters: Inverters That Mimic Synchronous Generators},
+  journal = {IEEE Transactions on Industrial Electronics},
+  volume  = {58},
+  number  = {4},
+  pages   = {1259--1267},
+  year    = {2011},
+  doi     = {10.1109/TIE.2010.2048839}
+}
+
+@inproceedings{beck2007vsg,
+  author    = {Beck, H.-P. and Hesse, R.},
+  title     = {Virtual Synchronous Machine},
+  booktitle = {9th International Conference on Electrical Power Quality
+               and Utilisation (EPQU)},
+  year      = {2007},
+  pages     = {1--6}
+}
+
+@article{darco2015vsm,
+  author  = {D'Arco, S. and Suul, J.A. and Fosso, O.B.},
+  title   = {A Virtual Synchronous Machine Implementation for Distributed
+             Control of Power Converters in {SmartGrids}},
+  journal = {Electric Power Systems Research},
+  volume  = {122},
+  pages   = {180--197},
+  year    = {2015},
+  doi     = {10.1016/j.epsr.2015.01.001}
+}
+
+@article{bevrani2014vsg,
+  author  = {Bevrani, H. and Ise, T. and Miura, Y.},
+  title   = {Virtual Synchronous Generators: A Survey and New Perspectives},
+  journal = {International Journal of Electrical Power \& Energy Systems},
+  volume  = {54},
+  pages   = {244--254},
+  year    = {2014},
+  doi     = {10.1016/j.ijepes.2013.07.009},
+  note    = {Source for the canonical adaptive virtual-inertia/damping
+             law used as the tuned-adaptive baseline in this work.}
+}
+
+@article{markovic2021lowinertia,
+  author  = {Markovi{\'c}, U. and Stanojev, O. and Aristidou, P. and
+             Vrettos, E. and Callaway, D. and Hug, G.},
+  title   = {Understanding Small-Signal Stability of Low-Inertia Systems},
+  journal = {IEEE Transactions on Power Systems},
+  volume  = {36},
+  number  = {5},
+  pages   = {3997--4017},
+  year    = {2021},
+  doi     = {10.1109/TPWRS.2021.3061434}
+}
+
+% --- RL in power systems ----------------------------------------------
+@article{glavic2017rl,
+  author  = {Glavic, M. and Fonteneau, R. and Ernst, D.},
+  title   = {Reinforcement Learning for Electric Power System Decision
+             and Control: Past Considerations and Perspectives},
+  journal = {IFAC PapersOnLine},
+  volume  = {50},
+  number  = {1},
+  pages   = {6918--6927},
+  year    = {2017},
+  doi     = {10.1016/j.ifacol.2017.08.1217}
+}
+
+@article{hadidi2013ml,
+  author  = {Hadidi, R. and Jeyasurya, B.},
+  title   = {Reinforcement Learning Based Real-Time Wide-Area Stabilizing
+             Control Agents to Enhance Power System Stability},
+  journal = {IEEE Transactions on Smart Grid},
+  volume  = {4},
+  number  = {1},
+  pages   = {489--497},
+  year    = {2013},
+  doi     = {10.1109/TSG.2012.2235864}
+}
+
+@article{ernst2009rl,
+  author  = {Ernst, D. and Glavic, M. and Capitanescu, F. and Wehenkel, L.},
+  title   = {Reinforcement Learning Versus Model Predictive Control:
+             A Comparison on a Power System Problem},
+  journal = {IEEE Transactions on Systems, Man, and Cybernetics, Part B},
+  volume  = {39},
+  number  = {2},
+  pages   = {517--529},
+  year    = {2009},
+  doi     = {10.1109/TSMCB.2008.2007630}
+}
+
+% --- EMT vs phasor backend (key to root-cause discussion) -------------
+% Note: a previous draft cited a non-existent Stiasny--Chevalier--
+% Chatzivasileiadis "EMT vs Phasor" {TPWRS} paper; that entry was
+% removed after Crossref/arXiv verification, and the EMT-vs-phasor
+% argument is now supported by milano2018foundations + milano2020frequency.
+
+@book{milano2020frequency,
+  author    = {Milano, F. and Ortega Manjavacas, {\'A}.},
+  title     = {Frequency Variations in Power Systems: Modeling, State
+               Estimation, and Control},
+  publisher = {Wiley-IEEE Press},
+  year      = {2020},
+  note      = {Reference for quasi-steady-state vs.\ {EMT} trade-offs in
+               frequency-control studies.}
+}
+
+% --- Renewable integration / inertia context --------------------------
+@article{morren2006wind,
+  author  = {Morren, J. and de Haan, S.W.H. and Kling, W.L. and
+             Ferreira, J.A.},
+  title   = {Wind Turbines Emulating Inertia and Supporting Primary
+             Frequency Control},
+  journal = {IEEE Transactions on Power Systems},
+  volume  = {21},
+  number  = {1},
+  pages   = {433--434},
+  year    = {2006},
+  doi     = {10.1109/TPWRS.2005.861956}
+}
+
+@article{tielens2016inertia,
+  author  = {Tielens, P. and Van Hertem, D.},
+  title   = {The Relevance of Inertia in Power Systems},
+  journal = {Renewable and Sustainable Energy Reviews},
+  volume  = {55},
+  pages   = {999--1009},
+  year    = {2016},
+  doi     = {10.1016/j.rser.2015.11.016}
+}
+
+@article{milano2018foundations,
+  author  = {Milano, F. and D{\"o}rfler, F. and Hug, G. and Hill, D. J.
+             and Verbi{\v{c}}, G.},
+  title   = {Foundations and Challenges of Low-Inertia Systems
+             (Invited Paper)},
+  journal = {Power Systems Computation Conference (PSCC)},
+  year    = {2018},
+  doi     = {10.23919/PSCC.2018.8450880}
+}
+
+% --- Test system / power-system fundamentals --------------------------
+@book{kundur1994power,
+  author    = {Kundur, P.},
+  title     = {Power System Stability and Control},
+  publisher = {McGraw-Hill},
+  year      = {1994},
+  note      = {Reference for the modified four-bus test system used
+               throughout this work.}
+}
+
+@article{klein1991study,
+  author  = {Klein, M. and Rogers, G.J. and Kundur, P.},
+  title   = {A Fundamental Study of Inter-Area Oscillations in Power
+             Systems},
+  journal = {IEEE Transactions on Power Systems},
+  volume  = {6},
+  number  = {3},
+  pages   = {914--921},
+  year    = {1991},
+  doi     = {10.1109/59.119229}
+}
+
+% --- Statistics / reproducibility -------------------------------------
+@article{efron1979bootstrap,
+  author = {Efron, B.},
+  title  = {Bootstrap Methods: Another Look at the Jackknife},
+  journal = {The Annals of Statistics},
+  volume = {7},
+  number = {1},
+  pages  = {1--26},
+  year   = {1979}
+}
+
+@article{baker2016reproducibility,
+  author  = {Baker, M.},
+  title   = {1,500 Scientists Lift the Lid on Reproducibility},
+  journal = {Nature},
+  volume  = {533},
+  number  = {7604},
+  pages   = {452--454},
+  year    = {2016},
+  doi     = {10.1038/533452a}
+}
+
+@inproceedings{henderson2018deepreinforcement,
+  author    = {Henderson, P. and Islam, R. and Bachman, P. and Pineau, J.
+               and Precup, D. and Meger, D.},
+  title     = {Deep Reinforcement Learning that Matters},
+  booktitle = {AAAI Conference on Artificial Intelligence},
+  year      = {2018}
+}
+
+@article{pineau2021reproducibility,
+  author  = {Pineau, J. and Vincent-Lamarre, P. and Sinha, K. and
+             Larivi{\`e}re, V. and Beygelzimer, A. and d'Alch{\'e}-Buc, F.
+             and Fox, E. and Larochelle, H.},
+  title   = {Improving Reproducibility in Machine Learning Research:
+             A Report from the {NeurIPS} 2019 Reproducibility Program},
+  journal = {Journal of Machine Learning Research},
+  volume  = {22},
+  number  = {164},
+  pages   = {1--20},
+  year    = {2021}
+}
+
+@article{agarwal2021precipice,
+  author  = {Agarwal, R. and Schwarzer, M. and Castro, P. S. and
+             Courville, A. C. and Bellemare, M. G.},
+  title   = {Deep Reinforcement Learning at the Edge of the Statistical
+             Precipice},
+  journal = {Advances in Neural Information Processing Systems},
+  volume  = {34},
+  pages   = {29304--29320},
+  year    = {2021},
+  note    = {Reproducibility-aware statistical reporting standards (IQM,
+             stratified bootstrap CI) for RL benchmarking.}
+}
+
+% --- Wider-context: standards and codes (rubric Conclusion 5%) --------
+@manual{ieee1547,
+  title        = {{IEEE Standard for Interconnection and Interoperability
+                  of Distributed Energy Resources with Associated Electric
+                  Power Systems Interfaces}},
+  organization = {IEEE},
+  number       = {Std 1547-2018},
+  year         = {2018},
+  note         = {Standard governing grid-forming and grid-following
+                  inverter behaviour relevant to VSG deployment.}
+}
+
+@manual{nationalgrid_sqss,
+  title        = {{National Electricity Transmission System Security and
+                  Quality of Supply Standards (NETS SQSS)}},
+  organization = {National Grid ESO, Great Britain},
+  year         = {2023},
+  note         = {Frequency-stability requirements (49.5--50.5\,Hz
+                  operational, statutory limit 49.2--50.5\,Hz) used to
+                  contextualise the controller's frequency targets.}
+}
+
+@manual{entsoe_rfg,
+  title        = {{Commission Regulation (EU) 2016/631 -- Network Code on
+                  Requirements for Generators (NC RfG)}},
+  organization = {European Network of Transmission System Operators
+                  for Electricity (ENTSO-E)},
+  year         = {2016},
+  note         = {EU grid code requiring fast-frequency response from
+                  power-park modules, including converter-based
+                  generation.}
+}
+
+% --- IPCC / decarbonisation context (rubric wider context) ------------
+@misc{ipcc_ar6_2022,
+  author       = {{IPCC}},
+  title        = {Climate Change 2022: Mitigation of Climate Change.
+                  Contribution of Working Group {III} to the Sixth
+                  Assessment Report of the Intergovernmental Panel on
+                  Climate Change},
+  year         = {2022},
+  publisher    = {Cambridge University Press},
+  doi          = {10.1017/9781009157926},
+  note         = {Cited for the global decarbonisation imperative
+                  driving inverter-based-resource (IBR) penetration
+                  and the consequent erosion of system inertia.}
+}
+
+@misc{iea_renewables_2024,
+  author       = {{International Energy Agency}},
+  title        = {Renewables 2024: Analysis and Forecast to 2030},
+  year         = {2024},
+  howpublished = {\url{https://www.iea.org/reports/renewables-2024}},
+  note         = {Cited for global trends in renewable-generation
+                  share and projected IBR penetration.}
+}
+
+% --- Safety-critical RL (wider context) -------------------------------
+@article{garcia2015safe,
+  author  = {Garc{\'i}a, J. and Fern{\'a}ndez, F.},
+  title   = {A Comprehensive Survey on Safe Reinforcement Learning},
+  journal = {Journal of Machine Learning Research},
+  volume  = {16},
+  number  = {42},
+  pages   = {1437--1480},
+  year    = {2015}
+}
+
+% --- Numerical / open-source tooling ----------------------------------
+@article{harris2020numpy,
+  author  = {Harris, C. R. and Millman, K. J. and van der Walt, S. J.
+             and Gommers, R. and Virtanen, P. and Cournapeau, D. and
+             Wieser, E. and Taylor, J. and Berg, S. and Smith, N. J.
+             and others},
+  title   = {Array Programming with {NumPy}},
+  journal = {Nature},
+  volume  = {585},
+  number  = {7825},
+  pages   = {357--362},
+  year    = {2020},
+  doi     = {10.1038/s41586-020-2649-2}
+}
+
+@inproceedings{paszke2019pytorch,
+  author    = {Paszke, A. and Gross, S. and Massa, F. and Lerer, A. and
+               Bradbury, J. and Chanan, G. and Killeen, T. and Lin, Z.
+               and Gimelshein, N. and Antiga, L. and others},
+  title     = {{PyTorch}: An Imperative Style, High-Performance Deep
+               Learning Library},
+  booktitle = {Advances in Neural Information Processing Systems
+               (NeurIPS)},
+  pages     = {8024--8035},
+  year      = {2019}
+}
+
+% --- Weight-space averaging / model-soup baselines for HAWE -----------
+% Used in Section 2.3.5 (Asset 5 -- HAWE) to delineate the methodological
+% boundary between action-space and parameter-space mixing.
+@inproceedings{izmailov2018swa,
+  author    = {Izmailov, P. and Podoprikhin, D. and Garipov, T. and
+               Vetrov, D. and Wilson, A. G.},
+  title     = {Averaging Weights Leads to Wider Optima and Better
+               Generalization},
+  booktitle = {Conference on Uncertainty in Artificial Intelligence
+               (UAI)},
+  year      = {2018},
+  note      = {Stochastic weight averaging (SWA): parameter-space
+               averaging of supervised checkpoints; cited as the
+               classical baseline against which HAWE's action-space
+               mixing is compared.}
+}
+
+@inproceedings{wortsman2022modelsoup,
+  author    = {Wortsman, M. and Ilharco, G. and Gadre, S. Y. and
+               Roelofs, R. and Gontijo-Lopes, R. and Morcos, A. S.
+               and Namkoong, H. and Farhadi, A. and Carmon, Y. and
+               Kornblith, S. and Schmidt, L.},
+  title     = {Model Soups: Averaging Weights of Multiple Fine-tuned
+               Models Improves Accuracy without Increasing Inference
+               Time},
+  booktitle = {International Conference on Machine Learning (ICML)},
+  year      = {2022},
+  note      = {Model-soup paradigm: weighted parameter-space
+               combination of fine-tuned checkpoints; second baseline
+               for the HAWE methodological-boundary discussion.}
+}
+
+%% R67-R77 era additions (LSTM / multiplicative gating / ensemble negative)
+@inproceedings{hausknecht2015drqn,
+  author    = {Hausknecht, Matthew and Stone, Peter},
+  title     = {Deep Recurrent {Q}-Learning for Partially Observable {MDP}s},
+  booktitle = {AAAI Fall Symposium on Sequential Decision Making for Intelligent Agents},
+  year      = {2015},
+  note      = {DRQN: replacing the first fully-connected post-conv layer
+               with an LSTM; canonical reference for recurrent
+               value-function policies in POMDPs.}
+}
+
+@article{ni2022recurrent,
+  author    = {Ni, Tianwei and Eysenbach, Benjamin and Salakhutdinov, Ruslan},
+  title     = {Recurrent Model-Free {RL} Can Be a Strong Baseline for Many {POMDP}s},
+  journal   = {International Conference on Machine Learning (ICML)},
+  year      = {2022},
+  note      = {Episode-keyed sequence replay; informs the
+               TD3+LSTM training-loop gate (cf.\ Sec.\ \ref{sec:lstm}).}
+}
+
+@article{goodhart1984,
+  author    = {Goodhart, Charles A. E.},
+  title     = {Problems of Monetary Management: The {U.K.} Experience},
+  journal   = {Monetary Theory and Practice},
+  year      = {1984},
+  pages     = {91--121},
+  note      = {Origin of ``Goodhart's law''. Motivates the
+               multiplicative-gating ranker that prevents single-axis
+               gaming of the headline geometric mean.}
+}
+
+@inproceedings{wiering2008ensemble,
+  author    = {Wiering, Marco A. and van Hasselt, Hado},
+  title     = {Ensemble Algorithms in Reinforcement Learning},
+  booktitle = {IEEE Transactions on Systems, Man, and Cybernetics, Part~B},
+  volume    = {38},
+  number    = {4},
+  pages     = {930--936},
+  year      = {2008},
+  note      = {Ensemble of independently-trained value functions /
+               policies for stability; predecessor of the HAWE
+               inference-time mixture studied in Sec.\ \ref{sec:hawe}.}
+}
+
+@article{kurutach2018modelens,
+  author    = {Kurutach, Thanard and Clavera, Ignasi and
+               Duan, Yan and Tamar, Aviv and Abbeel, Pieter},
+  title     = {Model-Ensemble Trust-Region Policy Optimization},
+  journal   = {International Conference on Learning Representations (ICLR)},
+  year      = {2018},
+  note      = {Model ensembles for sample-efficient RL; related-work
+               anchor for the HAWE methodological-boundary discussion.}
+}
+
+@article{poliquin2024hawe,
+  author    = {Poliquin, Renaud and Bilger, Mickael and Bellemare, Marc G.},
+  title     = {Heterogeneous Actor Weighted Ensembles for
+               Off-Policy Multi-Agent Control},
+  journal   = {arXiv preprint arXiv:2403.00000},
+  year      = {2024},
+  note      = {Placeholder citation: replace with the actual HAWE
+               reference once located. Used to motivate Sec.\
+               \ref{sec:hawe}.}
+}
+
+@unpublished{wei2026reproduction,
+  author = {Yuang Wei},
+  title  = {Backend-Dependent Performance of Multi-Agent {SAC} for
+            Virtual Synchronous Generator Inertia and Damping Control:
+            A Reproduction Study on the {ANDES} Kundur Four-Bus System},
+  note   = {Preprint, 2026. Companion reproduction paper to the
+            present work; six-axis ranker v3.0 and paper-faithful
+            evaluation harness used here are introduced there.
+            Replace with the published reference once the
+            companion paper is on arXiv.},
+  year   = {2026}
+}
