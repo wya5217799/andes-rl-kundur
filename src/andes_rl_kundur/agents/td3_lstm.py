@@ -61,8 +61,19 @@ from andes_rl_kundur.agents.networks import (
 from andes_rl_kundur.agents.replay_buffer import SequenceReplayBuffer
 
 
-def _detach_h(h: HiddenState) -> HiddenState:
-    return (h[0].detach(), h[1].detach())
+def _detach_h(h):
+    """Detach hidden state of any structure (Tensor / tuple / nested tuple).
+
+    R56 originally LSTM-only: ``HiddenState = (h, c)`` tuple. R82 added
+    Transformer agent where hidden = obs window Tensor; critic hidden =
+    (obs_win, act_win) tuple of tensors. Recursive duck-typed detach
+    handles both flavors without TD3LSTMAgent.update() needing branches.
+    """
+    if torch.is_tensor(h):
+        return h.detach()
+    if isinstance(h, tuple):
+        return tuple(_detach_h(x) for x in h)
+    return h
 
 
 class TD3LSTMAgent:

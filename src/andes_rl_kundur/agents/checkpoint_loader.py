@@ -19,6 +19,8 @@ import torch
 from andes_rl_kundur.agents.sac import SACAgent
 from andes_rl_kundur.agents.td3 import TD3Agent
 from andes_rl_kundur.agents.td3_lstm import TD3LSTMAgent
+from andes_rl_kundur.agents.td3_transformer import TD3TransformerAgent
+from andes_rl_kundur.agents.td3_lstm2 import TD3LSTM2Agent
 from andes_rl_kundur.config import HIDDEN_SIZES
 from andes_rl_kundur.env.andes.andes_vsg_env_v4 import AndesMultiVSGEnvV4
 
@@ -60,6 +62,15 @@ def detect_actor_dims(ckpt_path: Path) -> tuple[int, int]:
     if "lstm.weight_ih" in actor:
         # RecurrentActor: weight_ih shape is (LSTM_GATE_COUNT*hidden, obs_dim)
         w = actor["lstm.weight_ih"]
+        return int(w.shape[1]), int(w.shape[0] // LSTM_GATE_COUNT)
+    if "input_proj.weight" in actor:
+        # R82 TransformerActor: input_proj.weight shape = (hidden, obs_dim)
+        w = actor["input_proj.weight"]
+        return int(w.shape[1]), int(w.shape[0])
+    if "lstm.weight_ih_l0" in actor:
+        # R82-W2 MultiLayerRecurrentActor (nn.LSTM):
+        # weight_ih_l0 shape = (4*hidden, obs_dim), one entry per layer.
+        w = actor["lstm.weight_ih_l0"]
         return int(w.shape[1]), int(w.shape[0] // LSTM_GATE_COUNT)
     w = actor["net.0.weight"]
     return int(w.shape[1]), int(w.shape[0])
@@ -133,6 +144,25 @@ def load_agents(
             agent = TD3LSTMAgent(
                 obs_dim=obs_dim, action_dim=action_dim,
                 hidden_sizes=hidden_sizes, device=device,
+            )
+        elif algo == "td3_lstm2":
+            ckpt = torch.load(ckpt_path, map_location="cpu", weights_only=True)
+            hparams = ckpt.get("hparams", {})
+            agent = TD3LSTM2Agent(
+                obs_dim=obs_dim, action_dim=action_dim,
+                hidden_sizes=hidden_sizes, device=device,
+                num_layers=int(hparams.get("num_layers", 2)),
+            )
+        elif algo == "td3_transformer":
+            # R82: load transformer ckpt with hparam-aware window_k / n_heads / n_layers.
+            ckpt = torch.load(ckpt_path, map_location="cpu", weights_only=True)
+            hparams = ckpt.get("hparams", {})
+            agent = TD3TransformerAgent(
+                obs_dim=obs_dim, action_dim=action_dim,
+                hidden_sizes=hidden_sizes, device=device,
+                window_k=int(hparams.get("window_k", 10)),
+                n_heads=int(hparams.get("n_heads", 4)),
+                n_layers=int(hparams.get("n_layers", 1)),
             )
         else:
             agent = SACAgent(
