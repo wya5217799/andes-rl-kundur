@@ -4,6 +4,7 @@
 
 - `CONTEXT.md` — glossary (incl. V4/V5/paper-faithful split) + 14 architecture decisions (AD-01 … AD-14)
 - `docs/adr/0001-src-layout.md` — long-form rationale for the src layout
+- `docs/adr/0002-paper-strict-vs-paper-faithful.md` — 5-term paper-X split (R58)
 - `docs/adr/0003-pi-briefing-layer.md` — PI briefing contract (R≥59 mandatory)
 - `docs/adr/0004-v5-env-regca1-plant-paper-deviation.md` — V5 REGCA1 plant framing as paper-deviation (R80)
 - `docs/adr/0005-andes-only-drop-simulink-1to1.md` — ANDES-only, no Simulink 1:1 chase (R80)
