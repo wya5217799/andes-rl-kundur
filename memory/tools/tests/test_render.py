@@ -597,6 +597,38 @@ Demo note for the archive-index test.
     assert "NOTE-0001" in text
 
 
+def test_archive_index_appears_before_stats_section(tmp_path):
+    """Archive Index (section 5c) must render before Stats (section 6)
+    per the render.py docstring section order."""
+    from render import render_state  # noqa: E402
+
+    claims_dir = tmp_path / "claims"
+    rounds_dir = tmp_path / "rounds"
+    questions_dir = tmp_path / "questions"
+    notes_dir = tmp_path / "notes"
+    claims_dir.mkdir(); rounds_dir.mkdir(); questions_dir.mkdir(); notes_dir.mkdir()
+
+    (notes_dir / "NOTE-0001.md").write_text("""---
+id: NOTE-0001
+source: handoff
+source_path: dummy
+date: 2026-05-17
+related_rounds: [R58]
+topics: [training-infra]
+extracted_claims: []
+status: ingested
+---
+
+## Summary
+Order test note.
+""", encoding="utf-8")
+
+    out = tmp_path / "STATE.md"
+    render_state(claims_dir, rounds_dir, questions_dir, out, notes_dir=notes_dir)
+    text = out.read_text(encoding="utf-8")
+    assert text.index("## Archive Index") < text.index("## Stats")
+
+
 def test_archive_index_section_omitted_when_no_notes(tmp_path):
     from render import render_state  # noqa: E402
     claims_dir = tmp_path / "claims"
