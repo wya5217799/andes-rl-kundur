@@ -1,3 +1,13 @@
+---
+round: R74
+state: active
+opened: '2026-05-18'
+closed: null
+supersedes_rounds: []
+superseded_by_round: null
+abort_reason: null
+superseded_note: null
+---
 # R74 plan — s51 transition probe + 5-seed expansion + dual-eval enhancement
 
 **Date**: 2026-05-18

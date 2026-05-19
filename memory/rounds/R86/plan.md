@@ -1,3 +1,13 @@
+---
+round: R86
+state: active
+opened: '2026-05-19'
+closed: null
+supersedes_rounds: []
+superseded_by_round: null
+abort_reason: null
+superseded_note: null
+---
 # R86 plan — Cross-ckpt replication of R84 critic-monotone-Q pathology
 
 **Status**: ACTIVE

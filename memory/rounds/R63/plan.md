@@ -1,3 +1,13 @@
+---
+round: R63
+state: active
+opened: '2026-05-17'
+closed: null
+supersedes_rounds: []
+superseded_by_round: null
+abort_reason: null
+superseded_note: null
+---
 # R63 plan — Hyper sweep autonomous mode (N_SUBSTEPS / grad_clip / batch_size + combo)
 
 **Date**: 2026-05-17

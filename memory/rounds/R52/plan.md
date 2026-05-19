@@ -1,3 +1,13 @@
+---
+round: R52
+state: active
+opened: '2026-05-16'
+closed: null
+supersedes_rounds: []
+superseded_by_round: null
+abort_reason: null
+superseded_note: null
+---
 # R52 plan — time-in-obs probe (give policy explicit phase info)
 
 **Date**: 2026-05-17

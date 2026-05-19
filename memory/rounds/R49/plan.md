@@ -1,3 +1,13 @@
+---
+round: R49
+state: active
+opened: '2026-05-16'
+closed: null
+supersedes_rounds: []
+superseded_by_round: null
+abort_reason: null
+superseded_note: null
+---
 # R49 plan — System audit + R03 obs probe (INCLUDE_OWN_ACTION_OBS)
 
 **Date**: 2026-05-17

@@ -1,3 +1,13 @@
+---
+round: R89
+state: active
+opened: '2026-05-19'
+closed: null
+supersedes_rounds: []
+superseded_by_round: null
+abort_reason: null
+superseded_note: null
+---
 # R89 plan — R09 sideline revival: ANDES Kundur vs paper parameter audit
 
 **Status**: ACTIVE

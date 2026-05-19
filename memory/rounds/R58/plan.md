@@ -1,3 +1,13 @@
+---
+round: R58
+state: active
+opened: '2026-05-17'
+closed: null
+supersedes_rounds: []
+superseded_by_round: null
+abort_reason: null
+superseded_note: null
+---
 # R58 plan — Paper-strict audit + ranking validity verification
 
 **Date**: 2026-05-17

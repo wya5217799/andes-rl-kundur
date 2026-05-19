@@ -1,3 +1,13 @@
+---
+round: R54
+state: active
+opened: '2026-05-17'
+closed: null
+supersedes_rounds: []
+superseded_by_round: null
+abort_reason: null
+superseded_note: null
+---
 # R54 plan — Warmstart-shared probe (cross-agent shared init)
 
 **Date**: 2026-05-17

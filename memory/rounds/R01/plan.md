@@ -1,3 +1,13 @@
+---
+round: R01
+state: active
+opened: '2026-05-16'
+closed: null
+supersedes_rounds: []
+superseded_by_round: null
+abort_reason: null
+superseded_note: null
+---
 # R01 Plan (saturated, R01.2)
 
 **Status**: DRAFT

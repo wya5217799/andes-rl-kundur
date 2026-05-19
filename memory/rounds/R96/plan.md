@@ -1,3 +1,13 @@
+---
+round: R96
+state: active
+opened: '2026-05-19'
+closed: null
+supersedes_rounds: []
+superseded_by_round: null
+abort_reason: null
+superseded_note: null
+---
 # R96 plan — Cross-ckpt validation of CLM-0163 value-horizon mismatch
 
 **Status**: ACTIVE

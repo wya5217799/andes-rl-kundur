@@ -107,6 +107,36 @@ def _round_is_in_flight(round_dir: Path) -> bool:
     return plan.exists() and _round_verdict_path(round_dir) is None
 
 
+def _round_state(round_dir: Path) -> str | None:
+    """Return the lifecycle state declared in plan.md frontmatter.
+
+    Returns None if plan.md or frontmatter is missing. Callers that need
+    a state for legacy plans should treat None as equivalent to "active".
+    """
+    plan = round_dir / "plan.md"
+    if not plan.exists():
+        return None
+    fm = _load_yaml_frontmatter(plan)
+    if not fm:
+        return None
+    state = fm.get("state")
+    return state if isinstance(state, str) else None
+
+
+def _round_opened(round_dir: Path) -> str | None:
+    """Return the `opened` date string from plan.md frontmatter, or None."""
+    plan = round_dir / "plan.md"
+    if not plan.exists():
+        return None
+    fm = _load_yaml_frontmatter(plan)
+    if not fm:
+        return None
+    opened = fm.get("opened")
+    if opened is None:
+        return None
+    return str(opened)
+
+
 def _extract_tldr(verdict_path: Path | None) -> str | None:
     """Return the first non-trivial line of a verdict's `## TL;DR` block, or None.
 
@@ -261,11 +291,24 @@ def _leaderboard_rows(
 ) -> list[str]:
     """Build the rows for the ``## Leaderboard`` section.
 
-    Pulls claims with a structured ``metric`` block (R50 opt I), sorts by
+    Pulls claims with a structured ``metric`` block (R50 opt I) whose
+    ``metric.kind`` indicates a performance number, sorts by
     ``metric.value`` descending, and formats one line per row. Returns
-    an empty list when no claim carries a metric — caller omits the
-    whole section in that case.
+    an empty list when no claim carries a performance-kind metric —
+    caller omits the whole section in that case.
+
+    Kind filter (2026-05-19 audit, see [[CLM-0005]] deprecation note):
+    strict opt-in. Only claims whose ``metric.kind`` is in
+    ``PERFORMANCE_KINDS`` are shown. Hyperparameter / gap / ablation-impact /
+    legacy-deprecated entries fall out automatically. Backfill ``kind:``
+    on a claim's metric block to surface it.
     """
+    PERFORMANCE_KINDS = {
+        "performance",
+        "performance-absolute",
+        "performance-ratio",
+        "performance-delta",
+    }
     scored: list[tuple[float, dict[str, Any]]] = []
     for c in claims:
         m = c.get("metric")
@@ -273,6 +316,9 @@ def _leaderboard_rows(
             continue
         v = m.get("value")
         if isinstance(v, bool) or not isinstance(v, (int, float)):
+            continue
+        kind = m.get("kind")
+        if kind not in PERFORMANCE_KINDS:
             continue
         scored.append((float(v), c))
     scored.sort(key=lambda t: t[0], reverse=True)
@@ -359,7 +405,39 @@ def render_state(
         if c.get("status") == "current" and "headline" in (c.get("tags") or [])
     ]
 
-    in_flight_rounds = [d for d in round_dirs if _round_is_in_flight(d)]
+    # R166: state-aware grouping. Legacy plans without `state` field are
+    # treated as if state=active (the backfill script sets state explicitly,
+    # but render must not crash on rounds that pre-date the schema).
+    active_rounds: list[Path] = []
+    queued_rounds: list[Path] = []
+    stale_rounds: list[Path] = []  # state=active AND opened ≥ 14 days
+    for d in round_dirs:
+        if not _round_is_in_flight(d):
+            continue
+        state = _round_state(d) or "active"
+        if state == "queued":
+            queued_rounds.append(d)
+            continue
+        if state != "active":
+            # Terminal states (completed/superseded/aborted) with no
+            # verdict.md (e.g. aborted) — silent; not in any in-flight list.
+            continue
+        opened_str = _round_opened(d)
+        is_stale = False
+        if opened_str:
+            try:
+                opened_date = dt.date.fromisoformat(opened_str.strip())
+                age = (dt.date.today() - opened_date).days
+                is_stale = age >= 14
+            except ValueError:
+                is_stale = False
+        if is_stale:
+            stale_rounds.append(d)
+        else:
+            active_rounds.append(d)
+
+    # `completed_rounds` retains legacy meaning for "Latest Round": rounds
+    # with verdict.md, regardless of declared state.
     completed_rounds = [d for d in round_dirs if not _round_is_in_flight(d)]
 
     open_qs = [
@@ -429,15 +507,33 @@ def render_state(
         lines.append("(none)")
     lines.append("")
 
-    # 2. In-Flight
-    lines.append("## In-Flight")
+    # 2. In-Flight (state-aware split: 在跑 / 排队 / ⚠️ stale)
+    def _fmt_round_line(d: Path) -> str:
+        opened = _round_opened(d)
+        suffix = f" [opened {opened}]" if opened else ""
+        return f"- {d.name} — `memory/rounds/{d.name}/plan.md`{suffix}"
+
+    lines.append("## 在跑 (state=active)")
     lines.append("")
-    if in_flight_rounds:
-        for d in in_flight_rounds:
-            lines.append(f"- {d.name} — `memory/rounds/{d.name}/plan.md`")
+    if active_rounds:
+        lines.extend(_fmt_round_line(d) for d in active_rounds)
     else:
         lines.append("(none)")
     lines.append("")
+
+    lines.append("## 排队 (state=queued)")
+    lines.append("")
+    if queued_rounds:
+        lines.extend(_fmt_round_line(d) for d in queued_rounds)
+    else:
+        lines.append("(none)")
+    lines.append("")
+
+    if stale_rounds:
+        lines.append("## ⚠️ 疑似 stale (state=active, opened ≥ 14 days, no verdict)")
+        lines.append("")
+        lines.extend(_fmt_round_line(d) for d in stale_rounds)
+        lines.append("")
 
     # 3. Open Questions
     lines.append("## Open Questions")

@@ -1,3 +1,13 @@
+---
+round: R68
+state: active
+opened: '2026-05-18'
+closed: null
+supersedes_rounds: []
+superseded_by_round: null
+abort_reason: null
+superseded_note: null
+---
 # R68 plan — SAC tau=0.001 verify + LSTM hyper sweep
 
 **Date**: 2026-05-17/18

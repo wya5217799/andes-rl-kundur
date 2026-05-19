@@ -1,3 +1,13 @@
+---
+round: R56
+state: active
+opened: '2026-05-17'
+closed: null
+supersedes_rounds: []
+superseded_by_round: null
+abort_reason: null
+superseded_note: null
+---
 # R56 plan — LSTM recurrent actor (structural pivot vs hexagon ceiling)
 
 **Date**: 2026-05-17

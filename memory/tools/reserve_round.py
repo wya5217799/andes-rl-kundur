@@ -24,6 +24,10 @@ Usage (library):
 from __future__ import annotations
 
 import argparse
+import datetime as dt
+import re
+import subprocess
+import sys
 from pathlib import Path
 
 
@@ -77,6 +81,101 @@ def reserve_next_round(rounds_dir: Path) -> int:
             continue
 
 
+def _extract_oracle_snapshot(state_md: Path) -> str:
+    """Pull the Open Questions + Recently Closed sections out of STATE.md.
+
+    Used by ``--write-plan-stub`` to inline a freshly-rendered oracle view
+    into the new round's plan.md. Returns an empty string when STATE.md
+    is missing or has neither section (e.g. fresh memory tree).
+    """
+    if not state_md.exists():
+        return ""
+    text = state_md.read_text(encoding="utf-8")
+    sections: list[str] = []
+    for heading in ("## Open Questions", "## Recently Closed"):
+        m = re.search(
+            rf"^{re.escape(heading)}\b.*?(?=\n##\s|\Z)",
+            text,
+            re.MULTILINE | re.DOTALL,
+        )
+        if m:
+            sections.append(m.group(0).rstrip())
+    return "\n\n".join(sections)
+
+
+def _write_plan_stub(round_dir: Path, n: int, oracle_snapshot: str) -> None:
+    """Drop a plan.md skeleton with the oracle snapshot inlined.
+
+    The snapshot freezes the open Q / recently-closed list at plan-write
+    time so a parallel session writing the verdict cannot blame "stale
+    STATE.md" for an out-of-date plan (F4 from 2026-05-19 audit). The
+    author can overwrite the rest of the plan freely; the snapshot
+    section is informational and should be preserved through edits.
+    """
+    plan_path = round_dir / "plan.md"
+    if plan_path.exists():
+        return  # do not clobber an existing plan
+    now = dt.date.today().isoformat()
+    snapshot_block = (
+        oracle_snapshot if oracle_snapshot else "(STATE.md had no oracle sections)"
+    )
+    plan_path.write_text(
+        # R166: machine-readable lifecycle state in YAML frontmatter.
+        # Body markdown keeps the human-readable Status/Opened lines.
+        f"---\n"
+        f"round: R{n}\n"
+        f"state: active\n"
+        f"opened: '{now}'\n"
+        f"closed: null\n"
+        f"supersedes_rounds: []\n"
+        f"superseded_by_round: null\n"
+        f"abort_reason: null\n"
+        f"superseded_note: null\n"
+        f"---\n"
+        f"# R{n} plan — (rename me)\n\n"
+        f"**Status**: ACTIVE\n"
+        f"**Opened**: {now}\n"
+        f"**Driver**: (one-sentence motivation)\n"
+        f"**Parent**: (CLM-NNNN refs)\n\n"
+        f"## TL;DR\n\n"
+        f"(fill in after methodology drafted)\n\n"
+        f"## Snapshot at plan-time (oracle as of {now})\n\n"
+        f"<!-- Auto-injected by reserve_round.py (F4 audit 2026-05-19). -->\n"
+        f"<!-- Do not delete — re-render-render.py STATE.md if you want to -->\n"
+        f"<!-- refresh, but keep this block as the plan-time snapshot. -->\n\n"
+        f"{snapshot_block}\n\n"
+        f"## Methodology\n\n"
+        f"(fill in)\n\n"
+        f"## Gate\n\n"
+        f"(decision rule)\n\n"
+        f"## 资产保护契约\n\n"
+        f"(what stays unchanged, what's added)\n\n"
+        f"## Cross-references\n\n"
+        f"(CLM-NNNN parent claims)\n",
+        encoding="utf-8",
+    )
+
+
+def _refresh_oracle(memory_dir: Path) -> None:
+    """Run validate.py + render.py to refresh STATE.md before snapshotting.
+
+    Failures are non-fatal: if validate hits a hard error we still want
+    to allow round reservation (the caller may be in the middle of fixing
+    that error). The snapshot just won't reflect the in-flight fix.
+    """
+    validate = memory_dir / "tools" / "validate.py"
+    render = memory_dir / "tools" / "render.py"
+    for script in (validate, render):
+        if not script.exists():
+            continue
+        subprocess.run(
+            [sys.executable, str(script)],
+            cwd=str(memory_dir.parent),
+            capture_output=True,
+            timeout=30,
+        )
+
+
 def _main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument(
@@ -84,9 +183,25 @@ def _main() -> None:
         default="memory",
         help="Path to the memory root (default: memory)",
     )
+    parser.add_argument(
+        "--write-plan-stub",
+        action="store_true",
+        help=(
+            "After reserving the round, refresh STATE.md (validate + render) "
+            "and write a plan.md skeleton with the open-Q / recently-closed "
+            "snapshot inlined. F4 from 2026-05-19 audit — prevents stale-"
+            "oracle race conditions like R114."
+        ),
+    )
     args = parser.parse_args()
-    rounds_dir = Path(args.memory_dir) / "rounds"
+    memory_dir = Path(args.memory_dir)
+    rounds_dir = memory_dir / "rounds"
+    if args.write_plan_stub:
+        _refresh_oracle(memory_dir)
     n = reserve_next_round(rounds_dir)
+    if args.write_plan_stub:
+        snapshot = _extract_oracle_snapshot(memory_dir / "STATE.md")
+        _write_plan_stub(rounds_dir / f"R{n}", n, snapshot)
     print(n)
 
 

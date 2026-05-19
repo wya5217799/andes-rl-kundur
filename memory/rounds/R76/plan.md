@@ -1,3 +1,13 @@
+---
+round: R76
+state: active
+opened: '2026-05-18'
+closed: null
+supersedes_rounds: []
+superseded_by_round: null
+abort_reason: null
+superseded_note: null
+---
 # R76 plan — train.py + paper_grade_axes 命名清理 + 8 个 round driver 归档
 
 **Date**: 2026-05-18

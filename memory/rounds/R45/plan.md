@@ -1,3 +1,13 @@
+---
+round: R45
+state: active
+opened: '2026-05-17'
+closed: null
+supersedes_rounds: []
+superseded_by_round: null
+abort_reason: null
+superseded_note: null
+---
 # R45 plan — Escalate R44 deferrals + s52 reproducibility + SAC long
 
 **Date**: 2026-05-17

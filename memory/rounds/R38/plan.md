@@ -1,3 +1,13 @@
+---
+round: R38
+state: active
+opened: '2026-05-16'
+closed: null
+supersedes_rounds: []
+superseded_by_round: null
+abort_reason: null
+superseded_note: null
+---
 # R38 plan — TD3 vs the 0.137 multi-seed attractor
 
 **Date**: 2026-05-17

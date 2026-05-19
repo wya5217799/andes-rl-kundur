@@ -1,3 +1,13 @@
+---
+round: R06
+state: active
+opened: '2026-05-16'
+closed: null
+supersedes_rounds: []
+superseded_by_round: null
+abort_reason: null
+superseded_note: null
+---
 # R06 Plan — 物理对齐 Audit (强 pivot)
 
 **Phase**: Audit (R05 attractor 触发, per SKILL.md Explore→Exploit→Audit 工作流)

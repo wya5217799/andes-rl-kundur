@@ -1,3 +1,13 @@
+---
+round: R42
+state: active
+opened: '2026-05-16'
+closed: null
+supersedes_rounds: []
+superseded_by_round: null
+abort_reason: null
+superseded_note: null
+---
 # R42 plan — Code deepening pass (4 candidates)
 
 **Date**: 2026-05-16

@@ -99,4 +99,18 @@ R10-R20 forensic 找到并修了 4 个 fundamental ANDES bug (governor DAE_INACT
 
 ---
 
-*Generated 2026-05-07 — V4 paper-grade alignment 突破, ANDES path RE-OPENED → COMPLETED at LS1 final_df 97% match.*
+## Questions opened (this round)
+
+(retro-added by R166 sweep: R21 pre-dates the Q-section convention)
+
+## Questions closed (this round)
+
+(retro-added by R166 sweep)
+
+## Questions advanced (this round, status unchanged)
+
+(retro-added by R166 sweep)
+
+---
+
+*Generated 2026-05-07 — V4 paper-grade alignment 突破, ANDES path RE-OPENED → COMPLETED at LS1 final_df 97% match. R166 sweep renamed `round_21_v4_breakthrough.md` → `verdict.md` and retro-added 3 mandatory Q-section placeholders (R21 is pre-R59 so PI briefing not required per ADR-0003).*

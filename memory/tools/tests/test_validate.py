@@ -756,3 +756,392 @@ def test_round_num_from_verdict_path(tmp_path):
     assert _round_num_from_verdict_path(Path("/x/R59/verdict.md")) == 59
     assert _round_num_from_verdict_path(Path("/x/R01/verdict.md")) == 1
     assert _round_num_from_verdict_path(Path("/x/README/verdict.md")) is None
+
+
+# ── 2026-05-19 flow audit (F2 / F3 / F5 / F7) ────────────────────────────
+
+
+def _bare_claim(cid: str, **extra) -> dict:
+    """Minimal claim dict compatible with validate_rules expectations."""
+    base = {
+        "id": cid,
+        "type": "finding",
+        "trust": "S",
+        "status": "current",
+        "supersedes": [],
+        "superseded_by": [],
+    }
+    base.update(extra)
+    return base
+
+
+def test_f2_caveat_lineage_warns_when_dropped():
+    """Claim X cites parent Y (tagged caveat-needed) in provenance but
+    statement has no Caveat/limitation language → warning."""
+    parent = _bare_claim(
+        "CLM-0100",
+        tags=["caveat-needed"],
+        # Parent's own statement need not mention caveat — the *tag* is the
+        # marker. Keep this statement caveat-free so it's clear the tag is
+        # what trips the check.
+        statement="parent finding text.",
+    )
+    child = _bare_claim(
+        "CLM-0101",
+        provenance=["memory/claims/CLM-0100.md"],
+        # Deliberately bland statement: NO caveat / limitation / on-manifold
+        # / synthetic-obs / single-seed / OOD vocabulary. The check should
+        # fire because the cited parent is caveat-needed but child silently
+        # drops the upstream context.
+        statement="downstream finding with positive result.",
+    )
+    claims = {c["id"]: c for c in (parent, child)}
+    _errors, warnings = validate_rules(claims)
+    assert any(
+        "CLM-0101" in w and "caveat" in w.lower() for w in warnings
+    ), f"expected caveat-lineage warning: {warnings}"
+
+
+def test_f2_caveat_lineage_silent_when_propagated():
+    """Same setup, but child statement carries 'Caveat:' — no warning."""
+    parent = _bare_claim("CLM-0100", tags=["caveat-needed"])
+    child = _bare_claim(
+        "CLM-0101",
+        provenance=["memory/claims/CLM-0100.md"],
+        statement="Caveat: synthetic obs may not generalize.",
+    )
+    claims = {c["id"]: c for c in (parent, child)}
+    _errors, warnings = validate_rules(claims)
+    assert not any(
+        "CLM-0101" in w and "caveat" in w.lower() for w in warnings
+    ), f"unexpected caveat-lineage warning: {warnings}"
+
+
+def test_f3_closes_question_missing_question_errors():
+    """Claim says it closes a non-existent question → hard error."""
+    claim = _bare_claim("CLM-0200", closes_question=["Q-9999"])
+    errors, _warnings = validate_rules({claim["id"]: claim}, questions={})
+    assert any(
+        "Q-9999" in e and "does not exist" in e for e in errors
+    ), f"expected non-existent-Q error: {errors}"
+
+
+def test_f3_closes_question_open_status_errors():
+    """Claim closes a Q that is still status=open → hard error."""
+    claim = _bare_claim("CLM-0200", closes_question=["Q-0001"])
+    questions = {
+        "Q-0001": {"id": "Q-0001", "status": "open", "closed_by": None}
+    }
+    errors, _warnings = validate_rules(
+        {claim["id"]: claim}, questions=questions
+    )
+    assert any(
+        "Q-0001" in e and "closed-" in e for e in errors
+    ), f"expected open-status error: {errors}"
+
+
+def test_f3_closes_question_wrong_closed_by_errors():
+    """Q closed but closed_by points at a different claim → hard error."""
+    claim = _bare_claim("CLM-0200", closes_question=["Q-0001"])
+    questions = {
+        "Q-0001": {
+            "id": "Q-0001", "status": "closed-negative",
+            "closed_by": "CLM-9999",
+        }
+    }
+    errors, _warnings = validate_rules(
+        {claim["id"]: claim}, questions=questions
+    )
+    assert any(
+        "Q-0001" in e and "closed_by" in e for e in errors
+    ), f"expected wrong-closed_by error: {errors}"
+
+
+def test_f3_closes_question_consistent_passes():
+    """Q is closed-negative and closed_by matches claim id → no error."""
+    claim = _bare_claim("CLM-0200", closes_question=["Q-0001"])
+    questions = {
+        "Q-0001": {
+            "id": "Q-0001", "status": "closed-negative",
+            "closed_by": "CLM-0200",
+        }
+    }
+    errors, _warnings = validate_rules(
+        {claim["id"]: claim}, questions=questions
+    )
+    assert not any("Q-0001" in e for e in errors), \
+        f"unexpected Q-0001 error: {errors}"
+
+
+def test_f5_metric_kind_required_for_r115_plus():
+    """A claim emitted in round ≥ R115 with metric block but no kind
+    → hard error."""
+    claim = _bare_claim(
+        "CLM-0300",
+        round="R115",
+        metric={"name": "m", "value": 0.5},  # no kind
+    )
+    errors, _warnings = validate_rules({claim["id"]: claim})
+    assert any(
+        "CLM-0300" in e and "metric.kind" in e for e in errors
+    ), f"expected metric.kind-required error: {errors}"
+
+
+def test_f5_metric_kind_grandfathered_pre_r115():
+    """Pre-R115 claim with metric block but no kind → no error
+    (legacy grandfathered to keep historical ledger valid)."""
+    claim = _bare_claim(
+        "CLM-0300",
+        round="R114",
+        metric={"name": "m", "value": 0.5},
+    )
+    errors, _warnings = validate_rules({claim["id"]: claim})
+    assert not any(
+        "metric.kind" in e for e in errors
+    ), f"pre-R115 should be grandfathered: {errors}"
+
+
+def test_f5_invalid_kind_errors():
+    """A kind outside the allowed enum → hard error."""
+    claim = _bare_claim(
+        "CLM-0300",
+        round="R120",
+        metric={"name": "m", "value": 0.5, "kind": "totally-made-up"},
+    )
+    errors, _warnings = validate_rules({claim["id"]: claim})
+    assert any(
+        "totally-made-up" in e for e in errors
+    ), f"expected invalid-kind error: {errors}"
+
+
+def test_f5_valid_performance_kind_passes():
+    claim = _bare_claim(
+        "CLM-0300",
+        round="R130",
+        metric={"name": "m", "value": 0.5, "kind": "performance"},
+    )
+    errors, _warnings = validate_rules({claim["id"]: claim})
+    assert not any("kind" in e for e in errors), f"unexpected kind error: {errors}"
+
+
+def test_f7_archived_provenance_flag_suppresses_missing_path_warning(tmp_path):
+    """Claim with archived_provenance: true skips provenance-existence check."""
+    from validate import check_provenance_paths  # noqa: E402
+    claim_normal = _bare_claim(
+        "CLM-0001",
+        provenance=["scripts/totally_missing_file.py"],
+    )
+    claim_archived = _bare_claim(
+        "CLM-0002",
+        provenance=["scripts/totally_missing_file.py"],
+        archived_provenance=True,
+    )
+    claims = {c["id"]: c for c in (claim_normal, claim_archived)}
+    warnings = check_provenance_paths(claims, repo_root=tmp_path)
+    flagged = {w.split(":")[0] for w in warnings}
+    assert "CLM-0001" in flagged, "normal claim should warn"
+    assert "CLM-0002" not in flagged, "archived claim should be silent"
+
+
+def test_f7_archive_prefix_paths_skipped(tmp_path):
+    """Provenance paths under _archive/ / _legacy/ / memory/handoffs/ are
+    intentionally non-existent — never warned about."""
+    from validate import check_provenance_paths  # noqa: E402
+    claim = _bare_claim(
+        "CLM-0001",
+        provenance=[
+            "_archive/old_script.py",
+            "_legacy/CONTEXT.md",
+            "memory/handoffs/2026-05-07_handoff.md",
+            "scripts/exists_somewhere/never.py",  # this should warn
+        ],
+    )
+    warnings = check_provenance_paths(
+        {claim["id"]: claim}, repo_root=tmp_path
+    )
+    # Only the non-prefixed one warns
+    assert len(warnings) == 1, f"expected 1 warning, got {warnings}"
+    assert "scripts/exists_somewhere/never.py" in warnings[0]
+
+
+def test_f7_provenance_path_strips_line_and_symbol_annotations(tmp_path):
+    """``path/file.py:242`` and ``path/file.py::symbol`` should both
+    resolve to ``path/file.py`` for existence-checking."""
+    from validate import _extract_provenance_path  # noqa: E402
+    assert _extract_provenance_path("src/foo.py:242") == "src/foo.py"
+    assert _extract_provenance_path("src/foo.py::bar") == "src/foo.py"
+    assert _extract_provenance_path("src/foo.py:242 (note)") == "src/foo.py"
+    # URL-style shouldn't be mauled (no slash after colon)
+    assert _extract_provenance_path("https://example.com").startswith(
+        "https"
+    )
+
+
+# ---------- R166: round lifecycle state (state field + staleness) ----------
+
+
+def _write_plan(round_dir: Path, **fields) -> Path:
+    """Helper: write a minimal RNNN/plan.md with YAML frontmatter."""
+    round_dir.mkdir(parents=True, exist_ok=True)
+    plan = round_dir / "plan.md"
+    fm_lines = ["---"]
+    for k, v in fields.items():
+        if v is None:
+            fm_lines.append(f"{k}: null")
+        elif isinstance(v, list):
+            fm_lines.append(f"{k}: {v}")
+        else:
+            fm_lines.append(f"{k}: {v}")
+    fm_lines.append("---")
+    fm_lines.append("# body")
+    plan.write_text("\n".join(fm_lines) + "\n", encoding="utf-8")
+    return plan
+
+
+def test_r_state_required_hard_error_when_missing(tmp_path):
+    """plan.md without `state` field is a hard error (R-state-required)."""
+    from validate import validate_round_state  # noqa: E402
+    rounds_dir = tmp_path / "rounds"
+    plan = _write_plan(rounds_dir / "R200", round="R200")
+    errors, _warnings = validate_round_state(plan)
+    assert any("state" in e.lower() and "required" in e.lower() for e in errors), \
+        f"expected R-state-required error, got {errors}"
+
+
+def test_r_state_enum_hard_error_when_invalid(tmp_path):
+    """state must be one of {active,queued,completed,superseded,aborted}."""
+    from validate import validate_round_state  # noqa: E402
+    rounds_dir = tmp_path / "rounds"
+    plan = _write_plan(rounds_dir / "R200", round="R200", state="garbage")
+    errors, _warnings = validate_round_state(plan)
+    assert any("garbage" in e and "state" in e.lower() for e in errors)
+
+
+def test_r_state_enum_all_5_values_pass(tmp_path):
+    """All 5 valid enum values pass the state-enum check.
+
+    Note: terminal states (completed/superseded/aborted) need extra fields
+    to fully validate — this test only checks enum membership.
+    """
+    from validate import validate_round_state  # noqa: E402
+    rounds_dir = tmp_path / "rounds"
+    for st in ("active", "queued"):
+        plan = _write_plan(rounds_dir / f"R{st}", round=f"R{st}",
+                           state=st, opened="2026-05-19")
+        errors, _ = validate_round_state(plan)
+        assert errors == [], f"state={st!r} should pass, got {errors}"
+
+
+def test_r_terminal_superseded_requires_superseded_by_round(tmp_path):
+    """state=superseded without superseded_by_round is an error."""
+    from validate import validate_round_state  # noqa: E402
+    rounds_dir = tmp_path / "rounds"
+    # The target dir doesn't exist — that's a separate test
+    plan = _write_plan(rounds_dir / "R200", round="R200", state="superseded",
+                       opened="2026-05-19", closed="2026-05-19")
+    errors, _ = validate_round_state(plan)
+    assert any("superseded_by_round" in e for e in errors)
+
+
+def test_r_terminal_superseded_by_round_must_exist(tmp_path):
+    """superseded_by_round must point at an existing RNNN/ directory."""
+    from validate import validate_round_state  # noqa: E402
+    rounds_dir = tmp_path / "rounds"
+    plan = _write_plan(rounds_dir / "R200", round="R200", state="superseded",
+                       opened="2026-05-19", closed="2026-05-19",
+                       superseded_by_round="R999")
+    errors, _ = validate_round_state(plan, rounds_dir=rounds_dir)
+    assert any("R999" in e and "does not exist" in e for e in errors)
+
+
+def test_r_terminal_aborted_requires_abort_reason(tmp_path):
+    """state=aborted without abort_reason is an error."""
+    from validate import validate_round_state  # noqa: E402
+    rounds_dir = tmp_path / "rounds"
+    plan = _write_plan(rounds_dir / "R200", round="R200", state="aborted",
+                       opened="2026-05-19", closed="2026-05-19")
+    errors, _ = validate_round_state(plan)
+    assert any("abort_reason" in e for e in errors)
+
+
+def test_r_terminal_completed_requires_verdict(tmp_path):
+    """state=completed without verdict.md is an error."""
+    from validate import validate_round_state  # noqa: E402
+    rounds_dir = tmp_path / "rounds"
+    plan = _write_plan(rounds_dir / "R200", round="R200", state="completed",
+                       opened="2026-05-19", closed="2026-05-19")
+    errors, _ = validate_round_state(plan)
+    assert any("verdict" in e.lower() for e in errors)
+
+
+def test_r_terminal_completed_passes_when_verdict_exists(tmp_path):
+    """state=completed with verdict.md passes (no state-level error)."""
+    from validate import validate_round_state  # noqa: E402
+    rounds_dir = tmp_path / "rounds"
+    rd = rounds_dir / "R200"
+    plan = _write_plan(rd, round="R200", state="completed",
+                       opened="2026-05-19", closed="2026-05-19")
+    (rd / "verdict.md").write_text("# R200\n", encoding="utf-8")
+    errors, _ = validate_round_state(plan)
+    assert errors == []
+
+
+def test_warn_stale_active_after_14_days(tmp_path):
+    """state=active + opened ≥ 14 days ago + no verdict → soft warn."""
+    from datetime import date
+    from validate import validate_round_state  # noqa: E402
+    rounds_dir = tmp_path / "rounds"
+    plan = _write_plan(rounds_dir / "R200", round="R200",
+                       state="active", opened="2026-04-01")
+    today = date(2026, 5, 19)  # 48 days later
+    _errors, warnings = validate_round_state(plan, today=today)
+    assert any("stale" in w.lower() and "R200" in w for w in warnings)
+
+
+def test_warn_stale_active_within_14_days_silent(tmp_path):
+    """state=active + opened < 14 days ago → no stale warning."""
+    from datetime import date
+    from validate import validate_round_state  # noqa: E402
+    rounds_dir = tmp_path / "rounds"
+    plan = _write_plan(rounds_dir / "R200", round="R200",
+                       state="active", opened="2026-05-10")
+    today = date(2026, 5, 19)  # 9 days later
+    _errors, warnings = validate_round_state(plan, today=today)
+    assert not any("stale" in w.lower() for w in warnings)
+
+
+def test_warn_stale_queued_after_7_days(tmp_path):
+    """state=queued + opened ≥ 7 days ago → soft warn."""
+    from datetime import date
+    from validate import validate_round_state  # noqa: E402
+    rounds_dir = tmp_path / "rounds"
+    plan = _write_plan(rounds_dir / "R200", round="R200",
+                       state="queued", opened="2026-05-01")
+    today = date(2026, 5, 19)  # 18 days later
+    _errors, warnings = validate_round_state(plan, today=today)
+    assert any("queued" in w.lower() and "R200" in w for w in warnings)
+
+
+def test_warn_stale_terminal_states_silent(tmp_path):
+    """Terminal states never trigger stale warnings, even if opened long ago."""
+    from datetime import date
+    from validate import validate_round_state  # noqa: E402
+    rounds_dir = tmp_path / "rounds"
+    today = date(2026, 5, 19)
+    for st, extra in (
+        ("completed", {}),
+        ("superseded", {"superseded_by_round": "R201"}),
+        ("aborted", {"abort_reason": "test"}),
+    ):
+        rd = rounds_dir / f"R200_{st}"
+        plan = _write_plan(rd, round="R200", state=st,
+                           opened="2026-01-01", closed="2026-05-19", **extra)
+        if st == "completed":
+            (rd / "verdict.md").write_text("# x\n", encoding="utf-8")
+        if st == "superseded":
+            (rounds_dir / "R201").mkdir(parents=True, exist_ok=True)
+        _errors, warnings = validate_round_state(
+            plan, rounds_dir=rounds_dir, today=today
+        )
+        assert not any("stale" in w.lower() for w in warnings), \
+            f"state={st!r} should not warn stale; got {warnings}"

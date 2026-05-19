@@ -1,3 +1,13 @@
+---
+round: R62
+state: active
+opened: '2026-05-17'
+closed: null
+supersedes_rounds: []
+superseded_by_round: null
+abort_reason: null
+superseded_note: null
+---
 # R62 plan — Q-0007 real重训 + hyper-recon (h128 vs h64) — multi-wave
 
 **Date**: 2026-05-17

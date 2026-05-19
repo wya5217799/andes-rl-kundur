@@ -1,3 +1,13 @@
+---
+round: R80
+state: active
+opened: '2026-05-19'
+closed: null
+supersedes_rounds: []
+superseded_by_round: null
+abort_reason: null
+superseded_note: null
+---
 # R80 Plan — V5 env REGCA1 plant 升级 + 阶梯实验
 
 **Status**: ACTIVE

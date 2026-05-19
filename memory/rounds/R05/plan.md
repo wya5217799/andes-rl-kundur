@@ -1,3 +1,13 @@
+---
+round: R05
+state: active
+opened: '2026-05-16'
+closed: null
+supersedes_rounds: []
+superseded_by_round: null
+abort_reason: null
+superseded_note: null
+---
 # R05 Plan — 短-多臂 Bandit (REVISED 2026-05-07 per user methodology critique)
 
 > ⚠ **REVISED 但未执行**. 这份 50ep + paranoid wall + axis-trend 评判规则的修订版

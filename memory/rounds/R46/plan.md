@@ -1,3 +1,13 @@
+---
+round: R46
+state: active
+opened: '2026-05-16'
+closed: null
+supersedes_rounds: []
+superseded_by_round: null
+abort_reason: null
+superseded_note: null
+---
 # R46 plan — Architectural deepening (4 candidates, 3 executed + 1 deferred)
 
 **Date**: 2026-05-16

@@ -1,3 +1,13 @@
+---
+round: R41
+state: active
+opened: '2026-05-16'
+closed: null
+supersedes_rounds: []
+superseded_by_round: null
+abort_reason: null
+superseded_note: null
+---
 # R41 plan — three-part follow-up to CLM-0044
 
 **Date**: 2026-05-17

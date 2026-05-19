@@ -1,3 +1,13 @@
+---
+round: R69
+state: active
+opened: '2026-05-18'
+closed: null
+supersedes_rounds: []
+superseded_by_round: null
+abort_reason: null
+superseded_note: null
+---
 # R69 plan — paper_grade_axes 升级到 11-axis (加 per-agent + oscillation gating)
 
 **Date**: 2026-05-18

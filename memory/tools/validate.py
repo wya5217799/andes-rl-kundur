@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import re
 import sys
+from datetime import date, datetime
 from pathlib import Path
 from typing import Any
 
@@ -45,6 +46,15 @@ PI_BRIEFING_BLOCK_RE = re.compile(
     rf"^{re.escape(PI_BRIEFING_SECTION)}\s*\n+(.*?)(?=\n##\s|\Z)",
     re.MULTILINE | re.DOTALL,
 )
+
+# R166: round lifecycle state machine.
+# `state` on RNNN/plan.md frontmatter is the canonical source of truth for
+# whether a round is active, queued, completed, superseded, or aborted.
+# See ADR-0003 + R166 plan.md.
+ROUND_STATE_ENUM = {"active", "queued", "completed", "superseded", "aborted"}
+ROUND_STATE_TERMINAL = {"completed", "superseded", "aborted"}
+ROUND_STALE_ACTIVE_DAYS = 14
+ROUND_STALE_QUEUED_DAYS = 7
 
 
 def _load_entities(
@@ -257,10 +267,173 @@ def _warn_pi_briefing_length(verdict_path: Path, text: str) -> list[str]:
     return []
 
 
-def validate_rules(claims: dict[str, dict[str, Any]]) -> tuple[list[str], list[str]]:
-    """Return (errors, warnings). Hard rules go to errors; soft checks to warnings."""
+def _parse_iso_date(value: Any) -> date | None:
+    """Coerce a YAML date / datetime / 'YYYY-MM-DD' string to a date."""
+    if isinstance(value, date) and not isinstance(value, datetime):
+        return value
+    if isinstance(value, datetime):
+        return value.date()
+    if isinstance(value, str):
+        try:
+            return date.fromisoformat(value.strip())
+        except ValueError:
+            return None
+    return None
+
+
+def _load_plan_frontmatter(plan_path: Path) -> dict[str, Any] | None:
+    """Return parsed frontmatter dict, or None if the file/frontmatter is absent."""
+    if not plan_path.exists():
+        return None
+    text = plan_path.read_text(encoding="utf-8")
+    m = FRONTMATTER_RE.match(text)
+    if not m:
+        return None
+    return yaml.safe_load(m.group(1)) or {}
+
+
+def validate_round_state(
+    plan_path: Path,
+    *,
+    rounds_dir: Path | None = None,
+    today: date | None = None,
+) -> tuple[list[str], list[str]]:
+    """Validate the `state` field on a round's plan.md frontmatter.
+
+    Hard rules (errors):
+    - R-state-required: plan.md must have a `state` field
+    - R-state-enum: state ∈ {active, queued, completed, superseded, aborted}
+    - R-terminal-fields:
+        * completed → sibling verdict.md must exist
+        * superseded → `superseded_by_round` non-null AND target dir exists
+        * aborted   → `abort_reason` non-null
+
+    Soft rules (warnings):
+    - R-stale-active: state=active + opened ≥ 14 days ago + no verdict
+    - R-stale-queued: state=queued + opened ≥ 7 days ago
+
+    Terminal states never trigger stale warnings.
+
+    Args:
+        plan_path:   path to memory/rounds/RNNN/plan.md
+        rounds_dir:  parent dir for cross-round lookups (superseded_by_round
+                     target existence). Defaults to plan_path.parent.parent.
+        today:       overridable date for staleness arithmetic (tests inject).
+
+    Returns:
+        (errors, warnings) — both lists of strings, callers append to their
+        own buckets. Mirrors :func:`validate_rules`.
+    """
     errors: list[str] = []
     warnings: list[str] = []
+
+    fm = _load_plan_frontmatter(plan_path)
+    if fm is None:
+        # No frontmatter is not itself an error (some legacy plans are pure
+        # markdown), but state cannot be derived — emit one error.
+        errors.append(
+            f"{plan_path}: plan.md missing YAML frontmatter; "
+            f"`state` field is required (R-state-required)"
+        )
+        return errors, warnings
+
+    state = fm.get("state")
+    if state is None:
+        errors.append(
+            f"{plan_path}: `state` field is required (R-state-required); "
+            f"add one of {sorted(ROUND_STATE_ENUM)}"
+        )
+        return errors, warnings
+
+    if state not in ROUND_STATE_ENUM:
+        errors.append(
+            f"{plan_path}: invalid state {state!r} "
+            f"(R-state-enum; must be one of {sorted(ROUND_STATE_ENUM)})"
+        )
+        return errors, warnings
+
+    round_dir = plan_path.parent
+    parent_dir = rounds_dir if rounds_dir is not None else round_dir.parent
+
+    if state == "completed":
+        verdict = round_dir / "verdict.md"
+        if not verdict.exists():
+            errors.append(
+                f"{plan_path}: state=completed requires sibling verdict.md "
+                f"(R-terminal-fields)"
+            )
+
+    if state == "superseded":
+        target = fm.get("superseded_by_round")
+        if not target:
+            errors.append(
+                f"{plan_path}: state=superseded requires `superseded_by_round` "
+                f"field (R-terminal-fields)"
+            )
+        else:
+            target_dir = parent_dir / str(target)
+            if not target_dir.is_dir():
+                errors.append(
+                    f"{plan_path}: superseded_by_round target {target!r} "
+                    f"does not exist at {target_dir} (R-terminal-fields)"
+                )
+
+    if state == "aborted":
+        reason = fm.get("abort_reason")
+        if not reason:
+            errors.append(
+                f"{plan_path}: state=aborted requires `abort_reason` field "
+                f"(R-terminal-fields)"
+            )
+
+    if state in ROUND_STATE_TERMINAL:
+        # Terminal states do not produce staleness warnings.
+        return errors, warnings
+
+    # Staleness — only for active / queued.
+    today = today or date.today()
+    opened = _parse_iso_date(fm.get("opened"))
+    if opened is None:
+        # Missing `opened` is a soft signal — can't compute age, but the
+        # state-required hard rule already passed. Warn so we can backfill.
+        warnings.append(
+            f"{plan_path}: state={state} but `opened` is missing/unparseable; "
+            f"cannot check staleness"
+        )
+        return errors, warnings
+
+    age_days = (today - opened).days
+    if state == "active" and age_days >= ROUND_STALE_ACTIVE_DAYS:
+        verdict = round_dir / "verdict.md"
+        if not verdict.exists():
+            warnings.append(
+                f"{plan_path}: {round_dir.name} stale-active "
+                f"({age_days}d old, no verdict.md) — confirm still in progress "
+                f"or flip state to completed/superseded/aborted (R-stale-active)"
+            )
+    if state == "queued" and age_days >= ROUND_STALE_QUEUED_DAYS:
+        warnings.append(
+            f"{plan_path}: {round_dir.name} queued {age_days}d without firing; "
+            f"likely abort candidate (R-stale-queued)"
+        )
+
+    return errors, warnings
+
+
+def validate_rules(
+    claims: dict[str, dict[str, Any]],
+    *,
+    questions: dict[str, dict[str, Any]] | None = None,
+) -> tuple[list[str], list[str]]:
+    """Return (errors, warnings). Hard rules go to errors; soft checks to warnings.
+
+    ``questions`` is optional (legacy callers may not pass it); when provided,
+    enables Rule 7 (closes_question bidirectional consistency, F3 from
+    2026-05-19 flow audit).
+    """
+    errors: list[str] = []
+    warnings: list[str] = []
+    questions = questions or {}
 
     # Rule 1: id uniqueness — guards against same id value appearing under different
     # dict keys (possible when validate_rules is called outside the main() flow).
@@ -353,6 +526,65 @@ def validate_rules(claims: dict[str, dict[str, Any]]) -> tuple[list[str], list[s
                     f"(got {type(v).__name__})"
                 )
 
+    # Rule 5b (F5 from 2026-05-19 flow audit): for claims emitted in round
+    # R115 or later, ``metric.kind`` becomes mandatory so STATE.md's
+    # leaderboard never silently re-pollutes with hyper / gap / structural
+    # values. Pre-R115 claims are grandfathered (no kind defaults to
+    # excluded by render.py's strict opt-in filter).
+    METRIC_KIND_MANDATORY_FROM = 115
+    for claim in claims.values():
+        metric = claim.get("metric")
+        if not isinstance(metric, dict):
+            continue
+        round_num = _claim_round_num(claim)
+        if round_num is None or round_num < METRIC_KIND_MANDATORY_FROM:
+            continue
+        if not metric.get("kind"):
+            errors.append(
+                f"{claim['id']} (R{round_num}): metric.kind required for "
+                f"claims emitted from R{METRIC_KIND_MANDATORY_FROM} onward "
+                f"(F5 audit 2026-05-19) — pick one of "
+                f"{sorted(METRIC_KIND_ENUM)}"
+            )
+        elif metric["kind"] not in METRIC_KIND_ENUM:
+            errors.append(
+                f"{claim['id']}: metric.kind={metric['kind']!r} not in "
+                f"allowed set {sorted(METRIC_KIND_ENUM)}"
+            )
+
+    # Rule 7 (F3 from 2026-05-19 flow audit): closes_question bidirectional
+    # check. If a claim declares it closes a question, that question must
+    # exist, be in a closed-* status, and point back at the closing claim
+    # via closed_by. This catches the "CLM emitted but Q stays open"
+    # staleness pattern that caused Q-0022/0024/0025 to dangle this session.
+    for claim in claims.values():
+        closes = claim.get("closes_question") or []
+        if isinstance(closes, str):
+            closes = [closes]
+        for qid in closes:
+            if not isinstance(qid, str) or not qid:
+                continue
+            q = questions.get(qid)
+            if q is None:
+                errors.append(
+                    f"{claim['id']}.closes_question references {qid} "
+                    f"which does not exist"
+                )
+                continue
+            qstatus = q.get("status") or ""
+            if not qstatus.startswith("closed-"):
+                errors.append(
+                    f"{claim['id']}.closes_question references {qid} "
+                    f"but {qid}.status={qstatus!r} (must be closed-*)"
+                )
+            closed_by = q.get("closed_by")
+            if closed_by != claim["id"]:
+                errors.append(
+                    f"{claim['id']}.closes_question references {qid} "
+                    f"but {qid}.closed_by={closed_by!r} "
+                    f"(must equal {claim['id']!r})"
+                )
+
     # Warning A: forward/back edge symmetry
     for claim in claims.values():
         for target in claim.get("supersedes", []) or []:
@@ -387,6 +619,25 @@ def validate_rules(claims: dict[str, dict[str, Any]]) -> tuple[list[str], list[s
                 f"metric block — consider adding one for H/L (soft hint)"
             )
 
+    # Warning D (F2 from 2026-05-19 flow audit): caveat-lineage check.
+    # If a claim's provenance cites a sister claim tagged `caveat-needed`,
+    # the citing claim's statement should carry caveat-language too
+    # (Caveat:/caveat:/limitation:/synthetic obs/on-manifold etc.). This
+    # catches the "downstream claim drops upstream caveat" drift pattern
+    # observed CLM-0183 → CLM-0193 → CLM-0207 in this session's audit.
+    for claim in claims.values():
+        cited_caveat_parents = _cited_caveat_parents(claim, claims)
+        if not cited_caveat_parents:
+            continue
+        stmt = (claim.get("statement") or "").lower()
+        if _CAVEAT_RE.search(stmt):
+            continue
+        warnings.append(
+            f"{claim['id']}: cites caveat-needed parent(s) "
+            f"{sorted(cited_caveat_parents)} but statement contains no "
+            f"caveat / limitation language — propagate the upstream caveat"
+        )
+
     return errors, warnings
 
 
@@ -395,6 +646,80 @@ def validate_rules(claims: dict[str, dict[str, Any]]) -> tuple[list[str], list[s
 # benchmark form (e.g. 0.444, 0.3346) while skipping single-digit
 # decimals like "+0.1" (mostly used in ranges / step sizes).
 _DECIMAL_RE = re.compile(r"\b\d+\.\d{2,4}\b")
+
+# Allowed values for ``metric.kind`` (Rule 5b, F5 from 2026-05-19 audit).
+# Performance kinds surface on STATE.md leaderboard via render.py's strict
+# opt-in filter; non-performance kinds stay in the ledger but don't pollute
+# the leaderboard. Keep this enum in sync with
+# memory/tools/render.py::PERFORMANCE_KINDS.
+METRIC_KIND_ENUM = {
+    # Performance-shaped (surface on leaderboard):
+    "performance",
+    "performance-absolute",
+    "performance-ratio",
+    "performance-delta",
+    "performance-legacy",  # for deprecated-ranker numbers like CLM-0005/6/7
+    # Non-performance shaped (kept in ledger, hidden from leaderboard):
+    "hyper",
+    "gap",
+    "ablation-impact-pct",
+    "structural",
+    "count",
+    "rate",
+    "correlation",
+}
+
+# Caveat-detection regex (Warning D, F2 from 2026-05-19 audit). Matches a
+# range of caveat / limitation phrasings used historically in this project,
+# in both English and Chinese (per project caveman-cn convention).
+_CAVEAT_RE = re.compile(
+    r"caveat|limitation|caveats|on-manifold|off-manifold|synthetic obs|"
+    r"single seed|n=1|未验|未验证|未上 env|未 on-policy|脚注|"
+    r"refute|refuted|refutation|saturation deficit only on|"
+    r"out-of-distribution|ood",
+    re.IGNORECASE,
+)
+
+
+def _claim_round_num(claim: dict[str, Any]) -> int | None:
+    """Best-effort parse of the claim's round field (e.g. 'R115' → 115)."""
+    rd = claim.get("round")
+    if not isinstance(rd, str):
+        return None
+    m = re.match(r"R(\d+)$", rd)
+    return int(m.group(1)) if m else None
+
+
+def _cited_caveat_parents(
+    claim: dict[str, Any], claims: dict[str, dict[str, Any]]
+) -> set[str]:
+    """Return the set of caveat-needed parent claim IDs cited in
+    ``claim``'s provenance. A claim is considered caveat-needed iff it
+    carries the literal tag ``caveat-needed`` in its ``tags`` list.
+
+    Only direct provenance citations count (we do not transitively walk
+    the lineage); the goal is to surface drop-points, not the full
+    transitive closure of caveats.
+    """
+    cited: set[str] = set()
+    prov = claim.get("provenance") or []
+    if not isinstance(prov, list):
+        return cited
+    for entry in prov:
+        if not isinstance(entry, str):
+            continue
+        # Match "memory/claims/CLM-NNNN.md" or bare "CLM-NNNN" tokens.
+        for m in re.finditer(r"\bCLM-\d{4}\b", entry):
+            parent_id = m.group(0)
+            if parent_id == claim["id"]:
+                continue
+            parent = claims.get(parent_id)
+            if parent is None:
+                continue
+            tags = parent.get("tags") or []
+            if "caveat-needed" in tags:
+                cited.add(parent_id)
+    return cited
 
 
 def _is_pattern_provenance(p: str) -> bool:
@@ -430,6 +755,12 @@ def check_provenance_paths(
     """
     out: list[str] = []
     for claim in claims.values():
+        # F7 (2026-05-19 audit): per-claim opt-out for legacy claims whose
+        # provenance points to _archive/ or _legacy/ scripts that have been
+        # intentionally moved out. Set ``archived_provenance: true`` in the
+        # claim's frontmatter to silence missing-path warnings for this claim.
+        if claim.get("archived_provenance") is True:
+            continue
         for entry in claim.get("provenance", []) or []:
             if not isinstance(entry, str):
                 continue
@@ -437,6 +768,11 @@ def check_provenance_paths(
             if not head:
                 continue
             if _is_pattern_provenance(head):
+                continue
+            # Implicit archive marker: any path under _archive/ or _legacy/
+            # is considered intentionally non-existent (claims may reference
+            # historical scripts moved to those locations).
+            if head.startswith(("_archive/", "_legacy/", "memory/handoffs/")):
                 continue
             full = (repo_root / head).resolve()
             if not full.exists():
@@ -454,15 +790,36 @@ def _extract_provenance_path(entry: str) -> str:
       ``path/main.tex §IV-C "section"``      → strip "§..."
       ``path/file.py @ refactor/branch``    → strip "@ gitref"
       ``path/file.py @abc123``              → strip "@abc123"
+      ``path/file.py:242``                  → strip ":lineno" (F7 audit)
+      ``path/file.py::symbol``              → strip "::symbol" (F7 audit)
+      ``path/dir/ + extra.json``            → strip " + extra"  (F7 audit)
+
+    Heuristic for ``:`` is "first colon AFTER the last slash", so URL-like
+    ``http://host/path`` strings (no slash after the colon) are not mauled.
 
     Returns the path portion only (stripped of whitespace).
     """
     p = entry
-    # Cut at the first of: "(", " §", " @", "  " (double-space comment).
-    for sep in ("(", " §", "§", " @"):
+    # Cut at the first of: "(", " §", " @", " + " (continuation marker).
+    for sep in ("(", " §", "§", " @", " + "):
         idx = p.find(sep)
         if idx != -1:
             p = p[:idx]
+    p = p.strip()
+    # Strip ``::symbol`` (Python-style attribute) — always safe.
+    sym_idx = p.find("::")
+    if sym_idx != -1:
+        p = p[:sym_idx]
+    # Strip trailing ``:lineno`` only if there's a slash earlier (filters out
+    # URL schemes). Lineno is purely digits after the colon.
+    last_slash = p.rfind("/")
+    last_colon = p.rfind(":")
+    if (
+        last_colon > last_slash
+        and last_colon != -1
+        and p[last_colon + 1:].isdigit()
+    ):
+        p = p[:last_colon]
     return p.strip()
 
 
@@ -557,8 +914,8 @@ def main() -> int:
         # reload after writing
         claims = load_claims(args.claims_dir)
 
-    errors, warnings = validate_rules(claims)
     questions = load_questions(args.questions_dir)
+    errors, warnings = validate_rules(claims, questions=questions)
     q_errors = validate_question_rules(questions, claims, args.rounds_dir)
     errors.extend(q_errors)
 
@@ -566,6 +923,29 @@ def main() -> int:
         for verdict_path in _iter_verdicts(args.rounds_dir):
             errors.extend(validate_verdict_structure(verdict_path))
             warnings.extend(warn_verdict_recommended(verdict_path))
+
+    # R166: round lifecycle state check on every RNNN/plan.md.
+    for round_dir in sorted(args.rounds_dir.iterdir()):
+        if not round_dir.is_dir() or not ROUND_DIR_RE.match(round_dir.name):
+            continue
+        plan_path = round_dir / "plan.md"
+        if not plan_path.exists():
+            # No plan.md. Two sub-cases:
+            #   (a) some verdict*.md exists → legacy/parallel verdict-only
+            #       convention; effectively closed, no warning.
+            #   (b) truly empty → reserved-but-abandoned zombie.
+            has_verdict = any(round_dir.glob("*verdict*.md"))
+            if not has_verdict:
+                warnings.append(
+                    f"{round_dir}: reserved but no plan.md and no verdict "
+                    f"(zombie; abort, populate, or list in _SKIPPED.md)"
+                )
+            continue
+        r_errors, r_warnings = validate_round_state(
+            plan_path, rounds_dir=args.rounds_dir
+        )
+        errors.extend(r_errors)
+        warnings.extend(r_warnings)
 
     # R50 opt K: soft check that provenance paths exist on disk.
     # Gitignored areas (results/, logs/) routinely produce warnings;

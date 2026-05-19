@@ -1,3 +1,13 @@
+---
+round: R81
+state: active
+opened: '2026-05-19'
+closed: null
+supersedes_rounds: []
+superseded_by_round: null
+abort_reason: null
+superseded_note: null
+---
 # R81 Plan — 算法侧探索 sweep (突破 V4 attractor 0.137 / R72_w4 SOTA 0.391)
 
 **Status**: ACTIVE

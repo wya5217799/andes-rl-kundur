@@ -1,3 +1,13 @@
+---
+round: R37
+state: active
+opened: '2026-05-16'
+closed: null
+supersedes_rounds: []
+superseded_by_round: null
+abort_reason: null
+superseded_note: null
+---
 # R37 plan — Code-architecture refactor + silent V2 inheritance bug audit
 
 **Date**: 2026-05-16

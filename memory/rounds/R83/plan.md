@@ -1,3 +1,13 @@
+---
+round: R83
+state: active
+opened: '2026-05-19'
+closed: null
+supersedes_rounds: []
+superseded_by_round: null
+abort_reason: null
+superseded_note: null
+---
 # R83 plan — Problem setup refactor (obs space), 修 Q-0016 + 测 R72_w4 hyper + obs augmentation combined
 
 **Status**: ACTIVE (W1 跑中)

@@ -1,3 +1,13 @@
+---
+round: R40
+state: active
+opened: '2026-05-16'
+closed: null
+supersedes_rounds: []
+superseded_by_round: null
+abort_reason: null
+superseded_note: null
+---
 # R40 plan — CLM-0043 extreme-case validation via PHI_H=PHI_D=0
 
 **Date**: 2026-05-17

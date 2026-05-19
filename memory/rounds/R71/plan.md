@@ -1,3 +1,13 @@
+---
+round: R71
+state: active
+opened: '2026-05-18'
+closed: null
+supersedes_rounds: []
+superseded_by_round: null
+abort_reason: null
+superseded_note: null
+---
 # R71 plan — paper_grade_axes v3.0→v3.1 (multiplicative gating) + further LSTM sweep
 
 **Date**: 2026-05-18

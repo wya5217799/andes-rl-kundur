@@ -20,11 +20,16 @@ def _render(tmp_path) -> str:
 
 def test_render_state_has_six_sections(tmp_path):
     """Active-oracle STATE.md has the 6 mandated sections (plus optional
-    Leaderboard from R50 opt H — that's tested separately)."""
+    Leaderboard from R50 opt H — that's tested separately).
+
+    R166: ``## In-Flight`` split into ``## 在跑`` + ``## 排队`` + (optional)
+    ``## ⚠️ 疑似 stale``. The first two are always present.
+    """
     text = _render(tmp_path)
     for section in (
         "## Headline Numbers",
-        "## In-Flight",
+        "## 在跑 (state=active)",
+        "## 排队 (state=queued)",
         "## Open Questions",
         "## Recently Closed",
         "## Latest Round",
@@ -81,8 +86,9 @@ def test_render_state_latest_round_extracts_tldr(tmp_path):
 
 
 def test_render_state_in_flight_detects_plan_without_verdict(tmp_path):
-    """A round dir with plan.md but no verdict.md surfaces as In-Flight."""
-    # Build an isolated fixture with one in-flight round
+    """A round dir with plan.md but no verdict.md surfaces as 在跑 (R166)."""
+    # Build an isolated fixture with one in-flight round (no state field →
+    # render falls back to treating it as active).
     rounds_dir = tmp_path / "rounds"
     (rounds_dir / "R03").mkdir(parents=True)
     (rounds_dir / "R03" / "plan.md").write_text("# R03 plan", encoding="utf-8")
@@ -94,15 +100,15 @@ def test_render_state_in_flight_detects_plan_without_verdict(tmp_path):
         out_path=out,
     )
     text = out.read_text(encoding="utf-8")
-    in_flight = text.split("## In-Flight")[1].split("## ")[0]
-    assert "R03" in in_flight
+    active = text.split("## 在跑 (state=active)")[1].split("## ")[0]
+    assert "R03" in active
 
 
 def test_render_state_in_flight_says_none_when_clean(tmp_path):
-    """If every round has a verdict.md, In-Flight reports (none)."""
+    """If every round has a verdict.md, 在跑 reports (none) (R166)."""
     text = _render(tmp_path)
-    in_flight = text.split("## In-Flight")[1].split("## ")[0]
-    assert "(none)" in in_flight
+    active = text.split("## 在跑 (state=active)")[1].split("## ")[0]
+    assert "(none)" in active
 
 
 def test_render_state_stats_includes_question_counts(tmp_path):
@@ -210,12 +216,19 @@ def test_recently_closed_sorts_by_round_number_not_lex(tmp_path):
 
 def _build_metric_fixture(tmp_path, entries: list[tuple[str, float | None]]):
     """Make tmp_path/{claims, rounds, questions} with one claim per
-    (cid, metric_value) pair. ``None`` value means no metric field."""
+    (cid, metric_value) pair. ``None`` value means no metric field.
+
+    Metric block carries ``kind: performance`` so the leaderboard's
+    strict opt-in kind filter (2026-05-19 audit) surfaces these as
+    headline-quality performance entries. Tests that want to exercise
+    non-performance kinds should build their own fixture.
+    """
     claims_dir = tmp_path / "claims"
     claims_dir.mkdir()
     for cid, value in entries:
         metric_block = (
-            f"metric:\n  name: 6_axis\n  value: {value}\n" if value is not None else ""
+            f"metric:\n  name: 6_axis\n  value: {value}\n  kind: performance\n"
+            if value is not None else ""
         )
         (claims_dir / f"{cid}.md").write_text(
             f"---\nid: {cid}\ntype: finding\ntrust: V\nstatus: current\n"
@@ -292,6 +305,80 @@ def test_leaderboard_shows_metric_value(tmp_path):
     assert "0.334" in lb or "0.33" in lb, f"value should appear in leaderboard: {lb}"
 
 
+# ── 2026-05-19 audit: leaderboard kind filter ─────────────────────────────
+
+
+def _write_claim_with_metric(
+    claims_dir, cid: str, value: float, kind: str | None
+) -> None:
+    """Emit a single claim file with a metric block of the requested kind."""
+    kind_line = f"\n  kind: {kind}" if kind else ""
+    claims_dir.mkdir(exist_ok=True)
+    (claims_dir / f"{cid}.md").write_text(
+        f"---\nid: {cid}\ntype: finding\ntrust: V\nstatus: current\n"
+        f"statement: x\nround: R01\n"
+        f"metric:\n  name: m\n  value: {value}{kind_line}\n---\n",
+        encoding="utf-8",
+    )
+
+
+def _minimal_dirs(tmp_path):
+    """Return a (claims_dir, rounds_dir, questions_dir) triple with the
+    bare-minimum scaffolding render_state expects (one completed round)."""
+    claims_dir = tmp_path / "claims"
+    rounds_dir = tmp_path / "rounds"
+    rounds_dir.mkdir()
+    (rounds_dir / "R01").mkdir()
+    (rounds_dir / "R01" / "verdict.md").write_text(
+        "# R01\n**Status**: COMPLETE\n## TL;DR\nx\n"
+        "## Questions opened\n- none\n## Questions closed\n- none\n"
+        "## Questions advanced\n- none\n",
+        encoding="utf-8",
+    )
+    questions_dir = tmp_path / "questions"
+    questions_dir.mkdir()
+    return claims_dir, rounds_dir, questions_dir
+
+
+def test_leaderboard_strict_opt_in_excludes_kindless_metrics(tmp_path):
+    """A claim with a metric block but no ``kind:`` field must NOT appear
+    on the leaderboard. Pre-2026-05-19 behaviour was the opposite (default
+    include); the audit flipped to strict opt-in so hyperparameter / gap /
+    ablation-impact metrics stop polluting the leaderboard."""
+    claims_dir, rounds_dir, questions_dir = _minimal_dirs(tmp_path)
+    _write_claim_with_metric(claims_dir, "CLM-0001", 512.0, kind=None)
+    out = tmp_path / "STATE.md"
+    render_state(claims_dir, rounds_dir, questions_dir, out)
+    text = out.read_text(encoding="utf-8")
+    # No claim with a recognised performance kind → no leaderboard section
+    assert "## Leaderboard" not in text
+
+
+def test_leaderboard_filters_non_performance_kinds(tmp_path):
+    """Mix of ``performance`` and ``hyper`` claims. Only ``performance``
+    surfaces, no matter what raw numeric value the hyper claim carries."""
+    claims_dir, rounds_dir, questions_dir = _minimal_dirs(tmp_path)
+    _write_claim_with_metric(claims_dir, "CLM-0001", 0.391, kind="performance")
+    _write_claim_with_metric(claims_dir, "CLM-0002", 512.0, kind="hyper")
+    _write_claim_with_metric(claims_dir, "CLM-0003", 14.9, kind="gap")
+    _write_claim_with_metric(
+        claims_dir, "CLM-0004", 0.197, kind="performance-ratio"
+    )
+    _write_claim_with_metric(
+        claims_dir, "CLM-0005", -0.374, kind="performance-delta"
+    )
+    out = tmp_path / "STATE.md"
+    render_state(claims_dir, rounds_dir, questions_dir, out)
+    text = out.read_text(encoding="utf-8")
+
+    lb = text.split("## Leaderboard")[1].split("## ")[0]
+    assert "CLM-0001" in lb, "performance kind must appear"
+    assert "CLM-0004" in lb, "performance-ratio kind must appear"
+    assert "CLM-0005" in lb, "performance-delta kind must appear"
+    assert "CLM-0002" not in lb, "hyper kind must be excluded"
+    assert "CLM-0003" not in lb, "gap kind must be excluded"
+
+
 def test_latest_round_picks_newest_completed_when_newest_is_in_flight(tmp_path):
     """H5: when the newest-numbered round is in-flight (plan only), `Latest Round`
     must point at the newest *completed* round so STATE.md doesn't double-list
@@ -316,10 +403,10 @@ def test_latest_round_picks_newest_completed_when_newest_is_in_flight(tmp_path):
     out = tmp_path / "STATE.md"
     render_state(claims_dir, rounds_dir, questions_dir, out)
     text = out.read_text(encoding="utf-8")
-    in_flight = text.split("## In-Flight")[1].split("## ")[0]
+    in_flight = text.split("## 在跑 (state=active)")[1].split("## ")[0]
     latest = text.split("## Latest Round")[1].split("## ")[0]
-    # R03 must be in In-Flight, NOT in Latest Round
-    assert "R03" in in_flight, f"R03 should be In-Flight; got: {in_flight}"
+    # R03 must be in active list, NOT in Latest Round
+    assert "R03" in in_flight, f"R03 should be 在跑; got: {in_flight}"
     assert "R03" not in latest, \
         f"R03 (in-flight) must not also appear in Latest Round; got: {latest}"
     # R02 (newest completed) should be Latest Round
@@ -552,3 +639,52 @@ def test_pi_briefing_no_glossary_path_no_annotation(tmp_path):
     text = out.read_text(encoding="utf-8")
     assert "## 给 PI 的简报" in text
     assert "LSTM(" not in text  # no annotation
+
+
+# ---------- R166: state-aware grouping ----------
+
+
+def _write_plan_with_state(round_dir: Path, state: str, opened: str) -> None:
+    """Helper for state-aware tests: write a plan.md with frontmatter."""
+    round_dir.mkdir(parents=True, exist_ok=True)
+    (round_dir / "plan.md").write_text(
+        f"---\nround: {round_dir.name}\nstate: {state}\nopened: '{opened}'\n---\n"
+        f"# plan body\n",
+        encoding="utf-8",
+    )
+
+
+def test_render_state_queued_goes_to_queued_section(tmp_path):
+    """state=queued surfaces under ## 排队, not ## 在跑."""
+    rounds_dir = tmp_path / "rounds"
+    _write_plan_with_state(rounds_dir / "R03", "queued", "2026-05-19")
+    out = tmp_path / "STATE.md"
+    render_state(
+        claims_dir=FIXTURES / "claims",
+        rounds_dir=rounds_dir,
+        questions_dir=FIXTURES / "questions",
+        out_path=out,
+    )
+    text = out.read_text(encoding="utf-8")
+    active = text.split("## 在跑 (state=active)")[1].split("## ")[0]
+    queued = text.split("## 排队 (state=queued)")[1].split("## ")[0]
+    assert "R03" not in active, f"R03 (queued) leaked into 在跑: {active}"
+    assert "R03" in queued, f"R03 (queued) missing from 排队: {queued}"
+
+
+def test_render_state_active_old_round_goes_to_stale_section(tmp_path):
+    """state=active + opened ≥ 14 days ago + no verdict → ⚠️ 疑似 stale."""
+    rounds_dir = tmp_path / "rounds"
+    # Use a date far enough in the past that it's always ≥ 14d
+    _write_plan_with_state(rounds_dir / "R03", "active", "2000-01-01")
+    out = tmp_path / "STATE.md"
+    render_state(
+        claims_dir=FIXTURES / "claims",
+        rounds_dir=rounds_dir,
+        questions_dir=FIXTURES / "questions",
+        out_path=out,
+    )
+    text = out.read_text(encoding="utf-8")
+    assert "## ⚠️ 疑似 stale" in text
+    stale = text.split("## ⚠️ 疑似 stale")[1].split("## ")[0]
+    assert "R03" in stale, f"R03 (stale-active) missing from stale: {stale}"

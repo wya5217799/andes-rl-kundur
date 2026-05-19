@@ -1,3 +1,13 @@
+---
+round: R47
+state: active
+opened: '2026-05-16'
+closed: null
+supersedes_rounds: []
+superseded_by_round: null
+abort_reason: null
+superseded_note: null
+---
 # R47 plan — HAWE ceiling sharpening (α) + TD3 norm 200ep gap-fill (β)
 
 **Date**: 2026-05-17

@@ -1,3 +1,13 @@
+---
+round: R88
+state: active
+opened: '2026-05-19'
+closed: null
+supersedes_rounds: []
+superseded_by_round: null
+abort_reason: null
+superseded_note: null
+---
 # R88 plan — Mechanism reconciliation (synthetic-obs ↔ on-manifold) + transient-phase finding
 
 **Status**: ACTIVE (W1 done, partial-close style)

@@ -1,3 +1,13 @@
+---
+round: R73
+state: active
+opened: '2026-05-18'
+closed: null
+supersedes_rounds: []
+superseded_by_round: null
+abort_reason: null
+superseded_note: null
+---
 # R73 plan — s54 cross-warmup sweep + s55 warmup=20 verify
 
 **Date**: 2026-05-18

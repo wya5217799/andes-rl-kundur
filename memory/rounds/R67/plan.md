@@ -1,3 +1,13 @@
+---
+round: R67
+state: active
+opened: '2026-05-17'
+closed: null
+supersedes_rounds: []
+superseded_by_round: null
+abort_reason: null
+superseded_note: null
+---
 # R67 plan — 边际挤水: LSTM-Q7-paper-metric + gamma 单轴扫
 
 **Date**: 2026-05-17

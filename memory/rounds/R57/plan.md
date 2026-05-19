@@ -1,3 +1,13 @@
+---
+round: R57
+state: active
+opened: '2026-05-17'
+closed: null
+supersedes_rounds: []
+superseded_by_round: null
+abort_reason: null
+superseded_note: null
+---
 # R57 plan — Stabilise + ensemble the R56 LSTM win (α + β)
 
 **Date**: 2026-05-17
