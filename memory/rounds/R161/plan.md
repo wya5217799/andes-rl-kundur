@@ -1,14 +1,14 @@
 ---
 round: R161
-state: aborted
+state: superseded
 opened: '2026-05-19'
 closed: '2026-05-19'
 supersedes_rounds: []
-superseded_by_round: null
-abort_reason: reserved-empty (parallel session race)
-superseded_note: null
+superseded_by_round: R168
+abort_reason: null
+superseded_note: R161 SAC CTDE training (geo=0.0100 COLLAPSE) documented in CLM-0320 via R168 eval. R166 sweep wrongly marked aborted; R171 fix.
 ---
-# R161 plan — aborted (R166 sweep)
+# R161 plan — superseded by R168 (CLM-0320 documents result)
 
 **Status**: ABORTED
 

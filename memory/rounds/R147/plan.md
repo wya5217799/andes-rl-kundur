@@ -1,12 +1,13 @@
 ---
 round: R147
-state: aborted
+state: completed
 opened: '2026-05-19'
 closed: '2026-05-19'
 supersedes_rounds: []
 superseded_by_round: null
-abort_reason: reserved-empty, queue-never-fired
-superseded_note: null
+abort_reason: null
+superseded_note: R166 sweep wrongly marked aborted; R171 Gap 1 detection surfaced
+  eval result (geo=0.0100). Flipped to completed.
 ---
 # R147 plan — aborted (R166 sweep)
 

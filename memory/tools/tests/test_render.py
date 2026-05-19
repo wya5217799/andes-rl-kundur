@@ -688,3 +688,70 @@ def test_render_state_active_old_round_goes_to_stale_section(tmp_path):
     assert "## ⚠️ 疑似 stale" in text
     stale = text.split("## ⚠️ 疑似 stale")[1].split("## ")[0]
     assert "R03" in stale, f"R03 (stale-active) missing from stale: {stale}"
+
+
+def test_render_latest_round_prefers_research_over_meta(tmp_path):
+    """R171 Gap 4: meta/infra rounds (R166-style housekeeping) must NOT
+    masquerade as the latest research round."""
+    rounds_dir = tmp_path / "rounds"
+    # R01 = research, has verdict (legacy convention — no plan needed)
+    (rounds_dir / "R01").mkdir(parents=True)
+    (rounds_dir / "R01" / "verdict.md").write_text(
+        "# R01 verdict\n## TL;DR\nResearch finding\n"
+        "## Questions opened\n- none\n## Questions closed\n- none\n"
+        "## Questions advanced\n- none\n",
+        encoding="utf-8",
+    )
+    # R02 = meta (housekeeping), has plan with type=meta + verdict
+    (rounds_dir / "R02").mkdir(parents=True)
+    (rounds_dir / "R02" / "plan.md").write_text(
+        "---\nround: R02\nstate: completed\nopened: '2026-05-19'\n"
+        "type: meta\n---\n# R02 plan — housekeeping\n",
+        encoding="utf-8",
+    )
+    (rounds_dir / "R02" / "verdict.md").write_text(
+        "# R02 verdict\n## TL;DR\nHousekeeping done\n"
+        "## Questions opened\n- none\n## Questions closed\n- none\n"
+        "## Questions advanced\n- none\n",
+        encoding="utf-8",
+    )
+    out = tmp_path / "STATE.md"
+    render_state(
+        claims_dir=FIXTURES / "claims",
+        rounds_dir=rounds_dir,
+        questions_dir=FIXTURES / "questions",
+        out_path=out,
+    )
+    text = out.read_text(encoding="utf-8")
+    latest = text.split("## Latest Round")[1].split("## ")[0]
+    # R01 (research) should win over R02 (meta), even though R02 is newer
+    assert "R01" in latest, f"R01 (research) should be Latest Round; got: {latest}"
+    assert "R02" not in latest, f"R02 (meta) must not be Latest Round; got: {latest}"
+
+
+def test_render_latest_round_falls_back_when_no_research(tmp_path):
+    """If no research round exists, falls back to latest-any."""
+    rounds_dir = tmp_path / "rounds"
+    (rounds_dir / "R02").mkdir(parents=True)
+    (rounds_dir / "R02" / "plan.md").write_text(
+        "---\nround: R02\nstate: completed\nopened: '2026-05-19'\n"
+        "type: meta\n---\n# meta only\n",
+        encoding="utf-8",
+    )
+    (rounds_dir / "R02" / "verdict.md").write_text(
+        "# R02 verdict\n## TL;DR\nMeta only\n"
+        "## Questions opened\n- none\n## Questions closed\n- none\n"
+        "## Questions advanced\n- none\n",
+        encoding="utf-8",
+    )
+    out = tmp_path / "STATE.md"
+    render_state(
+        claims_dir=FIXTURES / "claims",
+        rounds_dir=rounds_dir,
+        questions_dir=FIXTURES / "questions",
+        out_path=out,
+    )
+    text = out.read_text(encoding="utf-8")
+    latest = text.split("## Latest Round")[1].split("## ")[0]
+    # No research → fall back to R02 (the only one)
+    assert "R02" in latest, f"fallback to R02 expected; got: {latest}"

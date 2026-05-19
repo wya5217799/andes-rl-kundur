@@ -20,6 +20,9 @@ QUESTION_STATUS_ENUM = {
     "in-flight",
     "closed-positive",
     "closed-negative",
+    "closed-partial",   # R171: conditional answer (e.g. Q-0014 — yes via
+                        # ensemble, no via single-algo). Same close
+                        # requirements as closed-* (closed_round, closed_by).
     "abandoned",
 }
 
@@ -865,6 +868,159 @@ def fix_back_edges(claims: dict[str, dict[str, Any]], *, write: bool) -> list[st
     return changes
 
 
+_RESULTS_DIR_RE = re.compile(r"^r(\d+)_", re.IGNORECASE)
+
+# R171 Gap 2: heuristic for "Q already answered by claim". Stop-words +
+# minimum keyword length avoid noisy matches (e.g. "the", "and").
+_Q_HEURISTIC_STOP = {
+    "a", "an", "and", "the", "of", "in", "on", "at", "to", "for", "with",
+    "or", "as", "is", "are", "be", "by", "from", "this", "that", "it",
+    "does", "do", "did", "does", "can", "will", "would", "should",
+    "vs", "vs.", "via", "than", "but", "if", "when", "which", "what",
+    "why", "how", "where", "who",
+    "上", "下", "在", "是", "的", "了", "和", "与", "或", "也", "都",
+}
+_Q_HEURISTIC_MIN_LEN = 4
+_Q_HEURISTIC_MIN_OVERLAP = 3  # require at least N keywords to match
+
+
+def _keywords(text: str) -> set[str]:
+    """Extract lowercase keyword set (≥4 chars, no stopwords)."""
+    tokens = re.findall(r"[A-Za-z一-鿿_][A-Za-z0-9一-鿿_-]*", text or "")
+    out: set[str] = set()
+    for t in tokens:
+        tl = t.lower()
+        if len(tl) >= _Q_HEURISTIC_MIN_LEN and tl not in _Q_HEURISTIC_STOP:
+            out.add(tl)
+    return out
+
+
+def warn_question_supersession(
+    questions: dict[str, dict[str, Any]],
+    claims: dict[str, dict[str, Any]],
+) -> list[str]:
+    """R171 Gap 2: surface open Qs that an existing claim appears to answer.
+
+    Soft heuristic — never closes a Q automatically. Matches the open
+    Q's ``title`` keywords against each current claim's ``statement`` +
+    ``tags``; reports the strongest match (most keyword overlap) when
+    overlap ≥ 3 keywords AND the claim was emitted in a round at or
+    after the Q's opened_round (timewise plausible).
+
+    Designed to catch the class of bug that masked Q-0023 (mag-PI
+    answered by CLM-0256 since R133 but never flipped) until manual
+    audit revealed it post-R166.
+    """
+    warnings: list[str] = []
+    for q in questions.values():
+        if q.get("status") != "open":
+            continue
+        qid = q.get("id", "?")
+        title_kw = _keywords(q.get("title") or "")
+        if len(title_kw) < _Q_HEURISTIC_MIN_OVERLAP:
+            continue
+        opened = q.get("opened_round") or ""
+        m = ROUND_DIR_RE.match(opened) if isinstance(opened, str) else None
+        opened_n = int(m.group(1)) if m else 0
+
+        best: tuple[int, str] = (0, "")
+        for cid, claim in claims.items():
+            if claim.get("status") != "current":
+                continue
+            r = claim.get("round") or ""
+            cm = ROUND_DIR_RE.match(r) if isinstance(r, str) else None
+            if cm and int(cm.group(1)) < opened_n:
+                continue  # claim predates Q opening
+            statement = claim.get("statement") or ""
+            tags = claim.get("tags") or []
+            tag_text = " ".join(str(t) for t in tags)
+            kw = _keywords(statement + " " + tag_text)
+            overlap = len(title_kw & kw)
+            if overlap > best[0]:
+                best = (overlap, cid)
+
+        if best[0] >= _Q_HEURISTIC_MIN_OVERLAP:
+            warnings.append(
+                f"{qid}: open but {best[1]} appears to answer it "
+                f"({best[0]} keyword overlap). Review and close if "
+                f"appropriate (Q-superseded-by-claim heuristic)."
+            )
+    return warnings
+
+
+def warn_results_orphans(
+    results_dir: Path,
+    claims: dict[str, dict[str, Any]],
+    rounds_dir: Path,
+) -> list[str]:
+    """R171 Gap 1: surface ``results/rNNN_*/`` dirs with ``final_eval_summary.json``
+    that no claim references.
+
+    An *orphan* is a results dir whose round number `NNN` is not in any
+    current claim's ``round`` field AND no current claim's ``provenance``
+    list references a path beneath the dir. These are experiments that
+    were executed but never synthesised into a finding — the gap that
+    masked R156 (geo=0.0117 collapse) until this audit.
+
+    Soft warnings (never blocks). Skips dirs without an eval summary,
+    since those represent in-progress / aborted runs rather than orphans.
+    """
+    warnings: list[str] = []
+    if not results_dir.is_dir():
+        return warnings
+
+    # Build the index of "what claims have touched".
+    rounds_in_claims: set[int] = set()
+    paths_in_claims: set[str] = set()
+    for claim in claims.values():
+        if claim.get("status") != "current":
+            continue
+        round_label = claim.get("round")
+        if isinstance(round_label, str):
+            m = ROUND_DIR_RE.match(round_label)
+            if m:
+                rounds_in_claims.add(int(m.group(1)))
+        for p in claim.get("provenance") or []:
+            if isinstance(p, str):
+                paths_in_claims.add(p.strip())
+
+    # Also include rounds that have a completed verdict.md — a round may
+    # be closed-negative or aborted with no claim, and the results dir
+    # should still not be flagged as orphan if the round itself is
+    # explicitly addressed via verdict.
+    for round_dir in rounds_dir.iterdir():
+        if not round_dir.is_dir():
+            continue
+        m = ROUND_DIR_RE.match(round_dir.name)
+        if not m:
+            continue
+        if (round_dir / "verdict.md").exists():
+            rounds_in_claims.add(int(m.group(1)))
+
+    for entry in sorted(results_dir.iterdir()):
+        if not entry.is_dir():
+            continue
+        m = _RESULTS_DIR_RE.match(entry.name)
+        if not m:
+            continue
+        round_num = int(m.group(1))
+        if not (entry / "final_eval_summary.json").exists():
+            continue  # in-progress / aborted training; not an orphan signal
+        if round_num in rounds_in_claims:
+            continue
+        # Check if any claim provenance path references this dir
+        rel = f"results/{entry.name}"
+        if any(p.startswith(rel) for p in paths_in_claims):
+            continue
+        warnings.append(
+            f"results/{entry.name}: final_eval_summary.json exists but "
+            f"no current claim references R{round_num} and no provenance "
+            f"path points inside (results-orphan; round needs verdict or "
+            f"CLM)"
+        )
+    return warnings
+
+
 def _iter_verdicts(rounds_dir: Path):
     """Yield Path objects for every round-verdict file to be validated.
 
@@ -952,6 +1108,14 @@ def main() -> int:
     # users skim past them. Never blocks validation.
     repo_root = Path(__file__).resolve().parents[2]
     warnings.extend(check_provenance_paths(claims, repo_root=repo_root))
+
+    # R171 Gap 1: results dirs with eval summary but no claim reference.
+    warnings.extend(
+        warn_results_orphans(repo_root / "results", claims, args.rounds_dir)
+    )
+
+    # R171 Gap 2: open Q whose title is already answered by some claim.
+    warnings.extend(warn_question_supersession(questions, claims))
 
     for w in warnings:
         print(f"WARN: {w}")

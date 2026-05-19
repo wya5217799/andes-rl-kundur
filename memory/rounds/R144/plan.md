@@ -1,12 +1,13 @@
 ---
 round: R144
-state: aborted
+state: completed
 opened: '2026-05-19'
 closed: '2026-05-19'
 supersedes_rounds: []
 superseded_by_round: null
-abort_reason: stacked QR+AFE replaced by R127 path; R154 SOTA closes ensemble direction
-superseded_note: null
+abort_reason: null
+superseded_note: R166 sweep wrongly marked aborted; R171 Gap 1 detection surfaced
+  eval result (geo=0.0100). Flipped to completed.
 ---
 # R144 plan — stacked td3_qr_afe_lstm s54 with FIXED quantile-Huber loss
 

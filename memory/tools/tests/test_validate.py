@@ -155,6 +155,25 @@ def test_validate_question_rules_status_enum(tmp_path):
     assert any("Q-0001" in e and "status" in e for e in errors)
 
 
+def test_validate_question_closed_partial_accepted(tmp_path):
+    """R171 Gap 3: closed-partial is a valid status (for conditional
+    answers like Q-0014 — algorithm-side breakthrough via ensemble only)."""
+    from validate import validate_question_rules  # noqa: E402
+    questions = {
+        "Q-0001": {"id": "Q-0001", "status": "closed-partial",
+                   "title": "x", "opened_round": "R37",
+                   "closed_round": "R38", "closed_by": "CLM-9999"},
+    }
+    claims = {"CLM-9999": {"id": "CLM-9999"}}
+    rounds_dir = tmp_path / "rounds"
+    (rounds_dir / "R37").mkdir(parents=True)
+    (rounds_dir / "R38").mkdir()
+    errors = validate_question_rules(questions, claims=claims, rounds_dir=rounds_dir)
+    # No status-enum error; closed-partial is accepted via startswith("closed-")
+    assert not any("status" in e and "Q-0001" in e for e in errors), \
+        f"closed-partial should be accepted; got {errors}"
+
+
 def test_validate_question_rules_closed_must_have_closed_round_and_by(tmp_path):
     """Q with status=closed-* must have closed_round + closed_by."""
     from validate import validate_question_rules  # noqa: E402
@@ -1145,3 +1164,125 @@ def test_warn_stale_terminal_states_silent(tmp_path):
         )
         assert not any("stale" in w.lower() for w in warnings), \
             f"state={st!r} should not warn stale; got {warnings}"
+
+
+# ---------- R171: results-orphan + Q-supersession heuristics ----------
+
+
+def test_results_orphan_flags_summary_with_no_claim(tmp_path):
+    """R171 Gap 1: a results dir with final_eval_summary.json and no
+    claim or verdict referencing the round is an orphan."""
+    from validate import warn_results_orphans  # noqa: E402
+    results = tmp_path / "results"
+    (results / "r999_w1_test").mkdir(parents=True)
+    (results / "r999_w1_test" / "final_eval_summary.json").write_text(
+        '{"geo": 0.5}', encoding="utf-8"
+    )
+    rounds_dir = tmp_path / "rounds"
+    rounds_dir.mkdir()
+    warnings = warn_results_orphans(results, claims={}, rounds_dir=rounds_dir)
+    assert any("r999_w1_test" in w and "orphan" in w for w in warnings)
+
+
+def test_results_orphan_skipped_when_claim_references_round(tmp_path):
+    """A claim with round=R999 means the experiment was synthesised."""
+    from validate import warn_results_orphans  # noqa: E402
+    results = tmp_path / "results"
+    (results / "r999_w1_test").mkdir(parents=True)
+    (results / "r999_w1_test" / "final_eval_summary.json").write_text(
+        '{"geo": 0.5}', encoding="utf-8"
+    )
+    rounds_dir = tmp_path / "rounds"
+    rounds_dir.mkdir()
+    claims = {"CLM-9999": {"id": "CLM-9999", "round": "R999",
+                           "status": "current", "provenance": []}}
+    warnings = warn_results_orphans(results, claims=claims, rounds_dir=rounds_dir)
+    assert not any("r999" in w.lower() for w in warnings)
+
+
+def test_results_orphan_skipped_when_provenance_path_matches(tmp_path):
+    """A claim with provenance pointing INTO the results dir is enough."""
+    from validate import warn_results_orphans  # noqa: E402
+    results = tmp_path / "results"
+    (results / "r999_w1_test").mkdir(parents=True)
+    (results / "r999_w1_test" / "final_eval_summary.json").write_text(
+        '{"geo": 0.5}', encoding="utf-8"
+    )
+    rounds_dir = tmp_path / "rounds"
+    rounds_dir.mkdir()
+    claims = {"CLM-9999": {
+        "id": "CLM-9999", "round": "R200", "status": "current",
+        "provenance": ["results/r999_w1_test/final_eval_summary.json"],
+    }}
+    warnings = warn_results_orphans(results, claims=claims, rounds_dir=rounds_dir)
+    assert not any("r999" in w.lower() for w in warnings)
+
+
+def test_results_orphan_skipped_when_verdict_exists(tmp_path):
+    """Round with verdict.md is not an orphan even without a claim."""
+    from validate import warn_results_orphans  # noqa: E402
+    results = tmp_path / "results"
+    (results / "r999_w1_test").mkdir(parents=True)
+    (results / "r999_w1_test" / "final_eval_summary.json").write_text(
+        '{"geo": 0.5}', encoding="utf-8"
+    )
+    rounds_dir = tmp_path / "rounds"
+    (rounds_dir / "R999").mkdir(parents=True)
+    (rounds_dir / "R999" / "verdict.md").write_text("# verdict\n", encoding="utf-8")
+    warnings = warn_results_orphans(results, claims={}, rounds_dir=rounds_dir)
+    assert not any("r999" in w.lower() for w in warnings)
+
+
+def test_q_supersession_flags_open_q_with_matching_claim(tmp_path):
+    """R171 Gap 2: open Q whose title keywords overlap heavily with a
+    current claim is flagged for review."""
+    from validate import warn_question_supersession  # noqa: E402
+    questions = {
+        "Q-0001": {"id": "Q-0001", "status": "open",
+                   "title": "Does distributional critic break monotone-Q pathology?",
+                   "opened_round": "R86"},
+    }
+    claims = {
+        "CLM-9999": {"id": "CLM-9999", "status": "current", "round": "R142",
+                     "statement": "Distributional critic monotone-Q pathology "
+                                  "not broken — pattern persists.",
+                     "tags": ["distributional", "monotone"]},
+    }
+    warnings = warn_question_supersession(questions, claims)
+    assert any("Q-0001" in w and "CLM-9999" in w for w in warnings)
+
+
+def test_q_supersession_skips_already_closed(tmp_path):
+    """Closed Qs should not be flagged for supersession (already settled)."""
+    from validate import warn_question_supersession  # noqa: E402
+    questions = {
+        "Q-0001": {"id": "Q-0001", "status": "closed-negative",
+                   "title": "Does distributional critic break monotone-Q?",
+                   "opened_round": "R86", "closed_round": "R142",
+                   "closed_by": "CLM-9999"},
+    }
+    claims = {
+        "CLM-9999": {"id": "CLM-9999", "status": "current", "round": "R142",
+                     "statement": "Distributional critic monotone-Q pathology persists",
+                     "tags": []},
+    }
+    warnings = warn_question_supersession(questions, claims)
+    assert warnings == []
+
+
+def test_q_supersession_ignores_claims_predating_q(tmp_path):
+    """A claim from a round older than the Q's opened_round is not a
+    candidate (timeline impossibility)."""
+    from validate import warn_question_supersession  # noqa: E402
+    questions = {
+        "Q-0001": {"id": "Q-0001", "status": "open",
+                   "title": "Does distributional critic break monotone-Q?",
+                   "opened_round": "R100"},
+    }
+    claims = {
+        "CLM-9999": {"id": "CLM-9999", "status": "current", "round": "R50",
+                     "statement": "Distributional critic monotone-Q pathology persists",
+                     "tags": []},
+    }
+    warnings = warn_question_supersession(questions, claims)
+    assert warnings == []

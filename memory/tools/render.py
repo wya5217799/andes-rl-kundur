@@ -123,6 +123,24 @@ def _round_state(round_dir: Path) -> str | None:
     return state if isinstance(state, str) else None
 
 
+def _round_type(round_dir: Path) -> str:
+    """Return the `type` field from plan.md frontmatter (R171 Gap 4).
+
+    Returns 'research' as the default for plans without an explicit type
+    (legacy plans). Recognised non-research types: 'meta', 'infra'. These
+    rounds (e.g. R166 housekeeping, R171 gap-fix) should not surface as
+    the project's "latest research round" in STATE.md.
+    """
+    plan = round_dir / "plan.md"
+    if not plan.exists():
+        return "research"
+    fm = _load_yaml_frontmatter(plan)
+    if not fm:
+        return "research"
+    t = fm.get("type")
+    return t if isinstance(t, str) else "research"
+
+
 def _round_opened(round_dir: Path) -> str | None:
     """Return the `opened` date string from plan.md frontmatter, or None."""
     plan = round_dir / "plan.md"
@@ -378,14 +396,26 @@ def render_state(
         (d for d in round_dirs if _round_num(d) >= PI_BRIEFING_CUTOFF),
         key=_round_num,
     )
+    # R171 Gap 4: prefer the briefing from the latest *research* round so
+    # meta/infra rounds (R166, R171) don't replace the research narrative.
+    # Fallback: if no research-type briefing exists, use newest-any.
     latest_briefing_round: Path | None = None
     latest_briefing_body: str | None = None
     for d in reversed(pi_eligible):
+        if _round_type(d) != "research":
+            continue
         body = _extract_pi_briefing(_round_verdict_path(d))
         if body:
             latest_briefing_round = d
             latest_briefing_body = body
             break
+    if latest_briefing_round is None:
+        for d in reversed(pi_eligible):
+            body = _extract_pi_briefing(_round_verdict_path(d))
+            if body:
+                latest_briefing_round = d
+                latest_briefing_body = body
+                break
 
     # Historical briefings: every R≥59 round older than the latest one,
     # one-line headline each, newest first, capped at HISTORICAL_BRIEFINGS_KEEP.
@@ -459,13 +489,23 @@ def render_state(
         reverse=True,
     )[:3]
 
-    # "Latest Round" is the newest *completed* round, so it doesn't double
-    # up with the In-Flight section when the highest-numbered round is
-    # plan-only. Fallback: if no round has a verdict, point at the newest
-    # in-flight round (so STATE.md isn't empty during the very first round).
+    # "Latest Round" is the newest round with an actual verdict (R171
+    # tightening — the legacy `completed_rounds` filter was "not in-flight"
+    # which wrongly included empty reserved dirs like R172).
+    # Gap 4: prefer the newest *research* round so meta/infra rounds
+    # (R166 housekeeping, R171 gap-fix) don't masquerade as the research
+    # front. Fall back to latest-any-with-verdict if no research round
+    # has a verdict yet.
+    verdicted_rounds = [
+        d for d in round_dirs if _round_verdict_path(d) is not None
+    ]
+    research_verdicted = [
+        d for d in verdicted_rounds if _round_type(d) == "research"
+    ]
     latest_round = (
-        completed_rounds[-1] if completed_rounds
-        else (round_dirs[-1] if round_dirs else None)
+        research_verdicted[-1] if research_verdicted
+        else (verdicted_rounds[-1] if verdicted_rounds
+              else (round_dirs[-1] if round_dirs else None))
     )
     latest_tldr = (
         _extract_tldr(_round_verdict_path(latest_round)) if latest_round else None
