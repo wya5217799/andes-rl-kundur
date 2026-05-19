@@ -1546,3 +1546,33 @@ def test_gc_empty_rounds_skips_populated_dirs(tmp_path):
     assert swept == []
     # Plan unchanged
     assert (rd / "plan.md").read_text(encoding="utf-8") == original
+
+
+def test_gc_skips_round_with_external_results(tmp_path):
+    """R176 hotfix: GC must NOT sweep RNNN/ when results/rNNN_*/
+    final_eval_summary.json exists (parallel session wrote results but
+    not plan yet)."""
+    import importlib.util, os, time
+    spec = importlib.util.spec_from_file_location(
+        "reserve_round",
+        str(Path(__file__).resolve().parents[1] / "reserve_round.py"),
+    )
+    rr = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(rr)
+    rounds_dir = tmp_path / "rounds"
+    results_dir = tmp_path / "results"
+    (rounds_dir / "R200").mkdir(parents=True)
+    (results_dir / "r200_w1_experiment").mkdir(parents=True)
+    (results_dir / "r200_w1_experiment" / "final_eval_summary.json").write_text(
+        '{"geo": 0.41}', encoding="utf-8"
+    )
+    # Make round dir old enough to qualify if results didn't exist
+    old = time.time() - 7200
+    os.utime(rounds_dir / "R200", (old, old))
+    swept = rr.gc_empty_rounds(
+        rounds_dir, max_age_minutes=60, results_dir=results_dir
+    )
+    assert swept == [], (
+        f"R200 has results — must not be GC'd; got {swept}"
+    )
+    assert not (rounds_dir / "R200" / "plan.md").exists()

@@ -161,10 +161,14 @@ def gc_empty_rounds(
     *,
     max_age_minutes: int = 60,
     today: dt.date | None = None,
+    results_dir: Path | None = None,
 ) -> list[str]:
     """R176 G8: scan ``rounds_dir`` for ``RNNN/`` directories that are
-    older than ``max_age_minutes``, contain no ``plan.md`` and no
-    ``*verdict*.md``, and convert them to ``state=aborted`` stubs.
+    older than ``max_age_minutes``, contain no ``plan.md``, no
+    ``*verdict*.md``, AND have no matching ``results/rNNN_*/`` with
+    a ``final_eval_summary.json`` (R176 hotfix — earlier version
+    wrongly swept R174 which had real eval results from a parallel
+    session that hadn't yet written plan.md).
 
     Catches the parallel-session race: ``reserve_round.py`` atomically
     creates a dir, but if the session crashes or never writes the plan,
@@ -178,17 +182,39 @@ def gc_empty_rounds(
     swept: list[str] = []
     if not rounds_dir.is_dir():
         return swept
+    # Default results_dir: sibling of rounds_dir's parent (repo_root/results)
+    if results_dir is None:
+        results_dir = rounds_dir.parent.parent / "results"
     now = time.time()
     cutoff = now - max_age_minutes * 60
     today = today or dt.date.today()
+
+    # Build set of round numbers that have results/ dirs with eval output
+    rounds_with_results: set[int] = set()
+    if results_dir.is_dir():
+        for r_entry in results_dir.iterdir():
+            if not r_entry.is_dir():
+                continue
+            m = re.match(r"^r(\d+)_", r_entry.name, re.IGNORECASE)
+            if not m:
+                continue
+            if (r_entry / "final_eval_summary.json").exists():
+                rounds_with_results.add(int(m.group(1)))
+
     for entry in sorted(rounds_dir.iterdir()):
         if not entry.is_dir():
             continue
-        if not re.match(r"^R\d+$", entry.name):
+        m = re.match(r"^R(\d+)$", entry.name)
+        if not m:
             continue
         if (entry / "plan.md").exists():
             continue
         if any(entry.glob("*verdict*.md")):
+            continue
+        if int(m.group(1)) in rounds_with_results:
+            # Parallel session produced results but didn't write plan.md
+            # yet — do NOT abort, this is the kind of orphan that should
+            # become state=completed once someone writes it up.
             continue
         if entry.stat().st_mtime > cutoff:
             continue  # too young; could still be in-progress

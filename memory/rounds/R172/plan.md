@@ -1,8 +1,8 @@
 ---
 round: R172
-state: active
+state: completed
 opened: '2026-05-19'
-closed: null
+closed: '2026-05-19'
 supersedes_rounds: []
 superseded_by_round: null
 abort_reason: null
