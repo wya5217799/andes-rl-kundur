@@ -117,9 +117,14 @@ def main() -> int:
     parser.add_argument("--notes-dir", type=Path, default=base / "notes")
     parser.add_argument("--topic", help="filter by top-level topic")
     parser.add_argument("--tag", help="filter by any (top or sub) tag")
+    # Import inside main() so `note_query --help` doesn't pay the yaml-import
+    # cost from validate.py. Schema authority for the source enum is validate.py;
+    # importing avoids drift if validate.py grows a new source type.
+    from validate import NOTE_SOURCE_ENUM  # noqa: E402
+
     parser.add_argument(
         "--source",
-        choices=["handoff", "eng-note", "adr-rationale", "legacy", "session-report"],
+        choices=sorted(NOTE_SOURCE_ENUM),
     )
     parser.add_argument("--round", dest="round_id", help="filter by related round (e.g. R58)")
     parser.add_argument("--source-path", help="exact source_path match (reverse lookup)")
