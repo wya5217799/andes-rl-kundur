@@ -81,8 +81,13 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Scaffold the next NOTE-NNNN.md")
     base = Path(__file__).parent.parent
     parser.add_argument("--notes-dir", type=Path, default=base / "notes")
+    # Import inside main() so --help stays fast (avoids pulling yaml at startup).
+    # Schema authority for the source enum is validate.py; importing avoids
+    # CLI drift if the enum grows a new source type.
+    from validate import NOTE_SOURCE_ENUM  # noqa: E402
+
     parser.add_argument("--source", required=True,
-                        choices=["handoff", "eng-note", "adr-rationale", "legacy", "session-report"])
+                        choices=sorted(NOTE_SOURCE_ENUM))
     parser.add_argument("--source-path", required=True,
                         help="repo-relative path to the original file")
     parser.add_argument("--date", required=True, help="YYYY-MM-DD of original source")
