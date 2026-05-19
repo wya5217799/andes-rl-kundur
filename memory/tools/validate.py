@@ -44,7 +44,15 @@ VERDICT_STATUS_HEADER_RE = re.compile(r"^\*\*Status\*\*\s*:", re.MULTILINE)
 # section from them in render.py would also yield nothing.
 PI_BRIEFING_CUTOFF = 59
 PI_BRIEFING_SECTION = "## 给 PI 的话"
-PI_BRIEFING_LINE_CAP = 30  # soft-warn above this; does not block
+# R176 G7: cap raised 30→40 lines. Multiple legacy verdicts (R78/R85/R101/
+# R112/R121/R142/R150/R153) sit at 31-38 lines with substantive content;
+# 30 was aspirational, 40 is realistic. Briefings >40 still warn.
+PI_BRIEFING_LINE_CAP = 40
+
+# R176 G7: TL;DR recommended-section cutoff parallel to PI_BRIEFING_CUTOFF.
+# Pre-R59 verdicts (R01..R58) pre-date the TL;DR convention; warning on
+# them is permanent noise. Recommended check applies only from R59 onward.
+TLDR_CUTOFF = 59
 PI_BRIEFING_BLOCK_RE = re.compile(
     rf"^{re.escape(PI_BRIEFING_SECTION)}\s*\n+(.*?)(?=\n##\s|\Z)",
     re.MULTILINE | re.DOTALL,
@@ -56,8 +64,11 @@ PI_BRIEFING_BLOCK_RE = re.compile(
 # See ADR-0003 + R166 plan.md.
 ROUND_STATE_ENUM = {"active", "queued", "completed", "superseded", "aborted"}
 ROUND_STATE_TERMINAL = {"completed", "superseded", "aborted"}
-ROUND_STALE_ACTIVE_DAYS = 14
-ROUND_STALE_QUEUED_DAYS = 7
+# R176 G9: tightened thresholds. Project velocity is ~30 rounds/day,
+# so 14 days = ~400 rounds before stale fires (useless). 3-day active
+# / 2-day queued matches actual research cadence.
+ROUND_STALE_ACTIVE_DAYS = 3
+ROUND_STALE_QUEUED_DAYS = 2
 
 
 def _load_entities(
@@ -230,21 +241,25 @@ def validate_verdict_structure(verdict_path: Path) -> list[str]:
 
 
 def warn_verdict_recommended(verdict_path: Path) -> list[str]:
-    """Soft checks: TL;DR + Status header + (R≥59) PI briefing length cap.
+    """Soft checks: TL;DR (R≥TLDR_CUTOFF) + Status header + (R≥59) PI
+    briefing length cap.
 
-    Returns warning strings (not errors). Briefing length is checked only
-    for R≥59 since pre-cutoff verdicts have no briefing section.
+    Returns warning strings (not errors). Pre-cutoff verdicts (R01..R58)
+    pre-date the TL;DR convention and are not retrofit (R176 G7).
     """
     warnings: list[str] = []
     if not verdict_path.exists():
         return warnings
     text = verdict_path.read_text(encoding="utf-8")
-    for section in VERDICT_RECOMMENDED_SECTIONS:
-        if section not in text:
-            warnings.append(f"{verdict_path}: missing recommended section '{section}'")
+    round_num = _round_num_from_verdict_path(verdict_path)
+    if round_num is None or round_num >= TLDR_CUTOFF:
+        for section in VERDICT_RECOMMENDED_SECTIONS:
+            if section not in text:
+                warnings.append(
+                    f"{verdict_path}: missing recommended section '{section}'"
+                )
     if not VERDICT_STATUS_HEADER_RE.search(text):
         warnings.append(f"{verdict_path}: missing '**Status**:' header line")
-    round_num = _round_num_from_verdict_path(verdict_path)
     if round_num is not None and round_num >= PI_BRIEFING_CUTOFF:
         warnings.extend(_warn_pi_briefing_length(verdict_path, text))
     return warnings
@@ -609,12 +624,21 @@ def validate_rules(
     # cites a benchmark-like decimal number but carry no metric block. Pushes
     # adoption of R50 opt I (structured metric) without blocking authorship.
     # Decision claims are exempt — they are choices, not measurements.
+    # R176 G7: cutoff at R50 (when structured metric was introduced).
+    # Pre-R50 claims (CLM-0001..~CLM-0060) pre-date the metric block
+    # convention; warning on them is permanent noise.
     for claim in claims.values():
         ctype = claim.get("type")
         if ctype not in ("finding", "correction"):
             continue
         if claim.get("metric"):
             continue
+        # Only nag for claims emitted at R50 or later
+        r = claim.get("round")
+        if isinstance(r, str):
+            m = ROUND_DIR_RE.match(r)
+            if m and int(m.group(1)) < 50:
+                continue
         stmt = claim.get("statement") or ""
         if _DECIMAL_RE.search(stmt):
             warnings.append(
@@ -870,6 +894,47 @@ def fix_back_edges(claims: dict[str, dict[str, Any]], *, write: bool) -> list[st
 
 _RESULTS_DIR_RE = re.compile(r"^r(\d+)_", re.IGNORECASE)
 
+
+def warn_claim_into_meta_round(
+    claims: dict[str, dict[str, Any]],
+    rounds_dir: Path,
+) -> list[str]:
+    """R176 G10: warn when a finding/correction claim's ``round`` field
+    targets a round whose plan declares ``type: meta``.
+
+    Surfaced by the R171 dual-identity case (CLM-0325 wrote round=R171
+    but R171's plan was meta gap-fix). Decision claims are exempt — meta
+    rounds legitimately produce decisions about workflow.
+    """
+    warnings: list[str] = []
+    for claim in claims.values():
+        if claim.get("type") not in ("finding", "correction"):
+            continue
+        if claim.get("status") != "current":
+            continue
+        r = claim.get("round")
+        if not isinstance(r, str) or not ROUND_DIR_RE.match(r):
+            continue
+        plan = rounds_dir / r / "plan.md"
+        if not plan.exists():
+            continue
+        try:
+            text = plan.read_text(encoding="utf-8")
+        except OSError:
+            continue
+        m = FRONTMATTER_RE.match(text)
+        if not m:
+            continue
+        fm = yaml.safe_load(m.group(1)) or {}
+        if fm.get("type") == "meta":
+            warnings.append(
+                f"{claim['id']}: round {r} is declared type=meta but "
+                f"this is a finding/correction claim. Research claims "
+                f"should target type=research rounds; reserve a new "
+                f"round number for research work in meta-round contexts."
+            )
+    return warnings
+
 # R171 Gap 2: heuristic for "Q already answered by claim". Stop-words +
 # minimum keyword length avoid noisy matches (e.g. "the", "and").
 _Q_HEURISTIC_STOP = {
@@ -1116,6 +1181,9 @@ def main() -> int:
 
     # R171 Gap 2: open Q whose title is already answered by some claim.
     warnings.extend(warn_question_supersession(questions, claims))
+
+    # R176 G10: research claim emitted into a meta round (contract violation).
+    warnings.extend(warn_claim_into_meta_round(claims, args.rounds_dir))
 
     for w in warnings:
         print(f"WARN: {w}")

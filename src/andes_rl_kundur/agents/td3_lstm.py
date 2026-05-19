@@ -108,6 +108,8 @@ class TD3LSTMAgent:
         burn_in: int = 5,
         max_grad_norm: float = 10.0,
         lr_warmup_eps: int = 0,
+        transient_boost: float = 1.0,
+        transient_window: int = 6,
     ) -> None:
         # ``hidden_sizes`` is accepted as a Sequence for API symmetry
         # with the MLP agents; only the first element is used (LSTMCell
@@ -152,13 +154,16 @@ class TD3LSTMAgent:
             p.requires_grad = False
         self.critic_optimizer = optim.Adam(self.critic.parameters(), lr=lr)
 
-        # Sequence replay buffer (per-episode storage)
+        # Sequence replay buffer (per-episode storage). Q-0020/R172
+        # exposes transient-phase reweighting via the boost args.
         self.buffer = SequenceReplayBuffer(
             obs_dim=obs_dim,
             action_dim=action_dim,
             seq_len=seq_len,
             burn_in=burn_in,
             capacity_episodes=buffer_size,
+            transient_boost=transient_boost,
+            transient_window=transient_window,
         )
 
         # Stateful rollout bookkeeping

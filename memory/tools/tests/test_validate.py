@@ -1105,32 +1105,35 @@ def test_r_terminal_completed_passes_when_verdict_exists(tmp_path):
     assert errors == []
 
 
-def test_warn_stale_active_after_14_days(tmp_path):
-    """state=active + opened ≥ 14 days ago + no verdict → soft warn."""
+def test_warn_stale_active_after_threshold(tmp_path):
+    """R176 G9: state=active + opened ≥ ROUND_STALE_ACTIVE_DAYS + no
+    verdict → soft warn. Threshold tightened from 14 to 3 days to match
+    30-rounds/day project velocity."""
     from datetime import date
     from validate import validate_round_state  # noqa: E402
     rounds_dir = tmp_path / "rounds"
     plan = _write_plan(rounds_dir / "R200", round="R200",
                        state="active", opened="2026-04-01")
-    today = date(2026, 5, 19)  # 48 days later
+    today = date(2026, 5, 19)  # 48 days later — well past 3-day threshold
     _errors, warnings = validate_round_state(plan, today=today)
     assert any("stale" in w.lower() and "R200" in w for w in warnings)
 
 
-def test_warn_stale_active_within_14_days_silent(tmp_path):
-    """state=active + opened < 14 days ago → no stale warning."""
+def test_warn_stale_active_within_threshold_silent(tmp_path):
+    """state=active opened < 3 days ago → no stale warning (R176 G9)."""
     from datetime import date
     from validate import validate_round_state  # noqa: E402
     rounds_dir = tmp_path / "rounds"
     plan = _write_plan(rounds_dir / "R200", round="R200",
-                       state="active", opened="2026-05-10")
-    today = date(2026, 5, 19)  # 9 days later
+                       state="active", opened="2026-05-17")
+    today = date(2026, 5, 19)  # 2 days later — within 3-day grace
     _errors, warnings = validate_round_state(plan, today=today)
     assert not any("stale" in w.lower() for w in warnings)
 
 
-def test_warn_stale_queued_after_7_days(tmp_path):
-    """state=queued + opened ≥ 7 days ago → soft warn."""
+def test_warn_stale_queued_after_threshold(tmp_path):
+    """R176 G9: state=queued + opened ≥ ROUND_STALE_QUEUED_DAYS → soft
+    warn. Threshold tightened from 7 to 2 days."""
     from datetime import date
     from validate import validate_round_state  # noqa: E402
     rounds_dir = tmp_path / "rounds"
@@ -1286,3 +1289,260 @@ def test_q_supersession_ignores_claims_predating_q(tmp_path):
     }
     warnings = warn_question_supersession(questions, claims)
     assert warnings == []
+
+
+# ---------- R176 G6: close_round CLI ----------
+
+
+def test_close_round_aborted_requires_reason(tmp_path):
+    """close_round R200 aborted with no --reason raises ValueError."""
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(
+        "close_round",
+        str(Path(__file__).resolve().parents[1] / "close_round.py"),
+    )
+    close_round_mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(close_round_mod)
+    rounds_dir = tmp_path / "rounds"
+    (rounds_dir / "R200").mkdir(parents=True)
+    import pytest
+    with pytest.raises(ValueError, match="abort_reason|--reason"):
+        close_round_mod.close_round(
+            "R200", "aborted", rounds_dir=rounds_dir
+        )
+
+
+def test_close_round_superseded_requires_existing_target(tmp_path):
+    """close_round R200 superseded --by R999 (non-existent) raises."""
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(
+        "close_round",
+        str(Path(__file__).resolve().parents[1] / "close_round.py"),
+    )
+    close_round_mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(close_round_mod)
+    rounds_dir = tmp_path / "rounds"
+    (rounds_dir / "R200").mkdir(parents=True)
+    import pytest
+    with pytest.raises(FileNotFoundError, match="R999"):
+        close_round_mod.close_round(
+            "R200", "superseded", rounds_dir=rounds_dir,
+            superseded_by="R999",
+        )
+
+
+def test_close_round_completed_requires_verdict(tmp_path):
+    """close_round R200 completed but no verdict.md raises."""
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(
+        "close_round",
+        str(Path(__file__).resolve().parents[1] / "close_round.py"),
+    )
+    close_round_mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(close_round_mod)
+    rounds_dir = tmp_path / "rounds"
+    (rounds_dir / "R200").mkdir(parents=True)
+    import pytest
+    with pytest.raises(FileNotFoundError, match="verdict.md"):
+        close_round_mod.close_round(
+            "R200", "completed", rounds_dir=rounds_dir
+        )
+
+
+def test_close_round_aborted_writes_plan(tmp_path):
+    """Happy path: state=aborted writes plan.md with all required fields."""
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(
+        "close_round",
+        str(Path(__file__).resolve().parents[1] / "close_round.py"),
+    )
+    close_round_mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(close_round_mod)
+    rounds_dir = tmp_path / "rounds"
+    (rounds_dir / "R200").mkdir(parents=True)
+    msg = close_round_mod.close_round(
+        "R200", "aborted", rounds_dir=rounds_dir,
+        abort_reason="test reason",
+    )
+    plan = (rounds_dir / "R200" / "plan.md").read_text(encoding="utf-8")
+    assert "state: aborted" in plan
+    assert "abort_reason: test reason" in plan
+    assert "R200" in msg
+    assert "aborted" in msg
+
+
+def test_close_round_superseded_writes_plan_with_back_pointer(tmp_path):
+    """state=superseded writes superseded_by_round + note."""
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(
+        "close_round",
+        str(Path(__file__).resolve().parents[1] / "close_round.py"),
+    )
+    close_round_mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(close_round_mod)
+    rounds_dir = tmp_path / "rounds"
+    (rounds_dir / "R200").mkdir(parents=True)
+    (rounds_dir / "R201").mkdir(parents=True)
+    close_round_mod.close_round(
+        "R200", "superseded", rounds_dir=rounds_dir,
+        superseded_by="R201", superseded_note="replaced by R201 sweep",
+    )
+    plan = (rounds_dir / "R200" / "plan.md").read_text(encoding="utf-8")
+    assert "state: superseded" in plan
+    assert "superseded_by_round: R201" in plan
+    assert "replaced by R201 sweep" in plan
+
+
+def test_close_round_preserves_existing_body(tmp_path):
+    """If plan.md already exists, body content is preserved on close."""
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(
+        "close_round",
+        str(Path(__file__).resolve().parents[1] / "close_round.py"),
+    )
+    close_round_mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(close_round_mod)
+    rounds_dir = tmp_path / "rounds"
+    rd = rounds_dir / "R200"
+    rd.mkdir(parents=True)
+    (rd / "plan.md").write_text(
+        "---\nround: R200\nstate: active\nopened: '2026-05-19'\n---\n"
+        "# R200 plan\n\nOriginal body text here.\n",
+        encoding="utf-8",
+    )
+    close_round_mod.close_round(
+        "R200", "aborted", rounds_dir=rounds_dir,
+        abort_reason="test",
+    )
+    plan = (rd / "plan.md").read_text(encoding="utf-8")
+    assert "Original body text here." in plan
+    assert "state: aborted" in plan
+
+
+# ---------- R176 G10: claim-into-meta-round contract ----------
+
+
+def test_warn_claim_into_meta_round_fires(tmp_path):
+    """A finding/correction claim with round=R<N> where R<N>/plan.md has
+    type=meta should warn."""
+    from validate import warn_claim_into_meta_round  # noqa: E402
+    rounds_dir = tmp_path / "rounds"
+    (rounds_dir / "R200").mkdir(parents=True)
+    (rounds_dir / "R200" / "plan.md").write_text(
+        "---\nround: R200\nstate: completed\ntype: meta\n---\n# meta\n",
+        encoding="utf-8",
+    )
+    claims = {
+        "CLM-9999": {
+            "id": "CLM-9999", "type": "finding", "status": "current",
+            "round": "R200", "statement": "Some research result",
+        },
+    }
+    warnings = warn_claim_into_meta_round(claims, rounds_dir)
+    assert any("CLM-9999" in w and "meta" in w for w in warnings)
+
+
+def test_warn_claim_into_research_round_silent(tmp_path):
+    """Research claim into research round — no warning."""
+    from validate import warn_claim_into_meta_round  # noqa: E402
+    rounds_dir = tmp_path / "rounds"
+    (rounds_dir / "R200").mkdir(parents=True)
+    (rounds_dir / "R200" / "plan.md").write_text(
+        "---\nround: R200\nstate: completed\ntype: research\n---\n# research\n",
+        encoding="utf-8",
+    )
+    claims = {
+        "CLM-9999": {
+            "id": "CLM-9999", "type": "finding", "status": "current",
+            "round": "R200", "statement": "Some research result",
+        },
+    }
+    warnings = warn_claim_into_meta_round(claims, rounds_dir)
+    assert warnings == []
+
+
+def test_warn_claim_into_meta_round_exempts_decision(tmp_path):
+    """type=decision claims can legitimately land in meta rounds
+    (e.g. CLM-0316/0330 are decisions about workflow)."""
+    from validate import warn_claim_into_meta_round  # noqa: E402
+    rounds_dir = tmp_path / "rounds"
+    (rounds_dir / "R200").mkdir(parents=True)
+    (rounds_dir / "R200" / "plan.md").write_text(
+        "---\nround: R200\nstate: completed\ntype: meta\n---\n# meta\n",
+        encoding="utf-8",
+    )
+    claims = {
+        "CLM-9999": {
+            "id": "CLM-9999", "type": "decision", "status": "current",
+            "round": "R200", "statement": "Adopted workflow change X",
+        },
+    }
+    warnings = warn_claim_into_meta_round(claims, rounds_dir)
+    assert warnings == []
+
+
+# ---------- R176 G8: gc_empty_rounds ----------
+
+
+def test_gc_empty_rounds_sweeps_old_empty_dirs(tmp_path):
+    """gc_empty_rounds finds dirs with no plan/verdict older than cutoff
+    and stubs them as state=aborted."""
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(
+        "reserve_round",
+        str(Path(__file__).resolve().parents[1] / "reserve_round.py"),
+    )
+    rr = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(rr)
+    rounds_dir = tmp_path / "rounds"
+    (rounds_dir / "R200").mkdir(parents=True)
+    # Backdate so it qualifies as old
+    import os, time
+    old = time.time() - 7200  # 2 hours old
+    os.utime(rounds_dir / "R200", (old, old))
+    swept = rr.gc_empty_rounds(rounds_dir, max_age_minutes=60)
+    assert "R200" in swept
+    plan = (rounds_dir / "R200" / "plan.md").read_text(encoding="utf-8")
+    assert "state: aborted" in plan
+    assert "auto-gc" in plan
+
+
+def test_gc_empty_rounds_skips_young_dirs(tmp_path):
+    """Dirs younger than max_age_minutes are left alone (might still be
+    in-progress)."""
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(
+        "reserve_round",
+        str(Path(__file__).resolve().parents[1] / "reserve_round.py"),
+    )
+    rr = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(rr)
+    rounds_dir = tmp_path / "rounds"
+    (rounds_dir / "R200").mkdir(parents=True)  # just-now mtime
+    swept = rr.gc_empty_rounds(rounds_dir, max_age_minutes=60)
+    assert swept == []
+    assert not (rounds_dir / "R200" / "plan.md").exists()
+
+
+def test_gc_empty_rounds_skips_populated_dirs(tmp_path):
+    """Dirs with plan.md or verdict are not touched even when old."""
+    import importlib.util, os, time
+    spec = importlib.util.spec_from_file_location(
+        "reserve_round",
+        str(Path(__file__).resolve().parents[1] / "reserve_round.py"),
+    )
+    rr = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(rr)
+    rounds_dir = tmp_path / "rounds"
+    rd = rounds_dir / "R200"
+    rd.mkdir(parents=True)
+    (rd / "plan.md").write_text(
+        "---\nround: R200\nstate: active\n---\n# x\n", encoding="utf-8",
+    )
+    original = (rd / "plan.md").read_text(encoding="utf-8")
+    old = time.time() - 7200
+    os.utime(rd, (old, old))
+    swept = rr.gc_empty_rounds(rounds_dir, max_age_minutes=60)
+    assert swept == []
+    # Plan unchanged
+    assert (rd / "plan.md").read_text(encoding="utf-8") == original

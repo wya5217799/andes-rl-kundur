@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+# Project pre-commit dispatcher. Install with:
+#   git config core.hooksPath scripts/githooks
+#
+# Checks run in order; the first non-zero exit aborts the commit.
+#
+# Add new checks by appending a `python scripts/githooks/<name>.py || exit $?`
+# line below.
+
+set -eu
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+
+# Existing check
+python "$REPO_ROOT/scripts/githooks/check_ranker_version_bump.py"
+
+# R176 G5: ledger validate (blocks commits that introduce schema errors).
+# Soft warnings are printed but do NOT block. To bypass in emergencies,
+# use `git commit --no-verify`.
+python "$REPO_ROOT/memory/tools/validate.py" >/dev/null 2>&1 || {
+    echo "PRE-COMMIT: memory/tools/validate.py reports errors:" >&2
+    python "$REPO_ROOT/memory/tools/validate.py" 2>&1 | grep "^ERROR:" >&2 || true
+    echo "" >&2
+    echo "Fix the above errors or bypass with --no-verify." >&2
+    exit 2
+}

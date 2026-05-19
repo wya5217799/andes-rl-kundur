@@ -148,3 +148,73 @@ def test_sequence_buffer_T_property():
 
     buf = SequenceReplayBuffer(obs_dim=7, action_dim=2, seq_len=25, burn_in=5)
     assert buf.T == 30
+
+
+# ---------- Q-0020 / R172: transient-phase reweighting ----------
+
+
+def test_transient_boost_default_one_is_uniform():
+    """transient_boost=1.0 must preserve original uniform start sampling.
+
+    Sample many starts with boost=1; the distribution should be ~uniform
+    across all valid start positions (KS-style sanity check, not strict).
+    """
+    from andes_rl_kundur.agents.replay_buffer import SequenceReplayBuffer
+    buf = SequenceReplayBuffer(
+        obs_dim=7, action_dim=2, seq_len=10, burn_in=5,
+        capacity_episodes=4, transient_boost=1.0,
+    )
+    buf.add_episode(_make_episode(50))  # 50 steps; T=15; 36 valid starts
+
+    np.random.seed(123)
+    starts = []
+    for _ in range(2000):
+        starts.append(buf._sample_start(50, 15))
+    # First-6 should be ~ 6/36 ≈ 16.7% of samples
+    early = sum(1 for s in starts if s < 6) / len(starts)
+    assert 0.10 < early < 0.23, f"uniform should give ~17% early; got {early}"
+
+
+def test_transient_boost_oversamples_early_starts():
+    """transient_boost=3.0 should oversample starts in [0, transient_window)
+    by a factor of ~3 (probability-mass-wise)."""
+    from andes_rl_kundur.agents.replay_buffer import SequenceReplayBuffer
+    buf = SequenceReplayBuffer(
+        obs_dim=7, action_dim=2, seq_len=10, burn_in=5,
+        capacity_episodes=4, transient_boost=3.0, transient_window=6,
+    )
+    buf.add_episode(_make_episode(50))  # 36 valid starts; first 6 boosted
+
+    np.random.seed(456)
+    starts = []
+    for _ in range(2000):
+        starts.append(buf._sample_start(50, 15))
+    # With boost=3 on first 6 of 36 starts: weight (6*3 + 30*1)=48,
+    # early mass = 18/48 = 37.5%.
+    early = sum(1 for s in starts if s < 6) / len(starts)
+    assert 0.30 < early < 0.45, f"boost=3 should give ~37% early; got {early}"
+
+
+def test_transient_boost_rejects_below_one():
+    """transient_boost must be ≥ 1.0 (downweighting is not supported)."""
+    from andes_rl_kundur.agents.replay_buffer import SequenceReplayBuffer
+    import pytest
+    with pytest.raises(ValueError, match="transient_boost"):
+        SequenceReplayBuffer(
+            obs_dim=7, action_dim=2, seq_len=10, burn_in=5,
+            transient_boost=0.5,
+        )
+
+
+def test_transient_boost_full_window_size_handled():
+    """If transient_window exceeds available start range, no crash; just
+    boosts all positions equally (which equals uniform)."""
+    from andes_rl_kundur.agents.replay_buffer import SequenceReplayBuffer
+    buf = SequenceReplayBuffer(
+        obs_dim=7, action_dim=2, seq_len=10, burn_in=5,
+        capacity_episodes=4, transient_boost=5.0, transient_window=100,
+    )
+    buf.add_episode(_make_episode(20))  # T=15; 6 valid starts; window=100→6
+    starts = [buf._sample_start(20, 15) for _ in range(200)]
+    assert all(0 <= s < 6 for s in starts), \
+        f"all starts should be valid; got range {min(starts)}-{max(starts)}"

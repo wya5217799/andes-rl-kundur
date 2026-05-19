@@ -44,6 +44,13 @@ from andes_rl_kundur.agents.td3 import TD3Agent  # noqa: E402
 from andes_rl_kundur.agents.td3_lstm import TD3LSTMAgent  # noqa: E402
 from andes_rl_kundur.agents.td3_transformer import TD3TransformerAgent  # noqa: E402
 from andes_rl_kundur.agents.td3_lstm2 import TD3LSTM2Agent  # noqa: E402
+from andes_rl_kundur.agents.td3_lstm_hreg import TD3LSTMHRegAgent  # noqa: E402  # R100/R93+
+from andes_rl_kundur.agents.td3_qr_lstm import TD3QRLstmAgent  # noqa: E402  # R98/R108 — CLM-0157(a)
+from andes_rl_kundur.agents.td3_afe_lstm import TD3AfeLstmAgent  # noqa: E402  # R98/R108 — CLM-0157(b)
+from andes_rl_kundur.agents.td3_qr_afe_lstm import TD3QRAfeLstmAgent  # noqa: E402  # R125 — stacked (a)+(b)
+from andes_rl_kundur.agents.td3_lstm_warmh0 import TD3LSTMWarmH0Agent  # noqa: E402  # R107/R109/R125 — Q-0022 warm h_0
+from andes_rl_kundur.agents.td3_warmh0_qr_afe_lstm import TD3WarmH0QRAfeLstmAgent  # noqa: E402  # R130 — triple-stack
+from andes_rl_kundur.agents.td3_warmh0_qr_lstm import TD3LSTMWarmH0QRAgent  # noqa: E402  # R150 — warmh0+QR (no AFE)
 from andes_rl_kundur.env.andes.andes_vsg_env_v4 import AndesMultiVSGEnvV4  # noqa: E402
 from andes_rl_kundur.env.andes.v4_config import V4Config  # noqa: E402
 from andes_rl_kundur.scenarios.kundur.training_checks import (  # noqa: E402
@@ -81,7 +88,7 @@ def parse_args() -> argparse.Namespace:
                    help="What to copy from --warmstart-shared.")
 
     # Algorithm selection
-    p.add_argument("--algo", choices=["sac", "td3", "td3_lstm", "td3_transformer", "td3_lstm2"], default="sac",
+    p.add_argument("--algo", choices=["sac", "td3", "td3_lstm", "td3_transformer", "td3_lstm2", "td3_lstm_hreg", "td3_qr_lstm", "td3_afe_lstm", "td3_qr_afe_lstm", "td3_lstm_warmh0", "td3_warmh0_qr_afe_lstm", "td3_warmh0_qr_lstm"], default="sac",
                    help="Per-agent RL algorithm. 'sac' (default) uses "
                         "entropy-regularized soft AC; 'td3' uses "
                         "deterministic policy + target smoothing + delayed "
@@ -159,6 +166,33 @@ def parse_args() -> argparse.Namespace:
                         "early critic-loss explosion that caused the "
                         "R56 s50 collapse. Default 0 = no warmup.")
 
+    # Q-0020 / R172 — transient-phase replay reweighting
+    p.add_argument("--transient-boost", type=float, default=1.0,
+                   help="(--algo td3_lstm only) multiplicative weight on "
+                        "early-episode subsequence starts. >1 oversamples "
+                        "step-0..N transitions in the replay buffer. "
+                        "Hypothesis: ×2-5 weight on transient phase "
+                        "breaks the 0.391 plateau. Default 1.0 = uniform.")
+    p.add_argument("--transient-window", type=int, default=6,
+                   help="(--algo td3_lstm only) number of early start "
+                        "positions that get the transient_boost weight. "
+                        "Default 6 = first 6 steps (paper disturbance "
+                        "recovery window).")
+
+    # R100/R93+ — LSTM hidden-state norm regularisation
+    p.add_argument("--h-norm-reg", type=float, default=0.01,
+                   help="(--algo td3_lstm_hreg only) λ_h coefficient "
+                        "for L2 penalty on actor LSTM hidden state norm. "
+                        "0 = no regularisation (equivalent to td3_lstm). "
+                        "Default 0.01.")
+
+    # R98/R108 — distributional critic head (CLM-0157(a))
+    p.add_argument("--qr-n-quantiles", type=int, default=51,
+                   help="(--algo td3_qr_lstm only) number of quantile "
+                        "outputs per Q network (Dabney 2018 canonical = 51). "
+                        "Larger N gives finer distribution but more output "
+                        "weights to fit. Default 51.")
+
     # R61 — Q-0007 eval-tracked best.pt
     p.add_argument("--eval-every-n-eps", type=int, default=0,
                    help="Q-0007 (R61): every N episodes, run a paper-"
@@ -166,7 +200,7 @@ def parse_args() -> argparse.Namespace:
                         "and save 'agent_i_best_eval.pt' on score "
                         "improvement. Parallel to best.pt (train-reward) "
                         "tracking. Default 0 = disabled. "
-                        "Typical N=5 → ~5% wall overhead; insulates "
+                        "Typical N=5 → ~5%% wall overhead; insulates "
                         "downstream eval from pre-training best.pt "
                         "spike artifact (R57 s50 collapse mechanism).")
 
@@ -294,7 +328,7 @@ def build_agents(
     N = AndesMultiVSGEnvV4.N_AGENTS
     coordinator: CTDECoordinator | None = None
 
-    if args.ctde and args.algo in ("td3", "td3_lstm", "td3_transformer", "td3_lstm2"):
+    if args.ctde and args.algo in ("td3", "td3_lstm", "td3_transformer", "td3_lstm2", "td3_lstm_hreg", "td3_qr_lstm", "td3_afe_lstm", "td3_qr_afe_lstm", "td3_lstm_warmh0", "td3_warmh0_qr_afe_lstm", "td3_warmh0_qr_lstm"):
         raise ValueError(
             f"--ctde is SAC-only; pass --algo sac or drop --ctde "
             f"(got --algo {args.algo})"
@@ -346,6 +380,8 @@ def build_agents(
             f"[algo] TD3+LSTM — recurrent actor/critic, hidden={hidden_sizes[0]}, "
             f"seq=25 burn=5, batch={lstm_batch_size} seq, lr={lstm_lr}{warmup_note}"
         )
+        transient_boost = float(getattr(args, "transient_boost", 1.0) or 1.0)
+        transient_window = int(getattr(args, "transient_window", 6) or 6)
         agents = [
             TD3LSTMAgent(
                 obs_dim=obs_dim, action_dim=action_dim,
@@ -356,6 +392,39 @@ def build_agents(
                 device=device,
                 seq_len=25, burn_in=5,
                 lr_warmup_eps=warmup_eps,
+                transient_boost=transient_boost,
+                transient_window=transient_window,
+            )
+            for _ in range(N)
+        ]
+    elif args.algo == "td3_lstm_hreg":
+        # R100/R93+ — TD3+LSTM with actor hidden-state-norm L2 penalty
+        # to break CLM-0181/0182 LSTM-drift bang-bang attractor.
+        hreg_batch_size = 32
+        hreg_capacity_episodes = 200
+        if os.environ.get("LSTM_LR_UNCLAMP") == "1":
+            hreg_lr = lr
+        else:
+            hreg_lr = min(lr, 1e-4)
+        warmup_eps = getattr(args, "lstm_lr_warmup_eps", 0) or 0
+        warmup_note = f" warmup_eps={warmup_eps}" if warmup_eps > 0 else ""
+        h_lambda = float(getattr(args, "h_norm_reg", 0.01))
+        print(
+            f"[algo] TD3+LSTM+HReg — recurrent + h-norm L2 penalty "
+            f"λ_h={h_lambda}, hidden={hidden_sizes[0]}, seq=25 burn=5, "
+            f"batch={hreg_batch_size} seq, lr={hreg_lr}{warmup_note}"
+        )
+        agents = [
+            TD3LSTMHRegAgent(
+                obs_dim=obs_dim, action_dim=action_dim,
+                hidden_sizes=hidden_sizes,
+                lr=hreg_lr, gamma=gamma, tau=tau,
+                buffer_size=hreg_capacity_episodes,
+                batch_size=hreg_batch_size,
+                device=device,
+                seq_len=25, burn_in=5,
+                lr_warmup_eps=warmup_eps,
+                h_norm_reg_lambda=h_lambda,
             )
             for _ in range(N)
         ]
@@ -424,6 +493,207 @@ def build_agents(
             )
             for _ in range(N)
         ]
+    elif args.algo == "td3_qr_lstm":
+        # R98/R108 — TD3+LSTM with quantile-regression distributional critic
+        # head (CLM-0157(a)). 51 quantiles per Q network, quantile-Huber loss
+        # (Dabney et al. 2018). Actor backbone identical to td3_lstm so
+        # warmup / lr-clamp / seq=25 burn=5 hyperparameters carry over.
+        qr_batch_size = 32
+        qr_capacity_episodes = 200
+        if os.environ.get("LSTM_LR_UNCLAMP") == "1":
+            qr_lr = lr
+        else:
+            qr_lr = min(lr, 1e-4)
+        warmup_eps = getattr(args, "lstm_lr_warmup_eps", 0) or 0
+        warmup_note = f" warmup_eps={warmup_eps}" if warmup_eps > 0 else ""
+        n_quantiles = int(getattr(args, "qr_n_quantiles", 51))
+        print(
+            f"[algo] TD3+LSTM+QR — distributional critic N={n_quantiles} "
+            f"quantiles, hidden={hidden_sizes[0]}, seq=25 burn=5, "
+            f"batch={qr_batch_size} seq, lr={qr_lr}{warmup_note}"
+        )
+        agents = [
+            TD3QRLstmAgent(
+                obs_dim=obs_dim, action_dim=action_dim,
+                hidden_sizes=hidden_sizes,
+                lr=qr_lr, gamma=gamma, tau=tau,
+                buffer_size=qr_capacity_episodes,
+                batch_size=qr_batch_size,
+                device=device,
+                seq_len=25, burn_in=5,
+                lr_warmup_eps=warmup_eps,
+                n_quantiles=n_quantiles,
+            )
+            for _ in range(N)
+        ]
+    elif args.algo == "td3_afe_lstm":
+        # R98/R108 — TD3+LSTM with action-feature-engineered critic input
+        # (CLM-0157(b)). Critic eats [obs, a, a^2, |a|, sign(a)] instead of
+        # [obs, a]; LSTMCell first-layer gains a linear pathway to a^2,
+        # breaking the d²Q/da² ≈ 0 pathology (CLM-0150). Actor + update loop
+        # identical to td3_lstm.
+        afe_batch_size = 32
+        afe_capacity_episodes = 200
+        if os.environ.get("LSTM_LR_UNCLAMP") == "1":
+            afe_lr = lr
+        else:
+            afe_lr = min(lr, 1e-4)
+        warmup_eps = getattr(args, "lstm_lr_warmup_eps", 0) or 0
+        warmup_note = f" warmup_eps={warmup_eps}" if warmup_eps > 0 else ""
+        print(
+            f"[algo] TD3+LSTM+AFE — action-feature-engineered critic "
+            f"input=[obs, a, a², |a|, sign(a)], hidden={hidden_sizes[0]}, "
+            f"seq=25 burn=5, batch={afe_batch_size} seq, lr={afe_lr}{warmup_note}"
+        )
+        agents = [
+            TD3AfeLstmAgent(
+                obs_dim=obs_dim, action_dim=action_dim,
+                hidden_sizes=hidden_sizes,
+                lr=afe_lr, gamma=gamma, tau=tau,
+                buffer_size=afe_capacity_episodes,
+                batch_size=afe_batch_size,
+                device=device,
+                seq_len=25, burn_in=5,
+                lr_warmup_eps=warmup_eps,
+            )
+            for _ in range(N)
+        ]
+    elif args.algo == "td3_qr_afe_lstm":
+        # R125 — stacked CLM-0157(a)+(b): QR distributional critic head
+        # PLUS AFE action-feature-engineered critic input. Critic input
+        # [obs, a, a², |a|, sign(a)] (4×action_dim feature expansion);
+        # critic output 51 quantiles + quantile-Huber loss. Actor backbone
+        # unchanged. If single-axis fixes only partly break the plateau
+        # (R122 QR / R123 AFE), R125 tests whether stacking is additive.
+        qra_batch_size = 32
+        qra_capacity_episodes = 200
+        if os.environ.get("LSTM_LR_UNCLAMP") == "1":
+            qra_lr = lr
+        else:
+            qra_lr = min(lr, 1e-4)
+        warmup_eps = getattr(args, "lstm_lr_warmup_eps", 0) or 0
+        warmup_note = f" warmup_eps={warmup_eps}" if warmup_eps > 0 else ""
+        n_quantiles = int(getattr(args, "qr_n_quantiles", 51))
+        print(
+            f"[algo] TD3+LSTM+QR+AFE — stacked distributional critic "
+            f"N={n_quantiles} quantiles + AFE input "
+            f"[obs, a, a², |a|, sign(a)], hidden={hidden_sizes[0]}, "
+            f"seq=25 burn=5, batch={qra_batch_size} seq, lr={qra_lr}{warmup_note}"
+        )
+        agents = [
+            TD3QRAfeLstmAgent(
+                obs_dim=obs_dim, action_dim=action_dim,
+                hidden_sizes=hidden_sizes,
+                lr=qra_lr, gamma=gamma, tau=tau,
+                buffer_size=qra_capacity_episodes,
+                batch_size=qra_batch_size,
+                device=device,
+                seq_len=25, burn_in=5,
+                lr_warmup_eps=warmup_eps,
+                n_quantiles=n_quantiles,
+            )
+            for _ in range(N)
+        ]
+    elif args.algo == "td3_lstm_warmh0":
+        # R107/R109/R125 — TD3+LSTM with learnable warm-h_0 MLP head
+        # (Q-0022). h_0, c_0 from MLP(obs_0) instead of zeros, breaking
+        # the LSTM step-0 architectural hard ceiling (CLM-0217: 9/9
+        # ckpts blocked < 52% obs-only; CLM-0188: 9/9 unlock 99% via h).
+        # Identical hyperparameters to td3_lstm so R72_w4 baseline
+        # comparison is one-knob (warm-h_0 added).
+        wh_batch_size = 32
+        wh_capacity_episodes = 200
+        if os.environ.get("LSTM_LR_UNCLAMP") == "1":
+            wh_lr = lr
+        else:
+            wh_lr = min(lr, 1e-4)
+        warmup_eps = getattr(args, "lstm_lr_warmup_eps", 0) or 0
+        warmup_note = f" warmup_eps={warmup_eps}" if warmup_eps > 0 else ""
+        print(
+            f"[algo] TD3+LSTM+WarmH0 — learnable h_0=MLP(obs_0), "
+            f"hidden={hidden_sizes[0]}, seq=25 burn=5, batch={wh_batch_size} seq, "
+            f"lr={wh_lr}{warmup_note}"
+        )
+        agents = [
+            TD3LSTMWarmH0Agent(
+                obs_dim=obs_dim, action_dim=action_dim,
+                hidden_sizes=hidden_sizes,
+                lr=wh_lr, gamma=gamma, tau=tau,
+                buffer_size=wh_capacity_episodes,
+                batch_size=wh_batch_size,
+                device=device,
+                seq_len=25, burn_in=5,
+                lr_warmup_eps=warmup_eps,
+            )
+            for _ in range(N)
+        ]
+    elif args.algo == "td3_warmh0_qr_afe_lstm":
+        # R130 — triple-stack: WarmH0 actor + QR distributional critic +
+        # AFE input. Combines R107/R109 warm h_0 (CLM-0188 actor side fix)
+        # with R98/R125 critic-representation fixes (CLM-0189 QR output +
+        # CLM-0190 AFE input). For R127/R104 + family additivity verdict.
+        wq_batch_size = 32
+        wq_capacity_episodes = 200
+        if os.environ.get("LSTM_LR_UNCLAMP") == "1":
+            wq_lr = lr
+        else:
+            wq_lr = min(lr, 1e-4)
+        warmup_eps = getattr(args, "lstm_lr_warmup_eps", 0) or 0
+        warmup_note = f" warmup_eps={warmup_eps}" if warmup_eps > 0 else ""
+        n_quantiles = int(getattr(args, "qr_n_quantiles", 51))
+        print(
+            f"[algo] TD3+LSTM+WarmH0+QR+AFE — triple-stack: warm h_0 actor "
+            f"+ N={n_quantiles} quantile critic + AFE input "
+            f"[obs, a, a², |a|, sign(a)], hidden={hidden_sizes[0]}, "
+            f"seq=25 burn=5, batch={wq_batch_size} seq, lr={wq_lr}{warmup_note}"
+        )
+        agents = [
+            TD3WarmH0QRAfeLstmAgent(
+                obs_dim=obs_dim, action_dim=action_dim,
+                hidden_sizes=hidden_sizes,
+                lr=wq_lr, gamma=gamma, tau=tau,
+                buffer_size=wq_capacity_episodes,
+                batch_size=wq_batch_size,
+                device=device,
+                seq_len=25, burn_in=5,
+                lr_warmup_eps=warmup_eps,
+                n_quantiles=n_quantiles,
+            )
+            for _ in range(N)
+        ]
+    elif args.algo == "td3_warmh0_qr_lstm":
+        # R150 — WarmH0 actor + QR critic (NO AFE). Post-CLM-0275 finding:
+        # QR works alone, AFE structurally broken. This combo tests if
+        # warm-h_0 actor + QR critic exceeds R72_w4 baseline 0.391 — the
+        # best CLM-0157(a) + CLM-0188 combination without AFE drag.
+        wq_batch_size = 32
+        wq_capacity_episodes = 200
+        if os.environ.get("LSTM_LR_UNCLAMP") == "1":
+            wq_lr = lr
+        else:
+            wq_lr = min(lr, 1e-4)
+        warmup_eps = getattr(args, "lstm_lr_warmup_eps", 0) or 0
+        warmup_note = f" warmup_eps={warmup_eps}" if warmup_eps > 0 else ""
+        n_quantiles = int(getattr(args, "qr_n_quantiles", 51))
+        print(
+            f"[algo] TD3+LSTM+WarmH0+QR (no AFE) — warm h_0 actor + N={n_quantiles} "
+            f"quantile critic, hidden={hidden_sizes[0]}, "
+            f"seq=25 burn=5, batch={wq_batch_size} seq, lr={wq_lr}{warmup_note}"
+        )
+        agents = [
+            TD3LSTMWarmH0QRAgent(
+                obs_dim=obs_dim, action_dim=action_dim,
+                hidden_sizes=hidden_sizes,
+                lr=wq_lr, gamma=gamma, tau=tau,
+                buffer_size=wq_capacity_episodes,
+                batch_size=wq_batch_size,
+                device=device,
+                seq_len=25, burn_in=5,
+                lr_warmup_eps=warmup_eps,
+                n_quantiles=n_quantiles,
+            )
+            for _ in range(N)
+        ]
     else:
         print("[algo] SAC — entropy-regularized")
         agents = [
@@ -476,7 +746,7 @@ def apply_warmstart_shared(agents: list, args: argparse.Namespace) -> None:
     """Copy one shared-actor checkpoint into every agent."""
     if not args.warmstart_shared:
         return
-    if args.algo in ("td3_lstm", "td3_transformer", "td3_lstm2"):
+    if args.algo in ("td3_lstm", "td3_transformer", "td3_lstm2", "td3_lstm_hreg", "td3_qr_lstm", "td3_afe_lstm", "td3_qr_afe_lstm", "td3_lstm_warmh0", "td3_warmh0_qr_afe_lstm", "td3_warmh0_qr_lstm"):
         # RecurrentActor / TransformerActor state_dict has different keys
         # from GaussianActor. Cross-architecture warmstart is undefined;
         # refuse explicitly rather than silently fail.

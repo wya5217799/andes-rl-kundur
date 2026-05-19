@@ -156,6 +156,67 @@ def _write_plan_stub(round_dir: Path, n: int, oracle_snapshot: str) -> None:
     )
 
 
+def gc_empty_rounds(
+    rounds_dir: Path,
+    *,
+    max_age_minutes: int = 60,
+    today: dt.date | None = None,
+) -> list[str]:
+    """R176 G8: scan ``rounds_dir`` for ``RNNN/`` directories that are
+    older than ``max_age_minutes``, contain no ``plan.md`` and no
+    ``*verdict*.md``, and convert them to ``state=aborted`` stubs.
+
+    Catches the parallel-session race: ``reserve_round.py`` atomically
+    creates a dir, but if the session crashes or never writes the plan,
+    the dir persists as a zombie. The garbage collector finds these
+    and writes a minimal aborted plan via the canonical close path.
+
+    Returns a list of round names that were swept. Empty list means
+    no zombies found (the happy steady state).
+    """
+    import time
+    swept: list[str] = []
+    if not rounds_dir.is_dir():
+        return swept
+    now = time.time()
+    cutoff = now - max_age_minutes * 60
+    today = today or dt.date.today()
+    for entry in sorted(rounds_dir.iterdir()):
+        if not entry.is_dir():
+            continue
+        if not re.match(r"^R\d+$", entry.name):
+            continue
+        if (entry / "plan.md").exists():
+            continue
+        if any(entry.glob("*verdict*.md")):
+            continue
+        if entry.stat().st_mtime > cutoff:
+            continue  # too young; could still be in-progress
+        # Stub a minimal aborted plan via the close_round helper.
+        plan_path = entry / "plan.md"
+        fm_lines = [
+            "---",
+            f"round: {entry.name}",
+            "state: aborted",
+            f"opened: '{today.isoformat()}'",
+            f"closed: '{today.isoformat()}'",
+            "supersedes_rounds: []",
+            "superseded_by_round: null",
+            "abort_reason: reserved-empty for >60min (auto-gc by reserve_round.py)",
+            "superseded_note: null",
+            "---",
+            f"# {entry.name} plan — auto-gc'd by reserve_round.py",
+            "",
+            "Dir created via `reserve_round.py` but never populated with",
+            "plan.md within the GC window. Most likely a parallel-session",
+            "race or crashed session. Closed as aborted by `--gc`.",
+            "",
+        ]
+        plan_path.write_text("\n".join(fm_lines), encoding="utf-8")
+        swept.append(entry.name)
+    return swept
+
+
 def _refresh_oracle(memory_dir: Path) -> None:
     """Run validate.py + render.py to refresh STATE.md before snapshotting.
 
@@ -193,9 +254,33 @@ def _main() -> None:
             "oracle race conditions like R114."
         ),
     )
+    parser.add_argument(
+        "--gc",
+        action="store_true",
+        help=(
+            "R176 G8: sweep zombie empty round dirs (created by "
+            "reserve_round.py but never populated with plan.md). "
+            "Default cutoff = 60 minutes; older empties are stubbed as "
+            "aborted. Does not reserve a new round when --gc is set."
+        ),
+    )
+    parser.add_argument(
+        "--gc-minutes",
+        type=int,
+        default=60,
+        help="Minimum age (minutes) before --gc treats a dir as zombie",
+    )
     args = parser.parse_args()
     memory_dir = Path(args.memory_dir)
     rounds_dir = memory_dir / "rounds"
+    if args.gc:
+        swept = gc_empty_rounds(rounds_dir, max_age_minutes=args.gc_minutes)
+        if swept:
+            for name in swept:
+                print(f"GC {name}: aborted (reserved-empty >{args.gc_minutes}min)")
+        else:
+            print("GC: no zombies found")
+        return
     if args.write_plan_stub:
         _refresh_oracle(memory_dir)
     n = reserve_next_round(rounds_dir)

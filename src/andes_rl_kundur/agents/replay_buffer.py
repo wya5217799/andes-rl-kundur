@@ -120,16 +120,36 @@ class SequenceReplayBuffer:
         seq_len: int = 25,
         burn_in: int = 5,
         capacity_episodes: int = 200,
+        transient_boost: float = 1.0,
+        transient_window: int = 6,
     ) -> None:
+        """Episode-keyed replay buffer with optional transient-phase reweighting.
+
+        Q-0020 / R172 — when ``transient_boost > 1``, the start-index
+        distribution for ``sample()`` is biased to favour the first
+        ``transient_window`` positions of an episode (where step-0..5
+        disturbance recovery happens). ``transient_boost`` is the
+        multiplicative weight on those positions; remaining positions
+        get weight 1. Default (1.0) preserves the original uniform
+        behaviour exactly.
+        """
         if seq_len < 1:
             raise ValueError(f"seq_len must be >= 1, got {seq_len}")
         if burn_in < 0:
             raise ValueError(f"burn_in must be >= 0, got {burn_in}")
+        if transient_boost < 1.0:
+            raise ValueError(
+                f"transient_boost must be >= 1.0 (got {transient_boost}); "
+                f"use 1.0 to disable")
+        if transient_window < 1:
+            raise ValueError(f"transient_window must be >= 1, got {transient_window}")
         self.obs_dim = obs_dim
         self.action_dim = action_dim
         self.seq_len = seq_len
         self.burn_in = burn_in
         self.capacity = capacity_episodes
+        self.transient_boost = float(transient_boost)
+        self.transient_window = int(transient_window)
         self._episodes: list[dict[str, np.ndarray]] = []
         self._ptr = 0
 
@@ -176,6 +196,29 @@ class SequenceReplayBuffer:
             self._episodes[self._ptr % self.capacity] = ep
         self._ptr += 1
 
+    def _sample_start(self, ep_len: int, T: int) -> int:
+        """Pick a subsequence start. Uniform unless ``transient_boost > 1``,
+        in which case starts in ``[0, transient_window)`` are oversampled.
+
+        Q-0020 (R172) — hypothesis test: weighting step-0..5 samples more
+        heavily breaks the 0.391 plateau on R72_w4 hyper. The
+        ``transient_boost`` factor sets the multiplicative weight on
+        positions that fall inside the transient window relative to
+        positions outside.
+        """
+        if ep_len == T:
+            return 0
+        n_starts = ep_len - T + 1
+        if self.transient_boost <= 1.0 + 1e-9:
+            return int(np.random.randint(0, n_starts))
+        # Weighted: positions [0, transient_window) get weight transient_boost;
+        # the rest get weight 1. Clamp window to available starts.
+        w_size = min(self.transient_window, n_starts)
+        weights = np.ones(n_starts, dtype=np.float64)
+        weights[:w_size] = self.transient_boost
+        weights /= weights.sum()
+        return int(np.random.choice(n_starts, p=weights))
+
     def n_episodes(self) -> int:
         return len(self._episodes)
 
@@ -210,10 +253,7 @@ class SequenceReplayBuffer:
         for ep_idx in chosen:
             ep = self._episodes[ep_idx]
             ep_len = len(ep["obs"])
-            start = (
-                0 if ep_len == T
-                else int(np.random.randint(0, ep_len - T + 1))
-            )
+            start = self._sample_start(ep_len, T)
             stop = start + T
             for k in out:
                 out[k].append(ep[k][start:stop])
