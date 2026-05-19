@@ -51,3 +51,11 @@ This directory is the scratchpad for the session axis. The schema is
 for the round axis.
 
 See `memory/rounds/R39/plan.md` decision G for the rationale.
+
+## Indexed by Note entity (since 2026-05-19)
+
+Each handoff in this directory is **also** indexed by a Note under
+`memory/notes/` (with `source: handoff`). Notes contain a 3-5 sentence
+summary + key facts; the handoff file itself is the verbatim source and
+is unchanged. Use `python memory/tools/note_query.py --source handoff
+--grep <kw>` to search the archive.
