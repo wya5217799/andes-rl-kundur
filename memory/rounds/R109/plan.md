@@ -1,4 +1,10 @@
-# R98 plan — Memory subsystem: Note entity + legacy archive ingest
+# R109 plan — Memory subsystem: Note entity + legacy archive ingest
+
+> **Note on round number**: originally reserved as R98 in feature branch
+> `feature/memory-notes-ingest`; renamed to R109 at merge time to avoid
+> collision with parallel session's R98 ("Distributional + Action-Feature-
+> Engineered critic prototypes"). Buffer of R99-R108 left for parallel
+> session continuation.
 
 **Date**: 2026-05-19
 **Type**: infrastructure (schema + tooling + data migration, no experiment)
