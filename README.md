@@ -1,58 +1,53 @@
 # andes-rl-kundur
 
-Multi-agent SAC control of virtual synchronous generator (VSG) inertia
-and damping on the modified Kundur 4-bus system, reproducing
-Yang et al., IEEE TPWRS 2023, on the ANDES quasi-static phasor backend.
+Multi-agent reinforcement learning control of virtual synchronous generator (VSG)
+inertia and damping on the modified Kundur 4-bus system, reproducing
+Yang et al., IEEE TPWRS 2023, using the ANDES quasi-static phasor backend.
 
-## Status
+## Status (as of 2026-05-21, R259)
 
-ANDES main path completed at R37 (2026-05-16). Repository is a continuing
-research workbench: post-review revisions, journal resubmission,
-ablations, and new algorithm experiments happen here. The codebase was
-refactored into a standard Python src-layout on 2026-05-16 (see
-`docs/adr/0001-src-layout.md` for the long-form rationale).
+Active research workbench. Algorithmic plateau (R86, CLM-0148/0149: critic Q
+monotone along action axis, argmax at boundary ±1) confirmed structural across
+91 trials. Current focus: reward-shaping and mechanism characterisation
+(R255–R259 probe-first protocol). Project SOTA: 4-way same-seed cross-algorithm
+HAWE ensemble (CLM-0295, R154).
+
+The Python package was refactored into a standard `src/` layout on 2026-05-16
+(see `docs/adr/0001-src-layout.md`). Paper draft (16 pp IEEE journal) is in
+`artifacts/paper_r77/`.
 
 ## Getting started
 
 ### Reading orientation
 
-1. `CONTEXT.md` — glossary + 14 architecture decisions.
-2. `memory/STATE.md` — auto-rendered current headlines, open
-   decisions, latest round, latest handoff.
-3. Latest file in `memory/handoffs/` — what was in progress at last
-   handoff.
-4. `_legacy/RESEARCH_TRAIL.md` — full causal chain R01..R37 (frozen).
+1. `CONTEXT.md` — glossary + architecture decisions (AD-01 … AD-14).
+2. `memory/STATE.md` — auto-rendered headlines, open questions, latest round.
+3. `docs/adr/` — five ADRs covering src layout, paper-faithful split, PI
+   briefing contract, V5 REGCA1 plant, and ANDES-only platform decision.
 
 ### Install
 
-ANDES requires WSL (see `docs/eng-notes/NOTES_ANDES.md`). Inside the
-WSL `andes_venv`:
+ANDES requires WSL (see `docs/eng-notes/NOTES_ANDES.md`). Inside WSL `andes_venv`:
 
 ```bash
 pip install -e .          # installs andes-rl-kundur in editable mode
 ```
 
-The scripts under `scripts/` are runnable without `pip install -e .`
-because each one adds `src/` to `sys.path` itself.
+Scripts under `scripts/` add `src/` to `sys.path` themselves and run without
+the pip install step.
 
 ### Running training
 
 ```bash
-# Default V4 paper-faithful training (Kundur, 4 VSGs, SAC × 4)
+# Default V4 paper-faithful training (Kundur 4-bus, 4 VSGs, TD3-LSTM × 4)
 /home/<user>/andes_venv/bin/python scripts/train.py \
-    --episodes 75 --seed 49 --save-dir results/v4_h50_s49
+    --episodes 75 --seed 49 --algo td3_lstm --save-dir results/v4_lstm_s49
 
-# Resume / fine-tune from a prior checkpoint directory
+# Resume from a prior checkpoint directory
 /home/<user>/andes_venv/bin/python scripts/train.py \
-    --episodes 1000 --seed 49 \
-    --resume results/v4_h50_s49 \
-    --save-dir results/v4_h50_s49_resumed
-
-# Shared-actor warmstart across all four agents
-/home/<user>/andes_venv/bin/python scripts/train.py \
-    --episodes 500 \
-    --warmstart-shared results/phase9_shared/agent_shared.pt \
-    --save-dir results/v4_warmstart
+    --episodes 500 --seed 49 --algo td3_lstm \
+    --resume results/v4_lstm_s49 \
+    --save-dir results/v4_lstm_s49_resumed
 ```
 
 ### Running evaluation
@@ -61,38 +56,65 @@ because each one adds `src/` to `sys.path` itself.
 # No-control baseline (paper Fig 6/8)
 /home/<user>/andes_venv/bin/python scripts/eval_no_control.py
 
-# DDIC evaluation on one checkpoint
+# Single-checkpoint DDIC evaluation
 /home/<user>/andes_venv/bin/python scripts/eval_ddic.py \
-    --ckpt-dir results/v4_h50_s49 --suffix best --label r21
+    --ckpt-dir results/v4_lstm_s49 --suffix best --label r21
 
-# Batch evaluation across all seeds + 6-axis ranking
-/home/<user>/andes_venv/bin/python scripts/eval_all_seeds.py
+# 11-axis paper-grade ranking
+/home/<user>/andes_venv/bin/python scripts/score_run.py \
+    --ckpt-dirs results/v4_lstm_s49 --label v4_lstm_s49
 
 # HAWE inference-time ensemble (paper Asset 5)
 /home/<user>/andes_venv/bin/python scripts/eval_ensemble.py \
-    --ckpt-dirs results/v4_h50_s49 results/v4_ws8 \
+    --ckpt-dirs results/v4_lstm_s49 results/v4_lstm_s54 \
     --suffixes best best --weights 0.98 0.02 --agg weighted \
     --label hawe_w9802
 ```
 
 ### Memory subsystem
 
-See `MEMORY.md`. Run `python memory/tools/validate.py` before commits.
-Regenerate `memory/STATE.md` via `python memory/tools/render.py`.
+```bash
+python memory/tools/validate.py        # check claim/question/round schema
+python memory/tools/render.py          # regenerate memory/STATE.md
+python memory/tools/status.py          # operational dashboard (training, active rounds)
+python memory/tools/round_preflight.py R<N>   # pre-launch checklist for a new round
+python memory/tools/baselines.py --match <run> # look up measured baselines
+python memory/tools/dual_metric_lint.py       # audit paper-reward-ablation claims
+```
+
+See `MEMORY.md` for the full memory-subsystem design.
 
 ## Layout
 
 | Path | Contents |
 |------|----------|
-| `src/andes_rl_kundur/` | Library code (agents, env, evaluation, probes, utils, config, scenarios contract) |
-| `scripts/` | Runnable entry points (train + 4 eval drivers) |
-| `tests/` | pytest regression suite |
-| `artifacts/paper/` | IEEE journal manuscript + figure scripts + figures |
+| `src/andes_rl_kundur/` | Library code: agents, env (V4 + V5), evaluation, probes, utils, config, scenarios |
+| `scripts/` | Runnable entry points: train, 4 eval drivers, round experiment drivers (r99–r259), score_run |
+| `probes/` | Round-level probe scripts |
+| `tests/` | pytest regression suite (35+ tests) |
+| `artifacts/paper_r77/` | IEEE journal manuscript (16 pp, frozen at R77) |
 | `artifacts/dissertation/` | UNNC FYP dissertation |
-| `memory/` | Claim ledger + rounds + handoffs + auto-rendered STATE.md |
-| `docs/` | ADRs, engineering notes, design specs |
-| `results/` | Gitignored except `whitelist/` (paper-cited checkpoints/JSON) |
-| `_legacy/` | Frozen source-of-truth docs and ancestor modules |
+| `memory/` | Claim ledger (CLM-0001–CLM-0485+), rounds (R01–R259), tools, STATE.md |
+| `docs/` | ADRs (0001–0005), engineering notes, design specs, paper deviation log |
+| `results/` | Gitignored except `whitelist/` (paper-cited checkpoints + JSON) |
+| `_legacy/` | Frozen ancestor modules and pre-refactor research trail |
+
+## Agents
+
+| Class | File | Notes |
+|-------|------|-------|
+| SAC | `sac.py` | Original paper algo |
+| SAC-CTDE | `sac_ctde.py` | Centralised-training decentralised-execution |
+| TD3 | `td3.py` | Baseline |
+| TD3-LSTM | `td3_lstm.py` | R79+ SOTA base (LSTM tau=0.001, warmup=5) |
+| TD3-LSTM2 | `td3_lstm2.py` | Two-layer LSTM variant |
+| TD3-LSTM-hreg | `td3_lstm_hreg.py` | Hidden-state regularisation |
+| TD3-LSTM-warmh0 | `td3_lstm_warmh0.py` | Warm hidden-state initialisation |
+| TD3-QR-LSTM | `td3_qr_lstm.py` | Quantile-regression critic |
+| TD3-QR-LSTM-hreg | `td3_qr_lstm_hreg.py` | QR + hidden-state reg |
+| TD3-AFE-LSTM | `td3_afe_lstm.py` | Adaptive feature extraction |
+| TD3-QR-AFE-LSTM | `td3_qr_afe_lstm.py` | QR + AFE |
+| TD3-Transformer | `td3_transformer.py` | Transformer actor (R82; deterministic-eval collapse known) |
 
 ## Testing
 
@@ -100,17 +122,21 @@ Regenerate `memory/STATE.md` via `python memory/tools/render.py`.
 /home/<user>/andes_venv/bin/python -m pytest tests/
 ```
 
-`tests/test_v4_env_regression.py` runs a ~90 s end-to-end no-control
-roll-out and compares against `results/research_loop/eval_v4_baseline_PRE_REFACTOR/`
-at 1e-9 tolerance. Both LS1 and LS2 must remain bit-identical.
+Key regression contracts:
+- `test_v4_env_regression.py` — full no-control roll-out at 1e-9 tolerance
+  (both LS1 and LS2 must remain bit-identical against the PRE_REFACTOR baseline).
+- `test_reserve_round.py` — 30 cases pinning atomic mkdir + active-round detection + GC.
+- `test_paper_grade_axes_v31.py` — paper-grade scoring regression (Asset 4).
 
 ## Citations
 
-If you reference findings from this repo, cite claim IDs:
-"… achieved 0.444 6-axis score (CLM-0005)."
+When referencing findings, cite claim IDs:
 
-Claim IDs are stable; numerical values may be superseded — check
-`status: current` before quoting.
+> "… achieved 0.4139 cum_rf score (CLM-0295)."
+
+Claim IDs are stable. Numerical values may be superseded — check
+`status: current` before quoting. Use `python memory/tools/query.py --best cum_rf`
+to find the current best.
 
 ## License
 
