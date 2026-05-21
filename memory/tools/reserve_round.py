@@ -13,9 +13,37 @@ of creating the dir: ``mkdir`` is atomic on POSIX, so two callers
 racing to claim the same N have exactly one winner; the loser sees
 ``FileExistsError`` and retries with the new max.
 
+**R256 follow-up (2026-05-20)** — atomic mkdir prevents *concurrent*
+duplicate reservation, but does NOT prevent *re-entry* duplicate work
+within a single conversation that has been context-compressed:
+
+1. Turn N: agent reserves R<M>, writes plan + verdict + CLM.
+2. Conversation summary truncates the work record.
+3. Turn N+k: post-compression agent has no memory of R<M>, calls
+   ``reserve_round.py``, gets a *fresh* dir (R<M+1> or, if R<M>
+   was for any reason swept / never persisted on disk, R<M> again).
+4. The agent repeats the work; the prior-turn verdict.md still on
+   disk is silently overwritten or duplicated.
+
+The fix is a state-based pre-flight: scan all R<N>/ dirs for
+``state: active`` in plan.md frontmatter, print a warning listing
+them, and either WARN-only (default), ABORT (``--strict-no-active``),
+or LIST-only (``--list-active``). The warning gives the post-
+compression agent a chance to notice "ah, R<M> is already in flight"
+before spawning a duplicate round. Atomic mkdir is preserved
+unchanged; this is an additional layer on top.
+
 Usage (CLI):
     $ python memory/tools/reserve_round.py
     50
+
+    $ python memory/tools/reserve_round.py --list-active
+    Active rounds (state=active in plan.md):
+      R256  opened=2026-05-20  driver=Probe action-bound saturation...
+
+    $ python memory/tools/reserve_round.py --strict-no-active
+    ERROR: 1 active round(s) in progress. Refuse to reserve.
+    (exit code 1)
 
 Usage (library):
     >>> from memory.tools.reserve_round import reserve_next_round
@@ -231,7 +259,7 @@ def gc_empty_rounds(
             "abort_reason: reserved-empty for >60min (auto-gc by reserve_round.py)",
             "superseded_note: null",
             "---",
-            f"# {entry.name} plan — auto-gc'd by reserve_round.py",
+            f"# {entry.name} plan -- auto-gc'd by reserve_round.py",
             "",
             "Dir created via `reserve_round.py` but never populated with",
             "plan.md within the GC window. Most likely a parallel-session",
@@ -241,6 +269,116 @@ def gc_empty_rounds(
         plan_path.write_text("\n".join(fm_lines), encoding="utf-8")
         swept.append(entry.name)
     return swept
+
+
+_FRONTMATTER_RE = re.compile(r"^---\n(.*?)\n---", re.DOTALL)
+
+
+def _parse_plan_frontmatter(plan_path: Path) -> dict[str, str]:
+    """Parse the YAML-style frontmatter at the top of a plan.md.
+
+    Returns an empty dict if plan.md is missing, has no frontmatter, or
+    fails to parse. We do a minimal line-based parse rather than pulling
+    in PyYAML so this stays a zero-dependency helper.
+    """
+    if not plan_path.is_file():
+        return {}
+    try:
+        text = plan_path.read_text(encoding="utf-8")
+    except OSError:
+        return {}
+    m = _FRONTMATTER_RE.match(text)
+    if not m:
+        return {}
+    out: dict[str, str] = {}
+    for line in m.group(1).splitlines():
+        line = line.strip()
+        if not line or line.startswith("#"):
+            continue
+        if ":" not in line:
+            continue
+        key, _, value = line.partition(":")
+        out[key.strip()] = value.strip().strip("'\"")
+    return out
+
+
+def _active_rounds_in_progress(
+    rounds_dir: Path,
+    *,
+    include_stale: bool = False,
+) -> list[tuple[int, dict[str, str], str]]:
+    """Find R<N>/ dirs that are *genuinely* in-flight (state=active and no
+    verdict yet).
+
+    Returns a list of ``(n, frontmatter_dict, dir_name)`` sorted by N
+    ascending. ``dir_name`` preserves the on-disk spelling
+    (``R01`` vs ``R1``) so callers can re-construct the path.
+
+    A round is genuinely in-flight iff:
+    1. ``plan.md`` exists and its frontmatter declares ``state: active``
+    2. AND no ``verdict.md`` (or any ``*verdict*.md``) exists in the dir
+
+    Without rule 2, the project's legacy R01-R49 rounds --- which have
+    stale ``state: active`` frontmatter from the R166 retrofit but real
+    verdict.md files --- would flood the active list with ~120 false
+    positives. The verdict.md gate is the operational truth: if a
+    verdict exists, the round is closed regardless of what the
+    frontmatter says.
+
+    Pass ``include_stale=True`` to disable the verdict.md gate (useful
+    for ledger-hygiene audits that want to see frontmatter-vs-verdict
+    inconsistencies).
+
+    Used by ``--list-active`` and ``--strict-no-active`` to prevent the
+    context-compression duplicate-work failure mode: an agent that has
+    forgotten its in-flight round can be reminded before it spawns a
+    duplicate. See module docstring for the R256 case study.
+    """
+    out: list[tuple[int, dict[str, str], str]] = []
+    if not rounds_dir.is_dir():
+        return out
+    for entry in rounds_dir.iterdir():
+        if not entry.is_dir():
+            continue
+        m = re.match(r"^R(\d+)$", entry.name)
+        if not m:
+            continue
+        plan = entry / "plan.md"
+        fm = _parse_plan_frontmatter(plan)
+        if fm.get("state") != "active":
+            continue
+        if not include_stale and any(entry.glob("*verdict*.md")):
+            # Legacy stale-active: verdict exists despite frontmatter
+            # saying active. The verdict is the operational truth.
+            continue
+        out.append((int(m.group(1)), fm, entry.name))
+    # Sort numerically (so R10 > R3, not the str-order opposite).
+    out.sort(key=lambda t: t[0])
+    return out
+
+
+def _format_active_list(active: list[tuple[int, dict[str, str], str]],
+                       rounds_dir: Path) -> str:
+    """Pretty-print active rounds for CLI output."""
+    if not active:
+        return ""
+    lines = ["Active rounds (state=active in plan.md, no verdict.md yet):"]
+    for n, fm, dir_name in active:
+        opened = fm.get("opened", "?")
+        # Extract Driver line from plan body if present
+        driver = ""
+        plan_path = rounds_dir / dir_name / "plan.md"
+        try:
+            body = plan_path.read_text(encoding="utf-8")
+            mdrv = re.search(r"^\*\*Driver\*\*:\s*(.+)$", body, re.MULTILINE)
+            if mdrv:
+                drv = mdrv.group(1).strip()
+                # Truncate for readable single-line display
+                driver = "  driver=" + (drv[:60] + "..." if len(drv) > 60 else drv)
+        except OSError:
+            pass
+        lines.append(f"  {dir_name}  opened={opened}{driver}")
+    return "\n".join(lines)
 
 
 def _refresh_oracle(memory_dir: Path) -> None:
@@ -264,6 +402,18 @@ def _refresh_oracle(memory_dir: Path) -> None:
 
 
 def _main() -> None:
+    # Windows GBK terminals choke on non-ASCII driver lines copied from
+    # plan.md (em-dash, CJK). Reconfigure stdio to utf-8 with replace
+    # fallback so we never raise UnicodeEncodeError. Per CLAUDE.md
+    # "Windows GBK terminal" cross-platform rule.
+    for stream_name in ("stdout", "stderr"):
+        stream = getattr(sys, stream_name, None)
+        if stream is not None and hasattr(stream, "reconfigure"):
+            try:
+                stream.reconfigure(encoding="utf-8", errors="replace")
+            except (AttributeError, OSError):
+                pass
+
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument(
         "--memory-dir",
@@ -296,9 +446,49 @@ def _main() -> None:
         default=60,
         help="Minimum age (minutes) before --gc treats a dir as zombie",
     )
+    parser.add_argument(
+        "--list-active",
+        action="store_true",
+        help=(
+            "List all R<N>/ dirs whose plan.md declares state=active, "
+            "then exit without reserving. R256-followup safeguard against "
+            "the context-compression duplicate-work failure mode (see "
+            "module docstring)."
+        ),
+    )
+    parser.add_argument(
+        "--strict-no-active",
+        action="store_true",
+        help=(
+            "Refuse to reserve a new round if any R<N>/ has state=active "
+            "in plan.md. Exits 1 with an error listing the active rounds. "
+            "Use this in autonomous-loop scripts to prevent the agent from "
+            "spawning a duplicate of its own in-flight round after context "
+            "compression. Default behaviour is WARN-only."
+        ),
+    )
+    parser.add_argument(
+        "--no-warn-active",
+        action="store_true",
+        help=(
+            "Suppress the WARN-active default. Useful when the active "
+            "round is the one the caller is intentionally about to close, "
+            "or in pure scripted use where the noise is unwanted."
+        ),
+    )
     args = parser.parse_args()
     memory_dir = Path(args.memory_dir)
     rounds_dir = memory_dir / "rounds"
+
+    # --list-active short-circuit: report and exit without reserving.
+    if args.list_active:
+        active = _active_rounds_in_progress(rounds_dir)
+        if not active:
+            print("(no active rounds)")
+        else:
+            print(_format_active_list(active, rounds_dir))
+        return
+
     if args.gc:
         swept = gc_empty_rounds(rounds_dir, max_age_minutes=args.gc_minutes)
         if swept:
@@ -307,6 +497,42 @@ def _main() -> None:
         else:
             print("GC: no zombies found")
         return
+
+    # Active-rounds preflight (R256 followup, 2026-05-20).
+    active = _active_rounds_in_progress(rounds_dir)
+    if active:
+        if args.strict_no_active:
+            print(
+                f"ERROR: {len(active)} active round(s) in progress. "
+                f"Refuse to reserve.",
+                file=sys.stderr,
+            )
+            print(_format_active_list(active, rounds_dir), file=sys.stderr)
+            print(
+                "Resolve the active round(s) first (close to "
+                "state=completed/aborted/superseded) or use a non-strict "
+                "invocation.",
+                file=sys.stderr,
+            )
+            sys.exit(1)
+        elif not args.no_warn_active:
+            # Default WARN-only: print to stderr so it doesn't poison the
+            # stdout `N` capture in scripts that pipe the round number.
+            print(
+                f"WARNING: {len(active)} active round(s) in progress. "
+                f"Proceeding anyway.",
+                file=sys.stderr,
+            )
+            print(_format_active_list(active, rounds_dir), file=sys.stderr)
+            print(
+                "If this is unintentional (e.g. you forgot you already "
+                "have an in-flight round from a prior turn), abort with "
+                "Ctrl-C and resume the existing round instead. Pass "
+                "--no-warn-active to suppress, or --strict-no-active to "
+                "make this fatal.",
+                file=sys.stderr,
+            )
+
     if args.write_plan_stub:
         _refresh_oracle(memory_dir)
     n = reserve_next_round(rounds_dir)

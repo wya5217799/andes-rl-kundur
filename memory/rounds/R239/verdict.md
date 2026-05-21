@@ -13,16 +13,30 @@ LS2=0.436, cum_rf=-0.0694.
 **vs R72_w4 scalar full-reward baseline (0.391): +1.1%** — actually
 BETTER without paper Eq.14 terms.
 
-## Cross-algorithm reward ablation
+## Cross-algorithm reward ablation — DUAL-METRIC (CLM-0430 audit)
+
+geo (11-axis v3.1):
 
 | algo | full reward | only phi_abs | Δ |
 |------|-------------|---------------|------|
 | scalar | 0.391 (R72_w4) | **0.3954 (R239)** | **+1.1%** |
 | hreg | 0.4152 (R201) | 0.4128 (R238) | -0.6% |
 
-**Both algos work without paper Eq.14 terms**. For scalar, removing
-the paper terms is slightly beneficial (+1.1%); for hreg, slightly
-detrimental (-0.6%). Both within ±2% noise.
+cum_rf (paper §IV-C, NEWLY AUDITED 2026-05-20):
+
+| algo | full reward | only phi_abs | Δ |
+|------|-------------|---------------|------|
+| scalar | (R72_w4 no summary) | **-0.0694 (R239)** | (no ref) |
+| hreg | -0.0692 (R201) | -0.0716 (R238) | **-3.5%** |
+
+**Reading**: On the 11-axis ranker, both algos "work without paper
+terms" (geo ±2%). On paper-metric (cum_rf), hreg shows consistent
+-3.5% degradation when paper terms removed. R239 cum_rf (-0.0694)
+is nearly identical to R201 hreg-full cum_rf (-0.0692), meaning
+scalar+only-phi_abs at s54 happens to land at the hreg-full sync
+attractor — but this is **single-seed coincidence** not a general
+property (R241/R249 cross-seed show consistent -3 to -6% pattern
+for only-phi_abs on cum_rf).
 
 ## DEFINITIVE paper-integrity statement (universal)
 

@@ -28,17 +28,28 @@ python scripts/score_run.py --label r246_w1_scalar_onlyphiabs \
     --out-dir results/r246_w1_scalar_onlyphiabs_s50
 ```
 
-## Scalar cross-seed table (3 seeds, NEW)
+## Scalar cross-seed table (3 seeds, NEW) — DUAL-METRIC (CLM-0430 audit)
+
+geo (11-axis v3.1):
 
 | Seed | scalar baseline    | scalar+only-phi_abs | Δ      |
 |------|---------------------|-----|--------|
 | s54  | 0.391 (R72_w4 measured) | 0.3954 (R239) | **+1.1%** |
 | s51  | 0.3562 (R154_w2 measured) | 0.3003 (R242) | **-15.7%** |
-| s50  | ~0.327 (estimated)  | **0.2346 (R246)** | **~-28%** |
+| s50  | ~0.327 (estimated; R251 anchor pending) | **0.2346 (R246)** | **~-28%** |
 
-(s50 baseline estimated from R204 hreg s50 baseline 0.348 × s54
-scalar/hreg ratio 0.94 = 0.327. Honest caveat: this is reconstructed,
-not directly measured.)
+cum_rf (paper §IV-C):
+
+| Seed | scalar baseline cum_rf | scalar+only-phi_abs cum_rf | Δ   |
+|------|-------------------------|----------------------------|-----|
+| s54  | (R72_w4 no summary)     | -0.0694 (R239)             | (no ref) |
+| s51  | -0.0691 (R154_w2)       | -0.0731 (R242)             | **-5.8%** |
+| s50  | (R251 anchor in flight) | -0.0917 (R246)             | (pending) |
+
+R246 cum_rf -0.0917 is notably worse than R249 (hreg s50 only-phi_abs)
+-0.0936 by only -2%, but R246 geo (0.235) is 34% worse than R249
+(0.358). The **11-axis** ranker is what's flagging R246 as bad, NOT
+the paper-metric. Pending R251 anchor for cum_rf comparison.
 
 ## Hreg cross-seed for comparison (still tight)
 

@@ -78,6 +78,15 @@ from pathlib import Path
 
 import numpy as np
 
+# Ranker version stamp — bump when axes / aggregation / paper constants change.
+# Surfaced in score_run.py summary JSONs and result/*/summary.json so future
+# auditors can verify cross-round number comparability without reading git log.
+# Version history:
+#   "v2"   pre-R69     7-axis plain geo_mean
+#   "v3.0" R69 80753fc 11-axis plain geo_mean (axes 9..11 added)
+#   "v3.1" R71 c5a5d1c 11-axis geo_mean(1..8) × min(9,10,11) gating
+RANKER_VERSION = "v3.1"
+
 # Numerical constants
 _MIN_DT_S = 1e-6  # floor on dt to avoid div-by-zero in window sizing
 _SCORE_BAR_WIDTH = 20  # ASCII bar columns used in TraceScore.summary()

@@ -30,14 +30,21 @@ python scripts/score_run.py --label r247_w1_scalar_phih_only \
     --out-dir results/r247_w1_scalar_phih_only_s50
 ```
 
-## R246 ↔ R247 bit-identical comparison
+## R246 ↔ R247 bit-identical comparison (DUAL-METRIC)
 
 | Axis | R246 (only-phi_abs)  | R247 (+phi_h)     | Δ      |
 |------|----------------------|--------------------|--------|
-| LS1  | 0.2156               | 0.2155             | -0.05% |
-| LS2  | 0.2553               | 0.2556             | +0.12% |
-| geo  | 0.2346               | 0.2347             | +0.04% |
-| cum_rf | -0.0917            | -0.0917            | 0      |
+| LS1 (11-axis) | 0.2156      | 0.2155             | -0.05% |
+| LS2 (11-axis) | 0.2553      | 0.2556             | +0.12% |
+| **geo (11-axis)** | **0.2346** | **0.2347**     | **+0.04%** |
+| **cum_rf (paper §IV-C)** | **-0.0917** | **-0.0917** | **0 (4 dp)** |
+| cum_rf_LS1 | -0.0607          | -0.0606             | +0.1% |
+| cum_rf_LS2 | -0.0311          | -0.0311             | 0 |
+
+**Both metrics confirm bit-identical**: phi_h adds zero on geo AND
+zero on cum_rf (sub-noise). This is a stronger result than single-
+metric would give — phi_h is ruled out on **paper's own metric too**,
+not just on the project's 11-axis. (CLM-0430 audit-consistent.)
 
 Difference between adding phi_h=0.0056 (paper-effective scaling for
 r_h inertia smoothing) vs not is **well below 1.5% eval noise**.

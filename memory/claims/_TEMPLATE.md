@@ -18,6 +18,17 @@ tags: [<key>, <words>, <for-query>]
 # metric:
 #   name: 6_axis      # or settling_s, max_df_Hz, etc.
 #   value: 0.334      # numeric, NOT bool
+#
+# ⚠️ DUAL-METRIC POLICY (CLM-0430 audit, 2026-05-20)
+# For any paper-reward-ablation / paper-Eq.14 / gauge-invariance
+# claim, the statement body MUST cite BOTH `geo` (project 11-axis
+# v3.1 ranker) AND `cum_rf` (paper Yang2023 §IV-C metric). The two
+# can disagree (R246 was -28% on estimated-baseline geo but only
+# -4.4% on cum_rf when measured); single-metric framing reproduces
+# the CLM-0027/CLM-0430 failure mode. Lint:
+#   python memory/tools/dual_metric_lint.py [--claim CLM-NNNN]
+# Find the measured baseline (don't extrapolate from cross-algo ratios):
+#   python memory/tools/baselines.py --match <ref_run> --sort geo
 # Optional supersede chain (if this claim replaces an older one).
 # supersedes: [CLM-XXXX]
 # Optional obsoletion (if external change rendered the claim stale

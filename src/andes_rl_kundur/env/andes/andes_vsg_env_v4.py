@@ -365,6 +365,15 @@ class AndesMultiVSGEnvV4(AndesBaseEnv):
                 ss.GENROU.set("M", self._g4_genrou_idx, 0.1, attr="v")
                 ss.GENROU.set("D", self._g4_genrou_idx, 0.0, attr="v")
 
+        # R114/CLM-0194 — optionally disable the ANDES default Toggler that
+        # trips Line_8 at t=2s. Off by default (preserves R57-R85 behaviour
+        # + all parallel rounds' ckpts). Set env var DISABLE_TOGGLER=1 to
+        # train/eval on the cleaner single-event paper-faithful scenario.
+        if os.environ.get("DISABLE_TOGGLER", "0") == "1":
+            if hasattr(ss, "Toggler") and ss.Toggler.n > 0:
+                for tog_idx in list(ss.Toggler.idx.v):
+                    ss.Toggler.set("u", tog_idx, 0.0, attr="v")
+
         return ss
 
     def _pre_setup_addons(self, ss) -> None:

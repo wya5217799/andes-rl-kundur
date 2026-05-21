@@ -61,9 +61,11 @@ def aggregate_scores(
     Empty input is handled gracefully: ``n_seeds=0`` with ``None`` for
     every aggregate so the result JSON is well-formed.
     """
+    from andes_rl_kundur.evaluation.paper_grade_axes import RANKER_VERSION
     geos = [rec["geo"] for rec in per_seed.values()]
     if not geos:
         return {
+            "ranker_version": RANKER_VERSION,
             "n_seeds": 0,
             "mean_geo": None,
             "min_geo": None,
@@ -71,7 +73,12 @@ def aggregate_scores(
             "std_geo": None,
             "per_seed": dict(per_seed),
         }
+    # Import here (not module top) so a stale circular-import does not
+    # break older callers that only need ``aggregate_scores`` without the
+    # ranker module loaded.
+    from andes_rl_kundur.evaluation.paper_grade_axes import RANKER_VERSION
     out: dict[str, Any] = {
+        "ranker_version": RANKER_VERSION,
         "n_seeds": len(geos),
         "mean_geo": sum(geos) / len(geos),
         "min_geo": min(geos),
@@ -102,21 +109,63 @@ def _seed_from_ckpt_dir(ckpt_dir: Path) -> int:
     return int(suffix) if suffix.isdigit() else 0
 
 
+def _derive_label(ckpt_dirs: list[Path]) -> str:
+    """Auto-derive ``--label`` from the single ckpt dir's name when the
+    caller didn't pass one. Mirrors the historical convention: drop the
+    trailing ``_s<seed>`` suffix so the label is config-only.
+
+    Example: ``results/r239_w1_scalar_onlyphiabs_s54`` → ``r239_w1_scalar_onlyphiabs``.
+
+    Refuses to guess when more than one ckpt dir is passed — multi-seed
+    aggregation always needs an explicit label so the summary.json file
+    is named meaningfully (not after one arbitrary seed's dir).
+    """
+    if len(ckpt_dirs) != 1:
+        raise ValueError(
+            f"--label is required for multi-ckpt-dir runs "
+            f"(got {len(ckpt_dirs)} dirs); cannot auto-derive."
+        )
+    name = ckpt_dirs[0].name
+    return name.rsplit("_s", 1)[0] if "_s" in name else name
+
+
+def _derive_out_dir(ckpt_dirs: list[Path]) -> Path:
+    """Default out-dir = the single ckpt dir itself, so
+    ``<label>_summary.json`` lands alongside the trace JSONs the same
+    train.py wrote (this is what every R200+ verdict has been doing
+    manually). Falls back to ``results/research_loop/eval_v4_baseline``
+    for multi-ckpt-dir aggregations where there's no obvious home.
+    """
+    if len(ckpt_dirs) == 1:
+        return ckpt_dirs[0]
+    return ROOT / "results" / "research_loop" / "eval_v4_baseline"
+
+
 def _main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("--label", required=True, help="Run label prefix")
+    parser.add_argument("--label", default=None,
+                        help="Run label prefix. Auto-derived from single "
+                             "--ckpt-dirs name (stripping _s<seed>) when omitted.")
     parser.add_argument(
         "--ckpt-dirs", nargs="+", type=Path, required=True,
         help="One or more results/<config>_s<seed>/ dirs",
     )
     parser.add_argument(
-        "--out-dir", type=Path,
-        default=ROOT / "results" / "research_loop" / "eval_v4_baseline",
+        "--out-dir", type=Path, default=None,
+        help="Where to write <label>_summary.json. Defaults to the "
+             "single ckpt-dir itself; falls back to "
+             "results/research_loop/eval_v4_baseline for multi-dir aggregates.",
     )
     parser.add_argument("--suffix", default="best")
     parser.add_argument("--seed", type=int, default=42, help="Env seed")
     parser.add_argument("--steps", type=int, default=150)
     args = parser.parse_args()
+    # Apply smart defaults (CLM-0430 audit follow-up: reduce CLI footgun
+    # that contributed to skipped scoring in this session)
+    if args.label is None:
+        args.label = _derive_label(args.ckpt_dirs)
+    if args.out_dir is None:
+        args.out_dir = _derive_out_dir(args.ckpt_dirs)
 
     per_seed: dict[int, dict[str, float]] = {}
     for ckpt_dir in args.ckpt_dirs:

@@ -46,6 +46,7 @@ from andes_rl_kundur.agents.td3_transformer import TD3TransformerAgent  # noqa: 
 from andes_rl_kundur.agents.td3_lstm2 import TD3LSTM2Agent  # noqa: E402
 from andes_rl_kundur.agents.td3_lstm_hreg import TD3LSTMHRegAgent  # noqa: E402  # R100/R93+
 from andes_rl_kundur.agents.td3_qr_lstm import TD3QRLstmAgent  # noqa: E402  # R98/R108 — CLM-0157(a)
+from andes_rl_kundur.agents.td3_qr_lstm_hreg import TD3QRLstmHRegAgent  # noqa: E402  # R183 — QR + hreg stack
 from andes_rl_kundur.agents.td3_afe_lstm import TD3AfeLstmAgent  # noqa: E402  # R98/R108 — CLM-0157(b)
 from andes_rl_kundur.agents.td3_qr_afe_lstm import TD3QRAfeLstmAgent  # noqa: E402  # R125 — stacked (a)+(b)
 from andes_rl_kundur.agents.td3_lstm_warmh0 import TD3LSTMWarmH0Agent  # noqa: E402  # R107/R109/R125 — Q-0022 warm h_0
@@ -88,7 +89,7 @@ def parse_args() -> argparse.Namespace:
                    help="What to copy from --warmstart-shared.")
 
     # Algorithm selection
-    p.add_argument("--algo", choices=["sac", "td3", "td3_lstm", "td3_transformer", "td3_lstm2", "td3_lstm_hreg", "td3_qr_lstm", "td3_afe_lstm", "td3_qr_afe_lstm", "td3_lstm_warmh0", "td3_warmh0_qr_afe_lstm", "td3_warmh0_qr_lstm"], default="sac",
+    p.add_argument("--algo", choices=["sac", "td3", "td3_lstm", "td3_transformer", "td3_lstm2", "td3_lstm_hreg", "td3_qr_lstm", "td3_qr_lstm_hreg", "td3_afe_lstm", "td3_qr_afe_lstm", "td3_lstm_warmh0", "td3_warmh0_qr_afe_lstm", "td3_warmh0_qr_lstm"], default="sac",
                    help="Per-agent RL algorithm. 'sac' (default) uses "
                         "entropy-regularized soft AC; 'td3' uses "
                         "deterministic policy + target smoothing + delayed "
@@ -328,7 +329,7 @@ def build_agents(
     N = AndesMultiVSGEnvV4.N_AGENTS
     coordinator: CTDECoordinator | None = None
 
-    if args.ctde and args.algo in ("td3", "td3_lstm", "td3_transformer", "td3_lstm2", "td3_lstm_hreg", "td3_qr_lstm", "td3_afe_lstm", "td3_qr_afe_lstm", "td3_lstm_warmh0", "td3_warmh0_qr_afe_lstm", "td3_warmh0_qr_lstm"):
+    if args.ctde and args.algo in ("td3", "td3_lstm", "td3_transformer", "td3_lstm2", "td3_lstm_hreg", "td3_qr_lstm", "td3_qr_lstm_hreg", "td3_afe_lstm", "td3_qr_afe_lstm", "td3_lstm_warmh0", "td3_warmh0_qr_afe_lstm", "td3_warmh0_qr_lstm"):
         raise ValueError(
             f"--ctde is SAC-only; pass --algo sac or drop --ctde "
             f"(got --algo {args.algo})"
@@ -523,6 +524,39 @@ def build_agents(
                 seq_len=25, burn_in=5,
                 lr_warmup_eps=warmup_eps,
                 n_quantiles=n_quantiles,
+            )
+            for _ in range(N)
+        ]
+    elif args.algo == "td3_qr_lstm_hreg":
+        # R183 — Stacked TD3+LSTM+QR critic + actor hidden-norm regulariser.
+        # Combines R142/R143 distributional Q with R174 hreg λ=0.002 sweet spot.
+        qrh_batch_size = 32
+        qrh_capacity_episodes = 200
+        if os.environ.get("LSTM_LR_UNCLAMP") == "1":
+            qrh_lr = lr
+        else:
+            qrh_lr = min(lr, 1e-4)
+        warmup_eps = getattr(args, "lstm_lr_warmup_eps", 0) or 0
+        warmup_note = f" warmup_eps={warmup_eps}" if warmup_eps > 0 else ""
+        n_quantiles = int(getattr(args, "qr_n_quantiles", 51))
+        h_lambda = float(getattr(args, "h_norm_reg", 0.002))
+        print(
+            f"[algo] TD3+LSTM+QR+HReg — distributional N={n_quantiles} "
+            f"quantiles + actor h-norm L2 λ_h={h_lambda}, "
+            f"hidden={hidden_sizes[0]}, lr={qrh_lr}{warmup_note}"
+        )
+        agents = [
+            TD3QRLstmHRegAgent(
+                obs_dim=obs_dim, action_dim=action_dim,
+                hidden_sizes=hidden_sizes,
+                lr=qrh_lr, gamma=gamma, tau=tau,
+                buffer_size=qrh_capacity_episodes,
+                batch_size=qrh_batch_size,
+                device=device,
+                seq_len=25, burn_in=5,
+                lr_warmup_eps=warmup_eps,
+                n_quantiles=n_quantiles,
+                h_norm_reg_lambda=h_lambda,
             )
             for _ in range(N)
         ]
@@ -746,7 +780,7 @@ def apply_warmstart_shared(agents: list, args: argparse.Namespace) -> None:
     """Copy one shared-actor checkpoint into every agent."""
     if not args.warmstart_shared:
         return
-    if args.algo in ("td3_lstm", "td3_transformer", "td3_lstm2", "td3_lstm_hreg", "td3_qr_lstm", "td3_afe_lstm", "td3_qr_afe_lstm", "td3_lstm_warmh0", "td3_warmh0_qr_afe_lstm", "td3_warmh0_qr_lstm"):
+    if args.algo in ("td3_lstm", "td3_transformer", "td3_lstm2", "td3_lstm_hreg", "td3_qr_lstm", "td3_qr_lstm_hreg", "td3_afe_lstm", "td3_qr_afe_lstm", "td3_lstm_warmh0", "td3_warmh0_qr_afe_lstm", "td3_warmh0_qr_lstm"):
         # RecurrentActor / TransformerActor state_dict has different keys
         # from GaussianActor. Cross-architecture warmstart is undefined;
         # refuse explicitly rather than silently fail.

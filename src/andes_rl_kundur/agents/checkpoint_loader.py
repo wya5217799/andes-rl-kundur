@@ -17,10 +17,16 @@ from pathlib import Path
 import torch
 
 from andes_rl_kundur.agents.sac import SACAgent
+from andes_rl_kundur.agents.sac_ctde import SACAgentCTDE
 from andes_rl_kundur.agents.td3 import TD3Agent
+from andes_rl_kundur.agents.td3_afe_lstm import TD3AfeLstmAgent
 from andes_rl_kundur.agents.td3_lstm import TD3LSTMAgent
+from andes_rl_kundur.agents.td3_qr_afe_lstm import TD3QRAfeLstmAgent
+from andes_rl_kundur.agents.td3_qr_lstm import TD3QRLstmAgent
+from andes_rl_kundur.agents.td3_qr_lstm_hreg import TD3QRLstmHRegAgent  # R184 stacked
 from andes_rl_kundur.agents.td3_transformer import TD3TransformerAgent
 from andes_rl_kundur.agents.td3_lstm2 import TD3LSTM2Agent
+from andes_rl_kundur.agents.td3_warmh0_qr_afe_lstm import TD3WarmH0QRAfeLstmAgent
 from andes_rl_kundur.config import HIDDEN_SIZES
 from andes_rl_kundur.env.andes.andes_vsg_env_v4 import AndesMultiVSGEnvV4
 
@@ -35,8 +41,16 @@ LSTM_GATE_COUNT = 4
 
 def detect_algo(ckpt_path: Path) -> str:
     """Inspect the ckpt's self-described ``algo`` field. Defaults to ``"sac"``
-    for pre-2026-05-17 ckpts that don't carry the field."""
+    for pre-2026-05-17 ckpts that don't carry the field.
+
+    R165 patch: CTDE ckpts (saved by ``SACAgentCTDE``) carry ``ctde=True``
+    flag and lack a ``critic`` key (centralized critic stored separately
+    in ``ctde_critic.pt``). We return ``"sac_ctde"`` for these to route
+    the loader to a CTDE-aware actor-only construction.
+    """
     ckpt = torch.load(ckpt_path, map_location="cpu", weights_only=True)
+    if ckpt.get("ctde", False):
+        return "sac_ctde"
     return ckpt.get("algo", "sac")
 
 
@@ -145,6 +159,72 @@ def load_agents(
                 obs_dim=obs_dim, action_dim=action_dim,
                 hidden_sizes=hidden_sizes, device=device,
             )
+        elif algo == "td3_lstm_hreg":
+            # R100/R93+ — TD3+LSTM with actor hidden-state-norm L2 penalty.
+            # Hparam ``h_norm_reg_lambda`` recovered from ckpt if present.
+            from andes_rl_kundur.agents.td3_lstm_hreg import TD3LSTMHRegAgent
+            ckpt = torch.load(ckpt_path, map_location="cpu", weights_only=True)
+            hparams = ckpt.get("hparams", {})
+            agent = TD3LSTMHRegAgent(
+                obs_dim=obs_dim, action_dim=action_dim,
+                hidden_sizes=hidden_sizes, device=device,
+                h_norm_reg_lambda=float(hparams.get("h_norm_reg_lambda", 0.01)),
+            )
+        elif algo == "td3_lstm_warmh0":
+            # R96/R107/R109 — TD3+LSTM with learnable warm-h_0 MLP head.
+            from andes_rl_kundur.agents.td3_lstm_warmh0 import TD3LSTMWarmH0Agent
+            agent = TD3LSTMWarmH0Agent(
+                obs_dim=obs_dim, action_dim=action_dim,
+                hidden_sizes=hidden_sizes, device=device,
+            )
+        elif algo == "td3_warmh0_qr_lstm":
+            # R150 — WarmH0 actor + QR critic (no AFE).
+            from andes_rl_kundur.agents.td3_warmh0_qr_lstm import TD3LSTMWarmH0QRAgent
+            ckpt = torch.load(ckpt_path, map_location="cpu", weights_only=True)
+            hparams = ckpt.get("hparams", {})
+            agent = TD3LSTMWarmH0QRAgent(
+                obs_dim=obs_dim, action_dim=action_dim,
+                hidden_sizes=hidden_sizes, device=device,
+                n_quantiles=int(hparams.get("n_quantiles", 51)),
+            )
+        elif algo == "td3_qr_lstm":
+            ckpt = torch.load(ckpt_path, map_location="cpu", weights_only=True)
+            hparams = ckpt.get("hparams", {})
+            agent = TD3QRLstmAgent(
+                obs_dim=obs_dim, action_dim=action_dim,
+                hidden_sizes=hidden_sizes, device=device,
+                n_quantiles=int(hparams.get("n_quantiles", 51)),
+            )
+        elif algo == "td3_qr_lstm_hreg":
+            ckpt = torch.load(ckpt_path, map_location="cpu", weights_only=True)
+            hparams = ckpt.get("hparams", {})
+            agent = TD3QRLstmHRegAgent(
+                obs_dim=obs_dim, action_dim=action_dim,
+                hidden_sizes=hidden_sizes, device=device,
+                n_quantiles=int(hparams.get("n_quantiles", 51)),
+                h_norm_reg_lambda=float(hparams.get("h_norm_reg_lambda", 0.002)),
+            )
+        elif algo == "td3_afe_lstm":
+            agent = TD3AfeLstmAgent(
+                obs_dim=obs_dim, action_dim=action_dim,
+                hidden_sizes=hidden_sizes, device=device,
+            )
+        elif algo == "td3_qr_afe_lstm":
+            ckpt = torch.load(ckpt_path, map_location="cpu", weights_only=True)
+            hparams = ckpt.get("hparams", {})
+            agent = TD3QRAfeLstmAgent(
+                obs_dim=obs_dim, action_dim=action_dim,
+                hidden_sizes=hidden_sizes, device=device,
+                n_quantiles=int(hparams.get("n_quantiles", 51)),
+            )
+        elif algo == "td3_warmh0_qr_afe_lstm":
+            ckpt = torch.load(ckpt_path, map_location="cpu", weights_only=True)
+            hparams = ckpt.get("hparams", {})
+            agent = TD3WarmH0QRAfeLstmAgent(
+                obs_dim=obs_dim, action_dim=action_dim,
+                hidden_sizes=hidden_sizes, device=device,
+                n_quantiles=int(hparams.get("n_quantiles", 51)),
+            )
         elif algo == "td3_lstm2":
             ckpt = torch.load(ckpt_path, map_location="cpu", weights_only=True)
             hparams = ckpt.get("hparams", {})
@@ -163,6 +243,16 @@ def load_agents(
                 window_k=int(hparams.get("window_k", 10)),
                 n_heads=int(hparams.get("n_heads", 4)),
                 n_layers=int(hparams.get("n_layers", 1)),
+            )
+        elif algo == "sac_ctde":
+            # R165 patch: actor-only load for CTDE ckpts.
+            # The centralized critic lives in ctde_critic.pt; for inference
+            # (ensemble eval) we only need the actor + alpha. Constructing
+            # SACAgentCTDE without a coordinator works because select_action
+            # only uses self.actor.
+            agent = SACAgentCTDE(
+                obs_dim=obs_dim, action_dim=action_dim,
+                hidden_sizes=hidden_sizes, device=device,
             )
         else:
             agent = SACAgent(

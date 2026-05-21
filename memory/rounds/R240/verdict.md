@@ -26,12 +26,29 @@ LR=1e-4 python scripts/train.py --algo td3_lstm \
     --save-dir results/r240_w1_scalar_paperstrict_s54
 ```
 
-## Complete 2×2 algo × reward matrix at s54 — CLOSED
+## Complete 2×2 algo × reward matrix at s54 — CLOSED (DUAL-METRIC, CLM-0430 audit)
+
+geo (11-axis v3.1):
 
 | Algo   | Full reward     | Only phi_abs        | Paper-strict        |
 |--------|------------------|---------------------|---------------------|
 | hreg   | 0.4152 (R201 SOTA) | 0.4128 (R238, -0.6%) | **0.010 (R218 COLLAPSE)** |
 | scalar | 0.391 (R72_w4)   | 0.3954 (R239, +1.1%) | **0.010 (R240 COLLAPSE)** |
+
+cum_rf (paper Yang2023 §IV-C, NEWLY-AUDITED 2026-05-20):
+
+| Algo   | Full reward     | Only phi_abs        | Paper-strict        |
+|--------|------------------|---------------------|---------------------|
+| hreg   | -0.0692 (R201 ref) | -0.0716 (R238, **-3.5%**) | **-0.1833 (R218, -165%)** |
+| scalar | (R72_w4 no summary) | -0.0694 (R239) | **-0.1829 (R240, -164%)** |
+
+**Cross-metric reading**:
+- Paper-strict collapse robust on BOTH metrics (gauge invariance unaffected).
+- Only-phi_abs ~vestigial on geo (±1.1%) but **3.5% worse on cum_rf**
+  for hreg s54. paper Eq.14 r_f IS doing sync work.
+- R201 vs R239 cum_rf nearly identical (-0.0692 vs -0.0694) →
+  scalar+only-phi_abs achieves hreg+full cum_rf at s54 by coincidence
+  of basin; not a general property (see R241/R249 -3 to -6% pattern).
 
 **Decisive pattern**:
 - Paper-strict (no phi_abs) → COLLAPSE on BOTH algorithms
