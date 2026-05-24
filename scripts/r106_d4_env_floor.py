@@ -49,8 +49,8 @@ from andes_rl_kundur.evaluation.paper_path import (  # noqa: E402
 from andes_rl_kundur.evaluation.summary import score_trace_files  # noqa: E402
 from andes_rl_kundur.probes.andes_common.paper_constants import (  # noqa: E402
     LS1_DELTA_U,
-    LS2_DELTA_U,
     LS1_NAME,
+    LS2_DELTA_U,
     LS2_NAME,
 )
 
@@ -207,13 +207,13 @@ def main() -> int:
 
     (OUT_DIR / "summary.json").write_text(json.dumps(summary, indent=2))
 
-    print(f"\n[R106-D4] ─── VERDICT ───")
+    print("\n[R106-D4] ─── VERDICT ───")
     print(f"  gate: {gate}")
     print(f"  {interp}\n")
     print(f"  geo distribution: mean={geos.mean():.4f}  median={np.median(geos):.4f}  "
           f"σ={geos.std():.4f}  range [{geos.min():.4f}, {geos.max():.4f}]  cv={cv_geo:.3f}")
     print(f"  cum_rf  mean = {cum_rfs.mean():+.4f}  range [{cum_rfs.min():+.4f}, {cum_rfs.max():+.4f}]")
-    print(f"\n  Per-scale geo:")
+    print("\n  Per-scale geo:")
     for p in per_scale:
         f = p['magnitude_scale']
         g = p.get('geo') if p.get('geo') is not None else float('nan')

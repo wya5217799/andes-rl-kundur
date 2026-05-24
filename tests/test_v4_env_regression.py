@@ -24,6 +24,18 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
+
+def _real_andes_available() -> bool:
+    try:
+        import andes
+    except ModuleNotFoundError:
+        return False
+    return callable(getattr(andes, "get_case", None))
+
+
+if not _real_andes_available():
+    pytest.skip("real ANDES is WSL-only; run V4 env tests under WSL", allow_module_level=True)
+
 from andes_rl_kundur.env.andes.andes_vsg_env_v4 import AndesMultiVSGEnvV4  # noqa: E402
 from andes_rl_kundur.probes.andes_common.paper_constants import SCENARIOS  # noqa: E402
 

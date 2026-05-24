@@ -24,7 +24,6 @@ if "andes" not in sys.modules:
 
 from andes_rl_kundur.agents.checkpoint_loader import load_agents  # noqa: E402
 
-
 CKPT_SET: list[tuple[str, str]] = [
     ("r72_w4_lstm_tau001_warmup5_s54",    "r72_w4_lstm_s54_SOTA"),
     ("r58_paper_strict_pure_td3_lstm_s49", "r58_lstm_s49"),

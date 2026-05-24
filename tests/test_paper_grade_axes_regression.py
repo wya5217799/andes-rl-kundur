@@ -27,6 +27,8 @@ sys.path.insert(0, str(ROOT / "src"))
 
 from andes_rl_kundur.evaluation.paper_grade_axes import (  # noqa: E402
     PAPER as RANKER_PAPER,
+)
+from andes_rl_kundur.evaluation.paper_grade_axes import (  # noqa: E402
     PaperBenchmark,
     evaluate_trace,
 )

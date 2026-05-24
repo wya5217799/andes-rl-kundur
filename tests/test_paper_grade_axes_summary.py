@@ -15,9 +15,9 @@ from __future__ import annotations
 import pytest
 
 from andes_rl_kundur.evaluation.paper_grade_axes import (
+    _SCORE_BAR_WIDTH,
     AxisScore,
     TraceScore,
-    _SCORE_BAR_WIDTH,
 )
 
 

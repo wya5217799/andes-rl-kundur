@@ -50,7 +50,6 @@ from andes_rl_kundur.agents.checkpoint_loader import load_agents  # noqa: E402
 from andes_rl_kundur.env.andes.andes_vsg_env_v4 import AndesMultiVSGEnvV4  # noqa: E402
 from andes_rl_kundur.probes.andes_common.paper_constants import SCENARIOS  # noqa: E402
 
-
 # ─── Config ───────────────────────────────────────────────────────────
 SOTA_DIR = ROOT / "results" / "r72_w4_lstm_tau001_warmup5_s54"
 OUT_DIR = ROOT / "results" / "r84_d2b_q_landscape_trajectory"
@@ -127,7 +126,6 @@ def run_one_scenario(scen_name: str, delta_u: dict, agents: list) -> list[dict]:
         env.seed(ENV_SEED)
         env.STEPS_PER_EPISODE = STEPS
         obs = env.reset(delta_u=delta_u)
-        n_agents = env.N_AGENTS
 
         h_actor = [ag.actor.init_hidden(1, DEVICE) for ag in agents]
         h_critic = [ag.critic.init_hidden(1, DEVICE) for ag in agents]
@@ -312,7 +310,7 @@ def main() -> int:
     (OUT_DIR / "summary.json").write_text(json.dumps(summary, indent=2))
     (OUT_DIR / "per_step.json").write_text(json.dumps(all_records, indent=2))
 
-    print(f"\n[R84-D2b] ─── VERDICT ───")
+    print("\n[R84-D2b] ─── VERDICT ───")
     print(f"  gate: {gate}")
     print(f"  {interpretation}")
     print()

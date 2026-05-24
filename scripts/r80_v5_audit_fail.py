@@ -15,8 +15,8 @@ import numpy as np
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from andes_rl_kundur.env.andes.andes_vsg_env_v5 import AndesMultiVSGEnvV5
-from andes_rl_kundur.env.andes.v5_config import V5Config
+from andes_rl_kundur.env.andes.andes_vsg_env_v5 import AndesMultiVSGEnvV5  # noqa: E402
+from andes_rl_kundur.env.andes.v5_config import V5Config  # noqa: E402
 
 
 def main():

@@ -173,8 +173,8 @@ def test_run_scenario_forwards_config_to_env(monkeypatch):
     AndesMultiVSGEnvV4 constructor — replaces the R44-β inline-script
     workaround for paper-faithful G4 / lambda_smooth / R03 obs experiments.
     """
-    from andes_rl_kundur.evaluation import paper_path
     from andes_rl_kundur.env.andes.v4_config import V4Config
+    from andes_rl_kundur.evaluation import paper_path
 
     captured: dict[str, object] = {}
     fake_env = _FakeEnv()

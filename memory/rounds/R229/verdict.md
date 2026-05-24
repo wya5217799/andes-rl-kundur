@@ -33,9 +33,14 @@ Test if gamma-insensitivity is hreg-specific. R230 = scalar (no hreg)
 at gamma=0.95. If scalar is more gamma-sensitive than hreg, that's
 another robustness contribution.
 
-## Questions opened / closed / advanced
+## Questions opened (this round)
+- (none)
 
-(none)
+## Questions closed (this round)
+- (none)
+
+## Questions advanced (this round, status unchanged)
+- (none)
 
 ## 给 PI 的话
 

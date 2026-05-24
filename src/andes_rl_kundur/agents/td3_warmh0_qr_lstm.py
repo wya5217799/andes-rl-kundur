@@ -32,7 +32,6 @@ import torch.optim as optim
 from andes_rl_kundur.agents.networks import HiddenState
 from andes_rl_kundur.agents.networks_critic_variants import (
     N_QUANTILES_DEFAULT,
-    RecurrentQRDoubleQCritic,
     quantile_huber_loss,
 )
 from andes_rl_kundur.agents.networks_warmh0 import WarmH0RecurrentActor

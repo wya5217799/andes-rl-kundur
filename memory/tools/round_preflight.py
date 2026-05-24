@@ -64,8 +64,8 @@ _THIS_DIR = Path(__file__).resolve().parent
 _ROOT = _THIS_DIR.parents[1]
 sys.path.insert(0, str(_THIS_DIR))
 
+from baselines import scan_baselines  # noqa: E402
 from validate import load_claims  # noqa: E402
-from baselines import scan_baselines, find_matching_configs  # noqa: E402
 
 
 @dataclass
@@ -154,7 +154,7 @@ def check_superseded_citations(report: PreflightReport, plan_text: str,
         if c is None:
             report.add("WARN", "missing-clm",
                        f"plan cites {cid} but it doesn't exist in memory/claims/",
-                       f"verify the ID; if you meant a sibling, fix the citation")
+                       "verify the ID; if you meant a sibling, fix the citation")
             continue
         if c.get("status") == "superseded":
             successors = c.get("superseded_by") or []
@@ -213,7 +213,7 @@ def check_baselines_measured(report: PreflightReport, plan_text: str,
                 report.add("WARN", "single-metric-baseline",
                            f"baseline '{run}' has geo={r.geo} but cum_rf is "
                            f"missing (incomplete summary)",
-                           f"re-score to get cum_rf for dual-metric comparison")
+                           "re-score to get cum_rf for dual-metric comparison")
 
     # Heuristic: warn if plan says "estimated" / "extrapolated" anywhere
     if re.search(r"\b(estimated|extrapolated|inferred from)\b",
@@ -316,8 +316,8 @@ def check_prior_art(report: PreflightReport, plan_text: str,
     rel_str = ", ".join(f"{cid} ({n} kw)" for n, cid, _ in top)
     report.add("INFO", "prior-art",
                f"Possibly relevant prior claims (not cited in plan): {rel_str}",
-               f"read these and add citations where relevant. This catches "
-               f"the 'autonomous loop forgot CLM-0101' failure mode (R244 SAC).")
+               "read these and add citations where relevant. This catches "
+               "the 'autonomous loop forgot CLM-0101' failure mode (R244 SAC).")
 
 
 # ── Check 5: plan-quality structural ──────────────────────────────────

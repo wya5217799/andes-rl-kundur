@@ -40,7 +40,7 @@ class Check(Protocol):
 
     def run(
         self,
-        monitor: "TrainingMonitor",
+        monitor: TrainingMonitor,
         episode: dict[str, Any],
     ) -> CheckResult:
         ...

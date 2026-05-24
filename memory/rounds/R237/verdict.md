@@ -49,9 +49,14 @@ Ultimate test: phi_h=phi_d=phi_f=0, only phi_abs=50. If this works
 (geo ≥ 0.40), it proves phi_abs ALONE is sufficient. Cleanest single
 experiment to support the paper claim.
 
-## Questions opened / closed / advanced
+## Questions opened (this round)
+- (none)
 
-(none — but paper-integrity story now decisive)
+## Questions closed (this round)
+- (none)
+
+## Questions advanced (this round, status unchanged)
+- none — but paper-integrity story now decisive
 
 ## 给 PI 的话
 

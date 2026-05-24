@@ -1,8 +1,8 @@
 """Tests for reserve_claim.py — atomic CLM-NNNN minting."""
 from __future__ import annotations
 
-from pathlib import Path
 import sys
+from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from reserve_claim import (  # noqa: E402

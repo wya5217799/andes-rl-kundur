@@ -91,9 +91,6 @@ def capture_rollout(scen_name: str, delta_u: dict, agents: list, is_recurrent: b
             for ag in agents:
                 if getattr(ag, "is_recurrent", False):
                     ag.begin_episode()
-            h_actor = [ag.actor.init_hidden(1, DEVICE) for ag in agents]
-        else:
-            h_actor = [None] * n_agents
 
         for step in range(STEPS):
             actions: dict[int, np.ndarray] = {}
@@ -303,7 +300,7 @@ def evaluate_ckpt(ckpt_name: str, label: str, suffix: str, is_recurrent: bool) -
 def main() -> int:
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     t0 = time.time()
-    results = [evaluate_ckpt(c, l, s, r) for c, l, s, r in CKPT_LIST]
+    results = [evaluate_ckpt(ckpt, label, seed, run_name) for ckpt, label, seed, run_name in CKPT_LIST]
 
     # Universal check
     g099 = [

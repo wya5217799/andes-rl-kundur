@@ -126,9 +126,9 @@ def main() -> None:
     fig, ax = plt.subplots(figsize=(5.5, 3.5))
     for ai in range(4):
         ax.plot(sota_data[ai]["h_norms"], color="C3", lw=1.0, alpha=0.7,
-                label=f"R72_w4 SOTA" if ai == 0 else None)
+                label="R72_w4 SOTA" if ai == 0 else None)
         ax.plot(hreg_data[ai]["h_norms"], color="C2", lw=1.0, alpha=0.7,
-                label=f"R100 hreg λ=0.01" if ai == 0 else None)
+                label="R100 hreg λ=0.01" if ai == 0 else None)
     ax.set_xlabel("step")
     ax.set_ylabel("||h_actor(t)||")
     ax.set_title("LSTM hidden-state drift under obs = 0 stream (4 agents)")
@@ -145,10 +145,10 @@ def main() -> None:
     sota_sat = np.mean([(np.abs(d["actions"]) > 0.95).mean() for d in sota_data])
     hreg_sat = np.mean([(np.abs(d["actions"]) > 0.95).mean() for d in hreg_data])
 
-    print(f"\n=== R100 capstone figure stats ===")
+    print("\n=== R100 capstone figure stats ===")
     print(f"R72_w4 SOTA:  median max-||h||={sota_h_max:.2f}, action saturation={sota_sat*100:.1f}%")
     print(f"R100 hreg:    median max-||h||={hreg_h_max:.2f}, action saturation={hreg_sat*100:.1f}%")
-    print(f"\nWritten:")
+    print("\nWritten:")
     print(f"  {OUT}/action_compare.pdf + .png")
     print(f"  {OUT}/h_norm_compare.pdf + .png")
 

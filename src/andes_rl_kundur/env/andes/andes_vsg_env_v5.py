@@ -22,11 +22,9 @@ Framing 是 paper-deviation. 详 docs/adr/0004-v5-env-regca1-plant-paper-deviati
 from __future__ import annotations
 
 import andes
-import numpy as np
 
 from .andes_vsg_env_v4 import AndesMultiVSGEnvV4
 from .v5_config import V5Config
-
 
 # ANDES kundur_full.xlsx 里 G4 在 bus 4, GENROU idx=4. 这是 ANDES case
 # 编号, 不是 paper Fig.3 拓扑图的 "bus 11". V4 env 同样用 idx=4 直接
@@ -160,7 +158,6 @@ class AndesMultiVSGEnvV5(AndesMultiVSGEnvV4):
         # ─── G4 链跟 V4 一样: IEEEG1+EXST1 加到所有 GENROU (含 G4) ─────
         # 这里 _pre_setup_addons 跑 V4 行为 (skip_g4_gov=False), 因为
         # w2_only 模式下 G4 GENROU 仍 active, 跟 V4 一致 governor 链
-        skip_g4_gov_saved = self.config.wind_model == "regca1"
         # 临时把 wind_model 解释为 gencls 让 _pre_setup_addons 走 V4 路径,
         # 实际我们直接调 V4 的 super()._pre_setup_addons 更干净
         AndesMultiVSGEnvV4._pre_setup_addons(self, ss)

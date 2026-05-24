@@ -29,6 +29,7 @@ import os
 import sys
 import time
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import numpy as np
 import torch
@@ -41,23 +42,47 @@ from andes_rl_kundur.agents.episode_result import EpisodeResult  # noqa: E402
 from andes_rl_kundur.agents.sac import SACAgent  # noqa: E402
 from andes_rl_kundur.agents.sac_ctde import CTDECoordinator, SACAgentCTDE  # noqa: E402
 from andes_rl_kundur.agents.td3 import TD3Agent  # noqa: E402
+from andes_rl_kundur.agents.td3_afe_lstm import (  # noqa: E402
+    TD3AfeLstmAgent,  # noqa: E402  # R98/R108 — CLM-0157(b)
+)
 from andes_rl_kundur.agents.td3_lstm import TD3LSTMAgent  # noqa: E402
-from andes_rl_kundur.agents.td3_transformer import TD3TransformerAgent  # noqa: E402
 from andes_rl_kundur.agents.td3_lstm2 import TD3LSTM2Agent  # noqa: E402
 from andes_rl_kundur.agents.td3_lstm_hreg import TD3LSTMHRegAgent  # noqa: E402  # R100/R93+
-from andes_rl_kundur.agents.td3_qr_lstm import TD3QRLstmAgent  # noqa: E402  # R98/R108 — CLM-0157(a)
-from andes_rl_kundur.agents.td3_qr_lstm_hreg import TD3QRLstmHRegAgent  # noqa: E402  # R183 — QR + hreg stack
-from andes_rl_kundur.agents.td3_afe_lstm import TD3AfeLstmAgent  # noqa: E402  # R98/R108 — CLM-0157(b)
-from andes_rl_kundur.agents.td3_qr_afe_lstm import TD3QRAfeLstmAgent  # noqa: E402  # R125 — stacked (a)+(b)
-from andes_rl_kundur.agents.td3_lstm_warmh0 import TD3LSTMWarmH0Agent  # noqa: E402  # R107/R109/R125 — Q-0022 warm h_0
-from andes_rl_kundur.agents.td3_warmh0_qr_afe_lstm import TD3WarmH0QRAfeLstmAgent  # noqa: E402  # R130 — triple-stack
-from andes_rl_kundur.agents.td3_warmh0_qr_lstm import TD3LSTMWarmH0QRAgent  # noqa: E402  # R150 — warmh0+QR (no AFE)
-from andes_rl_kundur.env.andes.andes_vsg_env_v4 import AndesMultiVSGEnvV4  # noqa: E402
+from andes_rl_kundur.agents.td3_lstm_warmh0 import (  # noqa: E402
+    TD3LSTMWarmH0Agent,  # noqa: E402  # R107/R109/R125 — Q-0022 warm h_0
+)
+from andes_rl_kundur.agents.td3_qr_afe_lstm import (  # noqa: E402
+    TD3QRAfeLstmAgent,  # noqa: E402  # R125 — stacked (a)+(b)
+)
+from andes_rl_kundur.agents.td3_qr_lstm import (  # noqa: E402
+    TD3QRLstmAgent,  # noqa: E402  # R98/R108 — CLM-0157(a)
+)
+from andes_rl_kundur.agents.td3_qr_lstm_hreg import (  # noqa: E402
+    TD3QRLstmHRegAgent,  # noqa: E402  # R183 — QR + hreg stack
+)
+from andes_rl_kundur.agents.td3_transformer import TD3TransformerAgent  # noqa: E402
+from andes_rl_kundur.agents.td3_warmh0_qr_afe_lstm import (  # noqa: E402
+    TD3WarmH0QRAfeLstmAgent,  # noqa: E402  # R130 — triple-stack
+)
+from andes_rl_kundur.agents.td3_warmh0_qr_lstm import (  # noqa: E402
+    TD3LSTMWarmH0QRAgent,  # noqa: E402  # R150 — warmh0+QR (no AFE)
+)
 from andes_rl_kundur.env.andes.v4_config import V4Config  # noqa: E402
+from andes_rl_kundur.scenarios.contract import KUNDUR  # noqa: E402
 from andes_rl_kundur.scenarios.kundur.training_checks import (  # noqa: E402
     register_kundur_default_checks,
 )
 from andes_rl_kundur.utils.monitor import TrainingMonitor  # noqa: E402
+
+if TYPE_CHECKING:
+    from andes_rl_kundur.env.andes.andes_vsg_env_v4 import AndesMultiVSGEnvV4
+
+
+def _env_cls():
+    """Load the WSL-only ANDES env only when training actually starts."""
+    from andes_rl_kundur.env.andes.andes_vsg_env_v4 import AndesMultiVSGEnvV4
+
+    return AndesMultiVSGEnvV4
 
 # ─── CLI ───────────────────────────────────────────────────────────────
 
@@ -326,7 +351,7 @@ def build_agents(
     device: str,
 ) -> tuple[list, CTDECoordinator | None]:
     """Construct N actors (and optionally a shared CTDE critic)."""
-    N = AndesMultiVSGEnvV4.N_AGENTS
+    N = KUNDUR.n_agents
     coordinator: CTDECoordinator | None = None
 
     if args.ctde and args.algo in ("td3", "td3_lstm", "td3_transformer", "td3_lstm2", "td3_lstm_hreg", "td3_qr_lstm", "td3_qr_lstm_hreg", "td3_afe_lstm", "td3_qr_afe_lstm", "td3_lstm_warmh0", "td3_warmh0_qr_afe_lstm", "td3_warmh0_qr_lstm"):
@@ -838,7 +863,7 @@ def run_episode(
     ep_max_freq = 0.0
     ep_tds_failed = False
 
-    for step in range(AndesMultiVSGEnvV4.STEPS_PER_EPISODE):
+    for step in range(env.STEPS_PER_EPISODE):
         actions = {}
         for i in range(N):
             if total_steps < args.warmup:
@@ -978,14 +1003,15 @@ def main() -> None:
     os.makedirs(args.save_dir, exist_ok=True)
 
     # Env probe to read N_AGENTS / OBS_DIM consistently
-    N = AndesMultiVSGEnvV4.N_AGENTS
+    env_cls = _env_cls()
+    N = KUNDUR.n_agents
     obs_dim, include_action_obs = obs_dim_with_optional_action(
-        AndesMultiVSGEnvV4.OBS_DIM
+        KUNDUR.obs_dim
     )
     if include_action_obs:
         probe = "INCLUDE_TIME_OBS" if os.environ.get("INCLUDE_TIME_OBS", "0") == "1" else "INCLUDE_OWN_ACTION_OBS"
-        print(f"[obs] {probe}=1 -> obs_dim {AndesMultiVSGEnvV4.OBS_DIM} -> {obs_dim}")
-    action_dim = 2
+        print(f"[obs] {probe}=1 -> obs_dim {KUNDUR.obs_dim} -> {obs_dim}")
+    action_dim = KUNDUR.act_dim
 
     # SAC hyperparameters
     hidden_sizes = cfg.HIDDEN_SIZES
@@ -1045,7 +1071,7 @@ def main() -> None:
 
     try:
         for ep in range(args.episodes):
-            env = AndesMultiVSGEnvV4(
+            env = env_cls(
                 random_disturbance=True, comm_fail_prob=comm_fail,
                 config=env_config,
             )

@@ -21,7 +21,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from andes_rl_kundur.evaluation.final_eval import (
+from andes_rl_kundur.evaluation.final_eval import (  # noqa: E402
     pick_final_eval_suffix,
     run_final_eval,
 )

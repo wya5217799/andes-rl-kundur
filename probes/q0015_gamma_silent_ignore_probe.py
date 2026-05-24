@@ -28,6 +28,9 @@ import sys
 import types
 from pathlib import Path
 
+import numpy as np
+import torch
+
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
@@ -35,11 +38,7 @@ sys.path.insert(0, str(ROOT / "src"))
 if "andes" not in sys.modules:
     sys.modules["andes"] = types.ModuleType("andes")
 
-import numpy as np
-import torch
-
-from andes_rl_kundur.agents.td3_lstm import TD3LSTMAgent
-
+from andes_rl_kundur.agents.td3_lstm import TD3LSTMAgent  # noqa: E402
 
 OBS_DIM = 7
 ACTION_DIM = 2

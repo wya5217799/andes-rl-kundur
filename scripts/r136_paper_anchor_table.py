@@ -16,17 +16,14 @@ import sys
 import types
 from pathlib import Path
 
-import numpy as np
-
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 if "andes" not in sys.modules:
     sys.modules["andes"] = types.ModuleType("andes")
 
-from andes_rl_kundur.evaluation.paper_grade_axes import evaluate_trace, PAPER  # noqa: E402
+from andes_rl_kundur.evaluation.paper_grade_axes import PAPER, evaluate_trace  # noqa: E402
 from andes_rl_kundur.evaluation.paper_strict_eval import compute_global_cum_rf  # noqa: E402
-
 
 OUT_DIR = ROOT / "results" / "r136_paper_anchor"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -148,7 +145,7 @@ def main():
     fig.tight_layout()
     fig.savefig(OUT_DIR / "anchor_scatter.png", dpi=180)
     fig.savefig(OUT_DIR / "anchor_scatter.pdf")
-    print(f"\nsaved: table.md, anchor_scatter.png, .pdf")
+    print("\nsaved: table.md, anchor_scatter.png, .pdf")
 
     (OUT_DIR / "summary.json").write_text(json.dumps({"anchors": rows}, indent=2))
 

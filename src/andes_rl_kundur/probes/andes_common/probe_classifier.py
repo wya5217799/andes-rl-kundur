@@ -32,8 +32,9 @@ First matching rule wins. Final rule is typically a catch-all "ALL_PASS" or
 """
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Any, Callable
+from typing import Any
 
 
 @dataclass(frozen=True)

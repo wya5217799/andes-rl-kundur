@@ -14,6 +14,10 @@ don't treat them as missing data.
   (R31) and per-axis ensemble (R32) negative findings; outcomes were
   folded into `R30` (ensemble baseline) and `R33` (HAWE weight sweep)
   respectively rather than getting their own dirs.
+- **R181, R182, R184, R243** — abandoned empty reservations. These dirs
+  exist but contain no plan/verdict/result-bearing work; keep them listed
+  here so lifecycle validation treats them as intentional historical
+  holes rather than active zombies.
 
 ## Policy
 

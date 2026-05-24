@@ -70,7 +70,6 @@ def analyse_trajectory(trace_path: Path, label: str) -> dict:
     data = json.loads(trace_path.read_text(encoding="utf-8"))
     traces = data["traces"]
     n = len(traces)
-    t = np.array([s["t"] for s in traces])
     # delta_f_es is per-agent Δf in Hz, paper §IV-C uses the same
     df = np.array([s["delta_f_es"] for s in traces])  # (n, 4) Hz
     local_int = 0.0

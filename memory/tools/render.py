@@ -16,6 +16,7 @@ Handoffs are intentionally not rendered (see memory/handoffs/README.md).
 PI briefing layer designed in ADR-0003.
 """
 from __future__ import annotations
+
 import argparse
 import datetime as dt
 import re
@@ -465,10 +466,6 @@ def render_state(
             stale_rounds.append(d)
         else:
             active_rounds.append(d)
-
-    # `completed_rounds` retains legacy meaning for "Latest Round": rounds
-    # with verdict.md, regardless of declared state.
-    completed_rounds = [d for d in round_dirs if not _round_is_in_flight(d)]
 
     open_qs = [
         q for q in questions

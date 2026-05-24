@@ -21,8 +21,9 @@ from __future__ import annotations
 import json
 import sys
 import traceback
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 import numpy as np
 
@@ -40,7 +41,6 @@ from andes_rl_kundur.evaluation.paper_path import (  # noqa: E402
 )
 from andes_rl_kundur.evaluation.summary import format_headline, score_trace_files  # noqa: E402
 from andes_rl_kundur.probes.andes_common.paper_constants import SCENARIOS  # noqa: E402
-
 
 CKPT_DIR = ROOT / "results" / "r72_w4_lstm_tau001_warmup5_s54"
 CKPT_SUFFIX = "best"

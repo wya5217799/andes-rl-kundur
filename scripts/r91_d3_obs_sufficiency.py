@@ -249,7 +249,7 @@ def main() -> int:
     agents = load_agents(SOTA_DIR, suffix="best")
     print(f"[R91-D3] {len(agents)} agents loaded")
 
-    print(f"[R91-D3] Capturing rollouts...")
+    print("[R91-D3] Capturing rollouts...")
     all_recs: list[dict] = []
     for scen_name, delta_u in SCENARIOS.items():
         t_s = time.time()
@@ -396,7 +396,7 @@ def main() -> int:
 
     (OUT_DIR / "summary.json").write_text(json.dumps(summary, indent=2))
 
-    print(f"\n[R91-D3] ─── VERDICT ───")
+    print("\n[R91-D3] ─── VERDICT ───")
     print(f"  gate: {gate}")
     print(f"  {interp}")
     print()

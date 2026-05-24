@@ -16,11 +16,10 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
-import torch
 
 from andes_rl_kundur.agents.checkpoint_loader import load_agents
 from andes_rl_kundur.agents.td3 import TD3Agent
-from andes_rl_kundur.env.andes.andes_vsg_env_v4 import AndesMultiVSGEnvV4
+from andes_rl_kundur.scenarios.contract import KUNDUR
 
 
 def _save_synthetic_td3_ckpt(
@@ -45,11 +44,11 @@ def _save_synthetic_td3_ckpt(
 def test_load_agents_autodetects_hidden_size_from_ckpt(tmp_path: Path) -> None:
     """RED test 1: load_agents with no hidden_sizes kwarg loads h=64 ckpts
     without shape mismatch."""
-    n_agents = AndesMultiVSGEnvV4.N_AGENTS
+    n_agents = KUNDUR.n_agents
     _save_synthetic_td3_ckpt(
         tmp_path,
         n_agents=n_agents,
-        obs_dim=AndesMultiVSGEnvV4.OBS_DIM,
+        obs_dim=KUNDUR.obs_dim,
         hidden_size=64,
     )
 
@@ -64,7 +63,7 @@ def test_load_agents_autodetects_hidden_size_from_ckpt(tmp_path: Path) -> None:
 def test_load_agents_autodetects_obs_dim_from_ckpt(tmp_path: Path) -> None:
     """RED test 2: load_agents auto-detects obs_dim=9 from ckpts trained with
     INCLUDE_OWN_ACTION_OBS=1, even when the env class attr says OBS_DIM=7."""
-    n_agents = AndesMultiVSGEnvV4.N_AGENTS
+    n_agents = KUNDUR.n_agents
     _save_synthetic_td3_ckpt(
         tmp_path,
         n_agents=n_agents,
@@ -80,11 +79,11 @@ def test_load_agents_autodetects_obs_dim_from_ckpt(tmp_path: Path) -> None:
 def test_load_agents_explicit_hidden_sizes_overrides_autodetect(tmp_path: Path) -> None:
     """Backward compat: an explicit hidden_sizes kwarg matching the ckpt's
     actual dimensions still works (no regression on R48-β workaround use)."""
-    n_agents = AndesMultiVSGEnvV4.N_AGENTS
+    n_agents = KUNDUR.n_agents
     _save_synthetic_td3_ckpt(
         tmp_path,
         n_agents=n_agents,
-        obs_dim=AndesMultiVSGEnvV4.OBS_DIM,
+        obs_dim=KUNDUR.obs_dim,
         hidden_size=64,
     )
 
@@ -97,11 +96,11 @@ def test_load_agents_explicit_hidden_sizes_overrides_autodetect(tmp_path: Path) 
 def test_load_agents_explicit_mismatch_still_raises(tmp_path: Path) -> None:
     """If caller insists on wrong hidden_sizes via explicit kwarg, fail loudly
     rather than silently auto-detect — explicit user intent wins."""
-    n_agents = AndesMultiVSGEnvV4.N_AGENTS
+    n_agents = KUNDUR.n_agents
     _save_synthetic_td3_ckpt(
         tmp_path,
         n_agents=n_agents,
-        obs_dim=AndesMultiVSGEnvV4.OBS_DIM,
+        obs_dim=KUNDUR.obs_dim,
         hidden_size=64,
     )
 
@@ -134,18 +133,18 @@ def test_load_agents_routes_td3_lstm_ckpts_to_lstm_agent(tmp_path: Path) -> None
     RecurrentActor's ``lstm.weight_ih`` shape (4*hidden, obs_dim)."""
     from andes_rl_kundur.agents.td3_lstm import TD3LSTMAgent
 
-    n_agents = AndesMultiVSGEnvV4.N_AGENTS
+    n_agents = KUNDUR.n_agents
     _save_synthetic_lstm_ckpt(
         tmp_path,
         n_agents=n_agents,
-        obs_dim=AndesMultiVSGEnvV4.OBS_DIM,
+        obs_dim=KUNDUR.obs_dim,
         hidden_size=64,
     )
 
     agents = load_agents(tmp_path, suffix="best")
     assert all(isinstance(a, TD3LSTMAgent) for a in agents)
     assert agents[0].hidden == 64
-    assert agents[0].obs_dim == AndesMultiVSGEnvV4.OBS_DIM
+    assert agents[0].obs_dim == KUNDUR.obs_dim
 
 
 def test_detect_actor_dims_handles_recurrent_actor(tmp_path: Path) -> None:

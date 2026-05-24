@@ -33,7 +33,6 @@ sys.path.insert(0, str(TOOLS_DIR))
 
 import reserve_round  # noqa: E402
 
-
 # ─── Atomic-mkdir contract (pins the R50 invariant) ──────────────────────
 
 

@@ -30,9 +30,14 @@ Could narrow further with R233 phi_h=0.02.
 phi_h=0.02 bisects the cliff. If viable, sweet spot extends to 0.02
 (3.6× V4); if collapse, cliff is in (0.01, 0.02].
 
-## Questions opened / closed / advanced
+## Questions opened (this round)
+- (none)
 
-(none)
+## Questions closed (this round)
+- (none)
+
+## Questions advanced (this round, status unchanged)
+- (none)
 
 ## 给 PI 的话
 

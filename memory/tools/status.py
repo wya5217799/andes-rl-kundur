@@ -43,7 +43,6 @@ import subprocess
 import sys
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Any
 
 # Local imports (lazy in functions to avoid pyimport-time cost from
 # baselines.py when status.py is used standalone)

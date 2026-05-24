@@ -34,7 +34,8 @@ SEARCH_DIRS = [
 def _compute_cum_rf_from_traces(label: str, summary_dir: Path) -> float | None:
     """research_loop summaries don't store cum_rf. Re-compute from sibling
     trace JSONs `{label}_load_step_{1,2}.json` if available."""
-    import sys, types
+    import sys
+    import types
     if "andes" not in sys.modules:
         sys.modules["andes"] = types.ModuleType("andes")
     sys.path.insert(0, str(ROOT / "src"))

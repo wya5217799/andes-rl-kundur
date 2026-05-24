@@ -13,18 +13,15 @@ Behaviors under test:
 """
 from __future__ import annotations
 
-import io
 import sys
 from pathlib import Path
-
-import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from andes_rl_kundur.agents.sac import SACAgent
-from andes_rl_kundur.agents.td3 import TD3Agent
-from andes_rl_kundur.utils.monitor import TrainingMonitor
+from andes_rl_kundur.agents.sac import SACAgent  # noqa: E402
+from andes_rl_kundur.agents.td3 import TD3Agent  # noqa: E402
+from andes_rl_kundur.utils.monitor import TrainingMonitor  # noqa: E402
 
 
 def test_td3_agent_algo_name():

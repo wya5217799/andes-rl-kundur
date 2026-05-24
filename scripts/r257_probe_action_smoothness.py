@@ -153,7 +153,7 @@ def analyse(trace_path: Path, label: str) -> dict[str, Any]:
 
 def main() -> None:
     print("R257 probe: action-smoothness / jitter across cum_rf Pareto frontier")
-    print(f"V4 bounds: dM, dD in [-200, +600]; jitter = |delta[t] - delta[t-1]|")
+    print("V4 bounds: dM, dD in [-200, +600]; jitter = |delta[t] - delta[t-1]|")
     print(f"Transient window: t <= {TRANSIENT_END_S}s | Steady: t >= {STEADY_START_S}s\n")
 
     results = [

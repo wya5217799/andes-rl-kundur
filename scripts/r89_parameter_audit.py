@@ -27,6 +27,7 @@ sys.path.insert(0, str(ROOT / "src"))
 # Stub andes module so we can run audit on Windows (no ANDES install) without
 # importing the env. We only need paper_constants + scenarios.contract.
 import types  # noqa: E402
+
 if "andes" not in sys.modules:
     sys.modules["andes"] = types.ModuleType("andes")
     sys.modules["andes"].load = lambda *a, **k: None       # type: ignore[attr-defined]
@@ -37,6 +38,7 @@ if "andes" not in sys.modules:
 # Import constants directly via file path (bypasses package __init__ which
 # eagerly imports the env).
 import importlib.util  # noqa: E402
+
 
 def _load_module(name: str, path: Path):
     spec = importlib.util.spec_from_file_location(name, path)

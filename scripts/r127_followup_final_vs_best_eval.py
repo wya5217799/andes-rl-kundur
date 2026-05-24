@@ -19,10 +19,6 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from andes_rl_kundur.env.andes.v4_config import V4Config  # noqa: E402
-from andes_rl_kundur.evaluation.final_eval import (  # noqa: E402
-    pick_final_eval_suffix,
-    run_final_eval,
-)
 from andes_rl_kundur.evaluation.score_seed import score_seed  # noqa: E402
 
 

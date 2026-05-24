@@ -14,6 +14,7 @@ For each `memory/rounds/RNNN/plan.md`:
 - Re-serialise frontmatter, preserve body verbatim
 """
 from __future__ import annotations
+
 import re
 import subprocess
 import sys

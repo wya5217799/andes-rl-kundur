@@ -14,7 +14,6 @@ from __future__ import annotations
 
 import json
 import logging
-import shutil
 import sys
 import time
 from pathlib import Path
@@ -24,7 +23,6 @@ import numpy as np
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from andes_rl_kundur.env.andes.andes_vsg_env_v4 import AndesMultiVSGEnvV4  # noqa: E402
 from andes_rl_kundur.env.andes.v4_config import V4Config  # noqa: E402
 from andes_rl_kundur.evaluation.paper_path import run_scenario, zero_action_fn  # noqa: E402
 from andes_rl_kundur.evaluation.summary import format_headline, score_trace_files  # noqa: E402
@@ -100,7 +98,7 @@ def eval_at_d5_fair(kp_M: float, kp_D: float, label: str) -> dict:
 
 
 def main():
-    log.info(f"R133 — magnitude-PI at D5-fair bounds (dm_max=600, dm_min=-200)")
+    log.info("R133 — magnitude-PI at D5-fair bounds (dm_max=600, dm_min=-200)")
     log.info(f"  output → {OUT_DIR}")
 
     grand = {
@@ -137,9 +135,9 @@ def main():
     log.info("\n" + "=" * 60)
     log.info("R133 HEADLINE")
     log.info("=" * 60)
-    log.info(f"  R85 mag-PI at dm_max=300 (handicapped): geo = 0.260")
+    log.info("  R85 mag-PI at dm_max=300 (handicapped): geo = 0.260")
     log.info(f"  R133 mag-PI best at dm_max=600 (D5-fair): geo = {best_geo:.4f}  K={best_combo}")
-    log.info(f"  R72_w4 SOTA at dm_max=600 (D5-trained): geo = 0.391")
+    log.info("  R72_w4 SOTA at dm_max=600 (D5-trained): geo = 0.391")
     log.info(f"  RL advantage (apples-to-apples): {0.391 / best_geo:.2f}x")
     log.info("=" * 60)
     grand["headline"] = {

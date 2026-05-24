@@ -21,15 +21,14 @@ from andes_rl_kundur.agents.sac_ctde import SACAgentCTDE
 from andes_rl_kundur.agents.td3 import TD3Agent
 from andes_rl_kundur.agents.td3_afe_lstm import TD3AfeLstmAgent
 from andes_rl_kundur.agents.td3_lstm import TD3LSTMAgent
+from andes_rl_kundur.agents.td3_lstm2 import TD3LSTM2Agent
 from andes_rl_kundur.agents.td3_qr_afe_lstm import TD3QRAfeLstmAgent
 from andes_rl_kundur.agents.td3_qr_lstm import TD3QRLstmAgent
 from andes_rl_kundur.agents.td3_qr_lstm_hreg import TD3QRLstmHRegAgent  # R184 stacked
 from andes_rl_kundur.agents.td3_transformer import TD3TransformerAgent
-from andes_rl_kundur.agents.td3_lstm2 import TD3LSTM2Agent
 from andes_rl_kundur.agents.td3_warmh0_qr_afe_lstm import TD3WarmH0QRAfeLstmAgent
 from andes_rl_kundur.config import HIDDEN_SIZES
-from andes_rl_kundur.env.andes.andes_vsg_env_v4 import AndesMultiVSGEnvV4
-
+from andes_rl_kundur.scenarios.contract import KUNDUR
 
 CKPT_NAME_FMT = "agent_{i}_{suffix}.pt"
 
@@ -104,7 +103,7 @@ def load_agents(
     Args:
         ckpt_dir:     directory containing the per-agent ckpt files.
         suffix:       ckpt filename suffix (``"best"`` or ``"final"``).
-        n_agents:     number of agents (default: ``AndesMultiVSGEnvV4.N_AGENTS``).
+        n_agents:     number of agents (default: Kundur contract ``n_agents``).
         hidden_sizes: actor/critic hidden layer sizes. If ``None`` (default),
                       auto-detected from ``ckpt['actor']['net.0.weight']``.
                       Pass explicitly to override / pin for safety.
@@ -123,7 +122,7 @@ def load_agents(
                            the ckpt's actor (user-intent-wins semantics).
     """
     if n_agents is None:
-        n_agents = AndesMultiVSGEnvV4.N_AGENTS
+        n_agents = KUNDUR.n_agents
 
     # Auto-detect dims from the first ckpt when caller did not pin them.
     if hidden_sizes is None or obs_dim is None:
@@ -140,8 +139,8 @@ def load_agents(
     if hidden_sizes is None:
         hidden_sizes = HIDDEN_SIZES
     if obs_dim is None:
-        obs_dim = AndesMultiVSGEnvV4.OBS_DIM
-    action_dim = 2
+        obs_dim = KUNDUR.obs_dim
+    action_dim = KUNDUR.act_dim
 
     agents: list = []
     for i in range(n_agents):

@@ -23,7 +23,16 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from andes_rl_kundur.env.andes.v4_config import V4Config
+from andes_rl_kundur.env.andes.v4_config import V4Config  # noqa: E402
+
+
+def _skip_without_real_andes() -> None:
+    try:
+        import andes
+    except ModuleNotFoundError:
+        pytest.skip("real ANDES is WSL-only; run env-instantiation tests under WSL")
+    if not callable(getattr(andes, "get_case", None)):
+        pytest.skip("real ANDES is unavailable; only a test stub is installed")
 
 
 def test_v4_config_action_penalty_mode_defaults_physical():
@@ -52,6 +61,7 @@ def test_action_penalty_magnitudes_under_normalized_mode():
     Direct probe: instantiate two envs, mock the reward computation
     inputs, and check the magnitude ratio is in the expected band.
     """
+    _skip_without_real_andes()
     from andes_rl_kundur.env.andes.andes_vsg_env_v4 import AndesMultiVSGEnvV4
 
     env_phys = AndesMultiVSGEnvV4(

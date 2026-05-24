@@ -27,7 +27,7 @@ def score_seed(
     suffix: str = "best",
     seed: int = 42,
     steps: int = 150,
-    config: "V4Config | None" = None,
+    config: V4Config | None = None,
 ) -> dict[str, float | None]:
     """Run one ckpt's actors across the paper scenarios and return the
     canonical dual-eval summary (paper §IV-C cum_rf + 11-axis geo).
@@ -52,7 +52,8 @@ def score_seed(
     # installed by design — see docs/eng-notes/NOTES_ANDES.md).
     from andes_rl_kundur.agents.checkpoint_loader import load_agents
     from andes_rl_kundur.evaluation.paper_path import (
-        deterministic_actor_action_fn, run_scenario,
+        deterministic_actor_action_fn,
+        run_scenario,
     )
     from andes_rl_kundur.evaluation.summary import score_trace_files
     from andes_rl_kundur.probes.andes_common.paper_constants import SCENARIOS

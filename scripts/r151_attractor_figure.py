@@ -15,7 +15,6 @@ Zero ANDES.
 from __future__ import annotations
 
 import json
-from collections import Counter
 from pathlib import Path
 
 import numpy as np
@@ -26,11 +25,15 @@ OUT_DIR.mkdir(parents=True, exist_ok=True)
 
 
 def _classify(label: str) -> str:
-    l = label.lower()
-    if "sac" in l: return "sac"
-    if "transformer" in l: return "transformer"
-    if "lstm" in l or "baseline" in l or "hawe" in l: return "td3_lstm"
-    if "td3" in l or "paper" in l: return "td3_mlp"
+    label_lower = label.lower()
+    if "sac" in label_lower:
+        return "sac"
+    if "transformer" in label_lower:
+        return "transformer"
+    if "lstm" in label_lower or "baseline" in label_lower or "hawe" in label_lower:
+        return "td3_lstm"
+    if "td3" in label_lower or "paper" in label_lower:
+        return "td3_mlp"
     return "unknown"
 
 
@@ -150,7 +153,7 @@ def main() -> None:
     fig.tight_layout(rect=(0, 0, 1, 0.96))
     fig.savefig(OUT_DIR / "fig9.png", dpi=200)
     fig.savefig(OUT_DIR / "fig9.pdf")
-    print(f"saved: fig9.png + fig9.pdf")
+    print("saved: fig9.png + fig9.pdf")
 
     # Summary JSON for provenance
     summary = {

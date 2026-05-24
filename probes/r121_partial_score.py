@@ -1,6 +1,5 @@
 """Score R121 partial alpha-sweep traces while round still running."""
 import sys
-import json
 import types
 from pathlib import Path
 

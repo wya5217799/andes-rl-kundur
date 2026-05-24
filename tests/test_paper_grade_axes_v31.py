@@ -113,6 +113,7 @@ class TestV31MultiplicativeGating:
         # Build a trace that has high axes 1-8 but P_balance=0
         # We need to construct a JSON with the right structure
         import tempfile
+
         import numpy as np
 
         T = 60

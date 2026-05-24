@@ -43,9 +43,14 @@ be jointly within their respective windows for SOTA.
 Test phi_h=0.001 (very low end, 0.18× V4). If still viable, sweet
 spot extends very low; if collapse, low-side cliff is in (0.001, 0.003].
 
-## Questions opened / closed / advanced
+## Questions opened (this round)
+- (none)
 
-(none)
+## Questions closed (this round)
+- (none)
+
+## Questions advanced (this round, status unchanged)
+- (none)
 
 ## 给 PI 的话
 

@@ -20,7 +20,6 @@ from __future__ import annotations
 import csv
 import json
 import sys
-from collections import defaultdict
 from pathlib import Path
 
 import numpy as np
@@ -279,7 +278,7 @@ def main() -> None:
     keys = [f"{s}_{c}" for s in SCENARIOS for c in ACTION_COMPONENT_NAMES]
     for k, (key, ax) in enumerate(zip(keys, axes.flatten())):
         mat = np.array(b_out["matrices"][key])
-        im = ax.imshow(mat, cmap="RdBu_r", vmin=-1, vmax=1)
+        ax.imshow(mat, cmap="RdBu_r", vmin=-1, vmax=1)
         for i in range(N_AGENTS):
             for j in range(N_AGENTS):
                 ax.text(j, i, f"{mat[i,j]:+.2f}", ha="center", va="center",
@@ -318,13 +317,13 @@ def main() -> None:
     (OUT / "summary.json").write_text(json.dumps(summary, indent=2))
 
     # ── Digest ────────────────────────────────────────────────────────
-    print(f"\n=== R92-W1 action-coordination digest ===")
+    print("\n=== R92-W1 action-coordination digest ===")
     print(f"Gate: {gate}")
     if triggered:
         print("Triggered flags:")
         for t in triggered:
             print(f"  - {t}")
-    print(f"\nEffort share per (scen, agent):")
+    print("\nEffort share per (scen, agent):")
     print(f"  {'scen':<12} {'ag':>2} {'mean_L2':>9} {'effort%':>8} "
           f"{'dM_share':>9} {'sat_dM%':>9} {'sat_dD%':>9}")
     sat_by = {(r["scenario"], r["agent"], r["component"]): r["sat_fraction"]
@@ -339,7 +338,7 @@ def main() -> None:
     if b_out["flagged_high_corr_pairs"]:
         for p in b_out["flagged_high_corr_pairs"]:
             print(f"  flagged: {p}")
-    print(f"\nCross-scenario consistency:")
+    print("\nCross-scenario consistency:")
     for d in f_out["per_agent_deltas"]:
         print(f"  agent {d['agent']}: Δeffort={d['effort_share_delta']:+.4f}, "
               f"ΔdM_share={d['dM_share_delta']:+.4f}")

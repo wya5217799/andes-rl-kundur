@@ -40,7 +40,7 @@ class RewardComponentRatioCheck:
     dominant: str = "r_f"
     dominance_threshold: float = 0.5
 
-    def run(self, monitor: "TrainingMonitor", episode: dict[str, Any]) -> CheckResult:
+    def run(self, monitor: TrainingMonitor, episode: dict[str, Any]) -> CheckResult:
         if not monitor.reward_components:
             return _no_trigger(self.name)
         components = monitor.reward_components[-1]
@@ -75,7 +75,7 @@ class RewardPlateauCheck:
     window: int = 100
     improvement_threshold: float = 0.01
 
-    def run(self, monitor: "TrainingMonitor", episode: dict[str, Any]) -> CheckResult:
+    def run(self, monitor: TrainingMonitor, episode: dict[str, Any]) -> CheckResult:
         if len(monitor.episode_rewards) < self.window:
             return _no_trigger(self.name)
         recent = monitor.episode_rewards[-self.window:]
@@ -109,7 +109,7 @@ class RewardDivergenceCheck:
     severity: Severity = "warn"  # R27 2026-05-07: downgraded from stop
     window: int = 50
 
-    def run(self, monitor: "TrainingMonitor", episode: dict[str, Any]) -> CheckResult:
+    def run(self, monitor: TrainingMonitor, episode: dict[str, Any]) -> CheckResult:
         if len(monitor.episode_rewards) < self.window:
             return _no_trigger(self.name)
         recent = np.array(monitor.episode_rewards[-self.window:])
@@ -150,7 +150,7 @@ class TDSFailureRateCheck:
     threshold: float | None = 0.2
     window: int = 50
 
-    def run(self, monitor: "TrainingMonitor", episode: dict[str, Any]) -> CheckResult:
+    def run(self, monitor: TrainingMonitor, episode: dict[str, Any]) -> CheckResult:
         if len(monitor.env_health) < self.window:
             return _no_trigger(self.name)
         threshold = self.threshold
@@ -183,7 +183,7 @@ class FreqOutOfRangeCheck:
     window: int = 10
     min_episodes: int = 3
 
-    def run(self, monitor: "TrainingMonitor", episode: dict[str, Any]) -> CheckResult:
+    def run(self, monitor: TrainingMonitor, episode: dict[str, Any]) -> CheckResult:
         if len(monitor.env_health) < self.window:
             return _no_trigger(self.name)
         recent = monitor.env_health[-self.window:]
@@ -213,7 +213,7 @@ class PhysicsFrozenCheck:
     window: int = 10
     epsilon: float = 1e-9
 
-    def run(self, monitor: "TrainingMonitor", episode: dict[str, Any]) -> CheckResult:
+    def run(self, monitor: TrainingMonitor, episode: dict[str, Any]) -> CheckResult:
         if len(monitor.env_health) < self.window:
             return _no_trigger(self.name)
         recent = monitor.env_health[-self.window:]
@@ -240,7 +240,7 @@ class AgentRewardDisparityCheck:
     window: int = 50
     std_threshold: float = 2.0
 
-    def run(self, monitor: "TrainingMonitor", episode: dict[str, Any]) -> CheckResult:
+    def run(self, monitor: TrainingMonitor, episode: dict[str, Any]) -> CheckResult:
         if len(monitor.per_agent_rewards) < self.window:
             return _no_trigger(self.name)
         recent = monitor.per_agent_rewards[-self.window:]
@@ -277,7 +277,7 @@ class LossExplosionCheck:
     window: int = 20
     multiplier: float = 10.0
 
-    def run(self, monitor: "TrainingMonitor", episode: dict[str, Any]) -> CheckResult:
+    def run(self, monitor: TrainingMonitor, episode: dict[str, Any]) -> CheckResult:
         if len(monitor.sac_losses) < self.window:
             return _no_trigger(self.name)
         if not monitor.is_calibrated:
@@ -327,7 +327,7 @@ class EarlyStoppingCheck:
     _best_reward: float = field(default=float('-inf'), init=False, repr=False)
     _best_ep_idx: int = field(default=0, init=False, repr=False)
 
-    def run(self, monitor: "TrainingMonitor", episode: dict[str, Any]) -> CheckResult:
+    def run(self, monitor: TrainingMonitor, episode: dict[str, Any]) -> CheckResult:
         if not monitor.episode_rewards:
             return _no_trigger(self.name)
         current = monitor.episode_rewards[-1]
@@ -373,7 +373,7 @@ class ActionSaturationCheck:
     severity: Severity = "warn"
     threshold: float = 0.8
 
-    def run(self, monitor: "TrainingMonitor", episode: dict[str, Any]) -> CheckResult:
+    def run(self, monitor: TrainingMonitor, episode: dict[str, Any]) -> CheckResult:
         if not monitor.action_stats:
             return _no_trigger(self.name)
         sat_ratio = monitor.action_stats[-1]["saturation_ratio"]
@@ -399,7 +399,7 @@ class RewardMagnitudeCheck:
     expected_range: tuple[float, float] | None = None  # manual mode
     auto_ratio_threshold: float = 100.0  # auto mode
 
-    def run(self, monitor: "TrainingMonitor", episode: dict[str, Any]) -> CheckResult:
+    def run(self, monitor: TrainingMonitor, episode: dict[str, Any]) -> CheckResult:
         if not monitor.episode_rewards:
             return _no_trigger(self.name)
         current = monitor.episode_rewards[-1]
@@ -447,7 +447,7 @@ class ActionCollapseCheck:
     std_threshold: float | None = 0.05
     window: int = 50
 
-    def run(self, monitor: "TrainingMonitor", episode: dict[str, Any]) -> CheckResult:
+    def run(self, monitor: TrainingMonitor, episode: dict[str, Any]) -> CheckResult:
         if len(monitor.action_stats) < self.window:
             return _no_trigger(self.name)
 
@@ -482,7 +482,7 @@ class ActionCollapseCheck:
 # ──────────────────────────────────────────────────────────────────────
 
 
-def kundur_default_checks() -> list["Check"]:
+def kundur_default_checks() -> list[Check]:
     """Return a **fresh** list of the 12 default Check instances (Kundur
     paper tolerances).
 
@@ -505,7 +505,7 @@ def kundur_default_checks() -> list["Check"]:
     ]
 
 
-def register_kundur_default_checks(monitor: "TrainingMonitor") -> None:
+def register_kundur_default_checks(monitor: TrainingMonitor) -> None:
     """Register the 12 default Kundur Check instances on a TrainingMonitor.
 
     Use in ``train.py`` after constructing the monitor::

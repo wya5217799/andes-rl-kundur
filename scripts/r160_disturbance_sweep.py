@@ -12,10 +12,7 @@ from __future__ import annotations
 
 import json
 import sys
-import types
 from pathlib import Path
-
-import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
@@ -65,7 +62,7 @@ def eval_one_scen(pools, scen_name, delta_u, scale, label):
 
 
 def main():
-    print(f"Loading 4 ckpt pools...")
+    print("Loading 4 ckpt pools...")
     pools = build_actor_pools()
     print(f"  {len(pools)} pools loaded.")
 
@@ -86,7 +83,6 @@ def main():
         ls2_path.write_text(json.dumps(rep_ls2))
 
         # Score
-        from andes_rl_kundur.evaluation.summary import score_trace_files
         scores = score_trace_files(
             {"load_step_1": ls1_path, "load_step_2": ls2_path}, label=label
         )
@@ -128,7 +124,7 @@ def main():
 
     geos = [r["geo"] for r in rows]
     import statistics
-    print(f"\n=== R160 summary ===")
+    print("\n=== R160 summary ===")
     print(f"  N={len(rows)}, mean(geo)={statistics.mean(geos):.4f}, "
           f"std(geo)={statistics.stdev(geos):.5f}")
     print(f"  min={min(geos):.4f}, max={max(geos):.4f}")

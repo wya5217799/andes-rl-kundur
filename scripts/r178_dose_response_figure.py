@@ -7,8 +7,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-import numpy as np
 import matplotlib
+
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
@@ -117,7 +117,7 @@ def main():
     fig.savefig(OUT / "dose_response_curve.png", dpi=140)
     plt.close(fig)
 
-    print(f"=== Dose-response curve (10 + 2 points) ===")
+    print("=== Dose-response curve (10 + 2 points) ===")
     print(f"{'λ_h':>8} {'seed':>5} {'label':<30} {'geo':>8} {'LS1':>7} {'LS2':>7}")
     for r in sorted(rows, key=lambda x: (x["seed"], x["lambda"])):
         print(f"{r['lambda']:>8.4f} {r['seed']:>5} {r['label']:<30} "

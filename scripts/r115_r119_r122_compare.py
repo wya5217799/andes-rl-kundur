@@ -18,7 +18,6 @@ Output:
 from __future__ import annotations
 
 import json
-import sys
 from pathlib import Path
 
 import numpy as np
@@ -83,7 +82,7 @@ def main() -> None:
         table[label] = {"eval": evl, "monitor": mon, "dir": d.name}
 
     # Build the comparison digest.
-    print(f"\n=== Triple-ablation cross-comparison ===")
+    print("\n=== Triple-ablation cross-comparison ===")
     print(f"  {'label':<25} {'geo':>8} {'LS1':>8} {'LS2':>8} {'cum_rf':>10} {'sat%_last10':>14} {'n_ep':>6}")
     for label, pkg in table.items():
         evl = pkg["eval"]
@@ -115,15 +114,15 @@ def main() -> None:
 
     print(f"\nBaseline R72_w4 geo = {baseline_geo:.4f}")
     if breaks_plateau:
-        print(f"BREAKS PLATEAU (geo ≥ 0.42):")
+        print("BREAKS PLATEAU (geo ≥ 0.42):")
         for label, g in breaks_plateau:
             print(f"  {label}: {g:.4f}")
     else:
-        print(f"NO AXIS BREAKS PLATEAU — env-ceiling story CONFIRMED")
-        print(f"All variants: geo within [-0.10, +0.05] of baseline 0.391")
-        print(f"R57-R122 mechanism axes (algo / hyper / arch / obs / reward / "
-              f"action-bound / critic-rep) all bound by the same env/disturbance "
-              f"structural ceiling.")
+        print("NO AXIS BREAKS PLATEAU — env-ceiling story CONFIRMED")
+        print("All variants: geo within [-0.10, +0.05] of baseline 0.391")
+        print("R57-R122 mechanism axes (algo / hyper / arch / obs / reward / "
+              "action-bound / critic-rep) all bound by the same env/disturbance "
+              "structural ceiling.")
 
     # Save JSON.
     (OUT / "summary.json").write_text(json.dumps(
@@ -158,7 +157,11 @@ def main() -> None:
                    label=f"baseline {baseline_geo:.3f}")
         ax.axhline(0.42, color="red", ls=":", lw=0.8, alpha=0.5, label="0.42 threshold")
         ax.set_xticks(range(len(labels)))
-        ax.set_xticklabels([l.replace("_", "\n") for l in labels], rotation=0, fontsize=8)
+        ax.set_xticklabels(
+            [label.replace("_", "\n") for label in labels],
+            rotation=0,
+            fontsize=8,
+        )
         ax.set_ylabel("11-axis geo")
         ax.set_title("R57-R122 mechanism ablations vs R72_w4 baseline")
         ax.set_ylim(0, max(0.5, max(geos) * 1.1))

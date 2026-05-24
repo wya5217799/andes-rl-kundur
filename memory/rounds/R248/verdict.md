@@ -71,9 +71,14 @@ Three regimes characterized:
 > and the additional phi_abs term are necessary load-bearing
 > innovations."
 
-## Questions opened / closed / advanced
+## Questions opened (this round)
+- (none)
 
-(none — paper-integrity story now fully nuanced)
+## Questions closed (this round)
+- (none)
+
+## Questions advanced (this round, status unchanged)
+- none — paper-integrity story now fully nuanced
 
 ## 给 PI 的话
 

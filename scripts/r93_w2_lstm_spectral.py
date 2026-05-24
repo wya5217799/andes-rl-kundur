@@ -46,7 +46,6 @@ import types
 from pathlib import Path
 
 import numpy as np
-import torch
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
@@ -122,8 +121,13 @@ def jacobian_zero_fixed_point(agent) -> dict:
     b_f = b_ih[H:2*H] + b_hh[H:2*H]
     b_g = b_ih[2*H:3*H] + b_hh[2*H:3*H]
     b_o = b_ih[3*H:4*H] + b_hh[3*H:4*H]
-    sigm = lambda x: 1.0 / (1.0 + np.exp(-x))
-    i0 = sigm(b_i); f0 = sigm(b_f); g0 = np.tanh(b_g); o0 = sigm(b_o)
+    def sigm(x):
+        return 1.0 / (1.0 + np.exp(-x))
+
+    i0 = sigm(b_i)
+    f0 = sigm(b_f)
+    g0 = np.tanh(b_g)
+    o0 = sigm(b_o)
     return {
         "forget_gate_mean": float(f0.mean()),
         "forget_gate_max": float(f0.max()),
@@ -227,8 +231,8 @@ def main() -> None:
     (OUT_DIR / "summary.json").write_text(json.dumps(summary, indent=2))
 
     # Digest.
-    print(f"\n=== R93-W2 LSTM spectral analysis ===")
-    print(f"Per-gate spectral radius / operator-norm L2 (median across 4 agents):")
+    print("\n=== R93-W2 LSTM spectral analysis ===")
+    print("Per-gate spectral radius / operator-norm L2 (median across 4 agents):")
     print(f"  {'gate':<5} {'spec_rad_med':>14} {'spec_rad_max':>14} "
           f"{'opnorm_med':>12} {'opnorm_max':>12}")
     for n in GATE_NAMES:
@@ -236,11 +240,11 @@ def main() -> None:
               f"{aggregate['spectral_radius_max'][n]:>14.4f} "
               f"{aggregate['operator_norm_l2_median'][n]:>12.4f} "
               f"{aggregate['operator_norm_l2_max'][n]:>12.4f}")
-    print(f"\nZero-fixed-point Jacobian agg (median across 4 agents):")
+    print("\nZero-fixed-point Jacobian agg (median across 4 agents):")
     print(f"  forget_gate_mean(c=0,h=0)       = {aggregate['forget_gate_mean_at_zero']:.4f}")
     print(f"  ||c'||_2 at zero-fixed-point    = {aggregate['c_step_norm_zero_fp_median']:.4f}")
     print(f"\nDivergent dynamics mathematically predicted: {divergent_predicted}")
-    print(f"\nPer-agent zero-FP detail:")
+    print("\nPer-agent zero-FP detail:")
     for a in per_agent:
         j = a["zero_fixed_point_jacobian"]
         print(f"  ag{a['agent_idx']}: "

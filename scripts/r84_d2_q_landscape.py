@@ -50,7 +50,6 @@ if "andes" not in sys.modules:
 
 from andes_rl_kundur.agents.checkpoint_loader import load_agents  # noqa: E402
 
-
 SOTA_DIR = ROOT / "results" / "r72_w4_lstm_tau001_warmup5_s54"
 OUT_DIR = ROOT / "results" / "r84_d2_q_landscape"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -107,7 +106,6 @@ def _advantage_and_consistency(agent, obs: torch.Tensor, rng: np.random.Generato
     B, A = a_sota.shape
     a_rand = _sample_actions(N_ACTION_SAMPLES * B, A, rng).view(N_ACTION_SAMPLES, B, A)
     q_rand_means: list[torch.Tensor] = []
-    q_rand_maxes: list[torch.Tensor] = []
     a_rand_argmax_buf = torch.empty_like(a_sota)
     best_q = torch.full((B,), -1e9, device=DEVICE)
     with torch.no_grad():
@@ -246,7 +244,7 @@ def main() -> None:
 
     out_path = OUT_DIR / "summary.json"
     out_path.write_text(json.dumps(summary, indent=2))
-    print(f"\n--- R84-D2 summary ---")
+    print("\n--- R84-D2 summary ---")
     print(json.dumps(agg, indent=2))
     print(f"q_magnitude_ref = {q_mag:.4f}, eps_grad = {eps_grad:.4f}")
     print(f"PASS (plateau NOT from critic): {pass_critic}")

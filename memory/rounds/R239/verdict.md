@@ -63,9 +63,14 @@ implementation. The actual training signal comes from a single
 environment-specific term. This is **the** headline methodological
 finding of the autonomous loop.
 
-## Questions opened / closed / advanced
+## Questions opened (this round)
+- (none)
 
-(none — universal paper-integrity story complete)
+## Questions closed (this round)
+- (none)
+
+## Questions advanced (this round, status unchanged)
+- none — universal paper-integrity story complete
 
 ## 给 PI 的话
 

@@ -21,16 +21,15 @@ Without these helpers each probe re-wrote the same 30 lines. Now use:
 """
 from __future__ import annotations
 
-from typing import Any, Callable, Iterable
+from collections.abc import Callable, Iterable
+from typing import Any
 
 import numpy as np
 
 from andes_rl_kundur.probes.andes_common.paper_constants import (
     DEFAULT_PROBE_SEED,
     DEFAULT_PROBE_STEPS_SHORT,
-    PAPER_BENCHMARKS,
 )
-
 
 # ─── Single-shot trace ────────────────────────────────────────────────────
 

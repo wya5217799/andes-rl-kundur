@@ -121,9 +121,9 @@ def main() -> None:
         indent=2,
     ))
 
-    print(f"\n=== Drift comparison: R100 ckpt vs R72_w4 baseline ===")
-    print(f"  metric                    | R72_w4 baseline | R100 ckpt | reduction")
-    print(f"  --------------------------|-----------------|-----------|----------")
+    print("\n=== Drift comparison: R100 ckpt vs R72_w4 baseline ===")
+    print("  metric                    | R72_w4 baseline | R100 ckpt | reduction")
+    print("  --------------------------|-----------------|-----------|----------")
     print(f"  ||h(50)|| (obs=0, median) |     {baseline['h_norm_last_median_zero_obs']:>5.2f}       |  "
           f"{new['h_norm_last_median_zero_obs']:>5.2f}    |   {reduction['h_norm_last']*100:>+5.1f}%")
     print(f"  max |z| (obs=0, median)   |     {baseline['logit_max_abs_median_zero_obs']:>5.2f}       |  "

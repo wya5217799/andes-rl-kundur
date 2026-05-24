@@ -46,7 +46,6 @@ if "andes" not in sys.modules:
 
 from andes_rl_kundur.agents.checkpoint_loader import load_agents  # noqa: E402
 
-
 SOTA_DIR = ROOT / "results" / "r72_w4_lstm_tau001_warmup5_s54"
 OUT_DIR = ROOT / "results" / "r84_w3_critic_forensics"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -330,14 +329,14 @@ def main() -> None:
     out_path = OUT_DIR / "summary.json"
     out_path.write_text(json.dumps(summary, indent=2))
 
-    print(f"\n=== R84-W3 summary ===")
+    print("\n=== R84-W3 summary ===")
     print(f"A. local concave-fraction median: {median_concave_frac:.3f} "
           f"(a_sota local max likely: {local_max_likely})")
     print(f"B. spectral norm median={spec_summary['spectral_norm_median']:.3f} "
           f"max={spec_summary['spectral_norm_max']:.3f} "
           f"@ {spec_summary['spectral_norm_max_layer']}")
     if spec_summary["high_spectral_layers"]:
-        print(f"   high-spectral layers:")
+        print("   high-spectral layers:")
         for s in spec_summary["high_spectral_layers"][:10]:
             print(f"     {s}")
     print(f"C. proxy-obs (σ={proxy_sigma:.3f}) advantage_median = "

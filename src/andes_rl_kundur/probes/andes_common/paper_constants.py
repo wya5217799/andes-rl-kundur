@@ -20,7 +20,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-
 # ─── Disturbance protocols ───────────────────────────────────────────────
 
 LS1_DELTA_U = {"PQ_Bus14": -2.48}   # 248 MW load reduction at Bus 14

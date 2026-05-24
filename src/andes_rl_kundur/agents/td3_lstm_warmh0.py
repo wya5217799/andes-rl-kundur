@@ -45,7 +45,6 @@ import torch.optim as optim
 
 from andes_rl_kundur.agents.networks import (
     HiddenState,
-    RecurrentDoubleQCritic,
 )
 from andes_rl_kundur.agents.networks_warmh0 import WarmH0RecurrentActor
 from andes_rl_kundur.agents.td3_lstm import TD3LSTMAgent, _detach_h

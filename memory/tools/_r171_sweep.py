@@ -12,6 +12,7 @@ Closes:
 Kept in repo as audit artifact (one-shot).
 """
 from __future__ import annotations
+
 import re
 import sys
 from pathlib import Path

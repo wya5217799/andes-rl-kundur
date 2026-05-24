@@ -165,7 +165,7 @@ class V4Config:
             )
 
     @classmethod
-    def paper_faithful(cls) -> "V4Config":
+    def paper_faithful(cls) -> V4Config:
         """Alias for the default config — explicit at the call site.
 
         NOTE (R58 / ADR-0002): "paper_faithful" is a historical name. The
@@ -179,7 +179,7 @@ class V4Config:
         return cls()
 
     @classmethod
-    def paper_strict_pure(cls) -> "V4Config":
+    def paper_strict_pure(cls) -> V4Config:
         """R58 — paper Eq.14 nominal weights, no project deviations.
 
         Returns a config matching Yang et al., IEEE TPWRS 2023, Eq.14
@@ -197,7 +197,7 @@ class V4Config:
         return cls(phi_abs=0.0, phi_h=1.0, phi_d=1.0)
 
     @classmethod
-    def paper_strict_rescaled(cls) -> "V4Config":
+    def paper_strict_rescaled(cls) -> V4Config:
         """R58 — paper Eq.14 form (no ``phi_abs``) but keep R18 PHI rescale.
 
         Returns a config with ``phi_abs=0`` (removes the non-paper term)
@@ -212,7 +212,7 @@ class V4Config:
         return cls(phi_abs=0.0)
 
     @classmethod
-    def paper_strict_pure_radsec(cls) -> "V4Config":
+    def paper_strict_pure_radsec(cls) -> V4Config:
         """R58 audit-A3 — paper Eq.14 nominal + rad/s frequency units.
 
         Same as :meth:`paper_strict_pure` (PHI_ABS=0, PHI_H=PHI_D=1.0)

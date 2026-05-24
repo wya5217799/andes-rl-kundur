@@ -44,9 +44,14 @@ saturation. Every untested axis confirms either:
 
 No further single-axis experiments expected to yield new information.
 
-## Questions opened / closed / advanced
+## Questions opened (this round)
+- (none)
 
-(none)
+## Questions closed (this round)
+- (none)
+
+## Questions advanced (this round, status unchanged)
+- (none)
 
 ## 给 PI 的话
 

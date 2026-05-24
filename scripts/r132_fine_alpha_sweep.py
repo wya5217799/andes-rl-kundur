@@ -69,7 +69,6 @@ def rollout_with_warm_h(scen_name, delta_u, agents, warm_h_per_agent):
         env.seed(ENV_SEED)
         env.STEPS_PER_EPISODE = STEPS
         obs = env.reset(delta_u=delta_u)
-        n_agents = env.N_AGENTS
         f_nom = env.FN
         h_rollouts = [(w[0].clone(), w[1].clone()) for w in warm_h_per_agent]
         for step in range(STEPS):
@@ -126,7 +125,7 @@ def main():
         obs_t = torch.as_tensor(obs_0[i], dtype=torch.float32, device=DEVICE).unsqueeze(0)
         h_s, c_s = grad_ascent_h(ag, obs_t)
         h_star_list.append((h_s, c_s))
-    print(f"[R132] grad-ascent done")
+    print("[R132] grad-ascent done")
 
     per_alpha = []
     for alpha in ALPHAS:
@@ -144,7 +143,6 @@ def main():
     # Find knee: largest α where geo > 0.371 (within -0.02 of 0.391)
     baseline_geo = 0.391
     geo_lower_pareto = baseline_geo - 0.02
-    geo_lower_5pct = baseline_geo - 0.020   # -5% threshold (≈ same as -0.02 absolute)
     geo_lower_10pct = baseline_geo - 0.039  # -10% threshold
 
     knee_pareto = [p for p in per_alpha if p["geo"] >= geo_lower_pareto]

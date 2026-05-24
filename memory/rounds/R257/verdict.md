@@ -158,18 +158,11 @@ insight.
 "smooth-but-loud RL vs reactive-and-titrated droop k=10". 两个 controller
 class 的 inductive bias 直接 trade-off cum_rf vs 11-axis.
 
-**我默认下一步做**：
-1. **R258 = candidate (b) magnitude penalty**: 加 -λ|a|² 到 reward, train
-   td3_lstm s50 75ep. 大概 13 min ANDES WSL. 测 "RL 能不能在保持 smoothness
-   优势下 drop magnitude 到 droop level → cum_rf 接近 droop k=10". 注意:
-   这是 env reward 修改, 按 CLAUDE.md "paper-cited asset" 规则要新 round
-   + 新 CLM 文档化 (R258 + CLM-0480).
-2. **或** stop research 写 paper draft. 现在 Sec.IV-D 故事很全:
-   - Contribution 1 (RL-vs-droop Pareto) + mechanism (smooth-loud vs
-     reactive-titrated, R256 + R257)
-   - Contribution 2-4 (paper integrity audit, dual-metric)
-   - Contribution 5 (phi_f decomp, R254)
-   - 3 个 probe-first 案例 textbook 教学
+**我默认下一步做**：R258 跑 candidate (b) magnitude penalty：加 -λ|a|²,
+train td3_lstm s50 75ep, 测 RL 能不能在保持 smoothness 优势时把 magnitude
+压到 droop level. 这是 env reward 修改, 要新 round + 新 CLM 文档化.
+或者直接 stop research 写 paper draft；Sec.IV-D 的 Pareto + mechanism +
+integrity audit + reward decomp + probe-first 案例已经够完整.
 
 **你想插一脚就说**：R257 是 3/3 probe-first 救轮. mechanism narrative
 3 层叠加 (over-actuation + smoothness inversion + winner-is-jittery) 直接

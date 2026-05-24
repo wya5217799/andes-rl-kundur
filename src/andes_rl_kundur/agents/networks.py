@@ -6,7 +6,6 @@ SAC 神经网络 — Actor (高斯策略) + Critic (Double-Q)
 
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 from torch.distributions import Normal
 
 LOG_STD_MIN = -20.0

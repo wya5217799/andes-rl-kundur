@@ -35,7 +35,6 @@ from torch import nn
 
 from andes_rl_kundur.agents.networks import HiddenState
 
-
 WARM_INIT_HEAD_HIDDEN: int = 32
 
 
@@ -124,7 +123,7 @@ class WarmH0RecurrentActor(nn.Module):
         obs_dim: int,
         action_dim: int,
         hidden: int = 64,
-    ) -> "WarmH0RecurrentActor":
+    ) -> WarmH0RecurrentActor:
         """Build a WarmH0 actor from a vanilla RecurrentActor state_dict.
 
         Copies ``lstm.*`` and ``fc_out.*`` keys; random-inits h_init /

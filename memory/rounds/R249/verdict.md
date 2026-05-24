@@ -70,9 +70,14 @@ The autonomous loop has reached the deepest possible saturation.
 Further experiments will yield marginal value. **Recommended action**:
 pivot to paper writing using the accumulated R172-R249 dataset.
 
-## Questions opened / closed / advanced
+## Questions opened (this round)
+- (none)
 
-(none — comprehensive saturation)
+## Questions closed (this round)
+- (none)
+
+## Questions advanced (this round, status unchanged)
+- none — comprehensive saturation
 
 ## 给 PI 的话
 

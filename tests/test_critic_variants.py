@@ -24,7 +24,6 @@ from __future__ import annotations
 
 import sys
 import tempfile
-import types
 from pathlib import Path
 
 import numpy as np
@@ -33,13 +32,6 @@ import torch
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
-
-# CLAUDE.md ANDES = WSL only. Windows-side pytest reaches
-# ``andes_rl_kundur.__init__`` → ``andes_vsg_env_v4`` → ``import andes``,
-# which is absent on the Windows interpreter. Stub it so the import chain
-# finishes; the agent code under test never calls into andes at runtime.
-if "andes" not in sys.modules:
-    sys.modules["andes"] = types.ModuleType("andes")
 
 
 def _fill_buffer_with_episodes(agent, n_episodes: int, ep_len: int = 50):

@@ -113,7 +113,7 @@ def eval_combo(kp_M, kd_M, kn_M, kp_D, kd_D, kn_D, label: str) -> dict:
 
 def main():
     log.info(f"R145 — focused multi-input mag-PD; output → {OUT_DIR}")
-    log.info(f"  Base gains R102 best: Kp_M=2, Kp_D=5; adding neighbor (1.0) and/or derivative (1.0)")
+    log.info("  Base gains R102 best: Kp_M=2, Kp_D=5; adding neighbor (1.0) and/or derivative (1.0)")
 
     grand = {
         "round": 145,
@@ -151,9 +151,9 @@ def main():
     log.info("\n" + "=" * 60)
     log.info("R145 HEADLINE")
     log.info("=" * 60)
-    log.info(f"  R102 mag-PI (P-only, single-input): geo = 0.260")
+    log.info("  R102 mag-PI (P-only, single-input): geo = 0.260")
     log.info(f"  R145 best multi-input: geo = {best_geo:.4f}  ({best_label})")
-    log.info(f"  R72_w4 SOTA: geo = 0.391")
+    log.info("  R72_w4 SOTA: geo = 0.391")
     log.info(f"  RL advantage: {0.391 / best_geo:.2f}x")
     log.info("=" * 60)
     grand["headline"] = {

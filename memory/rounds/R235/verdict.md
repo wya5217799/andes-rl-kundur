@@ -54,9 +54,14 @@ phi_h reward term contributes nothing at training time (the policy
 relies on phi_abs + phi_f only). If collapse, the term is necessary
 at any non-zero value.
 
-## Questions opened / closed / advanced
+## Questions opened (this round)
+- (none)
 
-(none)
+## Questions closed (this round)
+- (none)
+
+## Questions advanced (this round, status unchanged)
+- (none)
 
 ## 给 PI 的话
 

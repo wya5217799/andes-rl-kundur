@@ -20,7 +20,7 @@ import numpy as np
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from andes_rl_kundur.evaluation.ensemble import build_ensemble_action_fn
+from andes_rl_kundur.evaluation.ensemble import build_ensemble_action_fn  # noqa: E402
 
 
 def test_ensemble_action_fn_resets_recurrent_at_scenario_boundary():

@@ -1,7 +1,8 @@
 """Compute median R-squared from R101 multi-seed MLP results."""
 import json
-import numpy as np
 from pathlib import Path
+
+import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
 with (ROOT / "results" / "r101_d3_multiseed_mlp" / "summary.json").open() as f:

@@ -13,9 +13,9 @@ jolt is enough to punish smoothness axes substantially).
 If (b): the warmed LSTM state breaks the entire trajectory.
 """
 import json
-import sys
-import numpy as np
 from pathlib import Path
+
+import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
 TRACE_DIR = ROOT / "results" / "r112_warmh0_env_eval" / "traces"
@@ -81,7 +81,7 @@ def main():
         # Per-step ||a|| mean across 4 agents
         nb_mean = nb.mean(axis=1)
         nw_mean = nw.mean(axis=1)
-        print(f"\n  Step-by-step ||a|| mean (baseline / warm):")
+        print("\n  Step-by-step ||a|| mean (baseline / warm):")
         print(f"    step 0  : {nb_mean[0]:.4f} / {nw_mean[0]:.4f}  (warm Δ={nw_mean[0]-nb_mean[0]:+.4f})")
         for k in [1, 2, 5, 10, 25, 50, 100, T-1]:
             if k < T:
@@ -90,7 +90,7 @@ def main():
         # Smoothness violation per step (mean across 4 agents)
         sb_mean = sb.mean(axis=1)
         sw_mean = sw.mean(axis=1)
-        print(f"\n  Smoothness |a_t - a_{{t-1}}| mean across agents:")
+        print("\n  Smoothness |a_t - a_{t-1}| mean across agents:")
         for k in [0, 1, 2, 4, 9, 24, 49, sb.shape[0]-1]:
             if k < sb.shape[0]:
                 print(f"    step {k:<3} (jump from prev): baseline {sb_mean[k]:.4f}, warm {sw_mean[k]:.4f}  (warm Δ={sw_mean[k]-sb_mean[k]:+.4f})")
@@ -100,7 +100,7 @@ def main():
         # Freq deviation profile (max across 4 agents per step)
         fb_max = fb.max(axis=1)
         fw_max = fw.max(axis=1)
-        print(f"\n  max |Δf| Hz per step:")
+        print("\n  max |Δf| Hz per step:")
         print(f"    step 0  : {fb_max[0]:.5f} / {fw_max[0]:.5f}  (warm Δ={fw_max[0]-fb_max[0]:+.5f})")
         for k in [1, 5, 10, 25, 50, 100, T-1]:
             if k < T:
@@ -111,7 +111,7 @@ def main():
         # Action saturation (||a|| close to max)
         sat_b = (nb >= 0.9).mean(axis=1)  # frac of agents at >=90% norm per step
         sat_w = (nw >= 0.9).mean(axis=1)
-        print(f"\n  Fraction of agents at ||a||≥0.9 (saturation):")
+        print("\n  Fraction of agents at ||a||≥0.9 (saturation):")
         print(f"    step 0: baseline {sat_b[0]:.2f}, warm {sat_w[0]:.2f}")
         print(f"    step 1: baseline {sat_b[1]:.2f}, warm {sat_w[1]:.2f}")
         print(f"    mean over all steps: baseline {sat_b.mean():.3f}, warm {sat_w.mean():.3f}")

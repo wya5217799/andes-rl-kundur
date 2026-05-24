@@ -45,8 +45,8 @@ def test_sac_agent_inherits_from_sac_base():
 
 
 def test_sac_agent_ctde_inherits_from_sac_base():
-    from andes_rl_kundur.agents.sac_ctde import SACAgentCTDE
     from andes_rl_kundur.agents.sac_base import _SACBase
+    from andes_rl_kundur.agents.sac_ctde import SACAgentCTDE
     agent = SACAgentCTDE(obs_dim=7, action_dim=2, hidden_sizes=[64, 64])
     assert isinstance(agent, _SACBase)
     # SACAgentCTDE has NO per-agent critic

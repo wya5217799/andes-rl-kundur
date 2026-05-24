@@ -90,7 +90,6 @@ def rollout_with_warm_h(scen_name, delta_u, agents, warm_h_per_agent):
         env.seed(ENV_SEED)
         env.STEPS_PER_EPISODE = STEPS
         obs = env.reset(delta_u=delta_u)
-        n_agents = env.N_AGENTS
         f_nom = env.FN
         h_rollouts = [(w[0].clone(), w[1].clone()) for w in warm_h_per_agent]
 
@@ -127,7 +126,7 @@ def rollout_with_warm_h(scen_name, delta_u, agents, warm_h_per_agent):
     finally:
         env.close()
     return {
-        "controller": f"r72_w4_warm_h0_alpha", "scenario": scen_name,
+        "controller": "r72_w4_warm_h0_alpha", "scenario": scen_name,
         "env_version": "v4", "cum_rf_total": cum_rf, "max_df": max_df,
         "osc": osc_accum, "n_steps": len(traces), "traces": traces,
     }
@@ -147,7 +146,7 @@ def main() -> int:
     # Phase 1: grad-ascent on real obs_0 (same per scenario since obs_0
     # is pre-disturbance; reuse R112 result conceptually but re-compute
     # for clean closure)
-    print(f"\n[R121] Phase 1: grad-ascent on obs_0")
+    print("\n[R121] Phase 1: grad-ascent on obs_0")
     obs_0_ls1 = get_obs_0("load_step_1", SCENARIOS["load_step_1"], n_agents)
     h_star_list: list[tuple[torch.Tensor, torch.Tensor]] = []
     for i, ag in enumerate(agents):
@@ -167,14 +166,12 @@ def main() -> int:
         # Rollout LS1 + LS2 with this warm h
         scen_paths = {}
         for scen_name, delta_u in SCENARIOS.items():
-            t_s = time.time()
             rec = rollout_with_warm_h(scen_name, delta_u, agents, warm_h)
             sp = traces_dir / f"alpha_{int(alpha*100):03d}_{scen_name}.json"
             sp.write_text(json.dumps(rec, indent=2))
             scen_paths[scen_name] = sp
 
         scored = score_trace_files(scen_paths, label=f"r121_alpha_{alpha:.1f}", is_ddic=True)
-        wall = time.time() - t_s
         print(f"  α={alpha:.1f}: geo={scored['geo']:.4f}  LS1={scored['LS1']:.4f}  "
               f"LS2={scored['LS2']:.4f}  cum_rf={scored['cum_rf']:+.4f}")
         per_alpha.append({
@@ -234,11 +231,11 @@ def main() -> int:
     }
     (OUT_DIR / "summary.json").write_text(json.dumps(summary, indent=2))
 
-    print(f"\n[R121] ─── VERDICT ───")
+    print("\n[R121] ─── VERDICT ───")
     print(f"  gate: {gate}")
     print(f"  {interp}\n")
-    print(f"  α       | LS1    | LS2    | geo    | cum_rf")
-    print(f"  --------|--------|--------|--------|--------")
+    print("  α       | LS1    | LS2    | geo    | cum_rf")
+    print("  --------|--------|--------|--------|--------")
     for p in per_alpha:
         flag = " ←best" if p == best_geo else ("  ←Δcum_rf" if p == best_cum_rf else "")
         print(f"  {p['alpha']:5.1f}   | {p['LS1']:.4f} | {p['LS2']:.4f} | {p['geo']:.4f} | {p['cum_rf']:+.4f}{flag}")

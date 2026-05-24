@@ -1,5 +1,6 @@
 """Claim + Question ledger validator. Hard rules + soft warnings."""
 from __future__ import annotations
+
 import argparse
 import re
 import sys
@@ -631,14 +632,18 @@ def validate_rules(
         ctype = claim.get("type")
         if ctype not in ("finding", "correction"):
             continue
+        if claim.get("status") != "current":
+            continue
+        if claim.get("trust") != "V":
+            continue
         if claim.get("metric"):
             continue
-        # Only nag for claims emitted at R50 or later
-        r = claim.get("round")
-        if isinstance(r, str):
-            m = ROUND_DIR_RE.match(r)
-            if m and int(m.group(1)) < 50:
-                continue
+        # Only suppress pre-R50 round-labelled claims. Claims without a round
+        # label still warn: they may be new unit-test fixtures or legacy claims
+        # that need an explicit metric backfill.
+        round_num = _claim_round_num(claim)
+        if round_num is not None and round_num < 50:
+            continue
         stmt = claim.get("statement") or ""
         if _DECIMAL_RE.search(stmt):
             warnings.append(
@@ -767,7 +772,10 @@ def _is_pattern_provenance(p: str) -> bool:
 
 
 def check_provenance_paths(
-    claims: dict[str, dict[str, Any]], *, repo_root: Path
+    claims: dict[str, dict[str, Any]],
+    *,
+    repo_root: Path,
+    skip_results: bool = False,
 ) -> list[str]:
     """Soft check: for each claim's provenance entries that look like
     literal paths (no glob / brace patterns), warn if the path doesn't
@@ -782,6 +790,8 @@ def check_provenance_paths(
     """
     out: list[str] = []
     for claim in claims.values():
+        if claim.get("status") != "current":
+            continue
         # F7 (2026-05-19 audit): per-claim opt-out for legacy claims whose
         # provenance points to _archive/ or _legacy/ scripts that have been
         # intentionally moved out. Set ``archived_provenance: true`` in the
@@ -800,6 +810,12 @@ def check_provenance_paths(
             # is considered intentionally non-existent (claims may reference
             # historical scripts moved to those locations).
             if head.startswith(("_archive/", "_legacy/", "memory/handoffs/")):
+                continue
+            # In repository-wide validation, results/ is intentionally
+            # gitignored. Missing local result files are expected across
+            # sessions; warn_results_orphans covers the opposite, actionable
+            # case where a local result exists but has no ledger closure.
+            if skip_results and head.startswith("results/"):
                 continue
             full = (repo_root / head).resolve()
             if not full.exists():
@@ -1108,8 +1124,16 @@ def _iter_verdicts(rounds_dir: Path):
         if canonical.exists():
             yield canonical
             continue
-        for alt in sorted(round_dir.glob("*verdict*.md")):
-            yield alt
+        yield from sorted(round_dir.glob("*verdict*.md"))
+
+
+def _load_skipped_round_numbers(rounds_dir: Path) -> set[int]:
+    """Return round IDs intentionally listed as skipped/abandoned."""
+    skipped_path = rounds_dir / "_SKIPPED.md"
+    if not skipped_path.exists():
+        return set()
+    text = skipped_path.read_text(encoding="utf-8")
+    return {int(match.group(1)) for match in re.finditer(r"\bR(\d+)\b", text)}
 
 
 def main() -> int:
@@ -1146,9 +1170,12 @@ def main() -> int:
             warnings.extend(warn_verdict_recommended(verdict_path))
 
     # R166: round lifecycle state check on every RNNN/plan.md.
+    skipped_rounds = _load_skipped_round_numbers(args.rounds_dir)
     for round_dir in sorted(args.rounds_dir.iterdir()):
-        if not round_dir.is_dir() or not ROUND_DIR_RE.match(round_dir.name):
+        round_match = ROUND_DIR_RE.match(round_dir.name)
+        if not round_dir.is_dir() or not round_match:
             continue
+        round_num = int(round_match.group(1))
         plan_path = round_dir / "plan.md"
         if not plan_path.exists():
             # No plan.md. Two sub-cases:
@@ -1156,7 +1183,7 @@ def main() -> int:
             #       convention; effectively closed, no warning.
             #   (b) truly empty → reserved-but-abandoned zombie.
             has_verdict = any(round_dir.glob("*verdict*.md"))
-            if not has_verdict:
+            if not has_verdict and round_num not in skipped_rounds:
                 warnings.append(
                     f"{round_dir}: reserved but no plan.md and no verdict "
                     f"(zombie; abort, populate, or list in _SKIPPED.md)"
@@ -1172,7 +1199,9 @@ def main() -> int:
     # Gitignored areas (results/, logs/) routinely produce warnings;
     # users skim past them. Never blocks validation.
     repo_root = Path(__file__).resolve().parents[2]
-    warnings.extend(check_provenance_paths(claims, repo_root=repo_root))
+    warnings.extend(
+        check_provenance_paths(claims, repo_root=repo_root, skip_results=True)
+    )
 
     # R171 Gap 1: results dirs with eval summary but no claim reference.
     warnings.extend(

@@ -27,9 +27,8 @@ sys.path.insert(0, str(ROOT / "src"))
 if "andes" not in sys.modules:
     sys.modules["andes"] = types.ModuleType("andes")
 
-from andes_rl_kundur.evaluation.paper_grade_axes import evaluate_trace, PAPER  # noqa: E402
+from andes_rl_kundur.evaluation.paper_grade_axes import PAPER, evaluate_trace  # noqa: E402
 from andes_rl_kundur.evaluation.paper_strict_eval import compute_global_cum_rf  # noqa: E402
-
 
 SEARCH_DIR = ROOT / "results" / "research_loop" / "eval_v4_baseline"
 OUT_DIR = ROOT / "results" / "r135_freshscore"
@@ -151,7 +150,7 @@ def main():
     fig.tight_layout()
     fig.savefig(OUT_DIR / "scatter.png", dpi=180)
     fig.savefig(OUT_DIR / "scatter.pdf")
-    print(f"saved: scatter.png + .pdf")
+    print("saved: scatter.png + .pdf")
 
 
 if __name__ == "__main__":

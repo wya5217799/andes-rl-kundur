@@ -35,7 +35,7 @@ class EpisodeResult:
     reason: str | None = None  # only set when reset_failed=True
 
     @classmethod
-    def from_reset_failure(cls, reason: str, total_steps: int = 0) -> "EpisodeResult":
+    def from_reset_failure(cls, reason: str, total_steps: int = 0) -> EpisodeResult:
         """Build the short-circuit record used when ``env.reset()`` raises."""
         return cls(reset_failed=True, reason=reason, total_steps=total_steps)
 

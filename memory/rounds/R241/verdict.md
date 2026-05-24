@@ -53,9 +53,14 @@ paper Eq.14 terms are inert. Max |Δ| = 1.1%, all within ±2% eval noise.
 This is now the **strongest paper-integrity claim possible** in this
 autonomous loop. Multiple algorithms, multiple seeds, all consistent.
 
-## Questions opened / closed / advanced
+## Questions opened (this round)
+- (none)
 
-(none — paper-integrity story decisive)
+## Questions closed (this round)
+- (none)
+
+## Questions advanced (this round, status unchanged)
+- none — paper-integrity story decisive
 
 ## 给 PI 的话
 

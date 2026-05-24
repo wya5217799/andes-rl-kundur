@@ -42,9 +42,9 @@ import os
 import warnings
 from collections import deque
 
-import andes
 import numpy as np
 
+import andes
 from andes_rl_kundur.env.andes.base_env import AndesBaseEnv
 from andes_rl_kundur.env.andes.v4_config import V4Config
 from andes_rl_kundur.scenarios.contract import KUNDUR as _CONTRACT

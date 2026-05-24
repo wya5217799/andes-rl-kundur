@@ -91,8 +91,8 @@ def test_explicit_cli_overrides_win_over_reward_config_base():
 
 def test_unknown_reward_config_raises():
     """Typo-resistant: unknown reward_config value must raise."""
-    import train
     import pytest
+    import train
 
     args = _mk_args(reward_config="paper_strict_typo")
     with pytest.raises((ValueError, AttributeError)):

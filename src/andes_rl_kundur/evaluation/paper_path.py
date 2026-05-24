@@ -27,19 +27,30 @@ Trace JSON shape (one file per scenario):
 """
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Callable
+from collections.abc import Callable
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 
-from andes_rl_kundur.env.andes.andes_vsg_env_v4 import AndesMultiVSGEnvV4
-
 if TYPE_CHECKING:
+    from andes_rl_kundur.env.andes.andes_vsg_env_v4 import AndesMultiVSGEnvV4 as _V4Env
     from andes_rl_kundur.env.andes.v4_config import V4Config
+
+AndesMultiVSGEnvV4: type[_V4Env] | None = None
 
 
 # An ``action_fn`` receives the per-step observation dict and the agent
 # count, and returns a dict mapping agent_idx -> 2-D action array.
 ActionFn = Callable[[int, dict[int, np.ndarray], int], dict[int, np.ndarray]]
+
+
+def _env_cls() -> type[_V4Env]:
+    global AndesMultiVSGEnvV4
+    if AndesMultiVSGEnvV4 is None:
+        from andes_rl_kundur.env.andes.andes_vsg_env_v4 import AndesMultiVSGEnvV4 as cls
+
+        AndesMultiVSGEnvV4 = cls
+    return AndesMultiVSGEnvV4
 
 
 def zero_action_fn(step: int, obs: dict[int, np.ndarray], n_agents: int) -> dict[int, np.ndarray]:
@@ -77,7 +88,7 @@ def run_scenario(
     seed: int = 42,
     steps: int = 150,
     extra_keys: dict[str, Any] | None = None,
-    config: "V4Config | None" = None,
+    config: V4Config | None = None,
 ) -> dict[str, Any]:
     """Run one scenario on the V4 env and return the trace JSON dict.
 
@@ -101,7 +112,7 @@ def run_scenario(
     Returns:
         Trace JSON dict (see module docstring for shape).
     """
-    env = AndesMultiVSGEnvV4(
+    env = _env_cls()(
         random_disturbance=False, comm_fail_prob=0.0, config=config,
     )
     traces: list[dict[str, Any]] = []

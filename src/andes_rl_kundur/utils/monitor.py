@@ -13,11 +13,12 @@ each episode; it returns ``True`` when any registered check returns a
 """
 from __future__ import annotations
 
-from collections import Counter
 import csv
 import json
+from collections import Counter
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 import numpy as np
 
@@ -374,7 +375,7 @@ class TrainingMonitor:
         runs = []
         for path_str in checkpoints:
             path = Path(path_str)
-            with open(path, "r") as f:
+            with open(path) as f:
                 data = json.load(f)
             runs.append((path.name, data))
 
@@ -436,7 +437,7 @@ class TrainingMonitor:
             json.dump(data, f, indent=2, default=lambda o: float(o) if hasattr(o, 'item') else str(o))
 
     @classmethod
-    def load_checkpoint(cls, path: str) -> "TrainingMonitor":
+    def load_checkpoint(cls, path: str) -> TrainingMonitor:
         """Create a TrainingMonitor from a saved checkpoint JSON."""
         with open(path) as f:
             data = json.load(f)
@@ -588,8 +589,8 @@ class TrainingMonitor:
         # SAC losses (if available)
         if self._sac_losses:
             losses = self._sac_losses[-1]
-            critic_vals = [l["critic_loss"] for l in losses if "critic_loss" in l]
-            alpha_vals = [l["alpha"] for l in losses if "alpha" in l]
+            critic_vals = [loss["critic_loss"] for loss in losses if "critic_loss" in loss]
+            alpha_vals = [loss["alpha"] for loss in losses if "alpha" in loss]
             if critic_vals:
                 mean_critic = float(np.mean(critic_vals))
                 parts = [f"mean critic_loss: {mean_critic:.3f}"]
@@ -616,7 +617,7 @@ class TrainingMonitor:
         max_freq = max(h["max_freq_deviation_hz"] for h in self._env_health)
         max_freq_ep = max(range(n), key=lambda i: self._env_health[i]["max_freq_deviation_hz"])
 
-        print(f"\n[Monitor] === Training Summary ===")
+        print("\n[Monitor] === Training Summary ===")
         print(f"  Episodes: {n} | Calibration: {cal_status}")
         print(f"  Reward:   {first_r:.0f} (ep 0) -> {last_r:.0f} (ep {n-1})")
         print(f"  Best:     {best_r:.0f} @ ep {best_ep} | Worst: {worst_r:.0f} @ ep {worst_ep}")
@@ -641,9 +642,9 @@ class TrainingMonitor:
         # Loss trend summary
         if self._sac_losses:
             all_critic = [
-                float(np.mean([l["critic_loss"] for l in ep if "critic_loss" in l]))
+                float(np.mean([loss["critic_loss"] for loss in ep if "critic_loss" in loss]))
                 for ep in self._sac_losses
-                if any("critic_loss" in l for l in ep)
+                if any("critic_loss" in loss for loss in ep)
             ]
             if len(all_critic) >= 2:
                 early = float(np.mean(all_critic[:min(20, len(all_critic))]))
@@ -652,7 +653,7 @@ class TrainingMonitor:
                 print(f"  Loss trend: critic_loss early={early:.3f} -> late={late:.3f} ({trend})")
 
         if self._trigger_history:
-            print(f"\n  Checks triggered:")
+            print("\n  Checks triggered:")
             # Field-name fallback: pre-R42 plug-in entries used `name` /
             # `severity` instead of `check` / `action`. load_checkpoint
             # hydrates either shape; tolerate both here.
@@ -671,7 +672,7 @@ class TrainingMonitor:
                 label = "STOP" if action == "stop" else "WARN"
                 print(f"    {check_name:<28} {icon} {label:<5} @ ep {first_ep:<5} ({count} time{'s' if count > 1 else ''})")
         else:
-            print(f"\n  No checks triggered.")
+            print("\n  No checks triggered.")
 
         print(f"\n  TDS failures: {total_tds}/{n} ({total_tds/n*100:.1f}%)")
         print(f"  Freq peak deviation: {max_freq:.2f} Hz (ep {max_freq_ep})")

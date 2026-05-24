@@ -206,8 +206,9 @@ def test_generate_test_scenarios_no_anchors_when_flag_off():
 def test_generate_test_scenarios_returns_jsonable_dicts():
     """Each scenario is a JSON-serializable dict — required so the
     test set can be saved to disk via ``json.dump`` for reproducibility."""
-    from andes_rl_kundur.evaluation.paper_strict_eval import generate_test_scenarios
     import json
+
+    from andes_rl_kundur.evaluation.paper_strict_eval import generate_test_scenarios
 
     scens = generate_test_scenarios(n=20, seed=2026, include_anchors=True)
     # Round-trip
@@ -235,8 +236,8 @@ def test_generate_test_scenarios_uses_only_buses_that_exist_in_v4_env():
     ``PQ_Bus14`` / ``PQ_Bus15`` (ES3/ES4 loads).
     """
     from andes_rl_kundur.evaluation.paper_strict_eval import (
-        generate_test_scenarios,
         _PQ_BUS_CANDIDATES,
+        generate_test_scenarios,
     )
 
     valid_pq_ids = {"PQ_0", "PQ_1", "PQ_Bus14", "PQ_Bus15"}

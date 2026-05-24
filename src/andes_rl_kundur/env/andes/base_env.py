@@ -17,9 +17,10 @@ ANDES 多智能体 VSG 环境基类
 论文: Yang et al., IEEE TPWRS 2023
 """
 
+import os
 from abc import ABC, abstractmethod
 from collections import deque
-import os
+
 import numpy as np
 
 from andes_rl_kundur.scenarios.contract import KUNDUR as _DEFAULT_CONTRACT
@@ -346,7 +347,6 @@ class AndesBaseEnv(ABC):
         # 累积成 0.04+0.08+...+0.20 = 0.6s 而不是 paper-faithful 0.2s.
         # R-DT-fix 2026-05-07. 修前每 control step 实际 advance 0.6s (3× 错).
         current_t = float(self.ss.dae.t)
-        target_t = current_t + self.DT
         dt_sub = self.DT / self.N_SUBSTEPS
         tds_failed = False
 

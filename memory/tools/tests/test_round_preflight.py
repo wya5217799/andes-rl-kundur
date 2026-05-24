@@ -5,22 +5,20 @@ in-memory claim ledger to exercise one check at a time. The shared
 preflight_check() integration test verifies they compose."""
 from __future__ import annotations
 
-from pathlib import Path
 import sys
+from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from round_preflight import (  # noqa: E402
     PreflightReport,
-    Finding,
-    check_superseded_citations,
-    check_dual_metric_plan,
-    check_plan_structure,
-    check_prior_art,
     _cited_clm_ids,
     _cited_run_names,
     _extract_methodology_flags,
+    check_dual_metric_plan,
+    check_plan_structure,
+    check_prior_art,
+    check_superseded_citations,
 )
-
 
 # ── primitives ────────────────────────────────────────────────────────
 

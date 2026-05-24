@@ -133,8 +133,9 @@ def test_sequence_buffer_exact_length_episode():
 
 def test_sequence_buffer_constructor_rejects_invalid_args():
     """Negative seq_len or burn_in is a programmer error — raise."""
-    from andes_rl_kundur.agents.replay_buffer import SequenceReplayBuffer
     import pytest
+
+    from andes_rl_kundur.agents.replay_buffer import SequenceReplayBuffer
 
     with pytest.raises(ValueError):
         SequenceReplayBuffer(obs_dim=7, action_dim=2, seq_len=0, burn_in=5)
@@ -197,8 +198,9 @@ def test_transient_boost_oversamples_early_starts():
 
 def test_transient_boost_rejects_below_one():
     """transient_boost must be ≥ 1.0 (downweighting is not supported)."""
-    from andes_rl_kundur.agents.replay_buffer import SequenceReplayBuffer
     import pytest
+
+    from andes_rl_kundur.agents.replay_buffer import SequenceReplayBuffer
     with pytest.raises(ValueError, match="transient_boost"):
         SequenceReplayBuffer(
             obs_dim=7, action_dim=2, seq_len=10, burn_in=5,

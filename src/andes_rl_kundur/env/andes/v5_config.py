@@ -67,7 +67,7 @@ class V5Config(V4Config):
     # ─── Factory methods ─────────────────────────────────────────────
 
     @classmethod
-    def v5_default(cls) -> "V5Config":
+    def v5_default(cls) -> V5Config:
         """V5 默认 — W2 换 REGCA1, G4 保留 V4 hack (cycle 3c GREEN).
 
         Cycle 3a 实测 "G4+W2 同时换 REGCA1" 在 Kundur 100 MVA base 下:
@@ -86,7 +86,7 @@ class V5Config(V4Config):
         return cls(wind_model="regca1_w2_only")
 
     @classmethod
-    def v5_regca1_both(cls) -> "V5Config":
+    def v5_regca1_both(cls) -> V5Config:
         """G4+W2 全 REGCA1 (R80 cycle 3a 实测不可用, 留作未来研究入口).
 
         TDS 在 t=2.0 s 步长压零. 后续 round 修需要:
@@ -98,7 +98,7 @@ class V5Config(V4Config):
         return cls(wind_model="regca1")
 
     @classmethod
-    def v4_plant_fallback(cls) -> "V5Config":
+    def v4_plant_fallback(cls) -> V5Config:
         """V5 退路 — 退到 V4 plant (GENROU+ZERO_G4_INERTIA + GENCLS W2).
 
         用于 Phase B (C3 cross-eval) 想看 V5 代码路径下跑 V4 plant 时,

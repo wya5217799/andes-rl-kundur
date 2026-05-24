@@ -10,7 +10,6 @@ sanity check.
 """
 from __future__ import annotations
 
-import json
 from pathlib import Path
 
 import numpy as np
@@ -25,7 +24,6 @@ from andes_rl_kundur.evaluation.paper_grade_axes import (
     _late_oscillation_inv,
     evaluate_trace,
 )
-
 
 # ─── Axis 9: agent_min_activity ──────────────────────────────────────────────
 

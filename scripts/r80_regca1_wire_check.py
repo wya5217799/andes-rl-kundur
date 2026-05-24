@@ -28,7 +28,6 @@ from pathlib import Path
 import andes
 from andes.utils.paths import get_case
 
-
 PROBE_OUT = Path(__file__).resolve().parents[1] / "probes" / "r80_regca1_wire_check.json"
 
 # V4 topology constants (mirrors andes_vsg_env_v4 hard-coded values; we

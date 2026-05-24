@@ -32,7 +32,6 @@ from andes_rl_kundur.agents.checkpoint_loader import load_agents  # noqa: E402
 from andes_rl_kundur.env.andes.andes_vsg_env_v4 import AndesMultiVSGEnvV4  # noqa: E402
 from andes_rl_kundur.probes.andes_common.paper_constants import SCENARIOS  # noqa: E402
 
-
 # ─── Config ───────────────────────────────────────────────────────────
 OUT_DIR = ROOT / "results" / "r97_cross_ckpt_action_coord"
 ENV_SEED = 42
@@ -257,17 +256,17 @@ def main() -> int:
     (OUT_DIR / "cross_ckpt_aggregate.json").write_text(json.dumps(aggregate, indent=2))
 
     # Print digest
-    print(f"\n=== R97-W1 cross-ckpt action-coordination digest ===")
+    print("\n=== R97-W1 cross-ckpt action-coordination digest ===")
     print(f"N ckpts: {n}")
     print(f"Gate: {aggregate['gate']}")
-    print(f"")
+    print("")
     print(f"{'ckpt_id':<28s} {'sat_max':>8s} {'max|r|':>8s} {'dD_lockstep':>12s} {'Kundur_sig':>11s}")
     for r in per_ckpt_results:
         print(f"{r['ckpt_id']:<28s} {r['max_saturation_fraction']:>8.3f} "
               f"{r['max_abs_off_diagonal']:>8.3f} {str(r['dD_lockstep_high']):>12s} "
               f"{str(r['kundur_signature_dM_LS1']):>11s}")
     agg = aggregate['aggregate']
-    print(f"\nAggregate:")
+    print("\nAggregate:")
     print(f"  saturation high (≥0.50): {agg['n_ckpts_saturation_high']}/{n}")
     print(f"  ΔD lockstep (≥0.9):      {agg['n_ckpts_lockstep_dD']}/{n}")
     print(f"  Kundur 2-area sig:       {agg['n_ckpts_kundur_sig_dM_LS1']}/{n}")

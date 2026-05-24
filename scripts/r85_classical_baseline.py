@@ -21,17 +21,19 @@ import logging
 import shutil
 import sys
 import time
+from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Callable
 
 import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from andes_rl_kundur.evaluation.paper_path import run_scenario  # noqa: E402
-from andes_rl_kundur.evaluation.paper_path import zero_action_fn  # noqa: E402
+from andes_rl_kundur.evaluation.paper_path import (  # noqa: E402
+    run_scenario,  # noqa: E402
+    zero_action_fn,  # noqa: E402
+)
 from andes_rl_kundur.evaluation.summary import format_headline, score_trace_files  # noqa: E402
 from andes_rl_kundur.probes.andes_common.paper_constants import SCENARIOS  # noqa: E402
 from andes_rl_kundur.scenarios.contract import KUNDUR  # noqa: E402
@@ -325,10 +327,10 @@ def main() -> None:
     log.info("\n" + "=" * 60)
     log.info("R85 HEADLINE")
     log.info("=" * 60)
-    log.info(f"  no_control      : geo = 0.104   (R30, ref)")
+    log.info("  no_control      : geo = 0.104   (R30, ref)")
     log.info(f"  best droop      : geo = {droop_geo:.4f}   (K={best_k:.1f})")
     log.info(f"  best PI (coarse): geo = {pi_geo:.4f}   ({best_pi_gains})")
-    log.info(f"  R72_w4 SOTA     : geo = 0.391   (CLM-0094)")
+    log.info("  R72_w4 SOTA     : geo = 0.391   (CLM-0094)")
     log.info("=" * 60)
 
     headline = {

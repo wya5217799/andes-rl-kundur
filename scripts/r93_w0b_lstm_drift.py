@@ -44,7 +44,6 @@ if "andes" not in sys.modules:
 
 from andes_rl_kundur.agents.checkpoint_loader import load_agents  # noqa: E402
 
-
 SOTA_DIR = ROOT / "results" / "r72_w4_lstm_tau001_warmup5_s54"
 OUT_DIR = ROOT / "results" / "r93_w0b_lstm_drift"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -197,13 +196,13 @@ def main() -> None:
     fig.savefig(OUT_DIR / "drift_curves.png", dpi=110)
     plt.close(fig)
 
-    print(f"\n=== R93-W0b LSTM drift digest ===")
-    print(f"Stream-aggregate logit_max_abs across 4 agents:")
+    print("\n=== R93-W0b LSTM drift digest ===")
+    print("Stream-aggregate logit_max_abs across 4 agents:")
     for label, a in agg.items():
         sat = "SATURATES" if a["saturates_predict"] else "stays interior"
         print(f"  {label:<22} median = {a['logit_max_abs_median']:>6.3f}, "
               f"max = {a['logit_max_abs_max']:>6.3f}  ({sat})")
-    print(f"\nPer-agent terminal h_norms and action magnitudes:")
+    print("\nPer-agent terminal h_norms and action magnitudes:")
     for r in per_agent_results:
         for label in streams:
             p = r["streams"][label]

@@ -84,7 +84,7 @@ def test_r89_audit_report_present():
     """
     if not AUDIT_JSON.exists():
         pytest.skip(
-            f"R89 audit not run yet. Run: python scripts/r89_parameter_audit.py"
+            "R89 audit not run yet. Run: python scripts/r89_parameter_audit.py"
         )
     summary = json.loads(AUDIT_JSON.read_text(encoding="utf-8"))
     assert summary["genrou"]["F1_fn_mismatch"] is True, (

@@ -184,22 +184,14 @@ together" 退化策略.
    reward-hacking). 每轮都 narrow mechanism + 加 paper contribution
    candidate.
 
-**Paper Sec.IV-D 现在 6 contribution 候选**:
-1. Pareto frontier (CLM-0445)
-2. Dual-metric audit (CLM-0186/0430)
-3. Robustness story (R210-R220)
-4. Reward decomposition (R254/CLM-0455)
-5. Reward landscape characterization (R248/R246/R258 extension)
-6. **phi_abs structural anchor + reward-hacking finding (R258 NEW)**
+**Paper Sec.IV-D 现在 6 contribution 候选**：Pareto frontier, dual-metric
+audit, robustness story, reward decomposition, reward landscape, 以及
+**phi_abs structural anchor + reward-hacking finding (R258 NEW)**.
 
-**我默认下一步做**：
-1. **R259 = hybrid RL+droop warm-start (CLM-0470 candidate c)** — 唯一
-   剩下的 mechanism-valid training path. 估计 ~1 day infrastructure
-   (droop-state-to-actor-init mapping) + 13 min train. 比 R258 风险高
-   (1-day 投资 vs single-flag flip), 但是只剩这一条路.
-2. **或** stop research 写 paper draft. Mechanism story 已完整. 6
-   contribution 论文 ready 度比 5 contribution 高很多. R258 reward-
-   hacking finding 是 paper 第 6 contribution 的 final piece.
+**我默认下一步做**：R259 只剩 hybrid RL+droop warm-start (CLM-0470
+candidate c) 这条 mechanism-valid training path, 但要 ~1 day infra + 13 min
+train. 更推荐 stop research 写 paper draft；R258 reward-hacking finding 已经
+补上第 6 contribution.
 
 **你想插一脚就说**：4/4 probe-first/training-first 协议 textbook 示范.
 Paper Sec.IV-D mechanism story 4 层叠加 (Pareto + over-actuation +

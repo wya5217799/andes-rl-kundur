@@ -83,7 +83,7 @@ class TD3LSTMHRegAgent(TD3LSTMAgent):
         h_c1_critic = h_c1
         h_c2_critic = h_c2
         critic_losses: list[torch.Tensor] = []
-        from torch.nn import functional as F   # noqa: N813
+        from torch.nn import functional as F  # noqa: N813
         for t in range(self.burn_in, self.burn_in + self.seq_len):
             with torch.no_grad():
                 target_a_raw, h_a_tgt = self.actor_target(next_obs[:, t], h_a_tgt)

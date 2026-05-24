@@ -1,5 +1,6 @@
-from pathlib import Path
+import shutil
 import sys
+from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from validate import load_claims  # noqa: E402
@@ -119,9 +120,7 @@ def test_load_claims_raises_on_duplicate_id_on_disk(tmp_path):
         load_claims(tmp_path)
 
 
-import shutil
 from validate import fix_back_edges  # noqa: E402
-
 
 # ---------- Question entity tests (commit 2) ----------
 
@@ -740,7 +739,7 @@ def test_pi_briefing_under_cap_no_warning(tmp_path):
 
 def test_pi_briefing_over_cap_emits_warning(tmp_path):
     """A briefing exceeding 30 non-blank lines emits a soft warning."""
-    from validate import warn_verdict_recommended, PI_BRIEFING_LINE_CAP  # noqa: E402
+    from validate import PI_BRIEFING_LINE_CAP, warn_verdict_recommended  # noqa: E402
     r59 = tmp_path / "rounds" / "R59"
     r59.mkdir(parents=True)
     bloated = "\n".join(
@@ -1110,6 +1109,7 @@ def test_warn_stale_active_after_threshold(tmp_path):
     verdict → soft warn. Threshold tightened from 14 to 3 days to match
     30-rounds/day project velocity."""
     from datetime import date
+
     from validate import validate_round_state  # noqa: E402
     rounds_dir = tmp_path / "rounds"
     plan = _write_plan(rounds_dir / "R200", round="R200",
@@ -1122,6 +1122,7 @@ def test_warn_stale_active_after_threshold(tmp_path):
 def test_warn_stale_active_within_threshold_silent(tmp_path):
     """state=active opened < 3 days ago → no stale warning (R176 G9)."""
     from datetime import date
+
     from validate import validate_round_state  # noqa: E402
     rounds_dir = tmp_path / "rounds"
     plan = _write_plan(rounds_dir / "R200", round="R200",
@@ -1135,6 +1136,7 @@ def test_warn_stale_queued_after_threshold(tmp_path):
     """R176 G9: state=queued + opened ≥ ROUND_STALE_QUEUED_DAYS → soft
     warn. Threshold tightened from 7 to 2 days."""
     from datetime import date
+
     from validate import validate_round_state  # noqa: E402
     rounds_dir = tmp_path / "rounds"
     plan = _write_plan(rounds_dir / "R200", round="R200",
@@ -1147,6 +1149,7 @@ def test_warn_stale_queued_after_threshold(tmp_path):
 def test_warn_stale_terminal_states_silent(tmp_path):
     """Terminal states never trigger stale warnings, even if opened long ago."""
     from datetime import date
+
     from validate import validate_round_state  # noqa: E402
     rounds_dir = tmp_path / "rounds"
     today = date(2026, 5, 19)
@@ -1497,7 +1500,8 @@ def test_gc_empty_rounds_sweeps_old_empty_dirs(tmp_path):
     rounds_dir = tmp_path / "rounds"
     (rounds_dir / "R200").mkdir(parents=True)
     # Backdate so it qualifies as old
-    import os, time
+    import os
+    import time
     old = time.time() - 7200  # 2 hours old
     os.utime(rounds_dir / "R200", (old, old))
     swept = rr.gc_empty_rounds(rounds_dir, max_age_minutes=60)
@@ -1526,7 +1530,9 @@ def test_gc_empty_rounds_skips_young_dirs(tmp_path):
 
 def test_gc_empty_rounds_skips_populated_dirs(tmp_path):
     """Dirs with plan.md or verdict are not touched even when old."""
-    import importlib.util, os, time
+    import importlib.util
+    import os
+    import time
     spec = importlib.util.spec_from_file_location(
         "reserve_round",
         str(Path(__file__).resolve().parents[1] / "reserve_round.py"),
@@ -1552,7 +1558,9 @@ def test_gc_skips_round_with_external_results(tmp_path):
     """R176 hotfix: GC must NOT sweep RNNN/ when results/rNNN_*/
     final_eval_summary.json exists (parallel session wrote results but
     not plan yet)."""
-    import importlib.util, os, time
+    import importlib.util
+    import os
+    import time
     spec = importlib.util.spec_from_file_location(
         "reserve_round",
         str(Path(__file__).resolve().parents[1] / "reserve_round.py"),

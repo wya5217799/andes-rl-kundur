@@ -226,7 +226,7 @@ def main() -> int:
     print(f"[R112] {n_agents} agents loaded")
 
     # ── Phase 1: per-scenario grad-ascent on initial obs ──
-    print(f"\n[R112] Phase 1: grad-ascent on real obs_0 per scenario")
+    print("\n[R112] Phase 1: grad-ascent on real obs_0 per scenario")
     warm_h_per_scen: dict[str, list[tuple[torch.Tensor, torch.Tensor]]] = {}
     grad_diag: dict[str, list[dict]] = {}
 
@@ -250,7 +250,7 @@ def main() -> int:
         print(f"  {scen_name} grad-ascent done in {time.time()-t_s:.1f}s")
 
     # ── Phase 2: zero-h baseline + warm-h_0 eval ──
-    print(f"\n[R112] Phase 2: env-side rollout (zero-h baseline + warm-h_0)")
+    print("\n[R112] Phase 2: env-side rollout (zero-h baseline + warm-h_0)")
 
     # Zero-h baseline (recreate baseline number for direct comparison)
     zero_h_per_agent = [
@@ -333,7 +333,7 @@ def main() -> int:
     }
     (OUT_DIR / "summary.json").write_text(json.dumps(summary, indent=2))
 
-    print(f"\n[R112] ─── VERDICT ───")
+    print("\n[R112] ─── VERDICT ───")
     print(f"  gate: {gate}")
     print(f"  {interp}\n")
     print(f"  baseline_geo  = {baseline_score['geo']:.4f}  cum_rf = {baseline_score['cum_rf']:+.4f}")

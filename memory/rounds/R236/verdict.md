@@ -66,9 +66,14 @@ The last untested term: phi_f. Disable it (--phi-f 0) and see if
 SOTA collapses (phi_f is the ONLY load-bearing paper term) or
 survives (paper's phi_f is also inert; only phi_abs matters).
 
-## Questions opened / closed / advanced
+## Questions opened (this round)
+- (none)
 
-(none)
+## Questions closed (this round)
+- (none)
+
+## Questions advanced (this round, status unchanged)
+- (none)
 
 ## 给 PI 的话
 

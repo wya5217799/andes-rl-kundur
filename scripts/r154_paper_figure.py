@@ -12,8 +12,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-import numpy as np
 import matplotlib
+import numpy as np
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
@@ -122,12 +122,12 @@ def main() -> None:
     fig.savefig(OUT / "axis_scatter.png", dpi=140)
     plt.close(fig)
 
-    print(f"=== R154 paper figure ===")
+    print("=== R154 paper figure ===")
     print(f"{'config':<32} {'kind':<10} {'geo':>8} {'LS1':>7} {'LS2':>7}")
     for r in rows:
         print(f"  {r['label']:<30} {r['kind']:<10} {r['geo']:>8.4f} "
               f"{r['LS1']:>7.4f} {r['LS2']:>7.4f}")
-    print(f"\nWritten:")
+    print("\nWritten:")
     print(f"  {OUT}/ensemble_bar.{{pdf,png}}")
     print(f"  {OUT}/axis_scatter.{{pdf,png}}")
 

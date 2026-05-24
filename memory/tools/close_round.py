@@ -18,6 +18,7 @@ Operates only on plan.md frontmatter; preserves body verbatim. Atomic
 re-write (tempfile + rename) so partial writes do not corrupt files.
 """
 from __future__ import annotations
+
 import argparse
 import datetime as dt
 import re

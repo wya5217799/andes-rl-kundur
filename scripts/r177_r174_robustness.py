@@ -12,8 +12,6 @@ import json
 import sys
 from pathlib import Path
 
-import numpy as np
-
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
@@ -34,7 +32,7 @@ LS2_BASE = +1.88
 
 
 def main():
-    print(f"Loading R174 ckpt...")
+    print("Loading R174 ckpt...")
     agents = load_agents(CKPT_DIR, suffix="best")
     action_fn = deterministic_actor_action_fn(agents)
 
@@ -89,7 +87,7 @@ def main():
 
     geos = [r["geo"] for r in rows]
     import statistics
-    print(f"\n=== R177 R174 robustness ===")
+    print("\n=== R177 R174 robustness ===")
     print(f"  N={len(rows)}, mean(geo)={statistics.mean(geos):.4f}, "
           f"std={statistics.stdev(geos):.5f}, range=[{min(geos):.4f}, {max(geos):.4f}]")
     print(f"  Written: {OUT}/")

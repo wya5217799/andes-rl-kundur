@@ -34,7 +34,6 @@ from pathlib import Path
 
 import numpy as np
 import torch
-from torch import nn
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
@@ -44,7 +43,6 @@ if "andes" not in sys.modules:
     sys.modules["andes"] = types.ModuleType("andes")
 
 from andes_rl_kundur.agents.checkpoint_loader import load_agents  # noqa: E402
-
 
 SOTA_DIR = ROOT / "results" / "r72_w4_lstm_tau001_warmup5_s54"
 OUT_DIR = ROOT / "results" / "r99_warm_h0_feasibility"

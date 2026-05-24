@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+
 import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -95,12 +96,12 @@ def main():
     # Right: 1D geo histogram
     ax2.hist(geos, bins=20, color="tab:gray", edgecolor="black", linewidth=0.5)
     ax2.axvline(DEG_MAX, color="tab:red", linewidth=0.8, linestyle="--",
-                label=f"degenerate ceiling 0.10")
+                label="degenerate ceiling 0.10")
     ax2.axvline(LSTM_MIN, color="tab:blue", linewidth=0.8, linestyle="--",
-                label=f"LSTM-SOTA floor 0.30")
+                label="LSTM-SOTA floor 0.30")
     ax2.set_xlabel("Fresh 11-axis geo")
     ax2.set_ylabel("Count")
-    ax2.set_title(f"Geo histogram — bimodal: degenerate core (geo≈0.04) + LSTM core (geo≈0.37)")
+    ax2.set_title("Geo histogram — bimodal: degenerate core (geo≈0.04) + LSTM core (geo≈0.37)")
     ax2.legend(loc="upper center", fontsize=8)
     ax2.grid(True, alpha=0.3)
 
@@ -108,7 +109,7 @@ def main():
     fig.tight_layout()
     fig.savefig(OUT_DIR / "density.png", dpi=180)
     fig.savefig(OUT_DIR / "density.pdf")
-    print(f"saved: density.png + .pdf")
+    print("saved: density.png + .pdf")
 
     (OUT_DIR / "summary.json").write_text(json.dumps(stats, indent=2))
 

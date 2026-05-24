@@ -6,18 +6,16 @@ warm-h_0 is comparable or BETTER on smoothness and frequency suppression.
 So which paper_grade_axes axis is at floor for warm-h_0?
 """
 import sys
-import json
+import types
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-# ANDES stub since we only use paper_grade_axes
-import types
 if "andes" not in sys.modules:
     sys.modules["andes"] = types.ModuleType("andes")
 
-from andes_rl_kundur.evaluation.paper_grade_axes import evaluate_trace, PAPER  # noqa: E402
+from andes_rl_kundur.evaluation.paper_grade_axes import PAPER, evaluate_trace  # noqa: E402
 
 TRACE_DIR = ROOT / "results" / "r112_warmh0_env_eval" / "traces"
 

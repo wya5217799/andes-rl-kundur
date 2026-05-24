@@ -69,9 +69,14 @@ The autonomous loop has now produced 6 independent paper contributions:
 6. **Training-time inertia window** (R222-R226) — robust within
    [0.25×, 1.75×] vsg_m0, sharp cliff at 2×
 
-## Questions opened / closed / advanced
+## Questions opened (this round)
+- (none)
 
-(none — paper-integrity story decisive)
+## Questions closed (this round)
+- (none)
+
+## Questions advanced (this round, status unchanged)
+- none — paper-integrity story decisive
 
 ## 给 PI 的话
 

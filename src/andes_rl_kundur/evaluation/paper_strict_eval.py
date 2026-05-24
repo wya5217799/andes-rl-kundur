@@ -24,9 +24,12 @@ See:
 """
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
+
+if TYPE_CHECKING:
+    from andes_rl_kundur.env.andes.v4_config import V4Config
 
 
 def compute_global_cum_rf(trace: dict[str, Any]) -> float:
@@ -157,7 +160,7 @@ ANCHOR_PAIR = [dict(_ANCHOR_LS1), dict(_ANCHOR_LS2)]
 def evaluate_agents_paper_metric(
     agents: list,
     *,
-    config: "V4Config | None" = None,
+    config: V4Config | None = None,
     scenarios: list[dict[str, Any]] | None = None,
     seed: int = 42,
     steps: int = 50,

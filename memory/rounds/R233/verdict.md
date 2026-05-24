@@ -43,9 +43,14 @@ Test LOW side: phi_h=0.003 (half V4 default). If viable, sweet spot
 is asymmetric or wide on the low side. If collapse, sweet spot is
 narrow ~[V4_default, ~0.01] only.
 
-## Questions opened / closed / advanced
+## Questions opened (this round)
+- (none)
 
-(none)
+## Questions closed (this round)
+- (none)
+
+## Questions advanced (this round, status unchanged)
+- (none)
 
 ## 给 PI 的话
 

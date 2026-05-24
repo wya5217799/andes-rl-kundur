@@ -299,10 +299,10 @@ def main() -> int:
     }
     (OUT_DIR / "summary.json").write_text(json.dumps(summary, indent=2))
 
-    print(f"\n[R101-ridge] ─── VERDICT ───")
+    print("\n[R101-ridge] ─── VERDICT ───")
     print(f"  gate: {gate}")
     print(f"  {interp}\n")
-    print(f"  γ        | MLP median | Ridge best-α median | Δ      | best α")
+    print("  γ        | MLP median | Ridge best-α median | Δ      | best α")
     for gk in [f"g{g}" for g in GAMMAS]:
         c = consistency[gk]
         rs = summary_per_gamma[gk]

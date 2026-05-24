@@ -17,8 +17,9 @@ testable without a sys.path hack into ``scripts/``.
 from __future__ import annotations
 
 import json
+from collections.abc import Callable
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from andes_rl_kundur.env.andes.v4_config import V4Config
@@ -57,7 +58,7 @@ def _default_score_seed(*args: Any, **kwargs: Any) -> SummaryDict:
 
 def run_final_eval(
     save_dir: Path,
-    env_config: "V4Config | None",
+    env_config: V4Config | None,
     *,
     eval_tracked: bool,
     score_seed_fn: ScoreSeedFn = _default_score_seed,

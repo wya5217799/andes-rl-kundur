@@ -71,9 +71,11 @@ def test_paper_strict_configs_are_frozen_dataclasses():
     """`V4Config` is a frozen dataclass — paper_strict_pure() result
     cannot be mutated post-construction. Forces explicit replace() for
     overrides at call sites."""
-    from andes_rl_kundur.env.andes.v4_config import V4Config
     import dataclasses
+
     import pytest
+
+    from andes_rl_kundur.env.andes.v4_config import V4Config
 
     cfg = V4Config.paper_strict_pure()
     with pytest.raises(dataclasses.FrozenInstanceError):

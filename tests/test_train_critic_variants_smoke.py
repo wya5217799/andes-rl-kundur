@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import argparse
 import sys
-import types
 from pathlib import Path
 
 import pytest
@@ -17,10 +16,6 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 sys.path.insert(0, str(ROOT / "scripts"))
-
-# CLAUDE.md ANDES = WSL only — stub on Windows
-if "andes" not in sys.modules:
-    sys.modules["andes"] = types.ModuleType("andes")
 
 
 def _make_args(algo: str, **overrides) -> argparse.Namespace:
@@ -49,8 +44,8 @@ def _import_train_module():
     return train_mod
 
 
-def test_train_module_imports_with_andes_stub():
-    """Regression: train.py module-level imports complete under stub."""
+def test_train_module_imports_without_andes():
+    """Regression: train.py module-level imports do not require ANDES."""
     train_mod = _import_train_module()
     assert hasattr(train_mod, "build_agents")
     assert hasattr(train_mod, "parse_args")

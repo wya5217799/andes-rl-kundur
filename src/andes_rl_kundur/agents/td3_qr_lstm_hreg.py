@@ -20,8 +20,8 @@ from typing import Any
 
 import torch
 
-from andes_rl_kundur.agents.td3_qr_lstm import TD3QRLstmAgent
 from andes_rl_kundur.agents.td3_lstm import _detach_h
+from andes_rl_kundur.agents.td3_qr_lstm import TD3QRLstmAgent
 
 
 class TD3QRLstmHRegAgent(TD3QRLstmAgent):

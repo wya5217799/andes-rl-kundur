@@ -35,7 +35,6 @@ from __future__ import annotations
 
 import copy
 import os
-from typing import List, Optional, Dict
 
 import numpy as np
 import torch
@@ -44,6 +43,7 @@ import torch.nn.functional as F
 import torch.optim as optim
 
 from andes_rl_kundur.agents.networks import DoubleQCritic
+from andes_rl_kundur.agents.replay_buffer import ReplayBuffer
 from andes_rl_kundur.agents.sac_base import _SACBase
 
 
@@ -57,7 +57,7 @@ class SACAgentCTDE(_SACBase):
 
     # Init is inherited verbatim from _SACBase — no per-agent critic to add.
 
-    def save(self, path, metadata: Optional[Dict] = None, save_buffer: bool = False):
+    def save(self, path, metadata: dict | None = None, save_buffer: bool = False):
         """Save actor + alpha (critic is saved separately by CTDECoordinator)."""
         torch.save({
             'actor': self.actor.state_dict(),
@@ -71,7 +71,7 @@ class SACAgentCTDE(_SACBase):
             buf_path = str(path).replace('.pt', '_buffer.npz')
             self.buffer.save(buf_path)
 
-    def load(self, path) -> Dict:
+    def load(self, path) -> dict:
         """Load actor + alpha. Returns metadata dict."""
         ckpt = torch.load(path, map_location=self.device, weights_only=True)
         self.actor.load_state_dict(ckpt['actor'])
@@ -83,7 +83,7 @@ class SACAgentCTDE(_SACBase):
             self.buffer.load(buf_path)
         return ckpt.get('metadata', {})
 
-    def load_actor_only(self, path) -> Dict:
+    def load_actor_only(self, path) -> dict:
         """Load actor weights from a standard SACAgent checkpoint (for warmstart)."""
         ckpt = torch.load(path, map_location=self.device, weights_only=True)
         self.actor.load_state_dict(ckpt['actor'])
@@ -149,11 +149,11 @@ class CTDECoordinator:
         self.critic_optimizer = optim.Adam(self.critic.parameters(), lr=lr)
         self.max_grad_norm = 1.0
 
-    def _can_update(self, agents: List[SACAgentCTDE]) -> bool:
+    def _can_update(self, agents: list[SACAgentCTDE]) -> bool:
         """All agents must have enough data."""
         return all(len(a.buffer) >= self.batch_size for a in agents)
 
-    def update(self, agents: List[SACAgentCTDE]) -> Optional[Dict]:
+    def update(self, agents: list[SACAgentCTDE]) -> dict | None:
         """
         One joint CTDE update step.
 

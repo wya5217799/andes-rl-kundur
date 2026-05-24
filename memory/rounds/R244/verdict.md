@@ -22,9 +22,14 @@ hyper/longer training.
 Not a useful direction at this hyper budget. Closing without
 follow-up SAC experiments.
 
-## Questions opened / closed / advanced
+## Questions opened (this round)
+- (none)
 
-(none)
+## Questions closed (this round)
+- (none)
+
+## Questions advanced (this round, status unchanged)
+- (none)
 
 ## 给 PI 的话
 

@@ -25,7 +25,6 @@ from __future__ import annotations
 
 import json
 import logging
-import shutil
 import sys
 import time
 from pathlib import Path
@@ -119,9 +118,7 @@ def main():
     log.info(f"R137 — multi-input magnitude-PD; output → {OUT_DIR}")
     log.info(f"  config: dm_max=600 (D5-fair), neighbors m={M_NEIGHBORS}")
 
-    # Base: R102 best Kp_M=2, Kp_D=5. Add 1 extra term at a time.
-    base = {"kp_M": 2.0, "kp_D": 5.0}
-    # Each test = base + one additional input gain. Compare against base (kd=kn=0).
+    # Base is R102 best Kp_M=2, Kp_D=5. Each test adds one extra input gain.
     combos = [
         # (label, kp_M, kd_M, kn_M, kp_D, kd_D, kn_D)
         ("base_p_only",      2.0, 0.0, 0.0, 5.0, 0.0, 0.0),  # baseline = R102 best at D5-fair
@@ -165,9 +162,9 @@ def main():
     log.info("\n" + "=" * 60)
     log.info("R137 HEADLINE")
     log.info("=" * 60)
-    log.info(f"  R102 mag-PI at dm_max=300 (handicapped): geo = 0.260")
+    log.info("  R102 mag-PI at dm_max=300 (handicapped): geo = 0.260")
     log.info(f"  R137 multi-input best: geo = {best_geo:.4f}  ({best_label})")
-    log.info(f"  R72_w4 SOTA: geo = 0.391")
+    log.info("  R72_w4 SOTA: geo = 0.391")
     log.info(f"  RL advantage: {0.391 / best_geo:.2f}x")
     log.info("=" * 60)
     grand["headline"] = {

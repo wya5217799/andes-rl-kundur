@@ -41,7 +41,6 @@ if "andes" not in sys.modules:
 
 from andes_rl_kundur.agents.checkpoint_loader import load_agents  # noqa: E402
 
-
 SOTA_DIR = ROOT / "results" / "r72_w4_lstm_tau001_warmup5_s54"
 OUT_DIR = ROOT / "results" / "r116_obs_grad_at_h0"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -95,7 +94,7 @@ def _obs_ascend(agent, obs_init):
 
 
 def main():
-    print(f"R116: obs-gradient ascent at h=0 on R72_w4 SOTA")
+    print("R116: obs-gradient ascent at h=0 on R72_w4 SOTA")
     agents = load_agents(SOTA_DIR, suffix="best")
     rng = np.random.default_rng(RNG_SEED)
     obs_init = _sample_init_obs(N_INIT, rng)

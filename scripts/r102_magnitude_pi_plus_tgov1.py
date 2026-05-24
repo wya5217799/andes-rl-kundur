@@ -31,7 +31,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from andes_rl_kundur.env.andes.andes_vsg_env_v4 import AndesMultiVSGEnvV4  # noqa: E402
-from andes_rl_kundur.evaluation.paper_path import run_scenario, zero_action_fn  # noqa: E402
+from andes_rl_kundur.evaluation.paper_path import run_scenario  # noqa: E402
 from andes_rl_kundur.evaluation.summary import format_headline, score_trace_files  # noqa: E402
 from andes_rl_kundur.probes.andes_common.paper_constants import SCENARIOS  # noqa: E402
 from andes_rl_kundur.scenarios.contract import KUNDUR  # noqa: E402
@@ -304,11 +304,11 @@ def main() -> None:
     log.info("R102 HEADLINE")
     log.info("=" * 60)
     pi_geo = best_pi_summary.get("geo") or 0.0
-    log.info(f"  no_control      : geo = 0.104   (R30)")
-    log.info(f"  best droop R85  : geo = 0.197   (CLM-0184)")
-    log.info(f"  best naive PI   : geo = 0.058   (CLM-0185)")
+    log.info("  no_control      : geo = 0.104   (R30)")
+    log.info("  best droop R85  : geo = 0.197   (CLM-0184)")
+    log.info("  best naive PI   : geo = 0.058   (CLM-0185)")
     log.info(f"  best mag-PI R102: geo = {pi_geo:.4f}   ({best_gains})")
-    log.info(f"  R72_w4 SOTA     : geo = 0.391   (CLM-0094)")
+    log.info("  R72_w4 SOTA     : geo = 0.391   (CLM-0094)")
     log.info(f"  TGOV1 ablation  : u=1 vs u=0 Δcum_rf = {w2['pct_diff_cum_rf']:.1f}%")
     log.info(f"  TGOV1 verdict   : {w2['verdict']}")
     log.info("=" * 60)

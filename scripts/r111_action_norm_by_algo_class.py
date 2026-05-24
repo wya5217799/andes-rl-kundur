@@ -44,7 +44,6 @@ if "andes" not in sys.modules:
 
 from andes_rl_kundur.agents.checkpoint_loader import load_agents  # noqa: E402
 
-
 CKPT_SET: list[tuple[str, str]] = [
     ("r72_w4_lstm_tau001_warmup5_s54",    "td3_lstm",     "r72_w4_lstm_s54"),
     ("r58_paper_strict_pure_td3_lstm_s49", "td3_lstm",     "r58_lstm_s49"),
@@ -92,7 +91,7 @@ def _action_norm_step0(agent, obs: torch.Tensor) -> np.ndarray:
 
 
 def main() -> None:
-    print(f"R111: step-0 ||a|| comparison across algo classes")
+    print("R111: step-0 ||a|| comparison across algo classes")
     print(f"  ||obs||={OBS_NORM_TARGET}, N={N_OBS} obs × N=6 ckpts × 4 agents = 2400 forward passes\n")
 
     rng = np.random.default_rng(RNG_SEED)
@@ -142,7 +141,7 @@ def main() -> None:
         if gap > 20:
             verdict = f"H1 (LSTM-specific): LSTM={lstm_med:.1f}% << non-LSTM={non_lstm_med:.1f}% (gap {gap:.1f}pp)"
         elif gap < -10:
-            verdict = f"REVERSED: LSTM has higher step-0 ||a|| than non-LSTM"
+            verdict = "REVERSED: LSTM has higher step-0 ||a|| than non-LSTM"
         else:
             verdict = f"H0 (similar): LSTM={lstm_med:.1f}% ~ non-LSTM={non_lstm_med:.1f}% (gap {gap:.1f}pp)"
     else:

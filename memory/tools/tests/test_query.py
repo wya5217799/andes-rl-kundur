@@ -10,8 +10,8 @@ gives a small surface for the two queries that come up most often:
 """
 from __future__ import annotations
 
-from pathlib import Path
 import sys
+from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from query import query_best, query_by_tag  # noqa: E402

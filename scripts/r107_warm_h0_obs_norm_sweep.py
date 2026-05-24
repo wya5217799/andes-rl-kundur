@@ -42,7 +42,6 @@ if "andes" not in sys.modules:
 
 from andes_rl_kundur.agents.checkpoint_loader import load_agents  # noqa: E402
 
-
 SOTA_DIR = ROOT / "results" / "r72_w4_lstm_tau001_warmup5_s54"
 OUT_DIR = ROOT / "results" / "r107_warm_h0_obs_norm_sweep"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -107,7 +106,7 @@ def _h0_optimize_at_norm(agent, obs):
 
 
 def main():
-    print(f"R107-W2: ||obs|| sweep on R72_w4 SOTA")
+    print("R107-W2: ||obs|| sweep on R72_w4 SOTA")
     agents = load_agents(SOTA_DIR, suffix="best")
     print(f"  {len(agents)} agents loaded")
     rng = np.random.default_rng(RNG_SEED)

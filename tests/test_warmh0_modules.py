@@ -8,22 +8,9 @@ Covers:
 """
 from __future__ import annotations
 
-import sys
-import types
-
 import numpy as np
 import pytest
 import torch
-
-
-@pytest.fixture(autouse=True, scope="module")
-def _stub_andes():
-    """`andes_rl_kundur` package imports the ``andes`` Simulink package
-    transitively. Stub it so these unit tests run on Windows host
-    Python (where ANDES is not installed)."""
-    if "andes" not in sys.modules:
-        sys.modules["andes"] = types.ModuleType("andes")
-    yield
 
 
 def test_warm_h0_actor_zero_init_is_zero():
@@ -72,8 +59,8 @@ def test_warm_h0_obs_for_warm_batch_mismatch_raises():
 
 
 def test_warm_h0_from_pretrained_copies_lstm_bit_identical():
-    from andes_rl_kundur.agents.networks_warmh0 import WarmH0RecurrentActor
     from andes_rl_kundur.agents.networks import RecurrentActor
+    from andes_rl_kundur.agents.networks_warmh0 import WarmH0RecurrentActor
 
     vanilla = RecurrentActor(obs_dim=7, action_dim=2, hidden=64)
     booted = WarmH0RecurrentActor.from_pretrained(
@@ -93,8 +80,8 @@ def test_warm_h0_from_pretrained_copies_lstm_bit_identical():
 
 
 def test_warm_h0_param_count_overhead():
-    from andes_rl_kundur.agents.networks_warmh0 import WarmH0RecurrentActor
     from andes_rl_kundur.agents.networks import RecurrentActor
+    from andes_rl_kundur.agents.networks_warmh0 import WarmH0RecurrentActor
 
     vanilla = RecurrentActor(obs_dim=7, action_dim=2, hidden=64)
     warm = WarmH0RecurrentActor(obs_dim=7, action_dim=2, hidden=64)
@@ -105,8 +92,8 @@ def test_warm_h0_param_count_overhead():
 
 
 def test_td3_lstm_warmh0_agent_smoke():
-    from andes_rl_kundur.agents.td3_lstm_warmh0 import TD3LSTMWarmH0Agent
     from andes_rl_kundur.agents.networks_warmh0 import WarmH0RecurrentActor
+    from andes_rl_kundur.agents.td3_lstm_warmh0 import TD3LSTMWarmH0Agent
 
     ag = TD3LSTMWarmH0Agent(
         obs_dim=7, action_dim=2, hidden_sizes=64, device="cpu"

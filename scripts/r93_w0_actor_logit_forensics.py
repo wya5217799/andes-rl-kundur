@@ -47,7 +47,6 @@ if "andes" not in sys.modules:
 
 from andes_rl_kundur.agents.checkpoint_loader import load_agents  # noqa: E402
 
-
 SOTA_DIR = ROOT / "results" / "r72_w4_lstm_tau001_warmup5_s54"
 OUT_DIR = ROOT / "results" / "r93_w0_logit_forensics"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -190,13 +189,13 @@ def main() -> None:
     plt.close(fig)
 
     # Digest
-    print(f"\n=== R93-W0 actor logit forensics ===")
+    print("\n=== R93-W0 actor logit forensics ===")
     print(f"Cross-agent median |logit| = {agg['logit_median_abs_cross_agent']:.3f}")
     print(f"  fraction |z| > 2 (tanh sat) = {agg['frac_abs_gt_2_cross_agent']*100:.1f}%")
     print(f"  fraction |z| > 5 (deep sat) = {agg['frac_abs_gt_5_cross_agent']*100:.1f}%")
     print(f"fc_out_weight median: max_abs = {agg['fc_out_weight_max_abs_median']:.3f}, "
           f"spectral = {agg['fc_out_weight_spectral_median']:.3f}")
-    print(f"\nPer-agent breakdown:")
+    print("\nPer-agent breakdown:")
     print(f"  {'ag':>3} {'med|z|':>10} {'p90|z|':>10} {'|z|>2%':>9} "
           f"{'|z|>5%':>9} {'fc_out_max_W':>14}")
     for a in per:
