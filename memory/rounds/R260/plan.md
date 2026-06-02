@@ -1,12 +1,14 @@
-# R109 plan — Memory subsystem: Note entity + legacy archive ingest
+# R260 plan — Memory subsystem: Note entity + legacy archive ingest
 
-> **Note on round number**: originally reserved as R98 in feature branch
-> `feature/memory-notes-ingest`; renamed to R109 at merge time to avoid
-> collision with parallel session's R98 ("Distributional + Action-Feature-
-> Engineered critic prototypes"). Buffer of R99-R108 left for parallel
-> session continuation.
+> **Note on round number**: work done 2026-05-19 on feature branch
+> `feature/memory-notes-ingest`, originally reserved as R98, then renamed
+> R98→R109 to dodge a parallel session's R98. By 2026-06-03 merge time main
+> had also consumed R109 (plus CLM-0182, Q-0023) for unrelated work, so the
+> round was re-numbered a final time to the next free slot **R260** (main max
+> was R259). The dated content below reflects the 2026-05-19 work; the round
+> ID is just the free-slot label assigned at merge.
 
-**Date**: 2026-05-19
+**Date**: 2026-05-19 (work) / 2026-06-03 (merged as R260)
 **Type**: infrastructure (schema + tooling + data migration, no experiment)
 **Status**: complete (close concurrently with this plan)
 

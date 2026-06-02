@@ -9,13 +9,13 @@ Sections, in order:
 4. Recently Closed — last 3 Q files with status starting with `closed-`
 5. Latest Round — newest RNN dir + one-line TL;DR from its verdict
 5b. Leaderboard (optional) — claims with structured metric block
-5c. Archive Index (optional) — Note entity buckets by top-level topic (R98)
+5c. Archive Index (optional) — Note entity buckets by top-level topic (R260)
 6. Stats — counts
 7. (R≥59) 历史简报 — one-line headline per past R≥59 round (newest 5)
 
 Handoffs are intentionally not rendered as a separate section, but are
 indexed via `memory/notes/NOTE-*.md` and surfaced in the Archive Index.
-PI briefing layer designed in ADR-0003; Note entity introduced in R98.
+PI briefing layer designed in ADR-0003; Note entity introduced in R260.
 """
 from __future__ import annotations
 import argparse
