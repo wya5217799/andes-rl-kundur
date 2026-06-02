@@ -9,11 +9,13 @@ Sections, in order:
 4. Recently Closed — last 3 Q files with status starting with `closed-`
 5. Latest Round — newest RNN dir + one-line TL;DR from its verdict
 5b. Leaderboard (optional) — claims with structured metric block
+5c. Archive Index (optional) — Note entity buckets by top-level topic (R260)
 6. Stats — counts
 7. (R≥59) 历史简报 — one-line headline per past R≥59 round (newest 5)
 
-Handoffs are intentionally not rendered (see memory/handoffs/README.md).
-PI briefing layer designed in ADR-0003.
+Handoffs are intentionally not rendered as a separate section, but are
+indexed via `memory/notes/NOTE-*.md` and surfaced in the Archive Index.
+PI briefing layer designed in ADR-0003; Note entity introduced in R260.
 """
 from __future__ import annotations
 
@@ -375,6 +377,101 @@ def _format_closed_q_line(q: dict[str, Any]) -> str:
     return f"- {qid} {status} @ {closed_round}, by {closed_by} — {title}"
 
 
+# ---------- Archive Index (Note entity, this-round addition) ----------
+
+# Top-level topic order for the Archive Index section. Buckets are emitted
+# in this order regardless of insertion sequence; buckets with zero notes
+# are skipped. Mirrors the NOTE_TOPIC_TOP_LEVEL whitelist in validate.py.
+_TOPIC_ORDER = (
+    "env",
+    "training-infra",
+    "evaluation",
+    "agents",
+    "scenarios",
+    "paper",
+    "memory-system",
+    "pipeline",
+)
+
+
+def _load_notes(notes_dir: Path) -> list[dict[str, Any]]:
+    """Load every NOTE-*.md frontmatter from ``notes_dir`` (or empty list)."""
+    if notes_dir is None or not notes_dir.exists():
+        return []
+    out: list[dict[str, Any]] = []
+    for path in sorted(notes_dir.glob("NOTE-*.md")):
+        meta = _load_yaml_frontmatter(path)
+        if meta is not None:
+            meta["_path"] = path
+            out.append(meta)
+    return out
+
+
+def _note_summary_first_line(note_path: Path) -> str:
+    """Pull the first non-blank line of the note's `## Summary` body."""
+    text = note_path.read_text(encoding="utf-8")
+    match = re.search(
+        r"^##\s+Summary\s*\n+(.*?)(?=\n##\s|\Z)",
+        text,
+        re.MULTILINE | re.DOTALL,
+    )
+    if not match:
+        return ""
+    for raw in match.group(1).splitlines():
+        line = raw.strip()
+        if line:
+            return line
+    return ""
+
+
+def _archive_index_rows(notes: list[dict[str, Any]]) -> list[str]:
+    """Build bucket rows for the `## Archive Index` section.
+
+    Per spec §3.5 and §9-1:
+    - One row per top-level topic with ≥ 1 note
+    - Within a row: ``[topic] N notes · M claims extracted — NOTE-X summary;
+      NOTE-Y summary; NOTE-Z summary`` (up to 3 most-recent by date desc,
+      summary truncated to 60 chars)
+    - Row order follows ``_TOPIC_ORDER``
+    """
+    if not notes:
+        return []
+    buckets: dict[str, list[dict[str, Any]]] = {}
+    for n in notes:
+        topics = n.get("topics") or []
+        if not topics:
+            continue
+        top = topics[0]
+        buckets.setdefault(top, []).append(n)
+
+    rows: list[str] = []
+    for top in _TOPIC_ORDER:
+        bucket = buckets.get(top)
+        if not bucket:
+            continue
+        bucket.sort(key=lambda n: str(n.get("date", "")), reverse=True)
+        recent = bucket[:3]
+        recent_strs: list[str] = []
+        for n in recent:
+            nid = n.get("id", "?")
+            summary = _note_summary_first_line(n["_path"])
+            if len(summary) > 60:
+                summary = summary[:59] + "…"
+            recent_strs.append(f"{nid} {summary}" if summary else nid)
+        extracted = sum(
+            1 for n in bucket if (n.get("extracted_claims") or [])
+        )
+        extracted_part = (
+            f" · {extracted} claim{'s' if extracted != 1 else ''} extracted"
+            if extracted else ""
+        )
+        rows.append(
+            f"- [{top}] {len(bucket)} note{'s' if len(bucket) != 1 else ''}"
+            f"{extracted_part} — " + "; ".join(recent_strs)
+        )
+    return rows
+
+
 # ---------- top-level render ----------
 
 
@@ -384,6 +481,7 @@ def render_state(
     questions_dir: Path,
     out_path: Path,
     glossary_path: Path | None = None,
+    notes_dir: Path | None = None,
 ) -> None:
     claims = _load_claims(claims_dir)
     questions = _load_questions(questions_dir)
@@ -620,6 +718,21 @@ def render_state(
             lines.append(row)
         lines.append("")
 
+    # 5c. Archive Index (Note entity). Emitted only when ≥ 1 note exists.
+    notes = _load_notes(notes_dir) if notes_dir else []
+    arch_rows = _archive_index_rows(notes)
+    if arch_rows:
+        lines.append("## Archive Index")
+        lines.append("")
+        lines.append(
+            "> Query: `python memory/tools/note_query.py --topic <top> "
+            "[--tag <sub>] [--round <RNN>] [--grep <pattern>]`"
+        )
+        lines.append("")
+        for row in arch_rows:
+            lines.append(row)
+        lines.append("")
+
     # 6. Stats
     lines.append("## Stats")
     lines.append("")
@@ -661,6 +774,7 @@ def main() -> int:
         default=base / "glossary.yml",
         help="path to glossary.yml for PI briefing first-use annotation",
     )
+    parser.add_argument("--notes-dir", type=Path, default=base / "notes")
     args = parser.parse_args()
     render_state(
         args.claims_dir,
@@ -668,6 +782,7 @@ def main() -> int:
         args.questions_dir,
         args.out,
         glossary_path=args.glossary,
+        notes_dir=args.notes_dir,
     )
     print(f"Rendered {args.out}")
     return 0

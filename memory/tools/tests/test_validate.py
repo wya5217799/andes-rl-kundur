@@ -1,6 +1,7 @@
 import shutil
 import sys
 from pathlib import Path
+from typing import Any
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from validate import load_claims  # noqa: E402
@@ -1584,3 +1585,139 @@ def test_gc_skips_round_with_external_results(tmp_path):
         f"R200 has results — must not be GC'd; got {swept}"
     )
     assert not (rounds_dir / "R200" / "plan.md").exists()
+
+
+# ---------- Note entity rules (N1-N5) ----------
+NOTE_FIXTURES = Path(__file__).parent / "fixtures" / "notes"
+REPO_ROOT_FOR_TESTS = Path(__file__).parent.parent.parent.parent  # andes-rl-kundur/
+
+
+def test_load_notes_returns_dict_of_id_to_frontmatter():
+    from validate import load_notes  # noqa: E402
+    notes = load_notes(NOTE_FIXTURES)
+    assert set(notes.keys()) == {"NOTE-0001", "NOTE-0002", "NOTE-0003"}
+    assert notes["NOTE-0001"]["source"] == "handoff"
+    assert notes["NOTE-0002"]["topics"][0] == "pipeline"
+
+
+def test_rule_N1_filename_must_match_id():
+    from validate import validate_note_rules  # noqa: E402
+    notes = {
+        "NOTE-0001": {
+            "id": "NOTE-0001", "source": "handoff",
+            "source_path": "memory/tools/tests/fixtures/notes_handoff_src/2026-05-17_demo.md",
+            "topics": ["training-infra"], "extracted_claims": [],
+            "_path": Path("NOTE-0099.md"),
+        },
+    }
+    errors = validate_note_rules(notes, claims={}, repo_root=REPO_ROOT_FOR_TESTS)
+    assert any("filename" in e.lower() and "NOTE-0001" in e for e in errors)
+
+
+def test_rule_N2_source_in_whitelist():
+    from validate import validate_note_rules  # noqa: E402
+    notes = {
+        "NOTE-0001": {
+            "id": "NOTE-0001", "source": "blog",
+            "source_path": "memory/tools/tests/fixtures/notes_handoff_src/2026-05-17_demo.md",
+            "topics": ["training-infra"], "extracted_claims": [],
+            "_path": NOTE_FIXTURES / "NOTE-0001.md",
+        },
+    }
+    errors = validate_note_rules(notes, claims={}, repo_root=REPO_ROOT_FOR_TESTS)
+    assert any("source" in e and "blog" in e for e in errors)
+
+
+def test_rule_N3_source_path_must_exist():
+    from validate import validate_note_rules  # noqa: E402
+    notes = {
+        "NOTE-0001": {
+            "id": "NOTE-0001", "source": "handoff",
+            "source_path": "memory/this/file/does/not/exist.md",
+            "topics": ["training-infra"], "extracted_claims": [],
+            "_path": NOTE_FIXTURES / "NOTE-0001.md",
+        },
+    }
+    errors = validate_note_rules(notes, claims={}, repo_root=REPO_ROOT_FOR_TESTS)
+    assert any("source_path" in e and "exist" in e.lower() for e in errors)
+
+
+def test_rule_N4_extracted_claims_must_exist():
+    from validate import validate_note_rules  # noqa: E402
+    notes = {
+        "NOTE-0001": {
+            "id": "NOTE-0001", "source": "handoff",
+            "source_path": "memory/tools/tests/fixtures/notes_handoff_src/2026-05-17_demo.md",
+            "topics": ["training-infra"], "extracted_claims": ["CLM-9999"],
+            "_path": NOTE_FIXTURES / "NOTE-0001.md",
+        },
+    }
+    errors = validate_note_rules(notes, claims={"CLM-0001": {}}, repo_root=REPO_ROOT_FOR_TESTS)
+    assert any("CLM-9999" in e and "extracted" in e.lower() for e in errors)
+
+
+def test_rule_N5_topic_top_level_in_whitelist():
+    from validate import validate_note_rules  # noqa: E402
+    notes = {
+        "NOTE-0001": {
+            "id": "NOTE-0001", "source": "handoff",
+            "source_path": "memory/tools/tests/fixtures/notes_handoff_src/2026-05-17_demo.md",
+            "topics": ["not-a-real-bucket", "lstm"],
+            "extracted_claims": [],
+            "_path": NOTE_FIXTURES / "NOTE-0001.md",
+        },
+    }
+    errors = validate_note_rules(notes, claims={}, repo_root=REPO_ROOT_FOR_TESTS)
+    assert any("topics[0]" in e or "top-level" in e for e in errors)
+
+
+def test_clean_note_fixtures_have_no_errors():
+    from validate import load_notes, validate_note_rules  # noqa: E402
+    notes = load_notes(NOTE_FIXTURES)
+    fake_claims = {"CLM-0001": {}}
+    errors = validate_note_rules(notes, claims=fake_claims, repo_root=REPO_ROOT_FOR_TESTS)
+    assert errors == [], f"unexpected errors on clean fixtures: {errors}"
+
+
+# ---------- Cross-entity coverage warnings (X1, X2) ----------
+
+
+def test_warning_X1_adr_without_note_warns(tmp_path):
+    """X1: every docs/adr/*.md should have at least one note pointing to it."""
+    from validate import warn_cross_entity_adr_coverage  # noqa: E402
+    adr_dir = tmp_path / "adr"
+    adr_dir.mkdir()
+    (adr_dir / "0001-foo.md").write_text("# ADR placeholder\n")
+    notes: dict[str, dict[str, Any]] = {}
+    warnings = warn_cross_entity_adr_coverage(notes, adr_dir=adr_dir)
+    assert any("0001-foo.md" in w for w in warnings)
+
+
+def test_warning_X1_adr_with_note_silent(tmp_path):
+    from validate import warn_cross_entity_adr_coverage  # noqa: E402
+    adr_dir = tmp_path / "adr"
+    adr_dir.mkdir()
+    (adr_dir / "0001-foo.md").write_text("# ADR\n")
+    notes = {
+        "NOTE-0001": {
+            "id": "NOTE-0001", "source": "adr-rationale",
+            "source_path": str((adr_dir / "0001-foo.md").as_posix()),
+        }
+    }
+    warnings = warn_cross_entity_adr_coverage(notes, adr_dir=adr_dir)
+    assert warnings == []
+
+
+def test_warning_X2_handoff_without_note_warns(tmp_path):
+    from validate import warn_cross_entity_handoff_coverage  # noqa: E402
+    handoffs_dir = tmp_path / "handoffs"
+    handoffs_dir.mkdir()
+    (handoffs_dir / "2026-05-17_demo.md").write_text("handoff body\n")
+    (handoffs_dir / "README.md").write_text("intentionally excluded\n")
+    (handoffs_dir / "_archive").mkdir()
+    (handoffs_dir / "_archive" / "old.md").write_text("excluded\n")
+    warnings = warn_cross_entity_handoff_coverage({}, handoffs_dir=handoffs_dir)
+    # README.md and _archive/ excluded; only 2026-05-17_demo.md should warn.
+    assert any("2026-05-17_demo.md" in w for w in warnings)
+    assert not any("README.md" in w for w in warnings)
+    assert not any("_archive" in w for w in warnings)

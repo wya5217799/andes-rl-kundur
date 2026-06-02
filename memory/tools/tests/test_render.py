@@ -755,3 +755,149 @@ def test_render_latest_round_falls_back_when_no_research(tmp_path):
     latest = text.split("## Latest Round")[1].split("## ")[0]
     # No research → fall back to R02 (the only one)
     assert "R02" in latest, f"fallback to R02 expected; got: {latest}"
+
+
+# ── Task 6: Archive Index section (Note entity) ─────────────────────────────
+
+
+def test_archive_index_section_emitted_when_notes_exist(tmp_path):
+    """When notes/ dir has at least 1 note, STATE.md must contain
+    `## Archive Index` section."""
+    from render import render_state  # noqa: E402
+
+    claims_dir = tmp_path / "claims"
+    rounds_dir = tmp_path / "rounds"
+    questions_dir = tmp_path / "questions"
+    notes_dir = tmp_path / "notes"
+    claims_dir.mkdir(); rounds_dir.mkdir(); questions_dir.mkdir(); notes_dir.mkdir()
+
+    (notes_dir / "NOTE-0001.md").write_text("""---
+id: NOTE-0001
+source: handoff
+source_path: dummy
+date: 2026-05-17
+related_rounds: [R58]
+topics: [training-infra, lstm]
+extracted_claims: []
+status: ingested
+---
+
+## Summary
+Demo note for the archive-index test.
+
+## Key facts (claim candidates)
+- foo
+
+## Open threads
+- bar
+""", encoding="utf-8")
+
+    out = tmp_path / "STATE.md"
+    render_state(claims_dir, rounds_dir, questions_dir, out, notes_dir=notes_dir)
+    text = out.read_text(encoding="utf-8")
+    assert "## Archive Index" in text
+    assert "[training-infra]" in text
+    assert "NOTE-0001" in text
+
+
+def test_archive_index_appears_before_stats_section(tmp_path):
+    """Archive Index (section 5c) must render before Stats (section 6)
+    per the render.py docstring section order."""
+    from render import render_state  # noqa: E402
+
+    claims_dir = tmp_path / "claims"
+    rounds_dir = tmp_path / "rounds"
+    questions_dir = tmp_path / "questions"
+    notes_dir = tmp_path / "notes"
+    claims_dir.mkdir(); rounds_dir.mkdir(); questions_dir.mkdir(); notes_dir.mkdir()
+
+    (notes_dir / "NOTE-0001.md").write_text("""---
+id: NOTE-0001
+source: handoff
+source_path: dummy
+date: 2026-05-17
+related_rounds: [R58]
+topics: [training-infra]
+extracted_claims: []
+status: ingested
+---
+
+## Summary
+Order test note.
+""", encoding="utf-8")
+
+    out = tmp_path / "STATE.md"
+    render_state(claims_dir, rounds_dir, questions_dir, out, notes_dir=notes_dir)
+    text = out.read_text(encoding="utf-8")
+    assert text.index("## Archive Index") < text.index("## Stats")
+
+
+def test_archive_index_section_omitted_when_no_notes(tmp_path):
+    from render import render_state  # noqa: E402
+    claims_dir = tmp_path / "claims"
+    rounds_dir = tmp_path / "rounds"
+    questions_dir = tmp_path / "questions"
+    notes_dir = tmp_path / "notes"
+    claims_dir.mkdir(); rounds_dir.mkdir(); questions_dir.mkdir(); notes_dir.mkdir()
+    out = tmp_path / "STATE.md"
+    render_state(claims_dir, rounds_dir, questions_dir, out, notes_dir=notes_dir)
+    text = out.read_text(encoding="utf-8")
+    assert "## Archive Index" not in text
+
+
+def test_archive_index_shows_extraction_count(tmp_path):
+    from render import render_state  # noqa: E402
+    claims_dir = tmp_path / "claims"
+    rounds_dir = tmp_path / "rounds"
+    questions_dir = tmp_path / "questions"
+    notes_dir = tmp_path / "notes"
+    claims_dir.mkdir(); rounds_dir.mkdir(); questions_dir.mkdir(); notes_dir.mkdir()
+
+    # Two notes in training-infra; one has extracted_claims, one doesn't.
+    (notes_dir / "NOTE-0001.md").write_text("""---
+id: NOTE-0001
+source: handoff
+source_path: dummy
+date: 2026-05-17
+related_rounds: []
+topics: [training-infra]
+extracted_claims: [CLM-0001]
+status: partially-extracted
+---
+
+## Summary
+n1
+
+## Key facts (claim candidates)
+- a
+
+## Open threads
+- b
+""", encoding="utf-8")
+    (notes_dir / "NOTE-0002.md").write_text("""---
+id: NOTE-0002
+source: handoff
+source_path: dummy
+date: 2026-05-17
+related_rounds: []
+topics: [training-infra]
+extracted_claims: []
+status: ingested
+---
+
+## Summary
+n2
+
+## Key facts (claim candidates)
+- a
+
+## Open threads
+- b
+""", encoding="utf-8")
+
+    out = tmp_path / "STATE.md"
+    render_state(claims_dir, rounds_dir, questions_dir, out, notes_dir=notes_dir)
+    text = out.read_text(encoding="utf-8")
+    # Per spec §9 decision 1: bucket line shows "X notes · Y claims extracted"
+    assert "2 notes" in text
+    assert "1 claim" in text  # singular OK; bucket line is "N notes · M claim(s) extracted"
