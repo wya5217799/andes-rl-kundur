@@ -13,8 +13,7 @@ monotone along action axis, argmax at boundary ±1) confirmed structural across
 HAWE ensemble (CLM-0295, R154).
 
 The Python package was refactored into a standard `src/` layout on 2026-05-16
-(see `docs/adr/0001-src-layout.md`). Paper draft (16 pp IEEE journal) is in
-`artifacts/paper_r77/`.
+(see `docs/adr/0001-src-layout.md`).
 
 ## Getting started
 
@@ -92,8 +91,6 @@ See `MEMORY.md` for the full memory-subsystem design.
 | `scripts/` | Runnable entry points: train, 4 eval drivers, round experiment drivers (r99–r259), score_run |
 | `probes/` | Round-level probe scripts |
 | `tests/` | pytest regression suite (35+ tests) |
-| `artifacts/paper_r77/` | IEEE journal manuscript (16 pp, frozen at R77) |
-| `artifacts/dissertation/` | UNNC FYP dissertation |
 | `memory/` | Claim ledger (CLM-0001–CLM-0485+), rounds (R01–R259), tools, STATE.md |
 | `docs/` | ADRs (0001–0005), engineering notes, design specs, paper deviation log |
 | `results/` | Gitignored except `whitelist/` (paper-cited checkpoints + JSON) |
@@ -140,4 +137,4 @@ to find the current best.
 
 ## License
 
-TBD (private repo).
+Released under the [MIT License](LICENSE).
