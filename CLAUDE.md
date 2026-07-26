@@ -93,6 +93,13 @@
 - `docs/adr/0005-andes-only-drop-simulink-1to1.md` — ANDES-only, no Simulink 1:1 chase (R80)
 - `memory/STATE.md` — auto-rendered active oracle (headlines / in-flight /
   open Qs / recently closed / latest round)
+- `memory/RESEARCH_PROGRAM.md` — TPWRS north star, phase gates, ranked
+  research questions, evidence requirements, and kill/pivot rules. This is
+  policy; `STATE.md` remains measured/generated state.
+- At research-session start run
+  `python memory/tools/research_goal.py --json`. Resume a reported active
+  round before reserving a new one; otherwise use the returned programme-
+  ranked goal contract.
 - Open `memory/questions/Q-*.md` files — what to address next
 - For tasks that touch work from rounds older than ~20 rounds back, run
   `python memory/tools/note_query.py --topic <relevant> --grep <kw>`
@@ -265,6 +272,11 @@ Atomic ID minting (race-safe vs parallel sessions):
 
 Operational dashboard / lookups:
 
+- `python memory/tools/research_goal.py [--json]` — read-only TPWRS
+  research-goal selector. Combines `RESEARCH_PROGRAM.md`, question states,
+  required-reading existence, and active-round detection. Returns a complete
+  `/goal` contract for exactly one programme-ranked question, blocks when a
+  round is active, and never reserves or launches work itself.
 - `python memory/tools/status.py` — what is training (WSL `ps`),
   what is `state: active` without summary, what's recently scored
   (dual-metric). Replaces ad-hoc polling.

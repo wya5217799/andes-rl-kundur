@@ -19,9 +19,12 @@ The Python package was refactored into a standard `src/` layout on 2026-05-16
 
 ### Reading orientation
 
-1. `CONTEXT.md` — glossary + architecture decisions (AD-01 … AD-14).
-2. `memory/STATE.md` — auto-rendered headlines, open questions, latest round.
-3. `docs/adr/` — five ADRs covering src layout, paper-faithful split, PI
+1. `AGENTS.md` — Codex new-session bootstrap for the automatic research loop.
+2. `memory/RESEARCH_PROGRAM.md` — TPWRS thesis, phase gates, ranked questions,
+   evidence requirements, and pivot rules.
+3. `CONTEXT.md` — glossary + architecture decisions (AD-01 … AD-14).
+4. `memory/STATE.md` — auto-rendered headlines, open questions, latest round.
+5. `docs/adr/` — ADRs covering src layout, paper-faithful split, PI
    briefing contract, V5 REGCA1 plant, and ANDES-only platform decision.
 
 ### Install
@@ -73,6 +76,7 @@ the pip install step.
 ### Memory subsystem
 
 ```bash
+python memory/tools/research_goal.py --json # select/resume one TPWRS-aligned goal
 python memory/tools/validate.py        # check claim/question/round schema
 python memory/tools/render.py          # regenerate memory/STATE.md
 python memory/tools/status.py          # operational dashboard (training, active rounds)
