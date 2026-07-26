@@ -24,6 +24,7 @@ from __future__ import annotations
 
 import argparse
 import dataclasses
+import hashlib
 import json
 import os
 import sys
@@ -68,6 +69,9 @@ from andes_rl_kundur.agents.td3_warmh0_qr_lstm import (  # noqa: E402
     TD3LSTMWarmH0QRAgent,  # noqa: E402  # R150 — warmh0+QR (no AFE)
 )
 from andes_rl_kundur.env.andes.v4_config import V4Config  # noqa: E402
+from andes_rl_kundur.env.andes.residual_adapter import (  # noqa: E402
+    BoundedDroopResidualEnv,
+)
 from andes_rl_kundur.scenarios.contract import KUNDUR  # noqa: E402
 from andes_rl_kundur.scenarios.kundur.training_checks import (  # noqa: E402
     register_kundur_default_checks,
@@ -123,6 +127,25 @@ def parse_args() -> argparse.Namespace:
                         "policy is structurally time-varying via hidden "
                         "state, escaping the R49-R55 hexagon's static-"
                         "setpoint attractor.")
+    p.add_argument(
+        "--controller-mode",
+        choices=["absolute", "bounded_droop_residual"],
+        default="absolute",
+        help="Interpret actor output as the legacy absolute V4 action or as a "
+             "bounded residual around the R85 droop prior.",
+    )
+    p.add_argument(
+        "--droop-k",
+        type=float,
+        default=10.0,
+        help="Droop gain used only by --controller-mode bounded_droop_residual.",
+    )
+    p.add_argument(
+        "--residual-scale",
+        type=float,
+        default=0.10,
+        help="Normalized residual cap beta used only by bounded residual mode.",
+    )
 
     # CTDE (SAC only)
     p.add_argument("--ctde", action="store_true",
@@ -313,6 +336,93 @@ def pick_device() -> str:
         return "cpu"
     print(f"[device] using {requested}")
     return requested
+
+
+def wrap_training_controller(
+    env,
+    args: argparse.Namespace,
+):
+    """Apply the selected controller semantics without changing base V4."""
+    mode = getattr(args, "controller_mode", "absolute")
+    if mode == "absolute":
+        return env
+    if mode != "bounded_droop_residual":
+        raise ValueError(f"unknown controller mode: {mode!r}")
+    return BoundedDroopResidualEnv(
+        env,
+        k_droop=float(args.droop_k),
+        residual_scale=float(args.residual_scale),
+    )
+
+
+def _sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def controller_contract(args: argparse.Namespace) -> dict:
+    """Machine-readable actor/executed-action contract for reload/evaluation."""
+    mode = getattr(args, "controller_mode", "absolute")
+    contract = {
+        "schema_version": 1,
+        "mode": mode,
+        "algo": args.algo,
+        "seed": args.seed,
+    }
+    if mode == "bounded_droop_residual":
+        contract.update(
+            {
+                "k_droop": float(args.droop_k),
+                "residual_scale": float(args.residual_scale),
+                "composition": "clip(droop + residual_scale * residual, -1, 1)",
+                "actor_output": "normalized_residual",
+                "environment_input": "normalized_executed_action",
+            }
+        )
+    else:
+        contract.update(
+            {
+                "actor_output": "normalized_absolute_action",
+                "environment_input": "normalized_absolute_action",
+            }
+        )
+    source_paths = (
+        ROOT / "scripts" / "train.py",
+        ROOT / "src" / "andes_rl_kundur" / "evaluation" / "hybrid.py",
+        ROOT
+        / "src"
+        / "andes_rl_kundur"
+        / "env"
+        / "andes"
+        / "residual_adapter.py",
+    )
+    contract["source_sha256"] = {
+        str(path.relative_to(ROOT)).replace("\\", "/"): _sha256_file(path)
+        for path in source_paths
+    }
+    contract["command"] = [sys.executable, *sys.argv]
+    return contract
+
+
+def write_controller_contract(
+    save_dir: Path,
+    args: argparse.Namespace,
+) -> dict:
+    """Persist action semantics before the first training episode."""
+    path = save_dir / "controller_contract.json"
+    if path.exists():
+        raise FileExistsError(f"refusing to overwrite controller contract: {path}")
+    payload = controller_contract(args)
+    temporary = Path(f"{path}.tmp")
+    temporary.write_text(
+        json.dumps(payload, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    temporary.replace(path)
+    return payload
 
 
 def obs_dim_with_optional_action(base_dim: int) -> tuple[int, bool]:
@@ -988,6 +1098,12 @@ def main() -> None:
 
     if args.warmup is None:
         args.warmup = cfg.WARMUP_STEPS
+    if args.controller_mode == "bounded_droop_residual" and args.final_eval:
+        raise ValueError(
+            "legacy --final-eval deploys actor output as an absolute action; "
+            "bounded residual training requires --no-final-eval and the "
+            "residual-aware evaluator"
+        )
 
     np.random.seed(args.seed + args.seed_offset)
     torch.manual_seed(args.seed + args.seed_offset)
@@ -1001,6 +1117,9 @@ def main() -> None:
     env_config = build_v4_config(args)
 
     os.makedirs(args.save_dir, exist_ok=True)
+    contract = controller_contract(args)
+    if args.controller_mode == "bounded_droop_residual":
+        contract = write_controller_contract(Path(args.save_dir), args)
 
     # Env probe to read N_AGENTS / OBS_DIM consistently
     env_cls = _env_cls()
@@ -1071,10 +1190,11 @@ def main() -> None:
 
     try:
         for ep in range(args.episodes):
-            env = env_cls(
+            base_env = env_cls(
                 random_disturbance=True, comm_fail_prob=comm_fail,
                 config=env_config,
             )
+            env = wrap_training_controller(base_env, args)
             env.seed(args.seed + args.seed_offset + ep)
 
             result = run_episode(env, agents, total_steps, args, action_dim)
@@ -1180,6 +1300,7 @@ def main() -> None:
             "episodes_planned":  args.episodes,
             "interrupted":       interrupted,
             "env_config":        dataclasses.asdict(env_config),
+            "controller_contract": contract,
             "hparam_effective":  {
                 "PHI_F":  env_config.phi_f,
                 "PHI_H":  env_config.phi_h,

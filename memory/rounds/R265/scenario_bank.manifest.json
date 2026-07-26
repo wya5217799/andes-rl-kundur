@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "sealed_at_local": "2026-07-24T20:33:58.4233675+08:00",
+  "prospective_evidence": {
+    "first_controller_trajectory_started": false,
+    "round_plan": "memory/rounds/R265/plan.md",
+    "round_plan_sha256": "a7ce6d8f0e7facde43084ddf2cd66760d3c9c97c18226ce8b7ff272c9ee1a8e5",
+    "limitation": "Local timestamp, plan, and chat audit establish repository-local ordering; SHA-256 alone is not an independent third-party timestamp."
+  },
+  "bank": {
+    "path": "memory/rounds/R265/scenario_bank.json",
+    "byte_count": 1453,
+    "sha256": "68816647eca8c0ccabe847ec883eaf59676c7afc915c09081a7851bf1e2dfae0",
+    "serialization": "utf-8; json.dumps(sort_keys=True,separators=(',',':'),ensure_ascii=False); trailing LF",
+    "scenario_count": 20,
+    "ordered_scenarios_are_measurement_of_record": true
+  },
+  "generation": {
+    "function": "andes_rl_kundur.evaluation.paper_strict_eval.generate_test_scenarios",
+    "arguments": {
+      "n": 20,
+      "seed": 20260724,
+      "include_anchors": false
+    },
+    "repository_head": "eabfb7b7db98c15eafa1bd2ff990514255ccd026",
+    "repository_dirty": true,
+    "generator_source_sha256": "e970c943a70047151008be664ddbc8c18d87438857dbeea67854cfa7a60b48cb",
+    "python": "3.14.3",
+    "numpy": "2.4.3",
+    "bit_generator_observed": "PCG64",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "sampling_contract": {
+      "pq_bus_candidates": [
+        "PQ_0",
+        "PQ_1",
+        "PQ_Bus14",
+        "PQ_Bus15"
+      ],
+      "magnitude_distribution": "uniform[-3.0, 3.0) p.u. on 100 MVA base",
+      "rejection_rule": "redraw while abs(magnitude) < 0.1 p.u.",
+      "rounding": "round accepted magnitude to 4 decimal places",
+      "events_per_scenario": 1,
+      "scenario_order": "generator order; never sorted after generation"
+    }
+  },
+  "evaluation": {
+    "environment": "andes_vsg_env_v4 paper_faithful default",
+    "environment_seed": 42,
+    "steps": 150,
+    "controllers": {
+      "r201": {
+        "kind": "legacy deterministic actor",
+        "checkpoint_dir": "results/r201_w1_hreg_tau005_s54",
+        "checkpoint_suffix": "best"
+      },
+      "droop_k10": {
+        "kind": "proportional damping",
+        "droop_k": 10.0
+      },
+      "static_a0p25": {
+        "kind": "convex learned/droop blend",
+        "droop_k": 10.0,
+        "alpha": 0.25
+      },
+      "mode_gate_c0p25": {
+        "kind": "common/differential mode-ratio gated residual",
+        "droop_k": 10.0,
+        "alpha_cap": 0.25,
+        "ratio_full_scale": 0.05
+      }
+    },
+    "checkpoint_sha256": {
+      "agent_0_best.pt": "afaa7a133333f58f248a560bf637751833054b72623fbdd1630fcc18d66c5249",
+      "agent_1_best.pt": "eba24212765bc1589f0364c9c258fec83c14cb02ba24d377047adf4540d0d5c6",
+      "agent_2_best.pt": "48c0844f714cbb7bc64badf495b2f5a1e9e3dd4c0ca96889f3dfc78597c5388b",
+      "agent_3_best.pt": "c0750544b7e666cac19ec4e9a078c41866e8350a870fea25bc0ce9ff18dc5703"
+    },
+    "primary_contrast": "mode_gate_c0p25 minus static_a0p25",
+    "co_primary_lower_is_better": [
+      "vsg_mean_iae_hz_s",
+      "normalized_sync_loss_hz2"
+    ],
+    "bootstrap": {
+      "method": "two-sided paired percentile bootstrap with shared scenario-row indices",
+      "resamples": 10000,
+      "seed": 2026072401,
+      "confidence": 0.95
+    },
+    "tail": {
+      "definition": "controller-level empirical upper-loss CVaR90 difference and bank maximum difference",
+      "cvar_level": 0.9,
+      "tail_observation_equivalents": 2,
+      "interpretation": "descriptive guardrail, not strong tail inference"
+    },
+    "failure": {
+      "predicate": "tds_failed, incomplete 150-step horizon, evaluation error, missing/non-finite endpoint, or provenance mismatch",
+      "reporting": "per-controller two-sided 95% Clopper-Pearson interval plus gate/static paired 2x2 completion table",
+      "silent_deletion_allowed": false
+    },
+    "decision_gate": "memory/rounds/R265/plan.md#gate"
+  }
+}

@@ -1,0 +1,78 @@
+{
+  "bank": {
+    "byte_count": 1453,
+    "ordered_scenarios_are_measurement_of_record": true,
+    "path": "memory\\rounds\\R267\\scenario_bank.json",
+    "scenario_count": 20,
+    "sha256": "3e0cdf16758f6e3adcfeb336c891dce94340c0ee96e759783d1b5fcbcc4e2bd5"
+  },
+  "evaluation": {
+    "bootstrap": {
+      "confidence": 0.95,
+      "method": "paired percentile bootstrap with shared scenario rows",
+      "resamples": 10000,
+      "seed": 2026072501
+    },
+    "checkpoint_sha256": {
+      "agent_0_best.pt": "afaa7a133333f58f248a560bf637751833054b72623fbdd1630fcc18d66c5249",
+      "agent_1_best.pt": "eba24212765bc1589f0364c9c258fec83c14cb02ba24d377047adf4540d0d5c6",
+      "agent_2_best.pt": "48c0844f714cbb7bc64badf495b2f5a1e9e3dd4c0ca96889f3dfc78597c5388b",
+      "agent_3_best.pt": "c0750544b7e666cac19ec4e9a078c41866e8350a870fea25bc0ce9ff18dc5703"
+    },
+    "co_primary_lower_is_better": [
+      "vsg_mean_iae_hz_s",
+      "normalized_sync_loss_hz2"
+    ],
+    "controllers": {
+      "raw_mode_gate_c0p25": {
+        "alpha_cap": 0.25,
+        "droop_k": 10.0,
+        "kind": "common_differential_mode_ratio_gated_residual",
+        "ratio_full_scale": 0.05
+      },
+      "slew_mode_gate_c0p25_da0p02895": {
+        "alpha_cap": 0.25,
+        "delta_alpha_max": 0.02895,
+        "droop_k": 10.0,
+        "kind": "alpha_slew_limited_mode_ratio_gated_residual",
+        "rate_source": "Kundur inter-area mode 0.579 Hz; one-period full travel",
+        "ratio_full_scale": 0.05
+      },
+      "static_a0p25": {
+        "alpha": 0.25,
+        "droop_k": 10.0,
+        "kind": "convex_learned_droop_blend"
+      }
+    },
+    "environment": "andes_vsg_env_v4 paper_faithful default",
+    "environment_seed": 42,
+    "evaluation_source_sha256": {
+      "scripts/eval_sealed_gate_replication.py": "51f968410145004d7995698d802ebf40475cde1d3737194fb096e5f4779d6210",
+      "src/andes_rl_kundur/evaluation/hybrid.py": "ca9133b9307424dc15ad500af39139b5865b9d3fc8ff683113299443a480f62a",
+      "src/andes_rl_kundur/evaluation/paper_path.py": "835e32dd1a6f93b1633dbd1dbaff6e2598eb6b617a56fabdb2bcd30ac67540d6",
+      "src/andes_rl_kundur/evaluation/physical_endpoints.py": "848126b1eefe763b5f2185d0829e9f4f49b8bcc335ce06d0fc681ed0311826a8",
+      "src/andes_rl_kundur/evaluation/sealed_bank.py": "53ea4ab5f9e359cff4578236a6c47e8316e57b7f3196d4767f69e169a6f87dd2"
+    },
+    "primary_contrast": "gate_minus_static",
+    "profile": "q0029-slew",
+    "steps": 150
+  },
+  "generation": {
+    "arguments": {
+      "include_anchors": false,
+      "n": 20,
+      "seed": 20260725
+    },
+    "function": "andes_rl_kundur.evaluation.paper_strict_eval.generate_test_scenarios",
+    "generator_source_sha256": "e970c943a70047151008be664ddbc8c18d87438857dbeea67854cfa7a60b48cb",
+    "repository_head": "eabfb7b7db98c15eafa1bd2ff990514255ccd026"
+  },
+  "prospective_evidence": {
+    "first_controller_trajectory_started": false,
+    "limitation": "Local timestamp and hashes establish repository-local ordering; they are not an independent third-party timestamp.",
+    "round_plan": "memory\\rounds\\R267\\plan.md",
+    "round_plan_sha256": "37b6114b76cbffb3e872f741fc4f98ae74f698f8ac2ef07c5d079f65d3408031"
+  },
+  "schema_version": 2,
+  "sealed_at_local": "2026-07-25T16:22:52.614678+08:00"
+}
