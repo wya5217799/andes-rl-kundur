@@ -89,9 +89,11 @@ R277 是看完结果后才选动作的上限，不是 MARL 结果，不能放进
 
 ### 5.1 网络
 
-- 一个参数共享、无 LSTM 的 SAC actor；
+- 一个参数共享、无 LSTM 的 TD3 actor；
 - 四个 VSG 使用同一套 actor 参数；
-- 训练时使用集中式 critic，执行时每台 VSG 使用本地及共同状态；
+- 训练时使用集中式 twin critic；确定性策略避免在四个 raw action
+  被投影成一个秩亏标量后继续解释 SAC entropy；
+- 执行时每台 VSG 使用本地及共同状态；
 - 不训练多个不同 actor，不做 ensemble，不做 HAWE。
 
 ### 5.2 观测
