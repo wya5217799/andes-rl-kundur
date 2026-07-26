@@ -4,6 +4,7 @@ import numpy as np
 
 from andes_rl_kundur.evaluation.icems_residual import (
     audit_icems_policy_action,
+    physical_zero_sum_tolerance,
     summarise_icems_policy_trace,
 )
 
@@ -76,3 +77,23 @@ def test_icems_action_audit_rejects_post_window_action() -> None:
     )
     audit = audit_icems_policy_action(summary)
     assert audit["post_window_zero"] is False
+
+
+def test_physical_zero_sum_audit_uses_float32_representation_bound() -> None:
+    record = _synthetic_record()
+    record["traces"][0]["r278_physical_m_residual_sum"] = 3.0517578125e-5
+    summary = summarise_icems_policy_trace(
+        record,
+        final_window_steps=5,
+        fast_window_steps=15,
+    )
+    assert physical_zero_sum_tolerance() >= 3.0517578125e-5
+    assert audit_icems_policy_action(summary)["physical_zero_sum"] is True
+
+    record["traces"][0]["r278_physical_m_residual_sum"] = 1e-3
+    summary = summarise_icems_policy_trace(
+        record,
+        final_window_steps=5,
+        fast_window_steps=15,
+    )
+    assert audit_icems_policy_action(summary)["physical_zero_sum"] is False

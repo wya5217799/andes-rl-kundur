@@ -251,7 +251,8 @@ def audit_icems_policy_action(summary: dict[str, Any]) -> dict[str, bool]:
             summary["r278_max_abs_residual_sum"] <= 1e-9
         ),
         "physical_zero_sum": bool(
-            summary["r278_max_abs_physical_m_residual_sum"] <= 1e-8
+            summary["r278_max_abs_physical_m_residual_sum"]
+            <= physical_zero_sum_tolerance(contract)
         ),
         "post_window_zero": bool(
             summary["r278_post_window_max_abs_q"] <= 1e-9
@@ -263,6 +264,25 @@ def audit_icems_policy_action(summary: dict[str, Any]) -> dict[str, bool]:
             and summary["max_m"] <= 500.0 + 1e-8
         ),
     }
+
+
+def physical_zero_sum_tolerance(
+    contract: Any | None = None,
+) -> float:
+    """Return a float32-aware absolute sum tolerance for physical inertia.
+
+    Executed normalized actions are float32.  At the maximum physical inertia
+    of 500, one representable float32 step is about 3.05e-5.  Summing four
+    decoded devices therefore cannot be audited at the old 1e-8 threshold.
+    Four ULPs is a conservative representation bound, not a control allowance.
+    """
+    cfg = contract or r278_area_inertia_contract()
+    max_physical_m = cfg.baseline_m + cfg.dm_max * (
+        cfg.common_amplitude + cfg.q_max
+    )
+    return float(
+        cfg.agent_count * np.spacing(np.float32(max_physical_m))
+    )
 
 
 def classify_icems_pilot(

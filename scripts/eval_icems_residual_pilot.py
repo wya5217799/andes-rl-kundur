@@ -637,7 +637,7 @@ def analyse(
         records[CANDIDATE].append(candidate)
         trace_hashes[baseline_relative] = sha256_file(baseline_path)
         trace_hashes[
-            str(candidate_path.relative_to(ROOT)).replace("\\", "/")
+            str(candidate_path.resolve().relative_to(ROOT)).replace("\\", "/")
         ] = sha256_file(candidate_path)
         grid[name] = {}
         if baseline["completed"] and candidate["completed"]:
