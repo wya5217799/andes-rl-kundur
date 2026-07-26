@@ -1,8 +1,8 @@
 ---
 round: R278
-state: active
+state: completed
 opened: '2026-07-26'
-closed: null
+closed: '2026-07-26'
 supersedes_rounds: []
 superseded_by_round: null
 abort_reason: null
@@ -10,7 +10,7 @@ superseded_note: null
 ---
 # R278 plan — ICEMS one-dimensional shared MARL pilot
 
-**Status**: ACTIVE
+**Status**: COMPLETED — `PILOT-NO-GO`
 **Opened**: 2026-07-26
 **Driver**: Q-0038 after R277 established `LEARNING-GAP-PRESENT`
 **Parents**: CLM-0580, CLM-0585, CLM-0590, CLM-0595
