@@ -1,0 +1,132 @@
+\begin{figure*}[t]
+\centering
+\begin{tikzpicture}[
+    x=1cm,
+    y=1cm,
+    font=\footnotesize,
+    >=Latex,
+    flow/.style={-Latex, line width=0.7pt, draw=black!70},
+    data/.style={-Latex, line width=0.65pt, draw=black!55, dashed},
+    common/.style={
+        draw=blue!65!black,
+        fill=blue!7,
+        rounded corners=2pt,
+        align=center,
+        minimum height=0.72cm,
+        text width=2.45cm
+    },
+    learned/.style={
+        draw=orange!80!black,
+        fill=orange!9,
+        rounded corners=2pt,
+        align=center,
+        minimum height=0.72cm,
+        text width=2.45cm
+    },
+    physical/.style={
+        draw=black!65,
+        fill=black!4,
+        rounded corners=2pt,
+        align=center,
+        minimum height=0.82cm,
+        text width=2.55cm
+    },
+    audit/.style={
+        draw=green!45!black,
+        fill=green!7,
+        rounded corners=2pt,
+        align=center,
+        minimum height=0.72cm,
+        text width=2.55cm
+    },
+    train/.style={
+        draw=black!45,
+        fill=black!3,
+        dashed,
+        rounded corners=2pt,
+        align=center,
+        minimum height=0.62cm,
+        text width=2.45cm
+    },
+    lane/.style={
+        draw=#1,
+        rounded corners=3pt,
+        inner sep=5pt,
+        line width=0.65pt
+    }
+]
+
+\node[physical] (measure) at (0,1.85)
+{Physical measurements\\
+\(\Delta f_i,\ \dot f_i\)\\
+\(\Delta P_i,\ \mathrm{SOC}_i\)};
+
+\node[common] (slow) at (3.35,2.85)
+{Slow common restoration\\
+constrained droop--PI \(P_i^\star\)};
+\node[common] (pulse) at (6.35,2.85)
+{Fast common support\\
+\(c_t\mathbf 1,\ c_t=0.25\) for \SI{3}{s}};
+
+\node[learned] (obs) at (3.35,0.85)
+{Seven local features\\
+\(o_i\), shared normalization};
+\node[learned] (actor) at (6.35,0.85)
+{One shared actor\\
+\(z_i=\mu_\theta(o_i)\)};
+\node[learned] (project) at (9.35,0.85)
+{Hard rank-one projection\\
+\(\mathbf r_t=q_t[1,1,-1,-1]^{\mathsf T}\)};
+
+\node[physical] (compose) at (9.35,2.85)
+{Executed commands\\
+\(\mathbf a_t^H=c_t\mathbf1+\mathbf r_t,\ \mathbf a_t^D=\mathbf0\)};
+\node[audit] (guards) at (12.45,2.85)
+{Stepwise contract audit\\
+zero sum, limits, slew, window};
+\node[physical] (plant) at (12.45,0.85)
+{ANDES modified Kundur\\
+four VSGs + storage};
+
+\node[train] (critic) at (6.35,-0.75)
+{Training only: centralized twin critics\\
+joint observations + executed scalar \(q_t\)};
+\node[train] (evidence) at (10.9,-0.75)
+{Evaluation: physical \SI{60}{Hz} endpoints\\
+paired uncertainty + storage/tail guards};
+
+\draw[flow] (measure) -- node[above, font=\footnotesize]
+{\(\Delta f_{\mathrm c}\), feasibility} (slow);
+\draw[flow] (measure) |- (obs);
+\draw[flow] (obs) -- (actor);
+\draw[flow] (actor) -- (project);
+\draw[flow] (slow) -- (pulse);
+\draw[flow] (pulse) -- (compose);
+\draw[flow] (project) -- (compose);
+\draw[flow] (compose) -- (guards);
+\draw[flow] (guards) -- (plant);
+\draw[flow] (plant.west) |- (measure.east);
+
+\draw[data] (obs.south) |- (critic.west);
+\draw[data] (project.south) |- (critic.east);
+\draw[data] (critic.north) -- node[right, font=\footnotesize]
+{updates \(\theta\)} (actor.south);
+\draw[data] (plant.south) |- (evidence.east);
+
+\node[lane=blue!55!black, fit=(slow)(pulse), label={
+    [font=\bfseries\footnotesize, text=blue!55!black, fill=white,
+    inner sep=1pt]above:
+    Frozen common coordinate}] {};
+\node[lane=orange!75!black, fit=(obs)(actor)(project), label={
+    [font=\bfseries\footnotesize, text=orange!75!black, fill=white,
+    inner sep=1pt]above:
+    Learned differential coordinate}] {};
+
+\end{tikzpicture}
+\caption{The proposed controller separates aggregate support from differential
+coordination. Frozen classical layers regulate the common coordinate; the
+shared policy can alter only one bounded two-area inertia coordinate whose
+normalized and physical fleet sums are audited at every step. Dashed paths are
+used only during centralized training and evidence collection.}
+\label{fig:architecture}
+\end{figure*}
