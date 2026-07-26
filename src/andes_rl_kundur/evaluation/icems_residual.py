@@ -18,6 +18,18 @@ from andes_rl_kundur.evaluation.fast_md_authority import (
 )
 
 CONTROLLER = "r278_shared_area_td3"
+PRIMARY_ENDPOINTS = (
+    "normalized_sync_loss_hz2",
+    "fast_inter_area_iae_hz_s",
+)
+FAST_GUARD_ENDPOINTS = (
+    "max_abs_rocof_hz_s",
+    "worst_bus_peak_abs_hz",
+)
+SLOW_GUARD_ENDPOINTS = (
+    "vsg_mean_iae_hz_s",
+    "final_window_common_abs_mean_hz",
+)
 
 
 def sha256_file(path: str | Path) -> str:
@@ -250,4 +262,95 @@ def audit_icems_policy_action(summary: dict[str, Any]) -> dict[str, bool]:
             and summary["min_m"] >= 200.0 - 1e-8
             and summary["max_m"] <= 500.0 + 1e-8
         ),
+    }
+
+
+def classify_icems_pilot(
+    *,
+    primary_contrast: dict[str, Any] | None,
+    provenance_valid: bool,
+    complete_pairs: bool,
+    action_guard_pass: bool,
+    storage_guard_pass: bool,
+    tail_guard_pass: bool,
+) -> dict[str, Any]:
+    """Apply the prospectively frozen R278 single-seed development gate."""
+    validity_guards = {
+        "provenance_valid": bool(provenance_valid),
+        "complete_24_pairs": bool(complete_pairs),
+        "action_guard_pass": bool(action_guard_pass),
+        "storage_guard_pass": bool(storage_guard_pass),
+    }
+    if primary_contrast is None or not all(validity_guards.values()):
+        return {
+            "classification": "INVALID",
+            "reason": (
+                "no complete paired endpoint contrast is available"
+                if primary_contrast is None
+                else "one or more provenance, completion, action, or storage guards failed"
+            ),
+            "guards": {**validity_guards, "tail_guard_pass": bool(tail_guard_pass)},
+            "primary_endpoints": {},
+            "fast_guards": {},
+            "slow_guards": {},
+        }
+
+    def effect(endpoint: str) -> tuple[float, float]:
+        relative = primary_contrast["endpoints"][endpoint][
+            "ratio_of_means_percent"
+        ]
+        return (
+            float(relative["point"]),
+            float(relative["percentile_95_interval"][1]),
+        )
+
+    primary = {}
+    for endpoint in PRIMARY_ENDPOINTS:
+        point, upper = effect(endpoint)
+        primary[endpoint] = {
+            "point_percent": point,
+            "ci_upper_percent": upper,
+            "material_improvement": point <= -2.0 and upper < 0.0,
+        }
+    fast = {}
+    for endpoint in FAST_GUARD_ENDPOINTS:
+        point, upper = effect(endpoint)
+        fast[endpoint] = {
+            "point_percent": point,
+            "ci_upper_percent": upper,
+            "mean_no_worse_5pct": point <= 5.0,
+        }
+    slow = {}
+    for endpoint in SLOW_GUARD_ENDPOINTS:
+        point, upper = effect(endpoint)
+        slow[endpoint] = {
+            "point_percent": point,
+            "ci_upper_percent": upper,
+            "mean_no_worse_2pct": point <= 2.0,
+        }
+    guards = {
+        **validity_guards,
+        "both_primary_endpoints_clear": all(
+            row["material_improvement"] for row in primary.values()
+        ),
+        "fast_mean_guard_pass": all(
+            row["mean_no_worse_5pct"] for row in fast.values()
+        ),
+        "slow_mean_guard_pass": all(
+            row["mean_no_worse_2pct"] for row in slow.values()
+        ),
+        "tail_guard_pass": bool(tail_guard_pass),
+    }
+    go = all(guards.values())
+    return {
+        "classification": "PILOT-GO" if go else "PILOT-NO-GO",
+        "reason": (
+            "both co-primary endpoints clear the registered material and uncertainty gate"
+            if go
+            else "one or more registered efficacy or no-harm gates did not clear"
+        ),
+        "guards": guards,
+        "primary_endpoints": primary,
+        "fast_guards": fast,
+        "slow_guards": slow,
     }

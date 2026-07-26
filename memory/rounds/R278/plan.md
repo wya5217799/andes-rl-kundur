@@ -152,6 +152,14 @@ round only if all conditions hold:
 - 24/24 completion, no TDS failure, exact action contract, no storage
   constraint violation, power/SOC/energy and tail-risk guards pass.
 
+The tail and storage clauses are frozen before any seed-49 pilot endpoint is
+evaluated: empirical CVaR90 may worsen by at most +5% for the two co-primary
+and two fast safety endpoints, and by at most +2% for the two slow endpoints.
+Mean command L1, command total variation, charge energy and discharge energy
+may each worsen by at most +5%; commanded/actual power must remain within
+0.36 pu, SOC within `[0.20,0.80]`, with zero saturation reasons and zero
+constraint violations.
+
 Any other valid result is `PILOT-NO-GO` and closes Q-0038 as
 `NO-ADAPTIVE-MARL-VALUE`. Contract/provenance failure is `INVALID`. There is no
 second seed, algorithm, reward, amplitude, observation or baseline rescue
