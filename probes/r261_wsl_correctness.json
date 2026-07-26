@@ -1,0 +1,53 @@
+{
+  "round": "R261",
+  "date": "2026-07-24",
+  "type": "correctness_probe",
+  "performance_claim": false,
+  "environment": {
+    "wsl_distro": "Ubuntu",
+    "wsl_version": 2,
+    "python": "3.12.3",
+    "python_path": "/home/wya/andes_venv/bin/python",
+    "andes": "2.0.0",
+    "torch": "2.10.0+cu128",
+    "numpy": "2.4.3",
+    "case": "/home/wya/andes_venv/lib/python3.12/site-packages/andes/cases/kundur/kundur_full.xlsx"
+  },
+  "frequency_probe": {
+    "genrou_fn_hz": [
+      60.0
+    ],
+    "line_fn_hz": [
+      60.0
+    ],
+    "project_contract_fn_hz": 50.0,
+    "calibration_mismatch_reproduced": true,
+    "legacy_to_physical_deviation_scale": 1.2
+  },
+  "evaluation_failure_probe": {
+    "old_run_scenario_preserved_tds_failed": false,
+    "old_score_trace_files_rejected_failed_trace": false,
+    "fixed_run_scenario_preserves_tds_failed": true,
+    "fixed_score_trace_files_rejects_failed_trace": true
+  },
+  "recurrent_target_probe": {
+    "old_target_actor_tag_sequence": [
+      10.0,
+      30.0
+    ],
+    "expected_and_fixed_target_actor_tag_sequence": [
+      10.0,
+      20.0,
+      30.0
+    ],
+    "affected_agent_classes_covered": 9,
+    "realised_critic_history_separated_from_target_query": true
+  },
+  "verification": {
+    "windows_pytest": "304 passed, 3 skipped, 1 xfailed",
+    "wsl_full_pytest": "317 passed, 1 xfailed",
+    "wsl_live_andes_subset": "16 passed",
+    "ruff_scope": "src tests scripts: all checks passed",
+    "compileall": "passed"
+  }
+}

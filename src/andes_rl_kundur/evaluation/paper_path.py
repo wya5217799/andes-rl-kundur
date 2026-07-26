@@ -14,12 +14,20 @@ Trace JSON shape (one file per scenario):
         "controller":   <label>,
         "scenario":     <scen_name>,
         "env_version":  "v4",
-        "cum_rf_total": float,   # negative sum of step_rf
-        "max_df":       float,   # max |Δf| in Hz over the run
+        "cum_rf_total": float,   # legacy-control-Hz basis
+        "max_df":       float,   # legacy 50-Hz reporting basis
+        "max_df_physical_hz": float,  # ANDES-case nominal-frequency basis
+        "control_nominal_frequency_hz": float,
+        "andes_nominal_frequency_hz": float,
+        "metric_frequency_basis": "legacy_control_hz",
         "osc":          float,   # accumulated cross-agent freq std
         "n_steps":      int,     # may be < steps if tds_failed
+        "requested_steps": int,
+        "tds_failed":   bool,
+        "completed":    bool,
         "traces":       [        # one record per step
-            {step, t, freq_hz, f_bar, step_rf, delta_P_es, delta_f_es,
+            {step, t, freq_hz, freq_hz_physical, f_bar, step_rf, action_norm,
+             delta_P_es, delta_f_es, delta_f_physical_hz,
              M_es, D_es, delta_M, delta_D},
             ...
         ],
@@ -118,7 +126,9 @@ def run_scenario(
     traces: list[dict[str, Any]] = []
     cum_rf = 0.0
     max_df = 0.0
+    physical_max_df = 0.0
     osc_accum = 0.0
+    tds_failed = False
     try:
         env.seed(seed)
         env.STEPS_PER_EPISODE = steps
@@ -126,29 +136,52 @@ def run_scenario(
 
         n_agents = env.N_AGENTS
         f_nom = env.FN
+        andes_f_nom = float(getattr(env, "andes_nominal_frequency_hz", f_nom))
 
         for step in range(steps):
             actions = action_fn(step, obs, n_agents)
+            action_norm = [
+                np.asarray(actions[i], dtype=float).tolist()
+                for i in range(n_agents)
+            ]
             obs, _rewards, done, info = env.step(actions)
             if info.get("tds_failed"):
+                tds_failed = True
                 break
 
             freq_hz = info["freq_hz"].astype(float).tolist()
             delta_f = [(f - f_nom) for f in freq_hz]
+            physical_freq_hz = np.asarray(
+                info.get("freq_hz_physical", info["freq_hz"]),
+                dtype=float,
+            ).tolist()
+            andes_f_nom = float(
+                info.get("andes_nominal_frequency_hz", andes_f_nom)
+            )
+            physical_delta_f = [
+                f - andes_f_nom for f in physical_freq_hz
+            ]
             f_bar = float(np.mean(freq_hz))
             step_rf = float(np.mean([(d - (f_bar - f_nom)) ** 2 for d in delta_f]))
             cum_rf -= step_rf
             max_df = max(max_df, float(np.max(np.abs(delta_f))))
+            physical_max_df = max(
+                physical_max_df,
+                float(np.max(np.abs(physical_delta_f))),
+            )
             osc_accum += float(np.std(delta_f))
 
             traces.append({
                 "step":       step,
                 "t":          float(info["time"]),
                 "freq_hz":    freq_hz,
+                "freq_hz_physical": physical_freq_hz,
                 "f_bar":      f_bar,
                 "step_rf":    step_rf,
+                "action_norm": action_norm,
                 "delta_P_es": info["P_es"].astype(float).tolist(),
                 "delta_f_es": delta_f,
+                "delta_f_physical_hz": physical_delta_f,
                 "M_es":       info["M_es"].astype(float).tolist(),
                 "D_es":       info["D_es"].astype(float).tolist(),
                 "delta_M":    info["delta_M"].astype(float).tolist(),
@@ -168,8 +201,17 @@ def run_scenario(
         "env_version":  "v4",
         "cum_rf_total": cum_rf,
         "max_df":       max_df,
+        "max_df_physical_hz": physical_max_df,
+        "control_nominal_frequency_hz": float(f_nom),
+        "andes_nominal_frequency_hz": andes_f_nom,
+        "frequency_reporting_basis": "legacy_control_hz",
+        "metric_frequency_basis": "legacy_control_hz",
+        "frequency_calibration_mismatch": not np.isclose(f_nom, andes_f_nom),
         "osc":          osc_accum,
         "n_steps":      len(traces),
+        "requested_steps": steps,
+        "tds_failed":   tds_failed,
+        "completed":    not tds_failed and len(traces) == steps,
         "traces":       traces,
     }
     if extra_keys:

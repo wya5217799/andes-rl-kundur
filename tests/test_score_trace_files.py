@@ -116,6 +116,28 @@ def test_score_trace_files_unknown_scenario_ignored(tmp_path):
     assert "some_other_scenario" not in summary
 
 
+def test_score_trace_files_rejects_tds_failed_trace(tmp_path):
+    """A failed partial trace must never produce a headline score."""
+    baseline = _baseline_paths()["load_step_1"]
+    if not baseline.exists():
+        pytest.skip("PRE_REFACTOR baseline fixture missing")
+
+    with baseline.open(encoding="utf-8") as f:
+        failed_trace = json.load(f)
+    failed_trace["tds_failed"] = True
+    failed_trace["traces"] = failed_trace["traces"][:1]
+    failed_trace["n_steps"] = 1
+
+    trace_path = tmp_path / "failed_load_step_1.json"
+    trace_path.write_text(json.dumps(failed_trace), encoding="utf-8")
+
+    with pytest.raises(ValueError, match="tds_failed"):
+        score_trace_files(
+            {"load_step_1": trace_path},
+            label="failed_trace", is_ddic=False,
+        )
+
+
 def test_format_headline_handles_full_summary():
     """``format_headline`` returns a compact one-line string."""
     summary = {

@@ -65,6 +65,10 @@ def score_trace_files(
         ``evaluate_trace`` reads the trace file from disk. ``cum_rf`` is
         computed from the same JSON re-loaded here, so callers don't need
         to keep the in-memory trace dict.
+
+        Failed or explicitly incomplete traces raise ``ValueError``.  A
+        partial cumulative reward can look artificially good, so silently
+        converting such a trajectory into a headline score is unsafe.
     """
     per_scen_geo: dict[str, float] = {}
     per_scen_cum_rf: dict[str, float] = {}
@@ -73,11 +77,29 @@ def score_trace_files(
         if scen_name not in PAPER:
             continue  # only score paper-anchor scenarios
 
-        ts = evaluate_trace(trace_path, PAPER[scen_name], is_ddic=is_ddic, label=label)
-        per_scen_geo[scen_name] = ts.overall
-
         with open(trace_path, encoding="utf-8") as f:
             trace = json.load(f)
+        if trace.get("tds_failed") is True:
+            raise ValueError(
+                f"Refusing to score {trace_path}: tds_failed=True"
+            )
+        if trace.get("completed") is False:
+            raise ValueError(
+                f"Refusing to score {trace_path}: completed=False"
+            )
+        traces = trace.get("traces")
+        if not traces:
+            raise ValueError(
+                f"Refusing to score {trace_path}: trace is empty"
+            )
+        if "n_steps" in trace and int(trace["n_steps"]) != len(traces):
+            raise ValueError(
+                f"Refusing to score {trace_path}: n_steps={trace['n_steps']} "
+                f"but len(traces)={len(traces)}"
+            )
+
+        ts = evaluate_trace(trace_path, PAPER[scen_name], is_ddic=is_ddic, label=label)
+        per_scen_geo[scen_name] = ts.overall
         per_scen_cum_rf[scen_name] = compute_global_cum_rf(trace)
 
     geo = floor_geo_mean(per_scen_geo.values()) if per_scen_geo else None

@@ -145,6 +145,7 @@ class TD3QRLstmAgent(TD3LSTMAgent):
                 _, h_c2_tgt = self.critic_target.q2(
                     obs[:, t], actions[:, t], h_c2_tgt
                 )
+            _, h_a_tgt = self.actor_target(obs[:, self.burn_in], h_a_tgt)
 
         h_a = _detach_h(h_a)
         h_a_tgt = _detach_h(h_a_tgt)
@@ -159,16 +160,22 @@ class TD3QRLstmAgent(TD3LSTMAgent):
         critic_losses: list[torch.Tensor] = []
         for t in range(self.burn_in, self.burn_in + self.seq_len):
             with torch.no_grad():
+                _, h_c1_tgt = self.critic_target.q1(
+                    obs[:, t], actions[:, t], h_c1_tgt
+                )
+                _, h_c2_tgt = self.critic_target.q2(
+                    obs[:, t], actions[:, t], h_c2_tgt
+                )
                 target_a_raw, h_a_tgt = self.actor_target(next_obs[:, t], h_a_tgt)
                 noise = (
                     torch.randn_like(target_a_raw) * self.policy_noise
                 ).clamp(-self.noise_clip, self.noise_clip)
                 target_a = (target_a_raw + noise).clamp(-1.0, 1.0)
 
-                q1_tgt_quantiles, h_c1_tgt = self.critic_target.q1(
+                q1_tgt_quantiles, _ = self.critic_target.q1(
                     next_obs[:, t], target_a, h_c1_tgt
                 )
-                q2_tgt_quantiles, h_c2_tgt = self.critic_target.q2(
+                q2_tgt_quantiles, _ = self.critic_target.q2(
                     next_obs[:, t], target_a, h_c2_tgt
                 )
                 # Scalar-mean comparator for min-Q selection (TD3 spirit)

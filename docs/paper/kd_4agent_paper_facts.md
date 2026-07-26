@@ -2,7 +2,7 @@
 
 > **角色：** KD 4-agent 论文对照的**唯一规范文档（canonical reference）**。回答 "论文怎么说 X" 类问题前必读此文件，不再翻 PDF / 转录 / 其他论文目录文件。
 >
-> **Source paper:** Yang et al., *"A Distributed Dynamic Inertia-Droop Control Strategy Based on Multi-Agent Deep Reinforcement Learning for Multiple Paralleled VSGs,"* IEEE TPWRS, vol. 38, no. 6, pp. 5602–5617, Nov. 2023. DOI: 10.1109/TPWRS.2022.3221439.
+> **Source paper:** Yang et al., *"A Distributed Dynamic Inertia-Droop Control Strategy Based on Multi-Agent Deep Reinforcement Learning for Multiple Paralleled VSGs,"* IEEE TPWRS, vol. 38, no. 6, pp. 5598–5612, Nov. 2023. DOI: 10.1109/TPWRS.2022.3221439.
 >
 > **Scope:** 修改版 Kundur 双区系统 + 4 ESS 主实验（Sec.III + Sec.IV-A 至 IV-E）。**不含**：Sec.IV-F 弱网 N=2/4/8 对比、Sec.IV-G NE39、Sec.IV-G 末尾的短路实验。
 >

@@ -92,3 +92,26 @@ def test_first_step_freq_hz_matches_baseline(scenario: str) -> None:
             f"physics."
         ),
     )
+
+
+def test_frequency_metadata_exposes_andes_60hz_without_changing_legacy_v4() -> None:
+    """Live ANDES must report both the frozen 50-Hz and physical 60-Hz bases."""
+    env = AndesMultiVSGEnvV4(random_disturbance=False, comm_fail_prob=0.0)
+    env.seed(SEED)
+    env.STEPS_PER_EPISODE = 1
+    try:
+        env.reset(delta_u=SCENARIOS["load_step_1"])
+        actions = {
+            i: np.zeros(2, dtype=np.float32) for i in range(env.N_AGENTS)
+        }
+        _obs, _rewards, _done, info = env.step(actions)
+    finally:
+        env.close()
+
+    assert env.FN == 50.0
+    assert env.andes_nominal_frequency_hz == 60.0
+    assert info["frequency_calibration_mismatch"] is True
+    np.testing.assert_allclose(info["freq_hz"], info["omega"] * 50.0)
+    np.testing.assert_allclose(
+        info["freq_hz_physical"], info["omega"] * 60.0
+    )

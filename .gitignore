@@ -41,5 +41,10 @@ venv/
 .vscode/
 .idea/
 
+# Local analysis and generated review artifacts
+.codesearch.db/
+.understand-anything/
+tmp/
+
 # Claude Code session state (per-machine lock, scheduled task state)
 .claude/

@@ -14,12 +14,15 @@ Critical contracts:
 """
 from __future__ import annotations
 
+import importlib
 import sys
 import tempfile
 from pathlib import Path
 
 import numpy as np
+import pytest
 import torch
+from torch import nn
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
@@ -158,6 +161,117 @@ def test_update_gradients_reach_actor_lstm_weights():
     assert agent.actor.lstm.weight_ih.grad is not None
     assert agent.actor.lstm.weight_hh.grad is not None
     assert agent.actor.fc_out.weight.grad is not None
+
+
+@pytest.mark.parametrize(
+    ("module_name", "class_name", "extra_kwargs", "target_width"),
+    [
+        ("td3_lstm", "TD3LSTMAgent", {}, 1),
+        ("td3_lstm_hreg", "TD3LSTMHRegAgent", {}, 1),
+        ("td3_lstm_warmh0", "TD3LSTMWarmH0Agent", {}, 1),
+        ("td3_afe_lstm", "TD3AfeLstmAgent", {}, 1),
+        ("td3_qr_lstm", "TD3QRLstmAgent", {"n_quantiles": 3}, 3),
+        ("td3_qr_lstm_hreg", "TD3QRLstmHRegAgent", {"n_quantiles": 3}, 3),
+        ("td3_qr_afe_lstm", "TD3QRAfeLstmAgent", {"n_quantiles": 3}, 3),
+        (
+            "td3_warmh0_qr_lstm",
+            "TD3LSTMWarmH0QRAgent",
+            {"n_quantiles": 3},
+            3,
+        ),
+        (
+            "td3_warmh0_qr_afe_lstm",
+            "TD3WarmH0QRAfeLstmAgent",
+            {"n_quantiles": 3},
+            3,
+        ),
+    ],
+)
+def test_bellman_target_hidden_state_includes_current_transition(
+    module_name, class_name, extra_kwargs, target_width,
+):
+    """The recurrent Bellman target must not skip ``(obs_t, action_t)``.
+
+    At the first post-burn-in loss step, the target actor needs observation
+    history through ``obs_t`` before it acts on ``next_obs_t``.  Likewise,
+    each target critic must advance its history with the *realised*
+    ``(obs_t, action_t)`` before branching to evaluate
+    ``Q(next_obs_t, target_action_t)``.
+    """
+    from types import SimpleNamespace
+
+    module = importlib.import_module(f"andes_rl_kundur.agents.{module_name}")
+    agent_cls = getattr(module, class_name)
+
+    class RecordingActor(nn.Module):
+        def __init__(self):
+            super().__init__()
+            self.calls: list[tuple[float, float]] = []
+
+        def init_hidden(self, batch_size, device, **_kwargs):
+            return torch.zeros((batch_size, 1), device=device)
+
+        def forward(self, obs, hidden):
+            self.calls.append((float(obs[0, 0]), float(hidden[0, 0])))
+            return torch.zeros((obs.shape[0], 1), device=obs.device), hidden + obs[:, :1]
+
+    class RecordingQ(nn.Module):
+        def __init__(self, width):
+            super().__init__()
+            self.width = width
+            self.calls: list[tuple[float, float, float]] = []
+
+        def init_hidden(self, batch_size, device):
+            return torch.zeros((batch_size, 1), device=device)
+
+        def forward(self, obs, action, hidden):
+            self.calls.append((
+                float(obs[0, 0]), float(action[0, 0]), float(hidden[0, 0]),
+            ))
+            next_hidden = hidden + obs[:, :1] + action[:, :1]
+            return torch.zeros(
+                (obs.shape[0], self.width), device=obs.device,
+            ), next_hidden
+
+    agent = agent_cls(
+        obs_dim=1, action_dim=1, hidden_sizes=[4],
+        batch_size=1, burn_in=1, seq_len=1,
+        policy_noise=0.0, policy_delay=99,
+        **extra_kwargs,
+    )
+    target_actor = RecordingActor()
+    target_q1 = RecordingQ(target_width)
+    target_q2 = RecordingQ(target_width)
+    agent.actor_target = target_actor
+    agent.critic_target = SimpleNamespace(q1=target_q1, q2=target_q2)
+
+    # Transition 0 is burn-in. Transition 1 is the first TD-loss step:
+    # (obs_1=20, action_1=200) -> next_obs_1=30.
+    batch = {
+        "obs": torch.tensor([[[10.0], [20.0]]]),
+        "actions": torch.tensor([[[100.0], [200.0]]]),
+        "rewards": torch.zeros((1, 2, 1)),
+        "next_obs": torch.tensor([[[20.0], [30.0]]]),
+        "dones": torch.zeros((1, 2, 1)),
+    }
+    agent.buffer.sample = lambda batch_size, device: batch
+
+    loss = agent.update()
+    assert loss is not None
+
+    # Target actor: burn obs_0, align through obs_1, then act on next_obs_1.
+    assert [call[0] for call in target_actor.calls] == [10.0, 20.0, 30.0]
+    assert target_actor.calls[-1][1] == 30.0
+
+    # Target critic: burn transition 0, advance realised transition 1,
+    # then branch from that history to query the Bellman target.
+    assert [call[:2] for call in target_q1.calls] == [
+        (10.0, 100.0),
+        (20.0, 200.0),
+        (30.0, 0.0),
+    ]
+    assert target_q1.calls[-1][2] == 330.0
+    assert target_q2.calls == target_q1.calls
 
 
 def test_save_load_roundtrip_preserves_deterministic_output():

@@ -168,6 +168,83 @@ def test_run_scenario_closes_env_on_env_step_exception(monkeypatch):
     assert fake_env.closed
 
 
+def test_run_scenario_preserves_tds_failure_in_record(monkeypatch):
+    """A simulator failure must survive into the persisted trace record.
+
+    ``paper_grade_axes`` rejects records with ``tds_failed=True``.  Dropping
+    the flag here turns an early, partial trajectory into apparently valid
+    evaluation input.
+    """
+    from andes_rl_kundur.evaluation import paper_path
+
+    fake_env = _FakeEnv()
+    original_step = fake_env.step
+
+    def failed_step(actions):
+        obs, rewards, done, info = original_step(actions)
+        info["tds_failed"] = True
+        return obs, rewards, done, info
+
+    fake_env.step = failed_step
+    monkeypatch.setattr(
+        paper_path, "AndesMultiVSGEnvV4", lambda *a, **k: fake_env,
+    )
+
+    record = paper_path.run_scenario(
+        "load_step_1", {"line.Line_5.u": 0.0},
+        action_fn=lambda step, obs, n: {
+            i: np.zeros(2, dtype=np.float32) for i in range(n)
+        },
+        label="failed-test",
+        steps=10,
+    )
+
+    assert record["tds_failed"] is True
+    assert record["n_steps"] == 0
+    assert fake_env.closed
+
+
+def test_run_scenario_records_legacy_and_physical_frequency_bases(monkeypatch):
+    """Frequency calibration metadata must make the 60/50 split explicit."""
+    from andes_rl_kundur.evaluation import paper_path
+
+    fake_env = _FakeEnv()
+    fake_env.andes_nominal_frequency_hz = 60.0
+    original_step = fake_env.step
+
+    def physical_step(actions):
+        obs, rewards, done, info = original_step(actions)
+        info["freq_hz_physical"] = np.full(
+            fake_env.N_AGENTS, 60.12, dtype=np.float64,
+        )
+        info["andes_nominal_frequency_hz"] = 60.0
+        return obs, rewards, done, info
+
+    fake_env.step = physical_step
+    monkeypatch.setattr(
+        paper_path, "AndesMultiVSGEnvV4", lambda *a, **k: fake_env,
+    )
+
+    record = paper_path.run_scenario(
+        "load_step_1", {},
+        action_fn=lambda step, obs, n: {
+            i: np.zeros(2, dtype=np.float32) for i in range(n)
+        },
+        label="frequency-bases",
+        steps=1,
+    )
+
+    assert record["frequency_reporting_basis"] == "legacy_control_hz"
+    assert record["control_nominal_frequency_hz"] == 50.0
+    assert record["andes_nominal_frequency_hz"] == 60.0
+    assert record["frequency_calibration_mismatch"] is True
+    assert record["max_df"] == 0.0
+    assert record["max_df_physical_hz"] == pytest.approx(0.12)
+    assert record["traces"][0]["delta_f_physical_hz"] == pytest.approx(
+        [0.12] * fake_env.N_AGENTS
+    )
+
+
 def test_run_scenario_forwards_config_to_env(monkeypatch):
     """R50 opt C: run_scenario must accept a V4Config and forward it to
     AndesMultiVSGEnvV4 constructor — replaces the R44-β inline-script

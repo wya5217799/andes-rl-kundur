@@ -126,6 +126,11 @@ class AndesBaseEnv(ABC):
         self.step_count = 0
         self.vsg_idx = []             # GENCLS idx list
         self.comm_eta = {}            # 通信链路状态
+        # Control/reward code historically uses the paper contract ``FN``.
+        # Keep that frozen, but expose the simulator's actual nominal
+        # frequency separately so physical reporting cannot silently apply a
+        # 50-Hz label to a 60-Hz ANDES case (R89 / CLM-0171).
+        self.andes_nominal_frequency_hz = float(self.FN)
 
         # 通信延迟缓冲
         self._delayed_omega = {}
@@ -194,6 +199,29 @@ class AndesBaseEnv(ABC):
     def seed(self, s):
         self.rng = np.random.default_rng(s)
 
+    def _detect_andes_nominal_frequency_hz(self) -> float:
+        """Return the uniform nominal frequency encoded by the ANDES case.
+
+        ``GENROU.fn`` is the primary source because its ``omega`` states feed
+        the physical electromechanical dynamics.  ``Line.fn`` is used as a
+        fallback for cases without GENROU.  A non-uniform model is rejected:
+        choosing one value would make physical-Hz reporting ambiguous.
+        """
+        for model_name in ("GENROU", "Line"):
+            model = getattr(self.ss, model_name, None)
+            fn_param = getattr(model, "fn", None)
+            raw_values = getattr(fn_param, "v", None)
+            if raw_values is None or len(raw_values) == 0:
+                continue
+            values = np.asarray(raw_values, dtype=float)
+            unique = np.unique(np.round(values, decimals=9))
+            if len(unique) != 1:
+                raise RuntimeError(
+                    f"ANDES {model_name}.fn is non-uniform: {unique.tolist()}"
+                )
+            return float(unique[0])
+        return float(self.FN)
+
     # ─── 抽象方法 (子类必须实现) ───
 
     @abstractmethod
@@ -232,6 +260,7 @@ class AndesBaseEnv(ABC):
 
         # 重新构建系统 (ANDES 不支持完全 reset, 需重新加载)
         self.ss = self._build_system()
+        self.andes_nominal_frequency_hz = self._detect_andes_nominal_frequency_hz()
         # Cache GENCLS positions for this episode (O(N) once, replaces per-step O(N) scans)
         self._vsg_pos = [list(self.ss.GENCLS.idx.v).index(idx) for idx in self.vsg_idx]
 
@@ -439,13 +468,23 @@ class AndesBaseEnv(ABC):
 
         # 频率 (Hz)
         freq_hz = omega * self.FN
+        freq_hz_physical = omega * self.andes_nominal_frequency_hz
 
         # Max frequency deviation from nominal 50 Hz (per-step, not episode-peak)
         max_freq_deviation_hz = float(np.max(np.abs(freq_hz - self.FN)))
+        max_freq_deviation_physical_hz = float(np.max(np.abs(
+            freq_hz_physical - self.andes_nominal_frequency_hz
+        )))
 
         info = {
             "time": float(self.ss.dae.t),
             "freq_hz": freq_hz.copy(),
+            "freq_hz_physical": freq_hz_physical.copy(),
+            "control_nominal_frequency_hz": float(self.FN),
+            "andes_nominal_frequency_hz": self.andes_nominal_frequency_hz,
+            "frequency_calibration_mismatch": not np.isclose(
+                self.FN, self.andes_nominal_frequency_hz
+            ),
             "omega": omega.copy(),
             "omega_dot": omega_dot.copy(),
             "P_es": P_es.copy(),
@@ -458,6 +497,7 @@ class AndesBaseEnv(ABC):
             "r_d": r_d_sum,
             "r_smooth": r_smooth_sum,
             "max_freq_deviation_hz": max_freq_deviation_hz,
+            "max_freq_deviation_physical_hz": max_freq_deviation_physical_hz,
             "tds_failed": tds_failed,
         }
 
