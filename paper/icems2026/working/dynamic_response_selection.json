@@ -1,0 +1,23 @@
+{
+  "formal_bank_sha256": "10f774e899218d7e4a3adea2b62cdef8c21b71daef33e73bae094d4c4c8b2b54",
+  "schema_version": 2,
+  "selected": {
+    "delta_u": {
+      "PQ_0": 0.777
+    },
+    "location": "PQ_0",
+    "name": "cand_pq_0_pos_moderate",
+    "severity": "moderate",
+    "sign": "positive"
+  },
+  "selection_rule": "Select the first moderate-severity scenario in the immutable formal-bank manifest order; do not inspect controller outcomes.",
+  "trace_sha256": {
+    "centralized_s17": "59e56308b9a06b64807db5edcff2ae5a26b20373612293657a29d986e32d8ccc",
+    "centralized_s53": "efb903d14f0e974e84ddb97f8dfc9b76f06faeae87d53ba7625d650371a442ee",
+    "centralized_s89": "3c7e8549d7365186fd39bb7a4663ea8ea7105293e1c3bded25762883f38c75b9",
+    "q0": "4d0488017ccf3f5246611a45080013db882b56b42b879290a9b5f953d4a31aad",
+    "shared_s17": "04bcb872a08f09ad09e0638530134bbe6e973125604e3edfbcc397ce0baf1d0f",
+    "shared_s53": "39b93ad4d2f47fb8b4912dc7bfdf92f883a1a8e83d1db0783f7df1ccbbb27325",
+    "shared_s89": "686a56149f49fe5969bb4a7b9da119094715853dbd04bd711b0cf114f630fa72"
+  }
+}

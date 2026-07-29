@@ -1,10 +1,10 @@
 \documentclass[conference,a4paper]{IEEEtran}
 
 \usepackage{amsmath,amssymb}
-\usepackage{balance}
 \usepackage{booktabs}
 \usepackage{cite}
 \usepackage{graphicx}
+\usepackage{placeins}
 \usepackage{siunitx}
 \usepackage{tikz}
 \usepackage{xcolor}
@@ -30,27 +30,27 @@ John.XU@nottingham.edu.cn}
 \maketitle
 
 \begin{abstract}
-Paralleled virtual synchronous generators (VSGs) must provide aggregate
-frequency support while suppressing differential motion among units. If a
-learning controller changes both effects simultaneously, an apparent
-coordination gain can instead come from additional total inertia or a favorable
-training seed. This paper separates sustained common-frequency restoration,
-common transient support, and differential inertia redistribution. A
-constrained droop--PI storage layer and a \SI{3}{s} common-inertia pulse are
-frozen first; a parameter-shared multi-agent policy can then execute only a
-bounded, slew-limited, hard-zero-sum two-area residual. On a modified Kundur
-four-VSG system, 24 paired \SI{60}{Hz} simulations show that the classical slow
-and fast layers independently improve their registered endpoints. An
-outcome-seeing oracle confirms that differential allocation has attainable
-margin. The evaluated seed-49 policy reduces synchronization loss by
-\SI{13.96}{\percent} with a paired 95\% interval of
-\SIrange{-20.45}{-4.71}{\percent}; its \SI{7.48}{\percent} reduction in
-early inter-area frequency error has an interval of
-\SIrange{-14.67}{0.59}{\percent} and therefore does not clear the
-prospective co-primary gate. All completion, action, storage, common-response,
-fast-safety, and tail-risk guards pass. These results support the decomposition,
-but the tested policy does not establish overall adaptive MARL value above the
-frozen classical reference.
+Paralleled virtual synchronous generators (VSGs) must support system frequency
+while damping relative motion among units. When a learned controller changes
+total inertia and its spatial allocation together, an apparent coordination
+gain can instead come from extra aggregate support or a favorable seed. We
+separate sustained common-frequency restoration, a \SI{3}{s} common-inertia
+pulse, and differential inertia redistribution. The first two layers are fixed;
+a parameter-shared multi-agent policy is restricted to a bounded, slew-limited,
+hard-zero-sum two-area residual. A size-matched centralized actor tests whether
+the multi-agent architecture adds value beyond learning itself. Both
+architectures use three predefined training seeds and are fixed before an
+independent 24-disturbance evaluation bank is generated.
+Across 192 matched \SI{60}{s} trajectories, the centralized actor reduces
+synchronization loss by \SI{24.35}{\percent} and early inter-area error by
+\SI{17.04}{\percent}; the shared policy reduces them by
+\SI{16.79}{\percent} and \SI{9.54}{\percent}. The 95\% intervals account for
+both seed and disturbance variability and exclude zero for all four effects.
+However, the shared policy is worse than the centralized actor by
+\SI{9.98}{\percent} and \SI{9.04}{\percent}, respectively, with all three seeds
+agreeing. All action and storage constraints are satisfied. Thus, constrained
+learned differential allocation transfers to the independent evaluation bank,
+but the multi-agent architecture adds no incremental value on this benchmark.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -62,18 +62,17 @@ grid-forming converter, virtual inertia, frequency coordination
 
 Virtual synchronous generators (VSGs) reproduce swing-like behavior in
 converter controls and provide configurable virtual inertia and damping
-\cite{zhong2011synchronverters,darco2013vsm}. When several VSGs operate in
+~\cite{zhong2011synchronverters,darco2013vsm}. When several VSGs operate in
 parallel, however, their average frequency and their relative motion are
 different physical coordinates. Raising all inertias can improve the common
 transient, whereas changing their spatial allocation can alter inter-unit and
 inter-area motion. A controller that treats these effects as one score may
-improve system frequency without demonstrating that the VSGs have been better
-coordinated.
+improve system frequency without showing improved coordination among the VSGs.
 
 Classical work addresses complementary parts of this problem. Consensus-based
 secondary control restores frequency in parallel VSG systems
-\cite{liu2020consensus,shi2021restoration}, while mutual-damping designs target
-power oscillations and relative modes \cite{fu2022mutual,gao2024mutual}. These
+~\cite{liu2020consensus,shi2021restoration}, while mutual-damping designs target
+power oscillations and relative modes~\cite{fu2022mutual,gao2024mutual}. These
 methods make the need for both restoration and damping clear, but they do not
 by themselves answer a narrower allocation question: after the required
 common support is fixed, is a disturbance-dependent differential inertia
@@ -82,44 +81,52 @@ support is usually an easier route to a lower frequency-error metric than
 learning where that support should be placed.
 
 Recent learning-based VSG controllers adapt inertia and damping using
-single-agent SAC \cite{lu2024sac}, MADDPG \cite{zhang2024maddpg}, or
-multi-agent policies \cite{yang2023ddic,kang2025madrl}. These studies motivate
-model-free adaptation under changing operating conditions. Nevertheless,
-jointly learning several inertia--damping actions can mix aggregate support,
-differential redistribution, and action effort. Selecting the best checkpoint
-can also yield an optimistic estimate when training-seed variability and a weak
-reference are not separated from the physical mechanism being claimed.
+single-agent soft actor--critic~\cite{lu2024sac}, multi-agent deep deterministic
+policy gradient~\cite{zhang2024maddpg}, or other multi-agent policies
+~\cite{yang2023ddic,kang2025madrl}. Recent studies also coordinate virtual
+inertia with load-frequency control through MARL~\cite{ali2026fuzzy} and combine
+learned inertia--damping adaptation with explicit power-decoupling control
+~\cite{peng2026cooperative}. These studies support model-free adaptation
+under changing operating conditions. Nevertheless, jointly learning several
+inertia--damping actions can mix aggregate support, differential
+redistribution, and action effort. Selecting the best checkpoint can also give
+an optimistic estimate if training-seed variability and a weak reference are
+not separated from the claimed physical mechanism.
 
-Power-system RL therefore needs both structural constraints and explicit
-evaluation uncertainty. Safety filters and Lyapunov-based methods illustrate
-how learned controls can be restricted by physical requirements
-\cite{tabas2022safe,shuai2025safe}; statistical RL work likewise warns that
-point estimates alone can reverse conclusions in few-run settings
-\cite{agarwal2021statistical}. An inference-time weighted actor ensemble
-considered in the preliminary digest was not retained: a controlled
-reconstruction did not isolate value beyond the selected actor.
+The submitted digest reported a DDIC reproduction and an inference-time
+weighted actor ensemble. A subsequent controlled reconstruction did not isolate
+an ensemble effect beyond selection of a favorable actor. The full paper
+therefore omits that component and evaluates the differential coordinate
+against matched causal and centralized baselines.
 
-This paper asks one falsifiable question: after sustained restoration and
-aggregate transient support are frozen, can MARL improve differential
-coordination without changing fleet-average inertia or harming the common
-response? The controller is consequently divided by both timescale and
-coordinate. A slow droop--PI storage layer restores the common frequency, a
-short common-inertia pulse supplies aggregate fast support, and a shared
-memoryless actor votes only on one two-area residual. A deterministic
-projection enforces equal actions within each area and exact normalized
-zero-sum action across the four VSGs.
+Evaluating power-system reinforcement learning (RL) therefore requires both
+structural constraints and explicit treatment of uncertainty. Safety filters
+and Lyapunov-based methods illustrate how learned controls can be restricted by
+physical requirements~\cite{tabas2022safe,shuai2025safe}; statistical studies
+of RL also show that point estimates alone can reverse conclusions in few-run
+settings~\cite{agarwal2021statistical}.
 
-The common/differential and fast/slow decomposition makes the incremental MARL
-claim separately testable. A rank-one coordination layer converts four local
-actor outputs into a bounded, slew-limited residual that cannot change
-aggregate virtual inertia. The prospectively staged study uses a matched
-24-disturbance bank, full \SI{60}{s} physical trajectories, paired bootstrap
-intervals, and actuator/storage/tail guards. The results separate positive
-mechanism evidence from a negative policy gate: the classical layers and the
-differential attainability margin are supported, whereas the evaluated policy
-passes synchronization but fails the uncertainty gate for early inter-area
-error. Sections II--IV present the formulation, controller, and protocol;
-Sections V--VII give the results, limitations, and conclusion.
+This paper asks two questions: after sustained restoration
+and aggregate transient support are fixed, does learned differential allocation
+transfer to unseen disturbances, and does a multi-agent factorization add value
+beyond a size-matched centralized actor? The controller is divided by both
+timescale and coordinate. A slow droop--PI storage layer restores common
+frequency, a short common-inertia pulse supplies aggregate fast support, and
+learning can change only one two-area residual. A deterministic projection
+enforces equal actions within each area and exact normalized zero-sum action
+across the four VSGs.
+
+The study makes three contributions. First, a common/differential and fast/slow
+decomposition isolates the value of differential learning. Second, a
+hard-zero-sum shared policy is compared with a size-matched centralized actor,
+separating the effect of learning from that of multi-agent factorization.
+Third, both architectures are fixed before evaluation on 24 new disturbances
+with three predefined training seeds and full \SI{60}{s} trajectories; the
+reported intervals account for both seed and disturbance variability.
+Accordingly, the contribution is not a claim that multi-agent reinforcement
+learning (MARL) is superior; it is a controlled test that separates gains from
+learned differential allocation from gains attributable specifically to the
+multi-agent architecture.
 
 \section{Decoupled Control Problem}
 
@@ -127,19 +134,23 @@ Sections V--VII give the results, limitations, and conclusion.
 
 At the electromechanical timescale, VSG \(i\) is represented by
 \begin{equation}
- M_i\Delta\dot f_i+D_i\Delta f_i
- =\Delta u_i-\Delta P_i ,
+ M_i\Delta\dot\omega_i+D_i\Delta\omega_i
+ =\Delta p_{m,i}-\Delta p_{e,i},
 \label{eq:swing}
 \end{equation}
-where \(M_i\) and \(D_i\) denote virtual inertia and damping,
-\(\Delta u_i\) is the equivalent disturbance, and \(\Delta P_i\) includes the
-network-coupled active-power response. The nonlinear phasor-domain model,
-rather than (\ref{eq:swing}), is used for every reported trajectory.
+where \(\Delta\omega_i=(f_i-f_0)/f_0\), and the two powers are on the
+\SI{100}{MVA} system base. In ANDES, \(M_i=2H_i\) is the GENCLS machine
+start-up time in seconds and \(D_i\) is its per-unit damping coefficient; each
+VSG proxy has \(S_n=\SI{200}{MVA}\). The normalized actions are converted to
+these coefficients and written directly to \texttt{GENCLS.M/D} every
+\SI{0.2}{s}, with interpolation over the internal simulation steps. These are
+phasor-domain proxy parameters, not hardware ratings. The nonlinear model,
+rather than~\eqref{eq:swing}, generates every reported trajectory.
 
 For \(\Delta\mathbf f=[\Delta f_1,\ldots,\Delta f_4]^\mathsf T\), define
 \begin{align}
  \Delta f_{\mathrm c}
- &=\tfrac14\mathbf1^\mathsf T\Delta\mathbf f, \\
+ &=\tfrac14\mathbf1^\mathsf T\Delta\mathbf f, \label{eq:common}\\
  \Delta f_{\mathrm{AB}}
  &=\tfrac12(\Delta f_1+\Delta f_2)
   -\tfrac12(\Delta f_3+\Delta f_4), \label{eq:area}\\
@@ -147,12 +158,14 @@ For \(\Delta\mathbf f=[\Delta f_1,\ldots,\Delta f_4]^\mathsf T\), define
  &=\tfrac14\sum_{i=1}^{4}
    (\Delta f_i-\Delta f_{\mathrm c})^2 . \label{eq:sync}
 \end{align}
-The common coordinate measures restoration and aggregate excursions;
+Here \(\Delta f_i=f_0\Delta\omega_i\) is reported in hertz.
+Equations~\eqref{eq:common}--\eqref{eq:sync} separate common and differential
+motion. The common coordinate measures restoration and aggregate excursions;
 \(\Delta f_{\mathrm{AB}}\) and \(L_{\mathrm{sync}}\) measure differential
 motion. The control design prevents a learned reduction in
-(\ref{eq:sync}) from being obtained by simply increasing every \(M_i\).
+\eqref{eq:sync} simply by increasing every \(M_i\).
 
-\subsection{Frozen common layers}
+\subsection{Fixed common layers}
 
 The slow layer requests equal active power from four storage devices:
 \begin{equation}
@@ -162,21 +175,28 @@ The slow layer requests equal active power from four storage devices:
  \right],
 \label{eq:drooppi}
 \end{equation}
-where \(K_p=2.0\) system-pu/Hz/device,
+In~\eqref{eq:drooppi}, \(K_p=2.0\) system-pu/Hz/device,
 \(K_i=0.2\) system-pu/(Hz\,s)/device, and \(\Pi_{\mathcal F}\) enforces
-power, ramp, converter-capability, SOC, and energy limits with conditional
-anti-windup. This layer is responsible for sustained restoration.
+power, ramp, converter-capability, state of charge (SOC), and energy limits
+with conditional
+anti-windup. These gains were selected in the preceding development stage and
+held fixed for the 24-case evaluation; they are not claimed as universal
+optima. This layer is responsible for sustained restoration.
 
 The fast common layer is a fixed normalized pulse \(c_k=0.25\) for the first
 15 samples (\SI{3}{s}) and zero afterwards. With \(M_0=200\),
 \(\Delta M_{\max}=600\), and fixed \(D_i=100\), the common-only reference is
 \(M_i=M_0+\Delta M_{\max}c_k\). The slow layer is evaluated against zero
 support, and the pulse is then evaluated against the slow-only reference
-before learning is introduced.
+before learning is introduced. A development-stage outcome-seeing screen
+preferred the selected pulse in five of eight cases; the pulse was then fixed
+before the 24-case comparison.
 
+Figure~\ref{fig:architecture} summarizes the fixed common layers, differential
+coordinate, and matched centralized alternative.
 \input{figures/control_architecture}
 
-\section{Hard-Zero-Sum Shared MARL}
+\section{Hard-Zero-Sum Learning Architectures}
 
 \subsection{Executed action}
 
@@ -187,13 +207,14 @@ maps a seven-dimensional local observation to
  q^{\mathrm{raw}}_k
  &=\frac{q_{\max}}{2}
  \left[\operatorname{mean}(z_{1,k},z_{2,k})
- -\operatorname{mean}(z_{3,k},z_{4,k})\right],\\
+ -\operatorname{mean}(z_{3,k},z_{4,k})\right],\label{eq:qraw}\\
  q_k&=\operatorname{clip}\!\left(q^{\mathrm{raw}}_k,
- q_{k-1}-\Delta q_{\max},q_{k-1}+\Delta q_{\max}\right),\\
+ q_{k-1}-\Delta q_{\max},q_{k-1}+\Delta q_{\max}\right),
+ \label{eq:qclip}\\
  \mathbf r_k&=q_k[1,1,-1,-1]^\mathsf T ,
 \label{eq:projection}
 \end{align}
-followed by \(|q_k|\le q_{\max}\). Here
+A final clip enforces \(|q_k|\le q_{\max}\), where
 \(q_{\max}=\Delta q_{\max}=0.25\). During the active window,
 \begin{equation}
  M_{i,k}=M_0+\Delta M_{\max}(c_k+r_{i,k}),\qquad D_{i,k}=100 .
@@ -202,213 +223,289 @@ followed by \(|q_k|\le q_{\max}\). Here
 After \SI{3}{s}, \(c_k=\mathbf r_k=\mathbf0\). Because the magnitude and slew
 constraints act on the scalar \(q_k\), within-area equality and
 \(\mathbf1^\mathsf T\mathbf r_k=0\) cannot be broken by elementwise clipping.
-The physical mapping is audited separately for finite-precision error.
+Equations~\eqref{eq:qraw}--\eqref{eq:projection} define the scalar projection;
+the physical mapping in~\eqref{eq:physical_action} is checked separately for
+finite-precision error.
 
 Each agent observes local frequency deviation, common frequency deviation,
-local-minus-common deviation, local RoCoF, its previous signed residual,
-local electrical-power change from reset, and a fixed area sign. Components
-are physically scaled and clipped to \([-5,5]\). Thus the actors share
+local-minus-common deviation, local rate of change of frequency (RoCoF), its
+previous signed residual, local electrical-power change since reset, and a
+fixed area sign. Each component is scaled in physical units and clipped to
+\([-5,5]\). Thus the actors share
 parameters but receive different local measurements; execution still requires
-the small coordination layer in (\ref{eq:projection}) to aggregate their
+the small coordination layer in~\eqref{eq:projection} to aggregate their
 votes.
 
-\subsection{Training objective}
+\subsection{Matched training objective}
 
-Centralized training uses a shared two-layer actor and one pair of centralized
-TD3 critics \cite{fujimoto2018td3}. The critics receive the joint observation
-and the executed scalar \(q_k/q_{\max}\); this follows the centralized-critic
-principle used in multi-agent actor--critic methods
-\cite{lowe2017maddpg}. The team reward is
+The shared controller uses one 64--64 actor (\(4737\) parameters) at all four
+agents and one pair of centralized twin-delayed deep deterministic
+policy gradient (TD3) critics~\cite{fujimoto2018td3}. A
+matched centralized controller maps the concatenated 28-dimensional
+observation directly to \(q_k\) through a 55--55 actor (\(4731\) parameters).
+Both controllers use the same critic architecture and hyperparameters,
+execution map, training data, optimizer settings, replay schedule, exploration
+process, and team reward. The critics receive the joint observation and
+executed scalar \(q_k/q_{\max}\), following the centralized-critic principle
+~\cite{lowe2017maddpg}. The reward is
 \begin{equation}
  R_k=-\frac{L_{\mathrm{sync},k}}{2(0.05)^2}
  -\frac{\Delta f_{\mathrm{AB},k}^2}{2(0.05)^2}
  -0.01\left(\frac{q_k-q_{k-1}}{0.25}\right)^2 .
 \label{eq:reward}
 \end{equation}
-No terminal-frequency, RoCoF, storage, or gate term is hidden in
-(\ref{eq:reward}); those quantities are independent evaluation guards.
+No terminal-frequency, RoCoF, or storage term is included in
+\eqref{eq:reward}; those quantities are assessed independently.
 
-Both actor and critics use 64--64 hidden units and a learning rate of
+Critics use 64--64 hidden units; both learning rates are
 \(3\times10^{-4}\). The discount, target-update factor, replay capacity,
 batch size, and warm-up are \(0.99\), \(0.005\), \(10^5\), 256, and 512
 transitions. Policy noise, clipping noise, exploration noise, and the delayed
-update period are \(0.1\), \(0.2\), \(0.1\), and 2. Seed 49 is trained for
-300 episodes of 15 steps, totaling 4500 completed real-ANDES transitions.
+update period are \(0.1\), \(0.2\), \(0.1\), and 2. Seeds 17, 53, and 89 are
+each trained for 300 episodes of 15 steps. Only the six final checkpoints are
+evaluated; there is no best-checkpoint selection or early stopping.
 
-\section{Prospective Experimental Protocol}
+\section{Experimental Setup and Evaluation}
 
 \subsection{Plant and disturbance bank}
 
-Experiments use the ANDES framework \cite{cui2021andes}, with version 2.0.0
-recorded in the frozen run provenance, and a modified two-area Kundur system
-\cite{kundur1994} with four VSG proxies. The actuator boundary is
-specific: each PV+GENCLS VSG proxy is accompanied by an independent
-grid-following ESD1 storage device at buses 12, 16, 14, and 15. It is not a
-unified physical GFM-BESS implementation. Each storage device is rated
+All experiments use ANDES 2.0.0~\cite{cui2021andes} and a modified two-area
+Kundur system~\cite{kundur1994} with four VSG proxies. Each PV+GENCLS proxy is
+paired with an independent grid-following ESD1 storage device at buses 12, 16,
+14, and 15; this arrangement is not a unified physical grid-forming battery
+energy storage system. Each storage device is rated
 \SI{36}{MVA}/\SI{28}{MWh}, has a 0.36-system-pu power limit, a one-second
-external ramp, and SOC limits of 0.2--0.8 from an initial 0.5.
+external ramp, and SOC limits of 0.2--0.8 from an initial 0.5. The rating is a
+50-fold system-study scaling of the \SI{720}{kVA}/\SI{560}{kWh} experimental
+unit reported in~\cite{gerini2022gfm}; the explicit SOC, converter, and ramp
+limits follow storage-modeling practice summarized in
+~\cite{wecc2016bess}.
 
-The same 24-case bank covers four disturbance locations, positive and
-negative signs, and moderate (0.65--0.85 pu), strong (0.95--1.15 pu), and
-edge (1.35--1.50 pu) magnitudes. Every comparison is scenario-paired. The bank
-was generated and screened before the classical-controller trajectories, but
-it had been viewed by the oracle and was used for policy training; R278 is
-therefore a development-bank result, not unseen generalization. The control
-interval is \SI{0.2}{s}. Training uses the \SI{3}{s} active window, whereas
-every evaluation trajectory runs for \SI{60}{s} and reports the simulator's
-physical \SI{60}{Hz} frequency.
+The 24-case development bank covers four disturbance locations, both signs,
+and moderate (0.65--0.85 pu), strong (0.95--1.15 pu), and edge
+(1.35--1.50 pu) magnitudes. It is used for classical mechanism checks and
+training only. After all six controllers are fixed, an independent generator
+(seed 2026072704) creates the independent evaluation bank with the same balanced
+location/sign/severity design but new magnitudes. A zero-support screen that
+does not use controller outcomes accepts all 24 cases; no case is redrawn or
+excluded. The control interval is
+\SI{0.2}{s}. Training uses the \SI{3}{s} active window, whereas every
+evaluation trajectory runs for \SI{60}{s} and reports frequency in the
+physical units of the \SI{60}{Hz} system.
 
-\subsection{Stagewise comparisons and gate}
+\subsection{Physical checks and evaluation rule}
 
-Five frozen stages isolate incremental authority: R274 compares slow
-droop--PI storage with zero requested storage power; R275 adds the common
-inertia pulse above the slow layer; R276 performs the four-arm
-zero/slow/fast/combined factorial check; R277 selects, after seeing each
-outcome, the best of six fixed differential pulses or the reference; and R278
-compares the trained policy with the immutable slow-plus-common-pulse
-reference. R277 is only an attainability upper bound because its selection uses
-future outcome information.
+Before testing learned controllers, we verify each physical prerequisite. The
+slow-layer check compares droop--PI storage with zero requested storage power.
+The fast-layer check adds the common-inertia pulse above the slow layer. A
+four-arm comparison of zero support, the slow layer, the fast layer, and both
+layers tests whether their benefits are additive or synergistic. Finally, an
+outcome-seeing oracle selects the best of six fixed differential pulses or the
+reference for each case. Because this selection uses future information, the
+oracle provides only an upper bound on attainable differential benefit.
 
-The R278 co-primary endpoints are the full-trajectory mean of
-(\ref{eq:sync}) and
+The evaluation-bank test compares eight arms: the fixed common layers with
+\(q=0\), a bounded causal area-RoCoF baseline, three centralized TD3 seeds,
+and three shared-MARL seeds, giving 192 scenario-matched trajectories. The
+causal controller uses only the current joint observation:
+\begin{equation}
+ q_k^{\mathrm c}=q_{\max}\tanh\!\left[
+ -k_f\frac{\Delta f_{\mathrm{AB},k}}{0.05}
+ -k_r\frac{\Delta\dot f_{\mathrm{AB},k}}{0.5}\right].
+\label{eq:causal}
+\end{equation}
+The denominators are in hertz and hertz per second. Nine gain pairs were fixed
+before the development comparison; among candidates meeting all checks, the
+lowest worst-location score selected \((k_f,k_r)=(0,0.25)\). This law was then
+fixed before the independent bank and passed through the same magnitude, slew,
+active-window, and physical-action mapping as the learned controllers.
+
+The two primary endpoints are the full-trajectory mean of
+\eqref{eq:sync} and
 \(\sum_{k=1}^{15}|\Delta f_{\mathrm{AB},k}|\Delta t\).
-Secondary guards are maximum sampled RoCoF, worst-bus peak, full-horizon
-common-frequency IAE, and mean common error in the final \SI{10}{s}. A policy
-is positive only if both co-primary ratio-of-means effects are at most
-\(-2\%\) and both paired 95\% interval upper bounds are below zero. Fast
-metrics may not worsen by more than 5\%; slow metrics may not worsen by more
-than 2\%. Completion, action magnitude/slew/window, storage, energy, SOC,
-saturation, constraint, and empirical CVaR90 guards must also pass.
-
-All intervals use 10\,000 shared-index bootstrap resamples of the 24 paired
-scenarios. The prospective sequence evaluated one pilot seed first and
-authorized a three-seed continuation only if both co-primary endpoints passed.
-Consequently, stopping after seed 49 when one endpoint failed is the registered
-decision, not an omitted experiment.
-
-\section{Results and Discussion}
-
-\subsection{Classical authority and attainability}
-
-The slow layer materially restores the common coordinate. Relative to zero
-support, it reduces full-horizon mean-frequency IAE by
-\SI{58.63}{\percent} (95\% interval
-\SIrange{-58.67}{-58.58}{\percent}) and final-window common error by
-\SI{77.29}{\percent}
-(\SIrange{-77.36}{-77.22}{\percent}); all 24 pairs improve on both endpoints.
-Above this established slow layer, the common-inertia pulse reduces maximum
-RoCoF by \SI{28.37}{\percent}, worst-bus peak by
-\SI{11.08}{\percent}, synchronization loss by \SI{4.29}{\percent}, and early
-inter-area IAE by \SI{9.91}{\percent}, with all paired intervals below zero.
-
-The R276 factorial result is \emph{ADDITIVE-ONLY}. None of six registered
-interaction terms reaches the required \(-2\%\) material improvement with an
-interval below zero; the interaction points range from
-\(-0.15\%\) to \(+1.49\%\) of the zero-support mean. Hence the two classical
-layers are worth retaining, but their joint value is not evidence of a special
-coordination synergy.
-
-R277 then asks whether any differential action could still help. Its
-outcome-seeing oracle chooses a non-reference differential pulse in 18 of 24
-cases and reduces synchronization loss by \SI{25.64}{\percent} and early
-inter-area IAE by \SI{19.66}{\percent}, with paired intervals wholly below
-zero. This establishes an attainable differential margin on the viewed bank;
-it does not establish that a causal policy can identify the action.
+Secondary checks are maximum sampled RoCoF, worst-bus peak, full-horizon
+common-frequency integral absolute error (IAE), and mean common error in the
+final \SI{10}{s}. A controller is considered effective only if both primary
+effects improve by at least 2\% and both 95\% interval upper bounds remain
+below zero. Fast
+metrics may not worsen by more than 5\%, and slow metrics by more than 2\%.
+Completion and limits on action magnitude, slew, active-window compliance,
+storage power and energy, SOC, saturation, constraints, and empirical 90\%
+conditional value at risk (CVaR90) must also pass.
 
 \begin{figure*}[t]
 \centering
 \includegraphics[width=\textwidth]{paired_effects.pdf}
-\caption{The classical coordinates and differential attainability margin are
-supported, while the learned policy clears only synchronization. Points are
-ratio-of-means effects and bars are paired-bootstrap 95\% intervals; negative
-values favor the left/controller arm. R274 compares slow restoration with zero
-support, R275 compares the common pulse with the slow layer, and both R277 and
-R278 compare with the slow-plus-pulse reference. The hollow R278 inter-area
-point crosses zero and fails the co-primary uncertainty gate.}
+\caption{Both learned controllers transfer to the independent evaluation bank,
+but the centralized actor is stronger than shared MARL. Points are percentage
+changes in controller/reference means and bars are 95\% intervals (several
+panel-(a) intervals are narrower than the markers); negative
+values favor the controller named first. Panel (a) intervals resample matched
+disturbances for the classical mechanism checks, whereas panel (b) intervals
+account for both seeds and disturbances. Positive shared-versus-central effects
+therefore mean that shared MARL is worse.}
 \label{fig:effects}
 \end{figure*}
 
-\subsection{Shared-policy pilot}
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{dynamic_response.pdf}
+\caption{The fixed illustrative case shows bounded, piecewise-constant
+differential commands and their scheduled deactivation after \SI{3}{s}, while
+common-frequency and fleet-storage responses remain close to the \(q=0\)
+reference. The case is the first moderate-severity scenario in the fixed
+evaluation-bank order and is selected without using controller outcomes. Lines
+are three-seed means, shading is the seed range where shown, and panels
+(c)--(d) use step plots because commands update every \SI{0.2}{s}. The vertical
+line marks scheduled deactivation, the
+horizontal dotted lines in (c) mark \(\lvert q_k\rvert\leq0.25\), and (d)
+shows the executed inertia setpoints, with area~A in each controller's main
+line style and area~B in a thinner dashed variant.}
+\label{fig:dynamics}
+\end{figure*}
+
+The causal baseline uses 10\,000 paired-bootstrap resamples of matched
+disturbances. For learned controllers, each of 10\,000 resamples first draws
+from the three training seeds and then from the shared disturbance cases, so
+the intervals include both sources of variability. Per-seed effect directions
+are also reported to show agreement or disagreement across seeds.
+
+\section{Results and Discussion}
+
+Figure~\ref{fig:effects} summarizes the classical mechanism checks and the
+evaluation-bank architecture comparisons.
+
+\subsection{Classical authority and attainability}
+
+The slow layer materially restored the common coordinate. Relative to zero
+support, it reduced full-horizon mean-frequency IAE by
+\SI{58.63}{\percent} (95\% interval
+\SIrange{-58.67}{-58.58}{\percent}) and final-window common error by
+\SI{77.29}{\percent}
+(\SIrange{-77.36}{-77.22}{\percent}); all 24 pairs improved on both endpoints.
+Above this established slow layer, the common-inertia pulse reduced maximum
+RoCoF by \SI{28.37}{\percent}, worst-bus peak by
+\SI{11.08}{\percent}, synchronization loss by \SI{4.29}{\percent}, and early
+inter-area IAE by \SI{9.91}{\percent}, with all paired intervals below zero.
+
+The four-arm comparison showed additive rather than synergistic behavior. None
+of six interaction terms reached the required \(-2\%\) improvement with an
+interval below zero; the interaction estimates range from
+\(-0.15\%\) to \(+1.49\%\) of the zero-support mean. Hence the two classical
+layers are worth retaining, but their joint value is not evidence of a special
+coordination synergy.
+
+The outcome-seeing oracle then tested whether any differential action could
+still help. It chose a non-reference differential pulse in 18 of 24
+cases and reduced synchronization loss by \SI{25.64}{\percent} and early
+inter-area IAE by \SI{19.66}{\percent}, with paired intervals wholly below
+zero. These results establish an attainable differential margin on the
+development bank; they do not establish that a causal policy can identify the
+action.
+
+\subsection{Evaluation-bank comparison of learned controllers}
 
 \begin{table}[t]
-\caption{R278 seed-49 effect relative to the frozen reference}
-\label{tab:r278}
+\caption{Evaluation-bank effects on the two primary endpoints}
+\label{tab:formal}
 \centering
-\footnotesize
-\setlength{\tabcolsep}{2.0pt}
-\begin{tabular}{@{}lrrc@{}}
+\scriptsize
+\setlength{\tabcolsep}{1.8pt}
+\begin{tabular}{@{}llrr@{}}
 \toprule
-Endpoint & Effect (\%) & Paired 95\% CI (\%) & Gate\\
+Comparison & Endpoint & Effect (\%) & 95\% CI (\%)\\
 \midrule
-Synchronization loss & \PilotSyncEffect & \PilotSyncCI & pass\\
-Early inter-area IAE & \PilotAreaEffect & \PilotAreaCI & fail\\
+Central/\(q=0\) & Sync loss & \CentralSyncEffect & \CentralSyncCI\\
+Central/\(q=0\) & Area IAE & \CentralAreaEffect & \CentralAreaCI\\
 \midrule
-Maximum RoCoF & \PilotRocofEffect & \PilotRocofCI & pass\\
-Worst-bus peak & \PilotPeakEffect & \PilotPeakCI & pass\\
-Mean-frequency IAE & \PilotIaeEffect & \PilotIaeCI & pass\\
-Final common error & \PilotFinalEffect & \PilotFinalCI & pass\\
+Shared/\(q=0\) & Sync loss & \SharedSyncEffect & \SharedSyncCI\\
+Shared/\(q=0\) & Area IAE & \SharedAreaEffect & \SharedAreaCI\\
+\midrule
+Shared/central & Sync loss & \SharedCentralSyncEffect &
+\SharedCentralSyncCI\\
+Shared/central & Area IAE & \SharedCentralAreaEffect &
+\SharedCentralAreaCI\\
 \bottomrule
 \end{tabular}
 \end{table}
 
-Table~\ref{tab:r278} gives the prospective pilot result. The policy reduces
-synchronization loss by \SI{13.96}{\percent}, and its complete interval remains
-below zero. Early inter-area IAE has a favorable
-\SI{7.48}{\percent} point estimate, but its upper interval bound is
-\(+0.59\%\). Exactly 14 of 24 scenarios improve in synchronization and 12 of
-24 improve in early inter-area IAE. The registered rule requires both
-co-primary endpoints; the classification is therefore
-\texttt{\PilotVerdict}, not overall MARL superiority.
+The bounded causal area-RoCoF baseline in~\eqref{eq:causal} met the criterion
+on neither endpoint. Its
+synchronization-loss effect was \(\CausalSyncEffect\%\) (95\% interval
+\(\CausalSyncCI\%\)); its area-IAE effect was \(\CausalAreaEffect\%\)
+(\(\CausalAreaCI\%\)). Table~\ref{tab:formal} shows a different result for
+learned policies.
+Centralized TD3 reduced synchronization loss by \SI{24.35}{\percent} and area
+IAE by \SI{17.04}{\percent}. Shared MARL also met the criterion on both
+endpoints, with
+\SI{16.79}{\percent} and \SI{9.54}{\percent} reductions. These intervals
+include both seed and scenario variability and exclude zero.
 
-The negative gate still identifies what the policy did and did not change.
-RoCoF and peak guards improve, and
-the full-horizon mean-frequency IAE changes by only \(+0.05\%\), well inside
-the 2\% no-harm limit. All 24 policy and reference trajectories complete all
-300 samples. Maximum commanded and actual storage power remain below
-\(\PilotMaxCommand\) pu, SOC remains in
-\([\PilotMinSoc,\PilotMaxSoc]\), and no saturation reason or constraint
-violation occurs. Action magnitude, slew, active-window, energy, and all
-CVaR90 guards also pass. Thus, the hard-zero-sum construction successfully
-prevents the partial synchronization gain from being purchased through more
-aggregate inertia or degraded slow restoration.
+The direct architecture comparison showed that shared MARL was worse
+than the centralized actor by \SI{9.98}{\percent} in synchronization loss and
+\SI{9.04}{\percent} in area IAE. The intervals lie entirely above zero, and
+each of the three paired seeds favors centralized TD3 on both endpoints. The
+learned differential action is therefore directionally consistent across the
+three predefined seeds, but the multi-agent factorization is not needed to
+explain the improvement on this bank.
 
-The policy captures part of the oracle margin but not enough consistent
-inter-area improvement to justify continuation under the frozen protocol. An
-action is attainable after observing the outcome, yet a short-horizon
-memoryless actor trained on the same bank does not reliably select it. The
-contribution is therefore the separately falsifiable coordination test and its
-bounded result, rather than a claim that more learning necessarily beats the
-transparent reference.
+All 192 trajectories completed 300 samples. Maximum commanded storage power was
+\(\FormalMaxCommand\) pu, SOC remained in
+\([\FormalMinSoc,\FormalMaxSoc]\), and no saturation reason or constraint
+violation occurred. Action magnitude, slew, active-window, relative no-harm,
+and all storage limits were satisfied. The hard-zero-sum map prevents either
+learned controller from obtaining differential improvement by increasing
+fleet-average inertia.
 
-\balance
+Figure~\ref{fig:dynamics} makes the coordinate constraint visible. Each learned
+scalar \(q_k\) moves the two area inertias in opposite directions while their
+fleet mean remains equal to the reference allocation. Common frequency and
+aggregate storage power remain close to \(q=0\), so the illustrated
+differential response is not produced by additional common support. At
+\SI{3}{s}, the common pulse and differential residual are switched off by
+design; the jump is not closed-loop settling. Statistical inference comes from
+all 24 scenarios and all three seeds in Fig.~\ref{fig:effects}, not from this
+trace.
+
+\FloatBarrier
 \section{Limitations and Reproducibility}
 
-R278 contains one training seed and a viewed development bank, so it supports
-neither seed robustness nor unseen-disturbance generalization. The
-phasor-domain hybrid actuator is not an EMT validation, unified GFM-BESS,
-stability certificate, topology study, or deployment result. The original
-immutable R278 summary was marked invalid because its absolute physical
-zero-sum threshold, \(10^{-8}\), was below float32 resolution at the
-500-inertia scale. A retained analysis-only amendment set the audit tolerance
-to four ULP, \(\ZeroSumTolerance\); the observed maximum was
-\(\ZeroSumObserved\). No trajectory, checkpoint, bootstrap sample, metric, or
-efficacy threshold changed. These boundaries are necessary for interpreting
-the positive synchronization signal without extending it beyond the evidence.
+The independent evaluation bank and three seeds address disturbance and seed
+robustness within one modified Kundur topology; they do not establish topology
+generalization. Three predefined seeds rule out a single lucky-seed explanation
+on this bank but do not characterize the wider training-seed population.
+Because the shared execution layer aggregates four local votes,
+the result also does not support fully decentralized deployment. Zero-sum
+projection guarantees fleet-budget neutrality at the input, not modal or
+dynamic decoupling of the nonlinear plant. The phasor-domain hybrid actuator
+does not provide electromagnetic-transient validation, a unified grid-forming
+battery implementation, a stability certificate, or hardware validation.
+
+The initial numerical check rejected five of 192 rows because single-precision
+slew values exceeded 0.25 by at most \(\num{\AuditMaxExcess}\), less than one
+unit in the last place, \(\num{\AuditOneUlp}\), at that limit. A
+representation-aware correction changed only those five Boolean checks; all
+192 stored trajectory hashes, checkpoints, efficacy statistics, and thresholds
+were retained. The corrected check and complete experiment provenance are
+generated directly from the retained artifacts.
 
 \section{Conclusion}
 
 This paper separates common restoration, common transient support, and
 differential inertia redistribution in a four-VSG MARL study. The slow
-droop--PI storage layer and common-inertia pulse have independently demonstrated
-authority, and an outcome-seeing oracle confirms that a differential margin
-exists. A shared TD3 policy restricted to one hard-zero-sum two-area
-coordinate improves synchronization and respects every registered physical
-guard, but early inter-area improvement remains uncertain. The prospective
-two-endpoint gate therefore stops at a no-go for overall adaptive MARL value.
-The result shows why constrained coordinates, strong matched references, and
-paired uncertainty are essential: they reveal what learning adds and what it
-has not yet established.
+droop--PI storage layer restored common frequency, the common-inertia pulse
+improved the fast transient, and an outcome-seeing oracle confirmed an
+attainable differential margin. On the independent evaluation bank, both
+centralized TD3 and shared MARL improved synchronization and early inter-area
+error across three predefined seeds while satisfying every evaluated physical
+limit.
+However, the size-matched centralized actor was consistently stronger. The
+evidence therefore supports constrained learned differential allocation, not
+the necessity of MARL or closed-loop modal decoupling. This prevents the
+learning gain from being misattributed to an architecture or physical
+mechanism.
 
+\IEEEtriggeratref{12}
 \bibliographystyle{IEEEtran}
 \bibliography{references}
 

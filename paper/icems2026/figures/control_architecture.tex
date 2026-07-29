@@ -66,7 +66,7 @@
 constrained droop--PI \(P_i^\star\)};
 \node[common] (pulse) at (6.35,2.85)
 {Fast common support\\
-\(c_t\mathbf 1,\ c_t=0.25\) for \SI{3}{s}};
+\(c_k\mathbf 1,\ c_k=0.25\) for \SI{3}{s}};
 
 \node[learned] (obs) at (3.35,0.85)
 {Seven local features\\
@@ -75,14 +75,14 @@ constrained droop--PI \(P_i^\star\)};
 {One shared actor\\
 \(z_i=\mu_\theta(o_i)\)};
 \node[learned] (project) at (9.35,0.85)
-{Hard rank-one projection\\
-\(\mathbf r_t=q_t[1,1,-1,-1]^{\mathsf T}\)};
+{Hard zero-sum projection\\
+\(\mathbf r_k=q_k[1,1,-1,-1]^{\mathsf T}\)};
 
 \node[physical] (compose) at (9.35,2.85)
 {Executed commands\\
-\(\mathbf a_t^H=c_t\mathbf1+\mathbf r_t,\ \mathbf a_t^D=\mathbf0\)};
+\(M_{i,k}, D_{i,k}\) per \eqref{eq:physical_action}};
 \node[audit] (guards) at (12.45,2.85)
-{Stepwise contract audit\\
+{Constraint enforcement\\
 zero sum, limits, slew, window};
 \node[physical] (plant) at (12.45,0.85)
 {ANDES modified Kundur\\
@@ -90,10 +90,10 @@ four VSGs + storage};
 
 \node[train] (critic) at (6.35,-0.75)
 {Training only: centralized twin critics\\
-joint observations + executed scalar \(q_t\)};
+joint observations + executed scalar \(q_k\)};
 \node[train] (evidence) at (10.9,-0.75)
-{Evaluation: physical \SI{60}{Hz} endpoints\\
-paired uncertainty + storage/tail guards};
+{Evaluation on the \SI{60}{Hz} system\\
+seed/scenario uncertainty + storage/tail limits};
 
 \draw[flow] (measure) -- node[above, font=\footnotesize]
 {\(\Delta f_{\mathrm c}\), feasibility} (slow);
@@ -116,17 +116,19 @@ paired uncertainty + storage/tail guards};
 \node[lane=blue!55!black, fit=(slow)(pulse), label={
     [font=\bfseries\footnotesize, text=blue!55!black, fill=white,
     inner sep=1pt]above:
-    Frozen common coordinate}] {};
+    Fixed common coordinate}] {};
 \node[lane=orange!75!black, fit=(obs)(actor)(project), label={
     [font=\bfseries\footnotesize, text=orange!75!black, fill=white,
     inner sep=1pt]above:
     Learned differential coordinate}] {};
 
 \end{tikzpicture}
-\caption{The proposed controller separates aggregate support from differential
-coordination. Frozen classical layers regulate the common coordinate; the
+\caption{The control architecture separates aggregate support from differential
+coordination. Fixed layers regulate the common coordinate; the
 shared policy can alter only one bounded two-area inertia coordinate whose
-normalized and physical fleet sums are audited at every step. Dashed paths are
-used only during centralized training and evidence collection.}
+normalized fleet sum is zero by construction. The size-matched centralized
+baseline replaces the shared actor and projection with one joint-observation
+actor producing the same scalar \(q_k\). Dashed paths are used only during
+centralized training and evidence collection.}
 \label{fig:architecture}
 \end{figure*}
