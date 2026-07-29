@@ -241,11 +241,13 @@ def audit_icems_policy_action(summary: dict[str, Any]) -> dict[str, bool]:
     contract = r278_area_inertia_contract()
     return {
         "q_magnitude": bool(
-            summary["r278_max_abs_q"] <= contract.q_max + 1e-9
+            summary["r278_max_abs_q"]
+            <= contract.q_max + float32_limit_tolerance(contract.q_max)
         ),
         "q_slew": bool(
             summary["r278_max_abs_q_slew"]
-            <= contract.q_slew_max + 1e-9
+            <= contract.q_slew_max
+            + float32_limit_tolerance(contract.q_slew_max)
         ),
         "normalized_zero_sum": bool(
             summary["r278_max_abs_residual_sum"] <= 1e-9
@@ -264,6 +266,19 @@ def audit_icems_policy_action(summary: dict[str, Any]) -> dict[str, bool]:
             and summary["max_m"] <= 500.0 + 1e-8
         ),
     }
+
+
+def float32_limit_tolerance(limit: float) -> float:
+    """Return one float32 ULP at a positive contract limit.
+
+    The executed scalar action is stored as float32.  Differences between two
+    valid stored actions can exceed the ideal real-number limit by less than
+    one representable float32 step when audited in float64.  This is a
+    representation bound, not extra control authority.
+    """
+    if not np.isfinite(limit) or limit <= 0.0:
+        raise ValueError("float32 contract limit must be finite and positive")
+    return float(np.spacing(np.float32(limit)))
 
 
 def physical_zero_sum_tolerance(

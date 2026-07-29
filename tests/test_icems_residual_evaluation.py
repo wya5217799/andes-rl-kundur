@@ -97,3 +97,19 @@ def test_physical_zero_sum_audit_uses_float32_representation_bound() -> None:
         fast_window_steps=15,
     )
     assert audit_icems_policy_action(summary)["physical_zero_sum"] is False
+
+
+def test_q_slew_audit_uses_float32_representation_bound() -> None:
+    summary = summarise_icems_policy_trace(
+        _synthetic_record(),
+        final_window_steps=5,
+        fast_window_steps=15,
+    )
+    limit = np.float32(0.25)
+    one_ulp = float(np.spacing(limit))
+
+    summary["r278_max_abs_q_slew"] = 0.2500000074505806
+    assert audit_icems_policy_action(summary)["q_slew"] is True
+
+    summary["r278_max_abs_q_slew"] = float(limit) + 2.0 * one_ulp
+    assert audit_icems_policy_action(summary)["q_slew"] is False
