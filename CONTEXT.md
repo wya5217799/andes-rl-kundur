@@ -1,11 +1,13 @@
 # CONTEXT — andes-rl-kundur
 
-**Purpose:** canonical glossary + architecture decisions for this repo.
-**Last updated:** 2026-05-19 (R80–R86: V5 env entry + 风机沉默 framing)
+**Purpose:** canonical domain glossary for this repo.
+**Glossary last updated:** 2026-05-19 (R80–R86).
+**Navigation role clarified:** 2026-07-29.
 
 This file captures terms and decisions that are not derivable from the code
 alone. For research-state facts (numerical results, round verdicts, claims),
-see `memory/STATE.md`. For research-process rules, see `CLAUDE.md`.
+see `memory/STATE.md`. For research-process rules, see `CLAUDE.md`. Accepted
+architecture decisions live as individual records in `docs/adr/`.
 
 ---
 
@@ -156,7 +158,12 @@ ADR-0002 documents the rationale for the term split.
 
 ---
 
-## Architecture decisions
+## Legacy architecture decision index
+
+The AD-01 … AD-14 block below is a preserved 2026-05-19 migration snapshot,
+not the current decision authority. It may describe paths that were later
+changed or never completed. Current decisions live in `docs/adr/`; a
+contradiction requires a new ADR that explicitly supersedes the old one.
 
 Status legend: ✅ decided, ⏳ pending, ⛔ rejected.
 

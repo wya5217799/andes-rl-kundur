@@ -380,13 +380,38 @@
     {
       "adapter": "README.md",
       "must_reference": [
+        "docs/README.md",
+        "memory/STATE.md"
+      ],
+      "forbid_text": [
+        "Status (as of"
+      ]
+    },
+    {
+      "adapter": "CONTEXT.md",
+      "must_reference": [
+        "docs/adr/",
         "memory/STATE.md"
       ]
     },
     {
       "adapter": "MEMORY.md",
       "must_reference": [
-        "memory/STATE.md"
+        "memory/RESEARCH_PROGRAM.md",
+        "memory/STATE.md",
+        "skills/kundur-round/SKILL.md"
+      ]
+    },
+    {
+      "adapter": "docs/README.md",
+      "must_reference": [
+        "docs/adr/",
+        "docs/agents/",
+        "docs/eng-notes/",
+        "docs/repo-hygiene/",
+        "docs/research/",
+        "memory/STATE.md",
+        "paper"
       ]
     },
     {

@@ -1,7 +1,7 @@
 # 仓库治理问题陈述（Repo Hygiene Problem Statement）
 
 - 日期: 2026-07-29
-- 状态: 问题定义（不含修复方案，不含 skill 实现）
+- 状态: 历史证据快照；修复规范见 `contract.json` 与 ADR-0007
 - 触发: PI 反馈 "仓库越来越乱，论文和代码混在一起，流程产物给人感觉杂乱"
 - 方法: 全量实地勘察（根目录 / memory / results / paper / scripts / docs / git 状态），
   所有结论附路径与数量证据，不凭印象。
@@ -131,13 +131,14 @@ memory 只有 claim/question/round/note 四种实体，但流程实际还产出�
   通用性来源：给"账本下游"补类型系统，模式可迁移到任何
   实验→分析→写作 的研究仓库。
 
-## 4. 非目标（本轮明确不做）
+## 4. 原勘察边界
 
-- 不写任何 skill 本体。
-- 不做任何文件移动 / 删除 / 归档。
-- 不裁决 `paper/` 与 `paper_review/` 谁是 icems2026 真源（需 PI 决策）。
+本文件保留 2026-07-29 勘察时的问题定义和数量证据，不作为当前状态
+dashboard，也不承载修复实现。P1 随后已裁决；当前结构由
+`docs/repo-hygiene/contract.json` 和 `python scripts/repo_health.py check`
+验证。迁移工作保留在 Git 历史和对应 GitHub issue 中。
 
-## 5. 证据快照（2026-07-29 勘察值）
+## 5. 证据快照（2026-07-29 原始勘察值，非当前状态）
 
 - `results/`: 379 个 run 目录 + 181 个散落 log；MANIFEST whitelist 表仅 1 条。
 - `memory/`: claims 295 / questions 46 / rounds 272 / notes 26 / handoffs 12 / tools 19。

@@ -4,13 +4,12 @@ Multi-agent reinforcement learning control of virtual synchronous generator (VSG
 inertia and damping on the modified Kundur 4-bus system, reproducing
 Yang et al., IEEE TPWRS 2023, using the ANDES quasi-static phasor backend.
 
-## Status (as of 2026-05-21, R259)
+## Status
 
-Active research workbench. Algorithmic plateau (R86, CLM-0148/0149: critic Q
-monotone along action axis, argmax at boundary ±1) confirmed structural across
-91 trials. Current focus: reward-shaping and mechanism characterisation
-(R255–R259 probe-first protocol). Project SOTA: 4-way same-seed cross-algorithm
-HAWE ensemble (CLM-0295, R154).
+This is an active research workbench. Current research state is generated from
+the ledger in `memory/STATE.md`; programme gates and the authorized question
+queue live in `memory/RESEARCH_PROGRAM.md`. This README intentionally carries
+no copied round number, headline metric, or "current focus" snapshot.
 
 The Python package was refactored into a standard `src/` layout on 2026-05-16
 (see `docs/adr/0001-src-layout.md`).
@@ -22,10 +21,11 @@ The Python package was refactored into a standard `src/` layout on 2026-05-16
 1. `AGENTS.md` — Codex new-session bootstrap for the automatic research loop.
 2. `memory/RESEARCH_PROGRAM.md` — TPWRS thesis, phase gates, ranked questions,
    evidence requirements, and pivot rules.
-3. `CONTEXT.md` — glossary + architecture decisions (AD-01 … AD-14).
+3. `CONTEXT.md` — domain glossary; individual architecture decisions are in
+   `docs/adr/`.
 4. `memory/STATE.md` — auto-rendered headlines, open questions, latest round.
-5. `docs/adr/` — ADRs covering src layout, paper-faithful split, PI
-   briefing contract, V5 REGCA1 plant, and ANDES-only platform decision.
+5. `docs/README.md` — document taxonomy and durable homes.
+6. `docs/adr/` — accepted architecture decisions.
 
 ### Install
 
@@ -92,11 +92,11 @@ See `MEMORY.md` for the full memory-subsystem design.
 | Path | Contents |
 |------|----------|
 | `src/andes_rl_kundur/` | Library code: agents, env (V4 + V5), evaluation, probes, utils, config, scenarios |
-| `scripts/` | Runnable entry points: train, 4 eval drivers, round experiment drivers (r99–r259), score_run |
-| `probes/` | Round-level probe scripts |
-| `tests/` | pytest regression suite (35+ tests) |
-| `memory/` | Claim ledger (CLM-0001–CLM-0485+), rounds (R01–R259), tools, STATE.md |
-| `docs/` | ADRs (0001–0005), engineering notes, design specs, paper deviation log |
+| `scripts/` | Stable training, evaluation, maintenance, and round execution adapters; lifecycle is declared in the repository contract |
+| `probes/` | Conclusion-affecting, question-specific investigation scripts |
+| `tests/` | pytest regression suite |
+| `memory/` | Claim/question/round/note ledger, tools, and generated STATE.md |
+| `docs/` | Document taxonomy, ADRs, engineering notes, research investigations, and governance |
 | `results/` | Gitignored except `whitelist/` (paper-cited checkpoints + JSON) |
 | `_legacy/` | Frozen ancestor modules and pre-refactor research trail |
 
@@ -124,6 +124,9 @@ See `MEMORY.md` for the full memory-subsystem design.
 ```
 
 Key regression contracts:
+
+- `test_repo_governance_cli.py` — repository contract, delivery registry,
+  executable lifecycle, navigation, and debt-ratchet behavior.
 - `test_v4_env_regression.py` — full no-control roll-out at 1e-9 tolerance
   (both LS1 and LS2 must remain bit-identical against the PRE_REFACTOR baseline).
 - `test_reserve_round.py` — 30 cases pinning atomic mkdir + active-round detection + GC.

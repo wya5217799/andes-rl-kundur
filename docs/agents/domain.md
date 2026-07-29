@@ -4,7 +4,7 @@ How the engineering skills should consume this repo's domain documentation when 
 
 ## Before exploring, read these
 
-- **`CONTEXT.md`** at the repo root — glossary + 14 architecture decisions (AD-01 … AD-14)
+- **`CONTEXT.md`** at the repo root — canonical domain glossary
 - **`docs/adr/`** — read ADRs that touch the area you're about to work in
 
 If any of these files don't exist, **proceed silently**. Don't flag their absence; don't suggest creating them upfront.
@@ -15,7 +15,7 @@ Single-context repo:
 
 ```
 andes-rl-kundur/
-├── CONTEXT.md          ← domain glossary + architecture decisions
+├── CONTEXT.md          ← domain glossary
 ├── docs/adr/
 │   └── 0001-src-layout.md
 └── src/

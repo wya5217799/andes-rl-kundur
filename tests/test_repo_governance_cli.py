@@ -334,3 +334,27 @@ def test_completed_round_marks_active_executable_as_archive_candidate(
 
     assert result.returncode == 0, result.stdout
     assert "WARN EXECUTABLE_ARCHIVE_CANDIDATE scripts/r10_probe.py" in result.stdout
+
+
+def test_navigation_adapter_rejects_known_stale_status_copies(tmp_path: Path) -> None:
+    (tmp_path / "README.md").write_text(
+        "## Status (as of 2020-01-01)\n",
+        encoding="utf-8",
+    )
+    _write_contract(
+        tmp_path,
+        _contract(
+            navigation=[
+                {
+                    "adapter": "README.md",
+                    "must_reference": [],
+                    "forbid_text": ["Status (as of"],
+                }
+            ]
+        ),
+    )
+
+    result = _run(tmp_path)
+
+    assert result.returncode == 1
+    assert "ERROR NAV_FORBIDDEN_TEXT README.md" in result.stdout

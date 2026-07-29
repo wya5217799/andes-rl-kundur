@@ -238,6 +238,10 @@ def _navigation_findings(root: Path, contract: dict[str, Any]) -> Iterable[Findi
             item.get("must_reference", []),
             field=f"navigation[{index}].must_reference",
         )
+        forbidden_fragments = _list_of_strings(
+            item.get("forbid_text", []),
+            field=f"navigation[{index}].forbid_text",
+        )
         adapter_on_disk = root / adapter
         if not adapter_on_disk.is_file():
             yield Finding(
@@ -255,6 +259,13 @@ def _navigation_findings(root: Path, contract: dict[str, Any]) -> Iterable[Findi
                 "navigation adapter is not UTF-8 text",
             )
             continue
+        for fragment in forbidden_fragments:
+            if fragment in content:
+                yield Finding(
+                    "NAV_FORBIDDEN_TEXT",
+                    adapter.as_posix(),
+                    f"navigation adapter contains stale copy marker: {fragment}",
+                )
         for target_value in targets:
             target = _relative_path(
                 target_value,
