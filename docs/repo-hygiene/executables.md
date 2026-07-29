@@ -37,3 +37,8 @@ thin.
 requires each to match a lifecycle classifier. A newly added, unclassified
 entrypoint is an error. An `active` entrypoint owned by a completed round is
 reported as an archive candidate.
+
+Maintained ANDES entrypoints are launched through
+`python scripts/andes_scratch.py <entrypoint> ...`. The adapter changes only the
+child working directory, preserving ANDES scratch files under `tmp/andes/`
+without changing environment, controller, or evaluation semantics.

@@ -34,16 +34,11 @@
       "tests",
       "研究计划"
     ],
-    "allowed_globs": [
-      ".pytest-temp-*"
-    ],
+    "allowed_globs": [],
     "tool_state": [
       ".claude",
       ".codesearch.db",
       ".git",
-      ".mypy_cache",
-      ".pytest_cache",
-      ".ruff_cache",
       ".understand-anything",
       "tmp"
     ]
@@ -226,6 +221,12 @@
         "role": "maintenance",
         "state": "active",
         "owner": "repo-governance"
+      },
+      {
+        "pattern": "scripts/andes_scratch.py",
+        "role": "operation",
+        "state": "active",
+        "owner": "andes-runtime"
       },
       {
         "pattern": "scripts/score_run.py",

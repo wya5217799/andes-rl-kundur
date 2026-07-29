@@ -42,11 +42,11 @@ the pip install step.
 
 ```bash
 # Default V4 paper-faithful training (Kundur 4-bus, 4 VSGs, TD3-LSTM × 4)
-/home/<user>/andes_venv/bin/python scripts/train.py \
+/home/<user>/andes_venv/bin/python scripts/andes_scratch.py scripts/train.py \
     --episodes 75 --seed 49 --algo td3_lstm --save-dir results/v4_lstm_s49
 
 # Resume from a prior checkpoint directory
-/home/<user>/andes_venv/bin/python scripts/train.py \
+/home/<user>/andes_venv/bin/python scripts/andes_scratch.py scripts/train.py \
     --episodes 500 --seed 49 --algo td3_lstm \
     --resume results/v4_lstm_s49 \
     --save-dir results/v4_lstm_s49_resumed
@@ -56,10 +56,10 @@ the pip install step.
 
 ```bash
 # No-control baseline (paper Fig 6/8)
-/home/<user>/andes_venv/bin/python scripts/eval_no_control.py
+/home/<user>/andes_venv/bin/python scripts/andes_scratch.py scripts/eval_no_control.py
 
 # Single-checkpoint DDIC evaluation
-/home/<user>/andes_venv/bin/python scripts/eval_ddic.py \
+/home/<user>/andes_venv/bin/python scripts/andes_scratch.py scripts/eval_ddic.py \
     --ckpt-dir results/v4_lstm_s49 --suffix best --label r21
 
 # 11-axis paper-grade ranking
@@ -67,7 +67,7 @@ the pip install step.
     --ckpt-dirs results/v4_lstm_s49 --label v4_lstm_s49
 
 # HAWE inference-time ensemble (paper Asset 5)
-/home/<user>/andes_venv/bin/python scripts/eval_ensemble.py \
+/home/<user>/andes_venv/bin/python scripts/andes_scratch.py scripts/eval_ensemble.py \
     --ckpt-dirs results/v4_lstm_s49 results/v4_lstm_s54 \
     --suffixes best best --weights 0.98 0.02 --agg weighted \
     --label hawe_w9802
