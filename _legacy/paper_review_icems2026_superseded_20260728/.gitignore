@@ -1,0 +1,6 @@
+.latex-bad-output/
+*.aux
+*.bbl
+*.blg
+*.log
+*.out
