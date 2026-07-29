@@ -1,0 +1,149 @@
+============================================================
+ ANDES Kundur 4-VSG training — 200 episodes (V4 env)
+============================================================
+ [V4Config override]
+   phi_h: 0.0056 -> 0.0
+   phi_d: 0.0056 -> 0.0
+[device] using cpu
+[algo] TD3 — deterministic policy, twin critics, no entropy bonus
+  [Monitor] New best reward: -21.2 @ ep 0
+[Monitor] Ep 9 | Reward: -60.9 (r_f: 100.0%, r_h: 0.0%, r_d: 0.0%)
+          Actions mu: [-0.10, 0.03, 0.07, 0.09]  std: [0.57, 0.54, 0.55, 0.61]
+          TDS fails: 0/10 (0.0%) | Freq peak: 0.19 Hz
+          Per-agent rewards: [a0: -14.2, a1: -14.2, a2: -15.7, a3: -16.8]
+  [Monitor] New best reward: -6.6 @ ep 11
+[Monitor] Calibration complete (20 episodes).
+          Reward baseline: mu=-57.9, std=36.0 -> magnitude range: [-166, 50]
+          Action std baseline: 0.57 -> collapse threshold: 0.057
+          TDS failure baseline: 0.0% -> alert threshold: 30.0%
+[Monitor] Ep 19 | Reward: -101.5 (r_f: 100.0%, r_h: 0.0%, r_d: 0.0%)
+          Actions mu: [-0.00, 0.02, -0.02, 0.02]  std: [0.57, 0.56, 0.56, 0.58]
+          TDS fails: 0/10 (0.0%) | Freq peak: 0.24 Hz
+          Per-agent rewards: [a0: -27.7, a1: -21.8, a2: -26.8, a3: -25.2]
+          SAC: mean critic_loss: 0.410
+  Ep 25/200 | Avg Reward: -51.8 | Steps: 1250 | Time: 199s
+[Monitor] Ep 29 | Reward: -37.2 (r_f: 100.0%, r_h: 0.0%, r_d: 0.0%)
+          Actions mu: [0.07, 0.03, 0.13, 0.05]  std: [0.10, 0.10, 0.10, 0.09]
+          TDS fails: 0/10 (0.0%) | Freq peak: 0.13 Hz
+          Per-agent rewards: [a0: -7.4, a1: -8.8, a2: -10.9, a3: -10.1]
+          SAC: mean critic_loss: 0.146
+  [Monitor] New best reward: -5.6 @ ep 30
+  [Monitor] New best reward: -5.2 @ ep 31
+  [Monitor] New best reward: -5.1 @ ep 32
+  [Monitor] New best reward: -3.2 @ ep 34
+[Monitor] Ep 39 | Reward: -11.9 (r_f: 100.0%, r_h: 0.0%, r_d: 0.0%)
+          Actions mu: [0.24, 0.14, 0.08, 0.08]  std: [0.09, 0.10, 0.09, 0.10]
+          TDS fails: 0/10 (0.0%) | Freq peak: 0.14 Hz
+          Per-agent rewards: [a0: -1.6, a1: -2.9, a2: -4.2, a3: -3.2]
+          SAC: mean critic_loss: 0.085
+  [Monitor] New best reward: -1.8 @ ep 43
+[Monitor] Ep 49 | Reward: -9.3 (r_f: 100.0%, r_h: 0.0%, r_d: 0.0%)
+          Actions mu: [0.19, 0.09, 0.25, 0.06]  std: [0.11, 0.07, 0.10, 0.08]
+          TDS fails: 0/10 (0.0%) | Freq peak: 0.10 Hz
+          Per-agent rewards: [a0: -2.5, a1: -2.4, a2: -2.1, a3: -2.3]
+          SAC: mean critic_loss: 0.056
+  Ep 50/200 | Avg Reward: -16.5 | Steps: 2500 | Time: 400s
+[Monitor] Ep 59 | Reward: -6.4 (r_f: 100.0%, r_h: 0.0%, r_d: 0.0%)
+          Actions mu: [0.20, 0.14, 0.26, 0.02]  std: [0.10, 0.08, 0.08, 0.07]
+          TDS fails: 0/10 (0.0%) | Freq peak: 0.07 Hz
+          Per-agent rewards: [a0: -1.9, a1: -1.7, a2: -1.3, a3: -1.4]
+          SAC: mean critic_loss: 0.037
+  [Monitor] New best reward: -1.5 @ ep 62
+  [Monitor] New best reward: -1.4 @ ep 64
+[Monitor] Ep 69 | Reward: -10.4 (r_f: 100.0%, r_h: 0.0%, r_d: 0.0%)
+          Actions mu: [0.16, 0.10, 0.17, 0.01]  std: [0.09, 0.08, 0.08, 0.08]
+          TDS fails: 0/10 (0.0%) | Freq peak: 0.08 Hz
+          Per-agent rewards: [a0: -2.8, a1: -2.8, a2: -2.4, a3: -2.4]
+          SAC: mean critic_loss: 0.024
+  Ep 75/200 | Avg Reward: -5.3 | Steps: 3750 | Time: 602s
+[Monitor] Ep 79 | Reward: -5.1 (r_f: 100.0%, r_h: 0.0%, r_d: 0.0%)
+          Actions mu: [0.22, 0.14, 0.14, 0.05]  std: [0.10, 0.08, 0.09, 0.07]
+          TDS fails: 0/10 (0.0%) | Freq peak: 0.08 Hz
+          Per-agent rewards: [a0: -1.0, a1: -1.0, a2: -1.7, a3: -1.4]
+          SAC: mean critic_loss: 0.023
+[Monitor] Ep 89 | Reward: -10.6 (r_f: 100.0%, r_h: 0.0%, r_d: 0.0%)
+          Actions mu: [0.15, 0.11, 0.22, 0.04]  std: [0.09, 0.08, 0.08, 0.06]
+          TDS fails: 0/10 (0.0%) | Freq peak: 0.08 Hz
+          Per-agent rewards: [a0: -1.7, a1: -2.7, a2: -3.7, a3: -2.6]
+          SAC: mean critic_loss: 0.022
+  [Monitor] New best reward: -1.2 @ ep 93
+[Monitor] Ep 99 | Reward: -5.5 (r_f: 100.0%, r_h: 0.0%, r_d: 0.0%)
+          Actions mu: [0.16, 0.12, 0.15, 0.02]  std: [0.10, 0.08, 0.08, 0.07]
+          TDS fails: 0/10 (0.0%) | Freq peak: 0.09 Hz
+          Per-agent rewards: [a0: -1.6, a1: -1.4, a2: -1.2, a3: -1.2]
+          SAC: mean critic_loss: 0.020
+  Ep 100/200 | Avg Reward: -5.6 | Steps: 5000 | Time: 804s
+  [Monitor] New best reward: -0.8 @ ep 107
+[Monitor] Ep 109 | Reward: -8.3 (r_f: 100.0%, r_h: 0.0%, r_d: 0.0%)
+          Actions mu: [0.15, 0.18, 0.14, 0.01]  std: [0.08, 0.08, 0.08, 0.07]
+          TDS fails: 0/10 (0.0%) | Freq peak: 0.09 Hz
+          Per-agent rewards: [a0: -2.2, a1: -2.2, a2: -1.9, a3: -1.9]
+          SAC: mean critic_loss: 0.015
+[Monitor] Ep 119 | Reward: -0.9 (r_f: 100.0%, r_h: 0.0%, r_d: 0.0%)
+          Actions mu: [0.16, 0.13, 0.25, 0.02]  std: [0.10, 0.07, 0.08, 0.07]
+          TDS fails: 0/10 (0.0%) | Freq peak: 0.08 Hz
+          Per-agent rewards: [a0: -0.2, a1: -0.2, a2: -0.3, a3: -0.3]
+          SAC: mean critic_loss: 0.018
+  Ep 125/200 | Avg Reward: -5.6 | Steps: 6250 | Time: 1007s
+[Monitor] Ep 129 | Reward: -1.8 (r_f: 100.0%, r_h: 0.0%, r_d: 0.0%)
+          Actions mu: [0.18, 0.10, 0.20, 0.03]  std: [0.09, 0.07, 0.09, 0.08]
+          TDS fails: 0/10 (0.0%) | Freq peak: 0.09 Hz
+          Per-agent rewards: [a0: -0.4, a1: -0.4, a2: -0.5, a3: -0.4]
+          SAC: mean critic_loss: 0.019
+[Monitor] Ep 139 | Reward: -5.3 (r_f: 100.0%, r_h: 0.0%, r_d: 0.0%)
+          Actions mu: [0.16, 0.08, 0.28, 0.02]  std: [0.09, 0.07, 0.08, 0.07]
+          TDS fails: 0/10 (0.0%) | Freq peak: 0.10 Hz
+          Per-agent rewards: [a0: -1.2, a1: -1.2, a2: -1.4, a3: -1.4]
+          SAC: mean critic_loss: 0.017
+[Monitor] Ep 149 | Reward: -8.6 (r_f: 100.0%, r_h: 0.0%, r_d: 0.0%)
+          Actions mu: [0.14, 0.18, 0.16, 0.05]  std: [0.09, 0.08, 0.09, 0.08]
+          TDS fails: 0/10 (0.0%) | Freq peak: 0.09 Hz
+          Per-agent rewards: [a0: -2.2, a1: -2.3, a2: -2.0, a3: -2.0]
+          SAC: mean critic_loss: 0.019
+  Ep 150/200 | Avg Reward: -5.7 | Steps: 7500 | Time: 1208s
+[Monitor] Ep 159 | Reward: -8.2 (r_f: 100.0%, r_h: 0.0%, r_d: 0.0%)
+          Actions mu: [0.14, 0.11, 0.20, 0.03]  std: [0.09, 0.07, 0.11, 0.07]
+          TDS fails: 0/10 (0.0%) | Freq peak: 0.08 Hz
+          Per-agent rewards: [a0: -2.1, a1: -1.5, a2: -1.9, a3: -2.6]
+          SAC: mean critic_loss: 0.016
+[Monitor] Ep 169 | Reward: -7.5 (r_f: 100.0%, r_h: 0.0%, r_d: 0.0%)
+          Actions mu: [0.17, 0.17, 0.19, 0.09]  std: [0.09, 0.07, 0.09, 0.08]
+          TDS fails: 0/10 (0.0%) | Freq peak: 0.08 Hz
+          Per-agent rewards: [a0: -1.3, a1: -1.9, a2: -2.5, a3: -1.8]
+          SAC: mean critic_loss: 0.029
+  Ep 175/200 | Avg Reward: -5.0 | Steps: 8750 | Time: 1409s
+[Monitor] Ep 179 | Reward: -5.5 (r_f: 100.0%, r_h: 0.0%, r_d: 0.0%)
+          Actions mu: [0.12, 0.19, 0.21, 0.05]  std: [0.09, 0.08, 0.09, 0.08]
+          TDS fails: 0/10 (0.0%) | Freq peak: 0.08 Hz
+          Per-agent rewards: [a0: -1.0, a1: -1.4, a2: -1.8, a3: -1.3]
+          SAC: mean critic_loss: 0.017
+[Monitor] Ep 189 | Reward: -9.3 (r_f: 100.0%, r_h: 0.0%, r_d: 0.0%)
+          Actions mu: [0.12, 0.06, 0.22, 0.06]  std: [0.11, 0.07, 0.09, 0.08]
+          TDS fails: 0/10 (0.0%) | Freq peak: 0.09 Hz
+          Per-agent rewards: [a0: -1.2, a1: -2.2, a2: -3.4, a3: -2.4]
+          SAC: mean critic_loss: 0.011
+[Monitor] Ep 199 | Reward: -9.4 (r_f: 100.0%, r_h: 0.0%, r_d: 0.0%)
+          Actions mu: [0.17, 0.16, 0.16, 0.04]  std: [0.07, 0.07, 0.10, 0.07]
+          TDS fails: 0/10 (0.0%) | Freq peak: 0.09 Hz
+          Per-agent rewards: [a0: -1.5, a1: -2.2, a2: -3.4, a3: -2.4]
+          SAC: mean critic_loss: 0.022
+  Ep 200/200 | Avg Reward: -5.6 | Steps: 10000 | Time: 1609s
+
+[Monitor] === Training Summary ===
+  Episodes: 200 | Calibration: complete
+  Reward:   -21 (ep 0) -> -9 (ep 199)
+  Best:     -1 @ ep 107 | Worst: -130 @ ep 13
+  Best reward callback: -1 @ ep 107
+  Per-agent reward (mean): best agent 1 = -2.9, worst agent 3 = -3.4
+  Loss trend: critic_loss early=0.181 -> late=0.019 (decreasing)
+
+  No checks triggered.
+
+  TDS failures: 0/200 (0.0%)
+  Freq peak deviation: 0.24 Hz (ep 13)
+
+
+Training log saved to results/td3_phi0_200ep_s49/training_log.json
+
+Total time: 1610s
+Done!

@@ -1,0 +1,460 @@
+Time step reduced to zero. Convergence is not likely.
+Simulation terminated at t=5.1029 s.
+Time step reduced to zero. Convergence is not likely.
+Simulation terminated at t=3.0434 s.
+Time step reduced to zero. Convergence is not likely.
+Simulation terminated at t=2.3766 s.
+Time step reduced to zero. Convergence is not likely.
+Simulation terminated at t=2.9904 s.
+Time step reduced to zero. Convergence is not likely.
+Simulation terminated at t=2.8155 s.
+============================================================
+ ANDES Kundur 4-VSG training — 500 episodes (V4 env)
+============================================================
+ [V4Config override]
+   action_penalty_mode: physical -> normalized
+[hparam-override] HIDDEN_SIZES: [128, 128, 128, 128] -> [64, 64, 64, 64]
+[device] using cpu
+[algo] TD3+LSTM — recurrent actor/critic, hidden=64, seq=25 burn=5, batch=32 seq, lr=0.0001 warmup_eps=20
+  [Monitor] New best reward: -74.7 @ ep 0
+  [Monitor] New best reward: -3.4 @ ep 1
+[Monitor] Ep 9 | Reward: -110.6 (r_f: 99.8%, r_h: 0.1%, r_d: 0.1%)
+          Actions mu: [0.05, 0.06, 0.09, -0.08]  std: [0.54, 0.55, 0.56, 0.63]
+          TDS fails: 0/10 (0.0%) | Freq peak: 0.21 Hz
+          Per-agent rewards: [a0: -20.1, a1: -26.0, a2: -31.0, a3: -33.5]
+  Ep 10/500 | Avg Reward: -51.7 | Steps: 500 | Time: 75s
+[Monitor] Calibration complete (20 episodes).
+          Reward baseline: mu=-58.6, std=60.0 -> magnitude range: [-239, 121]
+          Action std baseline: 0.57 -> collapse threshold: 0.057
+          TDS failure baseline: 5.0% -> alert threshold: 30.0%
+[Monitor] Ep 19 | Reward: -82.5 (r_f: 99.8%, r_h: 0.1%, r_d: 0.1%)
+          Actions mu: [0.11, 0.12, 0.01, -0.09]  std: [0.54, 0.57, 0.61, 0.56]
+          TDS fails: 1/10 (10.0%) | Freq peak: 0.23 Hz
+          Per-agent rewards: [a0: -12.7, a1: -21.4, a2: -26.9, a3: -21.5]
+  Ep 20/500 | Avg Reward: -65.4 | Steps: 974 | Time: 143s
+  [Monitor] New best eval cum_rf: -0.0858 @ ep 24
+[Monitor] Ep 29 | Reward: -34.4 (r_f: 100.0%, r_h: 0.0%, r_d: 0.0%)
+          Actions mu: [0.04, 0.07, 0.03, 0.09]  std: [0.10, 0.10, 0.10, 0.10]
+          TDS fails: 3/10 (30.0%) | Freq peak: 0.21 Hz
+          Per-agent rewards: [a0: -6.4, a1: -8.2, a2: -10.5, a3: -9.3]
+          SAC: mean critic_loss: 0.276
+  Ep 30/500 | Avg Reward: -81.3 | Steps: 1360 | Time: 231s
+  [Monitor] New best eval cum_rf: -0.0834 @ ep 29
+  [Monitor] New best eval cum_rf: -0.0786 @ ep 34
+[Monitor] Ep 39 | Reward: -51.5 (r_f: 100.0%, r_h: 0.0%, r_d: 0.0%)
+          Actions mu: [0.03, 0.08, 0.04, 0.15]  std: [0.09, 0.10, 0.10, 0.09]
+          TDS fails: 0/10 (0.0%) | Freq peak: 0.13 Hz
+          Per-agent rewards: [a0: -13.5, a1: -12.8, a2: -12.2, a3: -13.0]
+          SAC: mean critic_loss: 0.104
+  Ep 40/500 | Avg Reward: -40.9 | Steps: 1860 | Time: 347s
+  [Monitor] New best eval cum_rf: -0.0714 @ ep 39
+  [Monitor] New best eval cum_rf: -0.0639 @ ep 44
+[Monitor] Ep 49 | Reward: -19.8 (r_f: 99.5%, r_h: 0.1%, r_d: 0.5%)
+          Actions mu: [-0.00, 0.23, 0.12, 0.33]  std: [0.11, 0.11, 0.11, 0.11]
+          TDS fails: 0/10 (0.0%) | Freq peak: 0.13 Hz
+          Per-agent rewards: [a0: -5.7, a1: -5.1, a2: -4.3, a3: -4.7]
+          SAC: mean critic_loss: 0.094
+  Ep 50/500 | Avg Reward: -25.5 | Steps: 2360 | Time: 464s
+  [Monitor] New best eval cum_rf: -0.0531 @ ep 49
+  [Monitor] New best reward: -3.1 @ ep 54
+  [Monitor] New best eval cum_rf: -0.0439 @ ep 54
+[Monitor] Ep 59 | Reward: -14.2 (r_f: 94.7%, r_h: 0.7%, r_d: 4.6%)
+          Actions mu: [-0.03, 0.57, 0.44, 0.85]  std: [0.23, 0.16, 0.13, 0.20]
+          TDS fails: 1/10 (10.0%) | Freq peak: 0.17 Hz
+          Per-agent rewards: [a0: -3.8, a1: -3.8, a2: -3.3, a3: -3.3]
+          SAC: mean critic_loss: 0.062
+  Ep 60/500 | Avg Reward: -32.2 | Steps: 2822 | Time: 576s
+  [Monitor] New best eval cum_rf: -0.0388 @ ep 59
+  [Monitor] New best reward: -2.7 @ ep 61
+  [Monitor] New best eval cum_rf: -0.0366 @ ep 64
+[Monitor] Ep 69 | Reward: -8.4 (r_f: 85.3%, r_h: 3.6%, r_d: 11.0%)
+          Actions mu: [-0.00, 0.76, 0.86, 0.88]  std: [0.20, 0.20, 0.21, 0.18]
+          TDS fails: 0/10 (0.0%) | Freq peak: 0.08 Hz
+          Per-agent rewards: [a0: -1.4, a1: -1.4, a2: -3.1, a3: -2.5]
+          SAC: mean critic_loss: 0.113
+  Ep 70/500 | Avg Reward: -6.8 | Steps: 3322 | Time: 693s
+  [Monitor] New best eval cum_rf: -0.0356 @ ep 69
+  [Monitor] New best eval cum_rf: -0.0350 @ ep 74
+[Monitor] Ep 79 | Reward: -17.3 (r_f: 92.8%, r_h: 1.8%, r_d: 5.4%)
+          Actions mu: [-0.00, 0.74, 0.89, 0.90]  std: [0.19, 0.20, 0.19, 0.20]
+          TDS fails: 0/10 (0.0%) | Freq peak: 0.09 Hz
+          Per-agent rewards: [a0: -2.1, a1: -4.4, a2: -6.4, a3: -4.4]
+          SAC: mean critic_loss: 0.078
+  Ep 80/500 | Avg Reward: -7.5 | Steps: 3822 | Time: 809s
+  [Monitor] New best eval cum_rf: -0.0344 @ ep 79
+  [Monitor] New best reward: -2.6 @ ep 83
+  [Monitor] New best eval cum_rf: -0.0339 @ ep 84
+[Monitor] Ep 89 | Reward: -6.5 (r_f: 82.1%, r_h: 3.4%, r_d: 14.6%)
+          Actions mu: [0.01, 0.58, 0.89, 0.89]  std: [0.18, 0.15, 0.20, 0.18]
+          TDS fails: 0/10 (0.0%) | Freq peak: 0.10 Hz
+          Per-agent rewards: [a0: -1.9, a1: -1.7, a2: -1.4, a3: -1.5]
+          SAC: mean critic_loss: 0.025
+  Ep 90/500 | Avg Reward: -8.1 | Steps: 4322 | Time: 925s
+  [Monitor] New best eval cum_rf: -0.0334 @ ep 89
+  [Monitor] New best eval cum_rf: -0.0330 @ ep 94
+  [Monitor] New best reward: -2.0 @ ep 97
+
+[!] [Monitor] WARNING: reward_component_ratio @ Ep 97
+  'r_f' is only 44.0% of total reward (threshold: 50%). Breakdown: r_f: 44.0%, r_h: 7.7%, r_d: 48.3%
+[Monitor] Ep 99 | Reward: -9.0 (r_f: 87.8%, r_h: 1.7%, r_d: 10.5%)
+          Actions mu: [-0.00, 0.36, 0.90, 0.91]  std: [0.19, 0.17, 0.19, 0.17]
+          TDS fails: 0/10 (0.0%) | Freq peak: 0.10 Hz
+          Per-agent rewards: [a0: -2.4, a1: -2.4, a2: -2.1, a3: -2.1]
+          SAC: mean critic_loss: 0.029
+  Ep 100/500 | Avg Reward: -7.8 | Steps: 4822 | Time: 1041s
+  [Monitor] New best eval cum_rf: -0.0327 @ ep 99
+  [Monitor] New best eval cum_rf: -0.0326 @ ep 104
+[Monitor] Ep 109 | Reward: -2.1 (r_f: 45.2%, r_h: 9.8%, r_d: 45.0%)
+          Actions mu: [0.01, 0.53, 0.90, 0.90]  std: [0.20, 0.13, 0.19, 0.19]
+          TDS fails: 0/10 (0.0%) | Freq peak: 0.08 Hz
+          Per-agent rewards: [a0: -0.5, a1: -0.5, a2: -0.5, a3: -0.5]
+          SAC: mean critic_loss: 0.051
+  Ep 110/500 | Avg Reward: -6.6 | Steps: 5322 | Time: 1158s
+  [Monitor] New best eval cum_rf: -0.0325 @ ep 109
+  [Monitor] New best eval cum_rf: -0.0323 @ ep 114
+[Monitor] Ep 119 | Reward: -3.2 (r_f: 63.8%, r_h: 6.6%, r_d: 29.7%)
+          Actions mu: [0.02, 0.55, 0.90, 0.92]  std: [0.18, 0.15, 0.18, 0.17]
+          TDS fails: 0/10 (0.0%) | Freq peak: 0.08 Hz
+          Per-agent rewards: [a0: -0.6, a1: -0.8, a2: -1.0, a3: -0.8]
+          SAC: mean critic_loss: 0.044
+  Ep 120/500 | Avg Reward: -8.6 | Steps: 5822 | Time: 1274s
+  [Monitor] New best eval cum_rf: -0.0321 @ ep 119
+  [Monitor] New best eval cum_rf: -0.0319 @ ep 124
+[Monitor] Ep 129 | Reward: -6.8 (r_f: 83.2%, r_h: 3.0%, r_d: 13.9%)
+          Actions mu: [0.00, 0.56, 0.88, 0.90]  std: [0.18, 0.14, 0.20, 0.17]
+          TDS fails: 0/10 (0.0%) | Freq peak: 0.09 Hz
+          Per-agent rewards: [a0: -1.6, a1: -1.6, a2: -1.8, a3: -1.8]
+          SAC: mean critic_loss: 0.043
+  Ep 130/500 | Avg Reward: -8.4 | Steps: 6322 | Time: 1390s
+  [Monitor] New best eval cum_rf: -0.0317 @ ep 129
+  [Monitor] New best eval cum_rf: -0.0316 @ ep 134
+[Monitor] Ep 139 | Reward: -9.6 (r_f: 87.7%, r_h: 2.3%, r_d: 10.0%)
+          Actions mu: [-0.00, 0.60, 0.88, 0.92]  std: [0.18, 0.15, 0.19, 0.17]
+          TDS fails: 0/10 (0.0%) | Freq peak: 0.08 Hz
+          Per-agent rewards: [a0: -2.5, a1: -2.6, a2: -2.2, a3: -2.3]
+          SAC: mean critic_loss: 0.036
+  Ep 140/500 | Avg Reward: -7.3 | Steps: 6822 | Time: 1507s
+  [Monitor] New best eval cum_rf: -0.0312 @ ep 139
+  [Monitor] New best eval cum_rf: -0.0304 @ ep 144
+[Monitor] Ep 149 | Reward: -10.6 (r_f: 90.4%, r_h: 0.4%, r_d: 9.2%)
+          Actions mu: [0.00, 0.53, 0.43, 0.92]  std: [0.20, 0.15, 0.16, 0.17]
+          TDS fails: 0/10 (0.0%) | Freq peak: 0.10 Hz
+          Per-agent rewards: [a0: -2.7, a1: -1.9, a2: -2.6, a3: -3.4]
+          SAC: mean critic_loss: 0.016
+  Ep 150/500 | Avg Reward: -7.2 | Steps: 7322 | Time: 1624s
+  [Monitor] New best eval cum_rf: -0.0295 @ ep 149
+  [Monitor] New best eval cum_rf: -0.0290 @ ep 154
+[Monitor] Ep 159 | Reward: -9.9 (r_f: 89.9%, r_h: 0.3%, r_d: 9.9%)
+          Actions mu: [0.02, 0.49, 0.30, 0.91]  std: [0.17, 0.13, 0.16, 0.17]
+          TDS fails: 0/10 (0.0%) | Freq peak: 0.09 Hz
+          Per-agent rewards: [a0: -1.4, a1: -2.6, a2: -3.4, a3: -2.4]
+          SAC: mean critic_loss: 0.028
+  Ep 160/500 | Avg Reward: -7.2 | Steps: 7822 | Time: 1755s
+  [Monitor] New best eval cum_rf: -0.0289 @ ep 159
+  [Eval probe] ep 165: cum_rf = -0.0290 (best = -0.0289 @ ep 159)
+[Monitor] Ep 169 | Reward: -8.1 (r_f: 87.4%, r_h: 0.7%, r_d: 11.9%)
+          Actions mu: [-0.00, 0.60, 0.41, 0.92]  std: [0.17, 0.14, 0.14, 0.16]
+          TDS fails: 0/10 (0.0%) | Freq peak: 0.07 Hz
+          Per-agent rewards: [a0: -1.2, a1: -2.2, a2: -2.7, a3: -2.0]
+          SAC: mean critic_loss: 0.016
+  Ep 170/500 | Avg Reward: -5.8 | Steps: 8322 | Time: 1883s
+  [Monitor] New best eval cum_rf: -0.0287 @ ep 169
+  [Monitor] New best eval cum_rf: -0.0287 @ ep 174
+[Monitor] Ep 179 | Reward: -14.7 (r_f: 93.0%, r_h: 0.5%, r_d: 6.5%)
+          Actions mu: [0.01, 0.57, 0.53, 0.91]  std: [0.19, 0.15, 0.13, 0.17]
+          TDS fails: 0/10 (0.0%) | Freq peak: 0.11 Hz
+          Per-agent rewards: [a0: -1.8, a1: -3.4, a2: -5.5, a3: -4.1]
+          SAC: mean critic_loss: 0.012
+  Ep 180/500 | Avg Reward: -8.3 | Steps: 8822 | Time: 2010s
+  [Monitor] New best eval cum_rf: -0.0287 @ ep 179
+  [Monitor] New best eval cum_rf: -0.0287 @ ep 184
+[Monitor] Ep 189 | Reward: -11.9 (r_f: 91.0%, r_h: 0.7%, r_d: 8.2%)
+          Actions mu: [0.01, 0.58, 0.58, 0.91]  std: [0.17, 0.14, 0.12, 0.16]
+          TDS fails: 0/10 (0.0%) | Freq peak: 0.11 Hz
+          Per-agent rewards: [a0: -1.7, a1: -2.8, a2: -4.3, a3: -3.1]
+          SAC: mean critic_loss: 0.019
+  Ep 190/500 | Avg Reward: -7.5 | Steps: 9322 | Time: 2128s
+  [Monitor] New best eval cum_rf: -0.0285 @ ep 189
+  [Monitor] New best eval cum_rf: -0.0282 @ ep 194
+[Monitor] Ep 199 | Reward: -13.1 (r_f: 92.2%, r_h: 0.5%, r_d: 7.3%)
+          Actions mu: [0.01, 0.53, 0.54, 0.93]  std: [0.18, 0.15, 0.13, 0.15]
+          TDS fails: 0/10 (0.0%) | Freq peak: 0.11 Hz
+          Per-agent rewards: [a0: -1.7, a1: -3.0, a2: -4.8, a3: -3.6]
+          SAC: mean critic_loss: 0.012
+  Ep 200/500 | Avg Reward: -9.9 | Steps: 9822 | Time: 2247s
+  [Eval probe] ep 200: cum_rf = -0.0284 (best = -0.0282 @ ep 194)
+  [Eval probe] ep 205: cum_rf = -0.0284 (best = -0.0282 @ ep 194)
+[Monitor] Ep 209 | Reward: -9.0 (r_f: 87.9%, r_h: 1.2%, r_d: 10.9%)
+          Actions mu: [-0.00, 0.67, 0.57, 0.91]  std: [0.17, 0.16, 0.14, 0.17]
+          TDS fails: 0/10 (0.0%) | Freq peak: 0.08 Hz
+          Per-agent rewards: [a0: -1.3, a1: -2.4, a2: -3.1, a3: -2.2]
+          SAC: mean critic_loss: 0.012
+  Ep 210/500 | Avg Reward: -5.8 | Steps: 10322 | Time: 2366s
+  [Eval probe] ep 210: cum_rf = -0.0284 (best = -0.0282 @ ep 194)
+  [Eval probe] ep 215: cum_rf = -0.0282 (best = -0.0282 @ ep 194)
+[Monitor] Ep 219 | Reward: -3.9 (r_f: 72.9%, r_h: 2.6%, r_d: 24.6%)
+          Actions mu: [0.01, 0.60, 0.59, 0.92]  std: [0.18, 0.15, 0.14, 0.16]
+          TDS fails: 0/10 (0.0%) | Freq peak: 0.08 Hz
+          Per-agent rewards: [a0: -0.7, a1: -1.1, a2: -1.2, a3: -0.9]
+          SAC: mean critic_loss: 0.003
+  Ep 220/500 | Avg Reward: -6.6 | Steps: 10822 | Time: 2484s
+  [Eval probe] ep 220: cum_rf = -0.0282 (best = -0.0282 @ ep 194)
+  [Eval probe] ep 225: cum_rf = -0.0283 (best = -0.0282 @ ep 194)
+[Monitor] Ep 229 | Reward: -4.8 (r_f: 76.9%, r_h: 3.1%, r_d: 20.0%)
+          Actions mu: [0.01, 0.68, 0.63, 0.92]  std: [0.18, 0.18, 0.15, 0.17]
+          TDS fails: 0/10 (0.0%) | Freq peak: 0.09 Hz
+          Per-agent rewards: [a0: -1.4, a1: -1.3, a2: -1.0, a3: -1.1]
+          SAC: mean critic_loss: 0.004
+  Ep 230/500 | Avg Reward: -7.2 | Steps: 11322 | Time: 2605s
+  [Eval probe] ep 230: cum_rf = -0.0284 (best = -0.0282 @ ep 194)
+  [Eval probe] ep 235: cum_rf = -0.0284 (best = -0.0282 @ ep 194)
+
+[!] [Monitor] WARNING: reward_component_ratio @ Ep 236
+  'r_f' is only 50.0% of total reward (threshold: 50%). Breakdown: r_f: 50.0%, r_h: 6.6%, r_d: 43.4%
+[Monitor] Ep 239 | Reward: -7.2 (r_f: 84.6%, r_h: 2.0%, r_d: 13.4%)
+          Actions mu: [-0.01, 0.71, 0.59, 0.92]  std: [0.18, 0.19, 0.14, 0.16]
+          TDS fails: 0/10 (0.0%) | Freq peak: 0.06 Hz
+          Per-agent rewards: [a0: -1.9, a1: -2.0, a2: -1.7, a3: -1.7]
+          SAC: mean critic_loss: 0.001
+  Ep 240/500 | Avg Reward: -5.7 | Steps: 11822 | Time: 2722s
+  [Eval probe] ep 240: cum_rf = -0.0284 (best = -0.0282 @ ep 194)
+  [Eval probe] ep 245: cum_rf = -0.0283 (best = -0.0282 @ ep 194)
+[Monitor] Ep 249 | Reward: -7.7 (r_f: 85.7%, r_h: 1.6%, r_d: 12.7%)
+          Actions mu: [0.01, 0.68, 0.59, 0.90]  std: [0.17, 0.18, 0.12, 0.16]
+          TDS fails: 0/10 (0.0%) | Freq peak: 0.08 Hz
+          Per-agent rewards: [a0: -1.3, a1: -2.4, a2: -2.8, a3: -1.2]
+          SAC: mean critic_loss: 0.001
+  Ep 250/500 | Avg Reward: -7.6 | Steps: 12322 | Time: 2837s
+  [Monitor] New best eval cum_rf: -0.0282 @ ep 249
+  [Eval probe] ep 255: cum_rf = -0.0282 (best = -0.0282 @ ep 249)
+[Monitor] Ep 259 | Reward: -8.9 (r_f: 87.6%, r_h: 1.5%, r_d: 10.9%)
+          Actions mu: [0.00, 0.71, 0.57, 0.91]  std: [0.18, 0.19, 0.13, 0.16]
+          TDS fails: 0/10 (0.0%) | Freq peak: 0.09 Hz
+          Per-agent rewards: [a0: -2.6, a1: -2.4, a2: -1.9, a3: -2.1]
+          SAC: mean critic_loss: 0.001
+  Ep 260/500 | Avg Reward: -6.8 | Steps: 12822 | Time: 2956s
+  [Eval probe] ep 260: cum_rf = -0.0283 (best = -0.0282 @ ep 249)
+  [Eval probe] ep 265: cum_rf = -0.0282 (best = -0.0282 @ ep 249)
+[Monitor] Ep 269 | Reward: -4.8 (r_f: 77.4%, r_h: 2.5%, r_d: 20.1%)
+          Actions mu: [-0.00, 0.72, 0.54, 0.92]  std: [0.17, 0.17, 0.11, 0.14]
+          TDS fails: 0/10 (0.0%) | Freq peak: 0.08 Hz
+          Per-agent rewards: [a0: -1.3, a1: -1.3, a2: -1.1, a3: -1.1]
+          SAC: mean critic_loss: 0.001
+  Ep 270/500 | Avg Reward: -7.1 | Steps: 13322 | Time: 3069s
+  [Monitor] New best eval cum_rf: -0.0282 @ ep 269
+  [Monitor] New best eval cum_rf: -0.0281 @ ep 274
+[Monitor] Ep 279 | Reward: -18.8 (r_f: 94.0%, r_h: 0.7%, r_d: 5.2%)
+          Actions mu: [0.01, 0.73, 0.56, 0.93]  std: [0.19, 0.18, 0.12, 0.16]
+          TDS fails: 0/10 (0.0%) | Freq peak: 0.10 Hz
+          Per-agent rewards: [a0: -2.3, a1: -4.8, a2: -6.9, a3: -4.7]
+          SAC: mean critic_loss: 0.001
+  Ep 280/500 | Avg Reward: -7.9 | Steps: 13822 | Time: 3185s
+  [Eval probe] ep 280: cum_rf = -0.0282 (best = -0.0281 @ ep 274)
+  [Eval probe] ep 285: cum_rf = -0.0282 (best = -0.0281 @ ep 274)
+[Monitor] Ep 289 | Reward: -5.9 (r_f: 81.4%, r_h: 1.9%, r_d: 16.7%)
+          Actions mu: [0.00, 0.71, 0.51, 0.92]  std: [0.17, 0.21, 0.13, 0.16]
+          TDS fails: 0/10 (0.0%) | Freq peak: 0.08 Hz
+          Per-agent rewards: [a0: -1.7, a1: -1.4, a2: -1.3, a3: -1.5]
+          SAC: mean critic_loss: 0.001
+  Ep 290/500 | Avg Reward: -6.7 | Steps: 14322 | Time: 3301s
+  [Monitor] New best eval cum_rf: -0.0281 @ ep 289
+  [Monitor] New best eval cum_rf: -0.0281 @ ep 294
+[Monitor] Ep 299 | Reward: -10.4 (r_f: 89.5%, r_h: 1.2%, r_d: 9.3%)
+          Actions mu: [0.01, 0.73, 0.51, 0.91]  std: [0.17, 0.21, 0.13, 0.17]
+          TDS fails: 0/10 (0.0%) | Freq peak: 0.08 Hz
+          Per-agent rewards: [a0: -1.4, a1: -2.8, a2: -3.7, a3: -2.6]
+          SAC: mean critic_loss: 0.001
+  Ep 300/500 | Avg Reward: -5.7 | Steps: 14822 | Time: 3420s
+  [Monitor] New best eval cum_rf: -0.0281 @ ep 299
+  [Eval probe] ep 305: cum_rf = -0.0281 (best = -0.0281 @ ep 299)
+[Monitor] Ep 309 | Reward: -8.0 (r_f: 86.6%, r_h: 1.4%, r_d: 12.0%)
+          Actions mu: [0.00, 0.73, 0.48, 0.92]  std: [0.18, 0.21, 0.13, 0.16]
+          TDS fails: 0/10 (0.0%) | Freq peak: 0.11 Hz
+          Per-agent rewards: [a0: -1.9, a1: -1.1, a2: -2.1, a3: -2.9]
+          SAC: mean critic_loss: 0.001
+  Ep 310/500 | Avg Reward: -9.4 | Steps: 15322 | Time: 3534s
+  [Eval probe] ep 310: cum_rf = -0.0281 (best = -0.0281 @ ep 299)
+  [Monitor] New best eval cum_rf: -0.0281 @ ep 314
+[Monitor] Ep 319 | Reward: -3.8 (r_f: 71.2%, r_h: 3.2%, r_d: 25.6%)
+          Actions mu: [0.00, 0.77, 0.47, 0.92]  std: [0.17, 0.22, 0.15, 0.15]
+          TDS fails: 0/10 (0.0%) | Freq peak: 0.09 Hz
+          Per-agent rewards: [a0: -0.7, a1: -1.1, a2: -1.2, a3: -0.8]
+          SAC: mean critic_loss: 0.001
+  Ep 320/500 | Avg Reward: -8.1 | Steps: 15822 | Time: 3654s
+  [Monitor] New best eval cum_rf: -0.0280 @ ep 319
+  [Monitor] New best eval cum_rf: -0.0280 @ ep 324
+[Monitor] Ep 329 | Reward: -8.0 (r_f: 86.7%, r_h: 1.3%, r_d: 12.0%)
+          Actions mu: [0.00, 0.75, 0.43, 0.92]  std: [0.17, 0.23, 0.15, 0.17]
+          TDS fails: 0/10 (0.0%) | Freq peak: 0.08 Hz
+          Per-agent rewards: [a0: -1.9, a1: -1.9, a2: -2.1, a3: -2.1]
+          SAC: mean critic_loss: 0.001
+  Ep 330/500 | Avg Reward: -7.1 | Steps: 16322 | Time: 3775s
+  [Eval probe] ep 330: cum_rf = -0.0280 (best = -0.0280 @ ep 324)
+  [Monitor] New best eval cum_rf: -0.0279 @ ep 334
+[Monitor] Ep 339 | Reward: -7.4 (r_f: 85.4%, r_h: 1.5%, r_d: 13.2%)
+          Actions mu: [-0.00, 0.76, 0.38, 0.93]  std: [0.16, 0.21, 0.16, 0.16]
+          TDS fails: 0/10 (0.0%) | Freq peak: 0.09 Hz
+          Per-agent rewards: [a0: -1.9, a1: -1.4, a2: -1.8, a3: -2.2]
+          SAC: mean critic_loss: 0.000
+  Ep 340/500 | Avg Reward: -7.3 | Steps: 16822 | Time: 3895s
+  [Monitor] New best eval cum_rf: -0.0279 @ ep 339
+  [Monitor] New best eval cum_rf: -0.0278 @ ep 344
+[Monitor] Ep 349 | Reward: -3.4 (r_f: 67.7%, r_h: 3.1%, r_d: 29.2%)
+          Actions mu: [0.01, 0.78, 0.37, 0.92]  std: [0.15, 0.22, 0.16, 0.16]
+          TDS fails: 0/10 (0.0%) | Freq peak: 0.09 Hz
+          Per-agent rewards: [a0: -0.9, a1: -1.0, a2: -0.8, a3: -0.7]
+          SAC: mean critic_loss: 0.001
+  Ep 350/500 | Avg Reward: -6.6 | Steps: 17322 | Time: 4015s
+  [Monitor] New best eval cum_rf: -0.0278 @ ep 349
+  [Monitor] New best eval cum_rf: -0.0278 @ ep 354
+[Monitor] Ep 359 | Reward: -15.4 (r_f: 93.2%, r_h: 0.6%, r_d: 6.2%)
+          Actions mu: [-0.01, 0.74, 0.29, 0.92]  std: [0.16, 0.20, 0.19, 0.15]
+          TDS fails: 0/10 (0.0%) | Freq peak: 0.10 Hz
+          Per-agent rewards: [a0: -2.0, a1: -3.6, a2: -5.7, a3: -4.2]
+          SAC: mean critic_loss: 0.000
+  Ep 360/500 | Avg Reward: -7.7 | Steps: 17822 | Time: 4137s
+  [Monitor] New best eval cum_rf: -0.0278 @ ep 359
+  [Eval probe] ep 365: cum_rf = -0.0278 (best = -0.0278 @ ep 359)
+[Monitor] Ep 369 | Reward: -6.9 (r_f: 83.4%, r_h: 2.4%, r_d: 14.3%)
+          Actions mu: [0.00, 0.83, 0.53, 0.93]  std: [0.18, 0.20, 0.13, 0.15]
+          TDS fails: 0/10 (0.0%) | Freq peak: 0.11 Hz
+          Per-agent rewards: [a0: -1.8, a1: -1.9, a2: -1.6, a3: -1.6]
+          SAC: mean critic_loss: 0.001
+  Ep 370/500 | Avg Reward: -8.3 | Steps: 18322 | Time: 4258s
+  [Eval probe] ep 370: cum_rf = -0.0279 (best = -0.0278 @ ep 359)
+  [Eval probe] ep 375: cum_rf = -0.0279 (best = -0.0278 @ ep 359)
+[Monitor] Ep 379 | Reward: -10.4 (r_f: 88.8%, r_h: 1.9%, r_d: 9.2%)
+          Actions mu: [0.00, 0.83, 0.60, 0.93]  std: [0.17, 0.20, 0.13, 0.15]
+          TDS fails: 0/10 (0.0%) | Freq peak: 0.08 Hz
+          Per-agent rewards: [a0: -2.7, a1: -1.9, a2: -2.6, a3: -3.2]
+          SAC: mean critic_loss: 0.000
+  Ep 380/500 | Avg Reward: -8.1 | Steps: 18822 | Time: 4379s
+  [Eval probe] ep 380: cum_rf = -0.0279 (best = -0.0278 @ ep 359)
+  [Eval probe] ep 385: cum_rf = -0.0279 (best = -0.0278 @ ep 359)
+[Monitor] Ep 389 | Reward: -2.8 (r_f: 60.2%, r_h: 4.9%, r_d: 34.9%)
+          Actions mu: [0.01, 0.83, 0.43, 0.92]  std: [0.17, 0.20, 0.14, 0.15]
+          TDS fails: 0/10 (0.0%) | Freq peak: 0.09 Hz
+          Per-agent rewards: [a0: -0.7, a1: -0.5, a2: -0.7, a3: -0.9]
+          SAC: mean critic_loss: 0.000
+  Ep 390/500 | Avg Reward: -5.8 | Steps: 19322 | Time: 4499s
+  [Eval probe] ep 390: cum_rf = -0.0279 (best = -0.0278 @ ep 359)
+
+[!] [Monitor] WARNING: reward_component_ratio @ Ep 391
+  'r_f' is only 47.1% of total reward (threshold: 50%). Breakdown: r_f: 47.1%, r_h: 6.3%, r_d: 46.5%
+  [Eval probe] ep 395: cum_rf = -0.0279 (best = -0.0278 @ ep 359)
+[Monitor] Ep 399 | Reward: -4.0 (r_f: 71.6%, r_h: 4.2%, r_d: 24.3%)
+          Actions mu: [0.00, 0.85, 0.53, 0.91]  std: [0.17, 0.18, 0.16, 0.14]
+          TDS fails: 0/10 (0.0%) | Freq peak: 0.10 Hz
+          Per-agent rewards: [a0: -1.0, a1: -1.1, a2: -1.0, a3: -0.9]
+          SAC: mean critic_loss: 0.001
+  Ep 400/500 | Avg Reward: -5.3 | Steps: 19822 | Time: 4622s
+  [Eval probe] ep 400: cum_rf = -0.0279 (best = -0.0278 @ ep 359)
+  [Eval probe] ep 405: cum_rf = -0.0279 (best = -0.0278 @ ep 359)
+[Monitor] Ep 409 | Reward: -10.5 (r_f: 88.3%, r_h: 2.4%, r_d: 9.4%)
+          Actions mu: [0.01, 0.88, 0.66, 0.92]  std: [0.17, 0.20, 0.14, 0.16]
+          TDS fails: 0/10 (0.0%) | Freq peak: 0.07 Hz
+          Per-agent rewards: [a0: -3.0, a1: -2.9, a2: -2.3, a3: -2.2]
+          SAC: mean critic_loss: 0.001
+  Ep 410/500 | Avg Reward: -6.5 | Steps: 20322 | Time: 4742s
+  [Eval probe] ep 410: cum_rf = -0.0279 (best = -0.0278 @ ep 359)
+  [Eval probe] ep 415: cum_rf = -0.0279 (best = -0.0278 @ ep 359)
+[Monitor] Ep 419 | Reward: -3.6 (r_f: 68.9%, r_h: 3.7%, r_d: 27.4%)
+          Actions mu: [0.00, 0.87, 0.36, 0.93]  std: [0.17, 0.19, 0.19, 0.13]
+          TDS fails: 0/10 (0.0%) | Freq peak: 0.08 Hz
+          Per-agent rewards: [a0: -1.0, a1: -0.8, a2: -0.8, a3: -1.0]
+          SAC: mean critic_loss: 0.001
+  Ep 420/500 | Avg Reward: -6.1 | Steps: 20822 | Time: 4867s
+  [Eval probe] ep 420: cum_rf = -0.0279 (best = -0.0278 @ ep 359)
+  [Eval probe] ep 425: cum_rf = -0.0278 (best = -0.0278 @ ep 359)
+[Monitor] Ep 429 | Reward: -2.1 (r_f: 47.4%, r_h: 6.2%, r_d: 46.4%)
+          Actions mu: [0.01, 0.88, 0.31, 0.92]  std: [0.16, 0.18, 0.16, 0.16]
+          TDS fails: 0/10 (0.0%) | Freq peak: 0.08 Hz
+          Per-agent rewards: [a0: -0.5, a1: -0.4, a2: -0.5, a3: -0.7]
+          SAC: mean critic_loss: 0.001
+  Ep 430/500 | Avg Reward: -7.6 | Steps: 21322 | Time: 4990s
+  [Eval probe] ep 430: cum_rf = -0.0278 (best = -0.0278 @ ep 359)
+  [Monitor] New best eval cum_rf: -0.0278 @ ep 434
+[Monitor] Ep 439 | Reward: -10.8 (r_f: 89.1%, r_h: 1.9%, r_d: 9.0%)
+          Actions mu: [0.01, 0.89, 0.54, 0.93]  std: [0.15, 0.17, 0.15, 0.14]
+          TDS fails: 0/10 (0.0%) | Freq peak: 0.09 Hz
+          Per-agent rewards: [a0: -2.8, a1: -2.9, a2: -2.6, a3: -2.6]
+          SAC: mean critic_loss: 0.000
+  Ep 440/500 | Avg Reward: -9.9 | Steps: 21822 | Time: 5114s
+  [Monitor] New best eval cum_rf: -0.0277 @ ep 439
+  [Monitor] New best eval cum_rf: -0.0276 @ ep 444
+[Monitor] Ep 449 | Reward: -4.5 (r_f: 75.4%, r_h: 2.9%, r_d: 21.7%)
+          Actions mu: [0.00, 0.88, 0.29, 0.92]  std: [0.17, 0.18, 0.17, 0.15]
+          TDS fails: 0/10 (0.0%) | Freq peak: 0.09 Hz
+          Per-agent rewards: [a0: -0.8, a1: -1.2, a2: -1.4, a3: -1.1]
+          SAC: mean critic_loss: 0.000
+  Ep 450/500 | Avg Reward: -6.4 | Steps: 22322 | Time: 5237s
+  [Monitor] New best eval cum_rf: -0.0276 @ ep 449
+  [Monitor] New best eval cum_rf: -0.0275 @ ep 454
+[Monitor] Ep 459 | Reward: -8.6 (r_f: 87.2%, r_h: 1.3%, r_d: 11.5%)
+          Actions mu: [0.01, 0.86, 0.22, 0.92]  std: [0.17, 0.16, 0.19, 0.15]
+          TDS fails: 0/10 (0.0%) | Freq peak: 0.08 Hz
+          Per-agent rewards: [a0: -2.1, a1: -2.0, a2: -2.2, a3: -2.3]
+          SAC: mean critic_loss: 0.001
+  Ep 460/500 | Avg Reward: -7.6 | Steps: 22822 | Time: 5359s
+  [Monitor] New best eval cum_rf: -0.0274 @ ep 459
+  [Monitor] New best eval cum_rf: -0.0274 @ ep 464
+[Monitor] Ep 469 | Reward: -4.1 (r_f: 73.4%, r_h: 2.9%, r_d: 23.6%)
+          Actions mu: [-0.00, 0.88, 0.21, 0.92]  std: [0.19, 0.18, 0.18, 0.16]
+          TDS fails: 0/10 (0.0%) | Freq peak: 0.05 Hz
+          Per-agent rewards: [a0: -1.1, a1: -1.1, a2: -0.9, a3: -0.9]
+          SAC: mean critic_loss: 0.000
+  Ep 470/500 | Avg Reward: -4.7 | Steps: 23322 | Time: 5481s
+  [Eval probe] ep 470: cum_rf = -0.0275 (best = -0.0274 @ ep 464)
+  [Eval probe] ep 475: cum_rf = -0.0275 (best = -0.0274 @ ep 464)
+[Monitor] Ep 479 | Reward: -11.2 (r_f: 90.1%, r_h: 1.1%, r_d: 8.8%)
+          Actions mu: [0.00, 0.90, 0.17, 0.92]  std: [0.16, 0.18, 0.21, 0.17]
+          TDS fails: 0/10 (0.0%) | Freq peak: 0.11 Hz
+          Per-agent rewards: [a0: -3.1, a1: -3.1, a2: -2.6, a3: -2.4]
+          SAC: mean critic_loss: 0.000
+  Ep 480/500 | Avg Reward: -8.0 | Steps: 23822 | Time: 5601s
+  [Monitor] New best eval cum_rf: -0.0274 @ ep 479
+  [Monitor] New best eval cum_rf: -0.0273 @ ep 484
+[Monitor] Ep 489 | Reward: -5.2 (r_f: 79.5%, r_h: 2.1%, r_d: 18.4%)
+          Actions mu: [-0.00, 0.87, 0.15, 0.92]  std: [0.17, 0.19, 0.20, 0.16]
+          TDS fails: 0/10 (0.0%) | Freq peak: 0.08 Hz
+          Per-agent rewards: [a0: -1.2, a1: -1.2, a2: -1.3, a3: -1.4]
+          SAC: mean critic_loss: 0.000
+  Ep 490/500 | Avg Reward: -6.6 | Steps: 24322 | Time: 5725s
+  [Eval probe] ep 490: cum_rf = -0.0273 (best = -0.0273 @ ep 484)
+  [Monitor] New best eval cum_rf: -0.0272 @ ep 494
+  [Monitor] New best reward: -1.7 @ ep 496
+
+[!] [Monitor] WARNING: reward_component_ratio @ Ep 496
+  'r_f' is only 36.2% of total reward (threshold: 50%). Breakdown: r_f: 36.2%, r_h: 7.0%, r_d: 56.7%
+[Monitor] Ep 499 | Reward: -3.3 (r_f: 66.8%, r_h: 3.7%, r_d: 29.5%)
+          Actions mu: [-0.01, 0.90, 0.18, 0.93]  std: [0.18, 0.18, 0.19, 0.15]
+          TDS fails: 0/10 (0.0%) | Freq peak: 0.08 Hz
+          Per-agent rewards: [a0: -0.9, a1: -0.9, a2: -0.8, a3: -0.8]
+          SAC: mean critic_loss: 0.001
+  Ep 500/500 | Avg Reward: -5.7 | Steps: 24822 | Time: 5852s
+  [Eval probe] ep 500: cum_rf = -0.0273 (best = -0.0272 @ ep 494)
+
+[Monitor] === Training Summary ===
+  Episodes: 500 | Calibration: complete
+  Reward:   -75 (ep 0) -> -3 (ep 499)
+  Best:     -2 @ ep 496 | Worst: -287 @ ep 17
+  Best reward callback: -2 @ ep 496
+  Per-agent reward (mean): best agent 0 = -2.8, worst agent 2 = -3.4
+  Loss trend: critic_loss early=0.233 -> late=0.001 (decreasing)
+
+  Checks triggered:
+    reward_component_ratio       [!] WARN  @ ep 97    (8 times)
+
+  TDS failures: 5/500 (1.0%)
+  Freq peak deviation: 0.23 Hz (ep 17)
+
+
+Training log saved to results/r79_500ep_q7_lstm_s59/training_log.json
+
+Total time: 5866s
+
+=== Final dual-eval (paper §IV-C cum_rf + 11-axis geo) ===
+[final-eval] ckpt suffix = best_eval
+[final-eval] final_eval_r79_500ep_q7_lstm_s59: geo=0.2402 cum_rf=-0.0545 (LS1=0.2071/-0.0376 LS2=0.2786/-0.0169)
+[final-eval] -> results/r79_500ep_q7_lstm_s59/final_eval_summary.json
+Done!

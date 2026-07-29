@@ -18,6 +18,9 @@ A binary is tracked only when a registered delivery line declares it as a
 canonical, derived, release, or support artifact. Final manuscript and proposal
 PDFs may therefore remain tracked. LaTeX auxiliaries, simulator scratch files,
 runtime logs, caches, and temporary review output remain generated locally.
+Small historical logs that are still cited by current claim provenance live
+under `_legacy/logs/`; this is an archive exception, not an active runtime
+output location.
 
 When a release PDF is a second physical copy of a manuscript PDF, the artifact
 contract declares a `byte-identical` relationship. Repository health compares
