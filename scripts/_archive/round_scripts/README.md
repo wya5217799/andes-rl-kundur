@@ -8,19 +8,25 @@ in `memory/claims/CLM-NNNN.md`.
 Kept for research auditability. **Do not delete** — historical
 provenance is the only purpose of this directory.
 
+Current lifecycle policy is canonical in
+`docs/repo-hygiene/contract.json` and explained in
+`docs/repo-hygiene/executables.md`. New round-specific logic starts in
+`probes/`; stable execution adapters remain in top-level `scripts/`.
+
 ---
 
-## What lives on the paper path instead
+## Active evaluation adapters
 
-Top-level `scripts/research_loop/` retains only the four production
-eval drivers:
+The maintained top-level adapters are:
 
-- `eval_v4_no_control.py` — zero-action baseline (paper Fig 6/8 reference)
-- `eval_v4_ddic.py` — load 4 SAC actors, run LS1+LS2, dump trace JSON
-- `eval_v4_all_seeds.py` — batch DDIC eval across seeds
-- `eval_v4_ensemble.py` — HAWE inference-time ensemble (paper Asset 5)
+- `eval_no_control.py` — zero-action baseline
+- `eval_ddic.py` — DDIC evaluation
+- `eval_all_seeds.py` — batch evaluation across seeds
+- `eval_ensemble.py` — HAWE inference-time ensemble
+- `eval_hybrid.py` — maintained hybrid evaluation
+- `score_run.py` — paper-grade scoring adapter
 
-Plus `evaluation/paper_grade_axes.py` (the 6-axis ranker).
+The reusable ranker implementation lives behind the package interface.
 
 ---
 

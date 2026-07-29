@@ -121,9 +121,11 @@ closed-*. closed 必须有 closed_round (存在目录) + closed_by (存在 claim
   - `## Questions advanced (this round, status unchanged)`
   - `## 给 PI 的话` (R≥59, ADR-0003; ≤30 行软上限; 五小段见模板) + 一行指向 feed
 - **给 PI 的话必须原文贴进对话** (ADR-0003 chat-delivery). 指向文件不算交付.
-- **分析逻辑进脚本** — 影响结论的识别 / 筛选 / 有效性判定必须写进 `probes/`
-  脚本 (可复现); 禁止离线手算进 verdict/feed. 事后补的判定器走 execution
-  amendment (R281/R283 先例).
+- **分析 seam** — 影响结论的识别 / 筛选 / 有效性判定进入 `probes/`;
+  可复用 implementation 进入 `src/andes_rl_kundur/`; `scripts/` 只持稳定
+  execution adapter. 禁止离线手算进 verdict/feed. 事后补的判定器走
+  execution amendment (R281/R283 先例). 生命周期与完成判据见
+  `docs/repo-hygiene/executables.md`.
 
 模板: `memory/rounds/_TEMPLATE_VERDICT.md`. 历史 verdict 正文不回填改写.
 

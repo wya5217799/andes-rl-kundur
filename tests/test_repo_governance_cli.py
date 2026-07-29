@@ -23,7 +23,7 @@ def _contract(**overrides: object) -> dict[str, object]:
         "version": 1,
         "baseline": "docs/repo-hygiene/baseline.json",
         "root": {
-            "allowed": ["README.md", "docs", "paper", "output"],
+            "allowed": ["README.md", "docs", "memory", "output", "paper", "scripts"],
             "tool_state": [],
         },
         "artifacts": [],
@@ -256,3 +256,81 @@ def test_delivery_role_paths_must_exist(tmp_path: Path) -> None:
 
     assert result.returncode == 1
     assert "ERROR DELIVERY_PATH_MISSING paper/main.tex" in result.stdout
+
+
+def test_new_executable_must_match_a_lifecycle_classifier(tmp_path: Path) -> None:
+    (tmp_path / "README.md").write_text("# Repo\n", encoding="utf-8")
+    (tmp_path / "scripts").mkdir()
+    (tmp_path / "scripts" / "surprise.py").write_text("print('x')\n", encoding="utf-8")
+    _write_contract(
+        tmp_path,
+        _contract(
+            executables={
+                "discover": ["scripts/*.py"],
+                "classifiers": [],
+            }
+        ),
+    )
+
+    result = _run(tmp_path)
+
+    assert result.returncode == 1
+    assert "ERROR EXECUTABLE_UNCLASSIFIED scripts/surprise.py" in result.stdout
+
+
+def test_lifecycle_classifier_covers_matching_executables(tmp_path: Path) -> None:
+    (tmp_path / "README.md").write_text("# Repo\n", encoding="utf-8")
+    (tmp_path / "scripts").mkdir()
+    (tmp_path / "scripts" / "repo_check.py").write_text("", encoding="utf-8")
+    _write_contract(
+        tmp_path,
+        _contract(
+            executables={
+                "discover": ["scripts/*.py"],
+                "classifiers": [
+                    {
+                        "pattern": "scripts/repo_check.py",
+                        "role": "maintenance",
+                        "state": "active",
+                        "owner": "repo-governance",
+                    }
+                ],
+            }
+        ),
+    )
+
+    result = _run(tmp_path)
+
+    assert result.returncode == 0, result.stdout
+
+
+def test_completed_round_marks_active_executable_as_archive_candidate(
+    tmp_path: Path,
+) -> None:
+    (tmp_path / "README.md").write_text("# Repo\n", encoding="utf-8")
+    (tmp_path / "scripts").mkdir()
+    (tmp_path / "scripts" / "r10_probe.py").write_text("", encoding="utf-8")
+    verdict = tmp_path / "memory" / "rounds" / "R10" / "verdict.md"
+    verdict.parent.mkdir(parents=True)
+    verdict.write_text("**Status**: completed\n", encoding="utf-8")
+    _write_contract(
+        tmp_path,
+        _contract(
+            executables={
+                "discover": ["scripts/*.py"],
+                "classifiers": [
+                    {
+                        "pattern": "scripts/r*.py",
+                        "role": "round-probe",
+                        "state": "active",
+                        "owner": "round-from-filename",
+                    }
+                ],
+            }
+        ),
+    )
+
+    result = _run(tmp_path)
+
+    assert result.returncode == 0, result.stdout
+    assert "WARN EXECUTABLE_ARCHIVE_CANDIDATE scripts/r10_probe.py" in result.stdout

@@ -215,6 +215,140 @@
       }
     }
   ],
+  "executables": {
+    "discover": [
+      "scripts/*.py",
+      "scripts/*.sh"
+    ],
+    "classifiers": [
+      {
+        "pattern": "scripts/repo_health.py",
+        "role": "maintenance",
+        "state": "active",
+        "owner": "repo-governance"
+      },
+      {
+        "pattern": "scripts/score_run.py",
+        "role": "evaluation-adapter",
+        "state": "active",
+        "owner": "paper-grade-evaluation"
+      },
+      {
+        "pattern": "scripts/train.py",
+        "role": "training-adapter",
+        "state": "active",
+        "owner": "kundur-training"
+      },
+      {
+        "pattern": "scripts/eval_all_seeds.py",
+        "role": "evaluation-adapter",
+        "state": "active",
+        "owner": "paper-grade-evaluation"
+      },
+      {
+        "pattern": "scripts/eval_ddic.py",
+        "role": "evaluation-adapter",
+        "state": "active",
+        "owner": "paper-grade-evaluation"
+      },
+      {
+        "pattern": "scripts/eval_ensemble.py",
+        "role": "evaluation-adapter",
+        "state": "active",
+        "owner": "paper-grade-evaluation"
+      },
+      {
+        "pattern": "scripts/eval_hybrid.py",
+        "role": "evaluation-adapter",
+        "state": "active",
+        "owner": "paper-grade-evaluation"
+      },
+      {
+        "pattern": "scripts/eval_no_control.py",
+        "role": "evaluation-adapter",
+        "state": "active",
+        "owner": "paper-grade-evaluation"
+      },
+      {
+        "pattern": "scripts/r[0-9]*.py",
+        "role": "round-probe",
+        "state": "frozen",
+        "owner": "round-from-filename"
+      },
+      {
+        "pattern": "scripts/_r[0-9]*.sh",
+        "role": "round-runner",
+        "state": "frozen",
+        "owner": "round-from-filename"
+      },
+      {
+        "pattern": "scripts/r[0-9]*.sh",
+        "role": "round-runner",
+        "state": "frozen",
+        "owner": "round-from-filename"
+      },
+      {
+        "pattern": "scripts/run_r[0-9]*.py",
+        "role": "round-runner",
+        "state": "frozen",
+        "owner": "round-from-filename"
+      },
+      {
+        "pattern": "scripts/run_r[0-9]*.sh",
+        "role": "round-runner",
+        "state": "frozen",
+        "owner": "round-from-filename"
+      },
+      {
+        "pattern": "scripts/*_r[0-9]*.py",
+        "role": "round-probe",
+        "state": "frozen",
+        "owner": "round-from-filename"
+      },
+      {
+        "pattern": "scripts/eval_*.py",
+        "role": "evaluation-adapter",
+        "state": "frozen",
+        "owner": "legacy-evaluation"
+      },
+      {
+        "pattern": "scripts/audit_*.py",
+        "role": "round-probe",
+        "state": "frozen",
+        "owner": "legacy-provenance"
+      },
+      {
+        "pattern": "scripts/diagnose_*.py",
+        "role": "round-probe",
+        "state": "frozen",
+        "owner": "legacy-provenance"
+      },
+      {
+        "pattern": "scripts/map_*.py",
+        "role": "round-probe",
+        "state": "frozen",
+        "owner": "legacy-provenance"
+      },
+      {
+        "pattern": "scripts/export_*.py",
+        "role": "operation",
+        "state": "frozen",
+        "owner": "legacy-provenance"
+      },
+      {
+        "pattern": "scripts/train_*.py",
+        "role": "training-adapter",
+        "state": "frozen",
+        "owner": "legacy-provenance"
+      },
+      {
+        "pattern": "scripts/run_reviewer_identifiability.py",
+        "role": "round-runner",
+        "state": "frozen",
+        "owner": "icems2026-review"
+      }
+    ]
+  },
   "artifacts": [
     {
       "id": "icems2026-release-pdf",
@@ -239,7 +373,8 @@
       "must_reference": [
         "skills/kundur-round/SKILL.md",
         "docs/agents/issue-tracker.md",
-        "docs/agents/domain.md"
+        "docs/agents/domain.md",
+        "docs/repo-hygiene/executables.md"
       ]
     },
     {
@@ -258,6 +393,7 @@
       "adapter": "skills/kundur-round/SKILL.md",
       "must_reference": [
         "CLAUDE.md",
+        "docs/repo-hygiene/executables.md",
         "paper/sci_upgrade_survey/LINE.md"
       ]
     }

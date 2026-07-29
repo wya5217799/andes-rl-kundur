@@ -14,6 +14,7 @@ from __future__ import annotations
 import fnmatch
 import hashlib
 import json
+import re
 from collections.abc import Iterable
 from dataclasses import dataclass, replace
 from pathlib import Path
@@ -398,6 +399,125 @@ def _delivery_findings(root: Path, contract: dict[str, Any]) -> Iterable[Finding
                 )
 
 
+def _round_owner(path: Path, owner: str) -> str | None:
+    if re.fullmatch(r"R\d+", owner, flags=re.IGNORECASE):
+        return owner.upper()
+    if owner != "round-from-filename":
+        return None
+    match = re.search(r"(?:^|[_-])r(\d+)", path.stem, flags=re.IGNORECASE)
+    return f"R{match.group(1)}" if match else None
+
+
+def _round_is_closed(root: Path, round_id: str) -> bool:
+    verdict = root / "memory" / "rounds" / round_id / "verdict.md"
+    if not verdict.is_file():
+        return False
+    try:
+        content = verdict.read_text(encoding="utf-8")
+    except UnicodeDecodeError:
+        return False
+    return bool(
+        re.search(
+            r"\*\*Status\*\*:\s*(?:completed|superseded|aborted)\b",
+            content,
+            flags=re.IGNORECASE,
+        )
+    )
+
+
+def _executable_findings(root: Path, contract: dict[str, Any]) -> Iterable[Finding]:
+    policy = contract.get("executables")
+    if policy is None:
+        return
+    if not isinstance(policy, dict):
+        raise ContractError("executables must be an object")
+    discovery = _list_of_strings(
+        policy.get("discover", []),
+        field="executables.discover",
+    )
+    classifiers = policy.get("classifiers", [])
+    if not isinstance(classifiers, list):
+        raise ContractError("executables.classifiers must be a list")
+    valid_roles = {
+        "evaluation-adapter",
+        "figure-adapter",
+        "maintenance",
+        "operation",
+        "round-probe",
+        "round-runner",
+        "training-adapter",
+    }
+    valid_states = {"active", "archived", "exempt", "frozen", "generated"}
+    parsed_classifiers: list[dict[str, str]] = []
+    for index, classifier in enumerate(classifiers):
+        if not isinstance(classifier, dict):
+            raise ContractError(f"executables.classifiers[{index}] must be an object")
+        pattern = classifier.get("pattern")
+        role = classifier.get("role")
+        state = classifier.get("state")
+        owner = classifier.get("owner")
+        if not isinstance(pattern, str) or not pattern:
+            raise ContractError(
+                f"executables.classifiers[{index}].pattern must be a string"
+            )
+        if role not in valid_roles:
+            raise ContractError(
+                f"executables.classifiers[{index}].role must be one of "
+                f"{sorted(valid_roles)}"
+            )
+        if state not in valid_states:
+            raise ContractError(
+                f"executables.classifiers[{index}].state must be one of "
+                f"{sorted(valid_states)}"
+            )
+        if not isinstance(owner, str) or not owner:
+            raise ContractError(
+                f"executables.classifiers[{index}].owner must be a string"
+            )
+        parsed_classifiers.append(
+            {
+                "pattern": pattern,
+                "role": role,
+                "state": state,
+                "owner": owner,
+            }
+        )
+
+    discovered: set[Path] = set()
+    for pattern in discovery:
+        discovered.update(path for path in root.glob(pattern) if path.is_file())
+    for executable in sorted(discovered):
+        relative = executable.relative_to(root)
+        relative_posix = relative.as_posix()
+        classifier = next(
+            (
+                item
+                for item in parsed_classifiers
+                if fnmatch.fnmatch(relative_posix, item["pattern"])
+            ),
+            None,
+        )
+        if classifier is None:
+            yield Finding(
+                "EXECUTABLE_UNCLASSIFIED",
+                relative_posix,
+                "executable has no lifecycle classifier",
+            )
+            continue
+        round_id = _round_owner(relative, classifier["owner"])
+        if (
+            classifier["state"] == "active"
+            and round_id is not None
+            and _round_is_closed(root, round_id)
+        ):
+            yield Finding(
+                "EXECUTABLE_ARCHIVE_CANDIDATE",
+                relative_posix,
+                f"active executable belongs to closed {round_id}",
+                severity="warning",
+            )
+
+
 def _opaque_findings(root: Path, contract: dict[str, Any]) -> Iterable[Finding]:
     values = _list_of_strings(
         contract.get("opaque_subtrees", []),
@@ -478,6 +598,7 @@ def validate_repository(
             *_artifact_findings(resolved_root, contract),
             *_navigation_findings(resolved_root, contract),
             *_delivery_findings(resolved_root, contract),
+            *_executable_findings(resolved_root, contract),
             *_opaque_findings(resolved_root, contract),
         ]
         baseline_path, baseline = (

@@ -33,8 +33,10 @@ description: andes-rl-kundur 仓库流程 canonical — 一轮研究从选题到
    预注册判定树、scope_limits、资产保护清单。caveman Chinese。
 3. **preflight**: `python memory/tools/round_preflight.py R<N>` —
    exit 2 = BLOCK, 修完再跑。
-4. **执行**: 影响结论的识别/筛选/判定逻辑全部进 `probes/` 或 `scripts/`
-   脚本; 正式评估 seal-before-trace、产物不可变、逐文件 .sha256。
+4. **执行**: 影响结论的识别/筛选/判定逻辑全部进 `probes/`; 可复用
+   implementation 进 `src/andes_rl_kundur/`, `scripts/` 只做稳定 execution
+   adapter (完整 seam 与 lifecycle 见 `docs/repo-hygiene/executables.md`);
+   正式评估 seal-before-trace、产物不可变、逐文件 .sha256。
    ANDES 只能 WSL: `MSYS_NO_PATHCONV=1 wsl /home/wya/andes_venv/bin/python`。
 5. **收尾** (严格顺序):
    a. feed (契约见 §3)
