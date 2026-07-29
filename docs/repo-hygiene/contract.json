@@ -125,6 +125,7 @@
           "研究计划/proposal/main.tex",
           "研究计划/proposal/refs.bib",
           "研究计划/proposal/PROPOSAL_SPEC.md",
+          "研究计划/proposal/proposal_progression_evidence.json",
           "研究计划/proposal/figures/make_progression.py"
         ],
         "derived": [
@@ -289,14 +290,7 @@
         "state": "frozen",
         "owner": "research-proposal",
         "evidence": [
-          "memory/claims/CLM-0123.md",
-          "memory/claims/CLM-0131.md",
-          "memory/claims/CLM-0149.md",
-          "memory/claims/CLM-0186.md",
-          "memory/claims/CLM-0250.md",
-          "memory/claims/CLM-0254.md",
-          "memory/claims/CLM-0295.md",
-          "memory/claims/CLM-0425.md"
+          "研究计划/proposal/proposal_progression_evidence.json"
         ]
       },
       {

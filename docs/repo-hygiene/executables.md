@@ -38,7 +38,10 @@ probes, round-local runners, and registered figure builders. Each must match a
 lifecycle classifier. A newly added, unclassified entrypoint is an error. An
 `active` entrypoint owned by a completed round is reported as an archive
 candidate. Figure adapters also declare evidence paths; the validator checks
-that the evidence exists and that the builder source references it.
+that the evidence exists and that the builder source references it. A frozen
+figure whose source data is not already a structured result consumes a reviewed
+evidence manifest containing the selected values, claim mapping, and source
+hashes; the builder rejects source drift before rendering.
 
 Maintained ANDES entrypoints are launched through
 `python scripts/andes_scratch.py <entrypoint> ...`. The adapter changes the

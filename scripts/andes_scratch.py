@@ -33,8 +33,12 @@ _SINGLE_REPOSITORY_PATH_FLAGS = {
     "--out-dir",
     "--resume",
     "--save-dir",
+    "--warmstart-shared",
 }
 _MULTI_REPOSITORY_PATH_FLAGS = {"--ckpt-dirs"}
+_REPOSITORY_PATH_DEFAULTS = {
+    "train.py": ("--save-dir", "results/v4_train"),
+}
 
 
 def _parser() -> argparse.ArgumentParser:
@@ -92,6 +96,16 @@ def _anchor_repository_path_arguments(values: list[str]) -> list[str]:
     return anchored
 
 
+def _add_repository_path_defaults(script: Path, values: list[str]) -> list[str]:
+    default = _REPOSITORY_PATH_DEFAULTS.get(script.name)
+    if default is None:
+        return values
+    flag, value = default
+    if any(item == flag or item.startswith(f"{flag}=") for item in values):
+        return values
+    return [*values, flag, value]
+
+
 def main(argv: list[str] | None = None) -> int:
     args = _parser().parse_args(argv)
     script = args.script if args.script.is_absolute() else ROOT / args.script
@@ -106,11 +120,12 @@ def main(argv: list[str] | None = None) -> int:
     ).resolve()
     run_dir = _run_directory(scratch_root, script)
     print(f"SCRATCH_DIR={run_dir}", flush=True)
+    child_args = _add_repository_path_defaults(script, args.args)
     completed = subprocess.run(
         [
             sys.executable,
             str(script),
-            *_anchor_repository_path_arguments(args.args),
+            *_anchor_repository_path_arguments(child_args),
         ],
         cwd=run_dir,
         check=False,

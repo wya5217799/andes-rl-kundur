@@ -85,6 +85,8 @@ def test_launcher_anchors_repository_path_arguments_before_changing_cwd(
             str(script),
             "--resume",
             "results/input",
+            "--warmstart-shared",
+            "results/shared/actor.pt",
             "--save-dir=results/output",
             "--ckpt-dirs",
             "results/a",
@@ -105,6 +107,8 @@ def test_launcher_anchors_repository_path_arguments_before_changing_cwd(
     assert child_args == [
         "--resume",
         str(REPO_ROOT / "results" / "input"),
+        "--warmstart-shared",
+        str(REPO_ROOT / "results" / "shared" / "actor.pt"),
         f"--save-dir={REPO_ROOT / 'results' / 'output'}",
         "--ckpt-dirs",
         str(REPO_ROOT / "results" / "a"),
@@ -112,4 +116,41 @@ def test_launcher_anchors_repository_path_arguments_before_changing_cwd(
         "--suffixes",
         "best",
         "final",
+    ]
+
+
+def test_launcher_anchors_train_default_save_directory(tmp_path: Path) -> None:
+    script = tmp_path / "train.py"
+    script.write_text(
+        "import json, sys\n"
+        "from pathlib import Path\n"
+        "Path('args.json').write_text(json.dumps(sys.argv[1:]), encoding='utf-8')\n",
+        encoding="utf-8",
+    )
+    scratch_root = tmp_path / "scratch"
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(LAUNCHER),
+            "--scratch-root",
+            str(scratch_root),
+            str(script),
+            "--episodes",
+            "1",
+        ],
+        capture_output=True,
+        check=False,
+        text=True,
+        encoding="utf-8",
+    )
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    run_dir = next(scratch_root.iterdir())
+    child_args = json.loads((run_dir / "args.json").read_text(encoding="utf-8"))
+    assert child_args == [
+        "--episodes",
+        "1",
+        "--save-dir",
+        str(REPO_ROOT / "results" / "v4_train"),
     ]
