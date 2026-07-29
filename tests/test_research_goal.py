@@ -173,3 +173,15 @@ def test_unlisted_question_is_not_selected(tmp_path: Path) -> None:
     selected = select_next_goal(tmp_path)
 
     assert selected.status == "no-eligible-question"
+
+
+def test_empty_priority_list_returns_no_goal_not_error(tmp_path: Path) -> None:
+    """An empty priority list is a clean no-goal state (2026-07-29 archive cut):
+    all closed blocks were moved to RESEARCH_PROGRAM_CLOSED.md, so the live
+    programme legitimately has zero listed questions."""
+    _write_programme(tmp_path, [])
+
+    selected = select_next_goal(tmp_path)
+
+    assert selected.status == "no-eligible-question"
+    assert selected.question_id is None

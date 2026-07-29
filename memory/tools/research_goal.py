@@ -183,7 +183,9 @@ def select_next_goal(repo_root: Path = ROOT) -> GoalSelection:
     1. Refuse new work when a genuinely active round exists.
     2. Sort ``priority_questions`` by ascending integer ``rank``.
     3. Choose the first listed question whose ledger state is open/in-flight.
-    4. Return ``no-eligible-question`` when all programme questions are closed.
+    4. Return ``no-eligible-question`` when all programme questions are
+       closed or none are listed (an empty list is a clean no-goal state,
+       not a malformed programme).
     """
     repo_root = repo_root.resolve()
     programme_path = repo_root / PROGRAMME_PATH
@@ -203,9 +205,9 @@ def select_next_goal(repo_root: Path = ROOT) -> GoalSelection:
             active_rounds=active,
         )
 
-    priorities = programme.get("priority_questions")
-    if not isinstance(priorities, list) or not priorities:
-        raise ProgrammeError(f"{programme_path}: 'priority_questions' must be a non-empty list")
+    priorities = programme.get("priority_questions") or []
+    if not isinstance(priorities, list):
+        raise ProgrammeError(f"{programme_path}: 'priority_questions' must be a list when present")
     questions = _question_index(repo_root)
 
     ranked: list[tuple[int, int, dict[str, Any]]] = []
