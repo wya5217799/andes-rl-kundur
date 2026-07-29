@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>现在到底是谁在控制 VSG？</title>
+  <link rel="stylesheet" href="../assets/teaching.css">
+</head>
+<body>
+  <h1>现在到底是谁在控制 VSG？</h1>
+  <p class="lede">目标：5 分钟内分清 VSG、储能、经典 PI 和未来 AI。</p>
+
+  <p class="answer"><strong>直接答案：</strong>研究主题仍然是 VSG 控制，但当前阶段没有让 AI 控制。我们在原有 VSG 旁边增加了一个独立的储能有功模块，用经典 PI 先验证物理上有没有足够的持续调频能力；R273 甚至把 PI 也关掉，只诊断仿真工况是否可完成。</p>
+
+  <h2>系统现在有三层概念</h2>
+  <div class="stack">
+    <section class="card fast">
+      <span class="status">现在存在</span>
+      <h3>VSG 快层</h3>
+      <p>四台 <code>PV+GENCLS</code> 代理。动作是惯量 M 和阻尼 D，擅长压制快速摆动、峰值和 RoCoF。</p>
+      <p><strong>局限：</strong>只有 M/D，不等于拥有持续的能量来源。</p>
+    </section>
+    <section class="card slow">
+      <span class="status">R272 新增</span>
+      <h3>储能慢层</h3>
+      <p>四台独立 <code>ESD1</code>，能够真正注入或吸收有功，并记录 SOC、容量、效率、ramp 和变流器能力。</p>
+      <p><strong>注意：</strong>它是 GFL BESS，不是把原 VSG 直接变成电池 VSG。</p>
+    </section>
+    <section class="card future">
+      <span class="status">未来候选</span>
+      <h3>AI residual</h3>
+      <p>若经典“VSG 快层 + 储能慢层”先通过有效门槛，AI 才可能在经典基线上做受限微调。</p>
+      <p><strong>当前：</strong>尚未训练，尚未授权进入 Gate 2。</p>
+    </section>
+  </div>
+
+  <h2>过去三轮分别做了什么</h2>
+  <table>
+    <thead>
+      <tr><th>轮次</th><th>谁在控制</th><th>真正问题</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>R271</td>
+        <td>只审计 VSG 的 M/D</td>
+        <td>确认 M/D 能改善瞬态，但缺少持续恢复频率所需的独立能量。</td>
+      </tr>
+      <tr>
+        <td>R272</td>
+        <td>VSG M/D 固定；经典 droop+PI 控制 ESD1 储能</td>
+        <td>测试新增有功通道是否真的能恢复共同频率。不是 AI 实验。</td>
+      </tr>
+      <tr>
+        <td>R273</td>
+        <td>VSG M/D 固定；储能功率严格为零；无 PI、无 AI</td>
+        <td>判断失败来自储能 DAE，还是测试扰动本身过强。</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>为什么这仍然服务于 AI-VSG？</h2>
+  <p>AI 只能优化系统确实拥有的物理控制权。如果模型只有 M/D，却要求 AI 长期补充有功、恢复频率，AI 可能只是在钻指标或仿真漏洞。现在先证明储能有功通道、经典基线和场景范围都正确，是为了以后让 AI 学“经典控制做不到的剩余部分”，而不是让 AI 假装创造能量。</p>
+
+  <h2>一句话记忆</h2>
+  <p class="answer"><strong>VSG 的 M/D 管快瞬态；ESD1 储能管真实有功和能量；PI 是当前经典基线；AI residual 是通过物理门槛之后的候选，不是当前正在运行的控制器。</strong></p>
+
+  <h2>自测</h2>
+  <p>先不看答案：R273 中 AI 是否参与？新增的 ESD1 主要补上了 M/D 缺少的什么能力？</p>
+  <details>
+    <summary>查看答案</summary>
+    <p>AI 没有参与。ESD1 补上了可计量、受 SOC/容量/功率约束的持续有功与能量通道。</p>
+  </details>
+
+  <p class="caption">主要依据：<a href="../memory/rounds/R271/verdict.md">R271</a>、<a href="../memory/rounds/R272/verdict.md">R272</a>、<a href="../memory/rounds/R273/verdict.md">R273</a>。可继续查看 <a href="../reference/vsg-control-stack.html">控制栈速查表</a>，或直接向我追问任何不清楚的名词。</p>
+</body>
+</html>

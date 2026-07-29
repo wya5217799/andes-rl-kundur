@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>VSG 控制栈速查</title>
+  <link rel="stylesheet" href="../assets/teaching.css">
+</head>
+<body>
+  <h1>VSG 控制栈速查</h1>
+  <p class="lede">看到实验名时，先问：谁产生功率？谁改变 M/D？当前有没有 AI？</p>
+  <table>
+    <thead>
+      <tr><th>对象</th><th>物理作用</th><th>当前身份</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>VSG proxy<br><code>PV+GENCLS</code></td>
+        <td>通过 M/D 模拟惯量、阻尼，主要塑造快速瞬态。</td>
+        <td>项目原有主体；R273 固定 M=200、D=100。</td>
+      </tr>
+      <tr>
+        <td>GFL BESS<br><code>ESD1</code></td>
+        <td>独立注入/吸收有功，拥有 SOC、容量、ramp 和能力约束。</td>
+        <td>R272 新增的慢有功模块；不是 VSG 本体，也不是 AI。</td>
+      </tr>
+      <tr>
+        <td>droop+PI</td>
+        <td>按频差计算储能功率请求。</td>
+        <td>经典控制器；R272 使用，R273 完全关闭。</td>
+      </tr>
+      <tr>
+        <td>AI residual</td>
+        <td>未来可能在经典控制基础上做有界微调。</td>
+        <td>尚未进入当前正式实验，Gate 2 关闭。</td>
+      </tr>
+    </tbody>
+  </table>
+  <p><a href="../lessons/0001-what-controls-the-vsg-now.html">返回本课</a></p>
+</body>
+</html>
