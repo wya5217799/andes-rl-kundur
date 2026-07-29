@@ -10,20 +10,29 @@
       "CONTEXT.md",
       "LICENSE",
       "MEMORY.md",
+      "MISSION.md",
+      "NOTES.md",
       "README.md",
+      "RESOURCES.md",
       "_legacy",
+      "assets",
       "docs",
       "external_skills",
+      "lessons",
       "memory",
       "output",
       "paper",
+      "paper_review",
       "probes",
       "pyproject.toml",
+      "quality_reports",
+      "reference",
       "results",
       "scripts",
       "skills",
       "src",
-      "tests"
+      "tests",
+      "研究计划"
     ],
     "allowed_globs": [
       ".pytest-temp-*"
@@ -39,6 +48,173 @@
       "tmp"
     ]
   },
+  "delivery_discovery": [
+    "paper/*",
+    "paper_review",
+    "quality_reports/*",
+    "研究计划/proposal",
+    "docs/research/external_A报告",
+    "lessons"
+  ],
+  "delivery_lines": [
+    {
+      "id": "icems2026",
+      "kind": "manuscript",
+      "status": "frozen",
+      "root": "paper/icems2026",
+      "roles": {
+        "canonical": [
+          "paper/icems2026/main.tex",
+          "paper/icems2026/references.bib",
+          "paper/icems2026/generated_results.tex",
+          "paper/icems2026/build_figures.py",
+          "paper/icems2026/figures/control_architecture.tex"
+        ],
+        "derived": [
+          "paper/icems2026/main.pdf",
+          "paper/icems2026/figures/dynamic_response.pdf",
+          "paper/icems2026/figures/paired_effects.pdf"
+        ],
+        "release": [
+          "output/pdf/icems2026_full_paper.pdf"
+        ],
+        "support": [
+          "paper/icems2026/README.md",
+          "paper/icems2026/working"
+        ]
+      }
+    },
+    {
+      "id": "sci-upgrade-survey",
+      "kind": "manuscript",
+      "status": "active",
+      "root": "paper/sci_upgrade_survey",
+      "roles": {
+        "canonical": [
+          "paper/sci_upgrade_survey/LINE.md",
+          "paper/sci_upgrade_survey/JOURNAL_TARGET.md",
+          "paper/sci_upgrade_survey/DIFFERENTIATION_MEMO.md",
+          "paper/sci_upgrade_survey/REPORT.md",
+          "paper/sci_upgrade_survey/draft"
+        ],
+        "corpus": [
+          "paper/sci_upgrade_survey/corpus"
+        ],
+        "reports": [
+          "paper/sci_upgrade_survey/reports"
+        ]
+      }
+    },
+    {
+      "id": "research-proposal",
+      "kind": "proposal",
+      "status": "frozen",
+      "root": "研究计划/proposal",
+      "roles": {
+        "canonical": [
+          "研究计划/proposal/main.tex",
+          "研究计划/proposal/refs.bib",
+          "研究计划/proposal/PROPOSAL_SPEC.md",
+          "研究计划/proposal/figures/make_progression.py"
+        ],
+        "derived": [
+          "研究计划/proposal/main.pdf",
+          "研究计划/proposal/figures/proposal_progression.pdf",
+          "研究计划/proposal/figures/proposal_progression.png",
+          "研究计划/proposal/figures/score_bar_summary.pdf",
+          "研究计划/proposal/figures/v4_progression_chart.pdf"
+        ],
+        "support": [
+          "研究计划/研究计划要求.md",
+          "研究计划/proposal/figures/kundur-topology.png",
+          "研究计划/proposal/figures/paper_fig1_architecture.png",
+          "研究计划/proposal/figures/paper_fig3_kundur.png",
+          "研究计划/proposal/figures/proposal_control_effect.png"
+        ]
+      }
+    },
+    {
+      "id": "external-a-research-report",
+      "kind": "external-report",
+      "status": "frozen",
+      "root": "docs/research/external_A报告",
+      "roles": {
+        "canonical": [
+          "docs/research/external_A报告/强电领域研究方向深度调研报告_v2.md"
+        ],
+        "support": [
+          "docs/research/external_A报告/qiangdian.agent.final.md",
+          "docs/research/external_A报告/qiangdian.agent.outline.md"
+        ]
+      }
+    },
+    {
+      "id": "icems2026-ars-review",
+      "kind": "review",
+      "status": "frozen",
+      "root": "quality_reports/ars_icems2026_review",
+      "roles": {
+        "canonical": [
+          "quality_reports/ars_icems2026_review/00_synthesis.md"
+        ],
+        "reports": [
+          "quality_reports/ars_icems2026_review/01_eic.md",
+          "quality_reports/ars_icems2026_review/02_methodology.md",
+          "quality_reports/ars_icems2026_review/03_domain.md",
+          "quality_reports/ars_icems2026_review/04_perspective.md",
+          "quality_reports/ars_icems2026_review/05_devils_advocate.md"
+        ],
+        "support": [
+          "quality_reports/ars_icems2026_review/da_phase1_precommitment.md"
+        ]
+      }
+    },
+    {
+      "id": "repository-plans",
+      "kind": "plan",
+      "status": "archived",
+      "root": "quality_reports/plans",
+      "roles": {
+        "canonical": [
+          "quality_reports/plans/2026-06-03_branch-consolidation.md"
+        ]
+      }
+    },
+    {
+      "id": "vsg-teaching",
+      "kind": "teaching",
+      "status": "frozen",
+      "root": "lessons",
+      "roles": {
+        "canonical": [
+          "MISSION.md",
+          "NOTES.md",
+          "RESOURCES.md"
+        ],
+        "derived": [
+          "lessons/0001-what-controls-the-vsg-now.html",
+          "reference/vsg-control-stack.html"
+        ],
+        "support": [
+          "assets/teaching.css"
+        ]
+      }
+    },
+    {
+      "id": "icems2026-review-digest",
+      "kind": "review",
+      "status": "frozen",
+      "root": "paper_review",
+      "roles": {
+        "canonical": [
+          "paper_review/ICEMS_2026_Digest.pdf"
+        ],
+        "support": [
+          "paper_review/check_refs.py"
+        ]
+      }
+    }
+  ],
   "artifacts": [
     {
       "id": "icems2026-release-pdf",

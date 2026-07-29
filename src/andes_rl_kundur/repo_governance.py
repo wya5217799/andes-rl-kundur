@@ -273,6 +273,131 @@ def _navigation_findings(root: Path, contract: dict[str, Any]) -> Iterable[Findi
                 )
 
 
+def _delivery_findings(root: Path, contract: dict[str, Any]) -> Iterable[Finding]:
+    lines = contract.get("delivery_lines", [])
+    if not isinstance(lines, list):
+        raise ContractError("delivery_lines must be a list")
+    discovery = _list_of_strings(
+        contract.get("delivery_discovery", []),
+        field="delivery_discovery",
+    )
+    valid_kinds = {
+        "external-report",
+        "manuscript",
+        "plan",
+        "proposal",
+        "review",
+        "teaching",
+    }
+    valid_statuses = {"active", "archived", "frozen"}
+    valid_roles = {
+        "archive",
+        "canonical",
+        "corpus",
+        "derived",
+        "release",
+        "reports",
+        "support",
+    }
+    seen_ids: set[str] = set()
+    registered_roots: set[Path] = set()
+
+    for index, line in enumerate(lines):
+        if not isinstance(line, dict):
+            raise ContractError(f"delivery_lines[{index}] must be an object")
+        line_id = line.get("id")
+        if not isinstance(line_id, str) or not line_id:
+            raise ContractError(f"delivery_lines[{index}].id must be a string")
+        kind = line.get("kind")
+        if kind not in valid_kinds:
+            raise ContractError(
+                f"delivery_lines[{index}].kind must be one of {sorted(valid_kinds)}"
+            )
+        status = line.get("status")
+        if status not in valid_statuses:
+            raise ContractError(
+                f"delivery_lines[{index}].status must be one of {sorted(valid_statuses)}"
+            )
+        line_root = _relative_path(
+            line.get("root"),
+            field=f"delivery_lines[{index}].root",
+        )
+        if line_id in seen_ids:
+            yield Finding(
+                "DELIVERY_ID_DUPLICATE",
+                line_id,
+                "delivery line id must be unique",
+            )
+        seen_ids.add(line_id)
+        if line_root in registered_roots:
+            yield Finding(
+                "DELIVERY_ROOT_DUPLICATE",
+                line_root.as_posix(),
+                "delivery root must belong to one registered line",
+            )
+        registered_roots.add(line_root)
+        if not (root / line_root).exists():
+            yield Finding(
+                "DELIVERY_ROOT_MISSING",
+                line_root.as_posix(),
+                f"delivery root is missing ({line_id})",
+            )
+
+        roles = line.get("roles")
+        if not isinstance(roles, dict):
+            raise ContractError(f"delivery_lines[{index}].roles must be an object")
+        unknown_roles = set(roles) - valid_roles
+        if unknown_roles:
+            raise ContractError(
+                f"delivery_lines[{index}].roles has unknown keys: "
+                f"{sorted(unknown_roles)}"
+            )
+        canonical = roles.get("canonical", [])
+        if not canonical:
+            raise ContractError(
+                f"delivery_lines[{index}].roles.canonical must not be empty"
+            )
+
+        path_roles: dict[Path, str] = {}
+        for role in sorted(roles):
+            values = _list_of_strings(
+                roles[role],
+                field=f"delivery_lines[{index}].roles.{role}",
+            )
+            for value in values:
+                path = _relative_path(
+                    value,
+                    field=f"delivery_lines[{index}].roles.{role}",
+                )
+                previous_role = path_roles.get(path)
+                if previous_role is not None:
+                    yield Finding(
+                        "DELIVERY_ROLE_CONFLICT",
+                        path.as_posix(),
+                        f"path has both {previous_role} and {role} roles ({line_id})",
+                    )
+                else:
+                    path_roles[path] = role
+                if not (root / path).exists():
+                    yield Finding(
+                        "DELIVERY_PATH_MISSING",
+                        path.as_posix(),
+                        f"{role} path is missing ({line_id})",
+                    )
+
+    for pattern in discovery:
+        for candidate in sorted(root.glob(pattern)):
+            if not candidate.is_dir():
+                continue
+            relative = candidate.relative_to(root)
+            if relative not in registered_roots:
+                yield Finding(
+                    "DELIVERY_UNREGISTERED",
+                    relative.as_posix(),
+                    f"directory matches delivery discovery pattern {pattern}",
+                )
+
+
 def _opaque_findings(root: Path, contract: dict[str, Any]) -> Iterable[Finding]:
     values = _list_of_strings(
         contract.get("opaque_subtrees", []),
@@ -352,6 +477,7 @@ def validate_repository(
             *_root_findings(resolved_root, contract),
             *_artifact_findings(resolved_root, contract),
             *_navigation_findings(resolved_root, contract),
+            *_delivery_findings(resolved_root, contract),
             *_opaque_findings(resolved_root, contract),
         ]
         baseline_path, baseline = (
@@ -401,4 +527,3 @@ def validate_repository(
         )
     )
     return ValidationReport(resolved_root, ordered)
-

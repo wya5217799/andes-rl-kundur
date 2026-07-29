@@ -10,38 +10,6 @@
       "expires": null
     },
     {
-      "fingerprint": "d847550a9a4976ed",
-      "rule_id": "ROOT_UNDECLARED",
-      "path": "MISSION.md",
-      "owner": "issue-5",
-      "reason": "teaching-session artifact awaiting document taxonomy",
-      "expires": null
-    },
-    {
-      "fingerprint": "069587f43401fbd2",
-      "rule_id": "ROOT_UNDECLARED",
-      "path": "NOTES.md",
-      "owner": "issue-5",
-      "reason": "teaching-session artifact awaiting document taxonomy",
-      "expires": null
-    },
-    {
-      "fingerprint": "a18347a9c78d55ff",
-      "rule_id": "ROOT_UNDECLARED",
-      "path": "RESOURCES.md",
-      "owner": "issue-5",
-      "reason": "teaching-session artifact awaiting document taxonomy",
-      "expires": null
-    },
-    {
-      "fingerprint": "779f4e0a9f115195",
-      "rule_id": "ROOT_UNDECLARED",
-      "path": "assets",
-      "owner": "issue-3",
-      "reason": "unregistered teaching deliverable assets",
-      "expires": null
-    },
-    {
       "fingerprint": "824d85ed7e990704",
       "rule_id": "ROOT_UNDECLARED",
       "path": "kundur_full_eig.txt",
@@ -74,51 +42,11 @@
       "expires": null
     },
     {
-      "fingerprint": "6e78764ffc9eef37",
-      "rule_id": "ROOT_UNDECLARED",
-      "path": "lessons",
-      "owner": "issue-3",
-      "reason": "unregistered teaching deliverable",
-      "expires": null
-    },
-    {
       "fingerprint": "39c26e494c7a4622",
       "rule_id": "ROOT_UNDECLARED",
       "path": "logs",
       "owner": "issue-6",
       "reason": "legacy runtime-output directory awaiting scratch consolidation",
-      "expires": null
-    },
-    {
-      "fingerprint": "cfcf8913e6b67160",
-      "rule_id": "ROOT_UNDECLARED",
-      "path": "paper_review",
-      "owner": "issue-3",
-      "reason": "review deliverable awaiting registry classification",
-      "expires": null
-    },
-    {
-      "fingerprint": "0c1175dd171fccc6",
-      "rule_id": "ROOT_UNDECLARED",
-      "path": "quality_reports",
-      "owner": "issue-3",
-      "reason": "review and plan deliverables awaiting registry classification",
-      "expires": null
-    },
-    {
-      "fingerprint": "a8b66ea2729b66b3",
-      "rule_id": "ROOT_UNDECLARED",
-      "path": "reference",
-      "owner": "issue-3",
-      "reason": "unregistered teaching reference deliverable",
-      "expires": null
-    },
-    {
-      "fingerprint": "747ddd41ea9e676f",
-      "rule_id": "ROOT_UNDECLARED",
-      "path": "研究计划",
-      "owner": "issue-3",
-      "reason": "proposal deliverable awaiting registry classification",
       "expires": null
     }
   ]

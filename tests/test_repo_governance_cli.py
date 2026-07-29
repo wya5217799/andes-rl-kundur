@@ -177,3 +177,82 @@ def test_navigation_adapter_must_point_to_an_existing_target(tmp_path: Path) -> 
     missing_pointer = _run(tmp_path)
     assert missing_pointer.returncode == 1
     assert "ERROR NAV_POINTER_MISSING README.md" in missing_pointer.stdout
+
+
+def test_delivery_discovery_rejects_an_unregistered_line(tmp_path: Path) -> None:
+    (tmp_path / "README.md").write_text("# Repo\n", encoding="utf-8")
+    (tmp_path / "paper" / "known").mkdir(parents=True)
+    (tmp_path / "paper" / "known" / "main.tex").write_text("", encoding="utf-8")
+    (tmp_path / "paper" / "surprise").mkdir()
+    _write_contract(
+        tmp_path,
+        _contract(
+            delivery_discovery=["paper/*"],
+            delivery_lines=[
+                {
+                    "id": "known",
+                    "kind": "manuscript",
+                    "status": "active",
+                    "root": "paper/known",
+                    "roles": {"canonical": ["paper/known/main.tex"]},
+                }
+            ],
+        ),
+    )
+
+    result = _run(tmp_path)
+
+    assert result.returncode == 1
+    assert "ERROR DELIVERY_UNREGISTERED paper/surprise" in result.stdout
+
+
+def test_delivery_roles_are_disjoint(tmp_path: Path) -> None:
+    (tmp_path / "README.md").write_text("# Repo\n", encoding="utf-8")
+    (tmp_path / "paper").mkdir()
+    (tmp_path / "paper" / "main.tex").write_text("", encoding="utf-8")
+    _write_contract(
+        tmp_path,
+        _contract(
+            delivery_lines=[
+                {
+                    "id": "paper",
+                    "kind": "manuscript",
+                    "status": "active",
+                    "root": "paper",
+                    "roles": {
+                        "canonical": ["paper/main.tex"],
+                        "derived": ["paper/main.tex"],
+                    },
+                }
+            ]
+        ),
+    )
+
+    result = _run(tmp_path)
+
+    assert result.returncode == 1
+    assert "ERROR DELIVERY_ROLE_CONFLICT paper/main.tex" in result.stdout
+
+
+def test_delivery_role_paths_must_exist(tmp_path: Path) -> None:
+    (tmp_path / "README.md").write_text("# Repo\n", encoding="utf-8")
+    (tmp_path / "paper").mkdir()
+    _write_contract(
+        tmp_path,
+        _contract(
+            delivery_lines=[
+                {
+                    "id": "paper",
+                    "kind": "manuscript",
+                    "status": "active",
+                    "root": "paper",
+                    "roles": {"canonical": ["paper/main.tex"]},
+                }
+            ]
+        ),
+    )
+
+    result = _run(tmp_path)
+
+    assert result.returncode == 1
+    assert "ERROR DELIVERY_PATH_MISSING paper/main.tex" in result.stdout
