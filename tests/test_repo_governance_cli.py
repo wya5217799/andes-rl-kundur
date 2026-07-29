@@ -358,3 +358,45 @@ def test_navigation_adapter_rejects_known_stale_status_copies(tmp_path: Path) ->
 
     assert result.returncode == 1
     assert "ERROR NAV_FORBIDDEN_TEXT README.md" in result.stdout
+
+
+def test_external_adapter_lock_cannot_grant_project_write_authority(
+    tmp_path: Path,
+) -> None:
+    (tmp_path / "README.md").write_text("# Repo\n", encoding="utf-8")
+    lock_path = tmp_path / "docs" / "external.lock.json"
+    lock_path.parent.mkdir()
+    lock_path.write_text(
+        json.dumps(
+            {
+                "name": "external-suite",
+                "license": "CC-BY-NC-4.0",
+                "source_repositories": [
+                    {
+                        "url": "https://example.test/suite.git",
+                        "commit": "abc123",
+                    }
+                ],
+                "project_write_authority": ["claims"],
+                "install": {"scope": "global"},
+            }
+        ),
+        encoding="utf-8",
+    )
+    _write_contract(
+        tmp_path,
+        _contract(
+            external_adapters=[
+                {
+                    "id": "external-suite",
+                    "lock": "docs/external.lock.json",
+                    "authority": "explicit-adapter",
+                }
+            ]
+        ),
+    )
+
+    result = _run(tmp_path)
+
+    assert result.returncode == 1
+    assert "ERROR EXTERNAL_AUTHORITY_LEAK docs/external.lock.json" in result.stdout

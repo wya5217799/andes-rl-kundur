@@ -17,7 +17,6 @@
       "_legacy",
       "assets",
       "docs",
-      "external_skills",
       "lessons",
       "memory",
       "output",
@@ -360,6 +359,13 @@
       "relation": "byte-identical"
     }
   ],
+  "external_adapters": [
+    {
+      "id": "academic-research-suite",
+      "lock": "docs/repo-hygiene/external-skills.lock.json",
+      "authority": "explicit-adapter"
+    }
+  ],
   "navigation": [
     {
       "adapter": "AGENTS.md",
@@ -375,7 +381,8 @@
         "skills/kundur-round/SKILL.md",
         "docs/agents/issue-tracker.md",
         "docs/agents/domain.md",
-        "docs/repo-hygiene/executables.md"
+        "docs/repo-hygiene/executables.md",
+        "docs/repo-hygiene/external-skills.md"
       ]
     },
     {
@@ -429,7 +436,6 @@
     ".codesearch.db",
     ".understand-anything",
     "_legacy",
-    "external_skills",
     "results"
   ]
 }

@@ -70,6 +70,12 @@ Agent-facing issue states use the repository's five canonical labels. See
 This is a single-context repository: domain language lives in `CONTEXT.md`
 and architecture decisions live in `docs/adr/`. See `docs/agents/domain.md`.
 
+### External skills
+
+External skills are explicit-only adapters and have no authority over project
+rounds, claims, gates, or ledgers. See
+`docs/repo-hygiene/external-skills.md`.
+
 ## 记忆系统 (R39+)
 
 四种 schema 实体 + handoff 草稿. STATE.md 只读 claims/questions/rounds;

@@ -1,0 +1,24 @@
+{
+  "name": "academic-research-suite",
+  "adapter_version": "0.1.22",
+  "generated_date": "2026-07-22",
+  "license": "CC-BY-NC-4.0",
+  "manifest_sha256": "29BFE7C35562E22B7ABCFB20560B60A2AE64E174668FE7D1B8938EBF1393AACB",
+  "source_repositories": [
+    {
+      "url": "https://github.com/Imbad0202/academic-research-skills.git",
+      "commit": "828ef3b613b0e8b91830da3328a1e33d4eb5ab4c"
+    },
+    {
+      "url": "https://github.com/Imbad0202/experiment-agent.git",
+      "commit": "9b063fa895eaf1f63ac99ac03f924f8d31aa8d26"
+    }
+  ],
+  "repository_snapshot_commit": "54ab40b",
+  "project_write_authority": [],
+  "install": {
+    "scope": "global",
+    "path_hint": "$CODEX_HOME/skills/academic-research-suite",
+    "update_method": "Rebuild the Codex adapter from the pinned source commits, verify the manifest SHA-256, then replace the global installation outside this repository."
+  }
+}

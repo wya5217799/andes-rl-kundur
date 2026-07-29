@@ -529,6 +529,84 @@ def _executable_findings(root: Path, contract: dict[str, Any]) -> Iterable[Findi
             )
 
 
+def _external_adapter_findings(
+    root: Path,
+    contract: dict[str, Any],
+) -> Iterable[Finding]:
+    adapters = contract.get("external_adapters", [])
+    if not isinstance(adapters, list):
+        raise ContractError("external_adapters must be a list")
+    seen_ids: set[str] = set()
+    for index, adapter in enumerate(adapters):
+        if not isinstance(adapter, dict):
+            raise ContractError(f"external_adapters[{index}] must be an object")
+        adapter_id = adapter.get("id")
+        if not isinstance(adapter_id, str) or not adapter_id:
+            raise ContractError(f"external_adapters[{index}].id must be a string")
+        if adapter_id in seen_ids:
+            raise ContractError(f"duplicate external adapter id: {adapter_id}")
+        seen_ids.add(adapter_id)
+        if adapter.get("authority") != "explicit-adapter":
+            raise ContractError(
+                f"external_adapters[{index}].authority must be explicit-adapter"
+            )
+        lock_path = _relative_path(
+            adapter.get("lock"),
+            field=f"external_adapters[{index}].lock",
+        )
+        lock_on_disk = root / lock_path
+        if not lock_on_disk.is_file():
+            yield Finding(
+                "EXTERNAL_LOCK_MISSING",
+                lock_path.as_posix(),
+                f"external adapter lock is missing ({adapter_id})",
+            )
+            continue
+        try:
+            lock = _load_json(lock_on_disk)
+        except ContractError as exc:
+            yield Finding(
+                "EXTERNAL_LOCK_INVALID",
+                lock_path.as_posix(),
+                str(exc),
+            )
+            continue
+        license_id = lock.get("license")
+        sources = lock.get("source_repositories")
+        install = lock.get("install")
+        authority = lock.get("project_write_authority")
+        metadata_valid = (
+            isinstance(license_id, str)
+            and bool(license_id)
+            and isinstance(sources, list)
+            and bool(sources)
+            and all(
+                isinstance(source, dict)
+                and isinstance(source.get("url"), str)
+                and bool(source["url"])
+                and isinstance(source.get("commit"), str)
+                and bool(source["commit"])
+                for source in sources
+            )
+            and isinstance(install, dict)
+            and install.get("scope") == "global"
+            and isinstance(authority, list)
+        )
+        if not metadata_valid:
+            yield Finding(
+                "EXTERNAL_LOCK_INVALID",
+                lock_path.as_posix(),
+                "lock must declare license, pinned sources, global install, and authority",
+            )
+            continue
+        if authority:
+            yield Finding(
+                "EXTERNAL_AUTHORITY_LEAK",
+                lock_path.as_posix(),
+                "external adapter must have empty project_write_authority",
+            )
+
+
 def _opaque_findings(root: Path, contract: dict[str, Any]) -> Iterable[Finding]:
     values = _list_of_strings(
         contract.get("opaque_subtrees", []),
@@ -610,6 +688,7 @@ def validate_repository(
             *_navigation_findings(resolved_root, contract),
             *_delivery_findings(resolved_root, contract),
             *_executable_findings(resolved_root, contract),
+            *_external_adapter_findings(resolved_root, contract),
             *_opaque_findings(resolved_root, contract),
         ]
         baseline_path, baseline = (
