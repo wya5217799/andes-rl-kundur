@@ -1,0 +1,97 @@
+{
+  "version": 1,
+  "baseline": "docs/repo-hygiene/baseline.json",
+  "root": {
+    "allowed": [
+      ".gitignore",
+      ".github",
+      "AGENTS.md",
+      "CLAUDE.md",
+      "CONTEXT.md",
+      "LICENSE",
+      "MEMORY.md",
+      "README.md",
+      "_legacy",
+      "docs",
+      "external_skills",
+      "memory",
+      "output",
+      "paper",
+      "probes",
+      "pyproject.toml",
+      "results",
+      "scripts",
+      "skills",
+      "src",
+      "tests"
+    ],
+    "allowed_globs": [
+      ".pytest-temp-*"
+    ],
+    "tool_state": [
+      ".claude",
+      ".codesearch.db",
+      ".git",
+      ".mypy_cache",
+      ".pytest_cache",
+      ".ruff_cache",
+      ".understand-anything",
+      "tmp"
+    ]
+  },
+  "artifacts": [
+    {
+      "id": "icems2026-release-pdf",
+      "canonical": "paper/icems2026/main.pdf",
+      "derived": [
+        "output/pdf/icems2026_full_paper.pdf"
+      ],
+      "relation": "byte-identical"
+    }
+  ],
+  "navigation": [
+    {
+      "adapter": "AGENTS.md",
+      "must_reference": [
+        "memory/RESEARCH_PROGRAM.md",
+        "memory/STATE.md",
+        "CLAUDE.md"
+      ]
+    },
+    {
+      "adapter": "CLAUDE.md",
+      "must_reference": [
+        "skills/kundur-round/SKILL.md",
+        "docs/agents/issue-tracker.md",
+        "docs/agents/domain.md"
+      ]
+    },
+    {
+      "adapter": "README.md",
+      "must_reference": [
+        "memory/STATE.md"
+      ]
+    },
+    {
+      "adapter": "MEMORY.md",
+      "must_reference": [
+        "memory/STATE.md"
+      ]
+    },
+    {
+      "adapter": "skills/kundur-round/SKILL.md",
+      "must_reference": [
+        "CLAUDE.md",
+        "paper/sci_upgrade_survey/LINE.md"
+      ]
+    }
+  ],
+  "opaque_subtrees": [
+    ".claude",
+    ".codesearch.db",
+    ".understand-anything",
+    "_legacy",
+    "external_skills",
+    "results"
+  ]
+}

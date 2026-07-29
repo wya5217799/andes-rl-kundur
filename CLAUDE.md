@@ -53,6 +53,23 @@
 3. 老上下文: `python memory/tools/note_query.py --topic <t> [--grep <kw>]`.
 4. `CONTEXT.md` — glossary + 架构决策索引; ADR 本体在 `docs/adr/`.
 
+## Agent skills
+
+### Issue tracker
+
+Engineering specs and tickets live in GitHub Issues. See
+`docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Agent-facing issue states use the repository's five canonical labels. See
+`docs/agents/triage-labels.md`.
+
+### Domain docs
+
+This is a single-context repository: domain language lives in `CONTEXT.md`
+and architecture decisions live in `docs/adr/`. See `docs/agents/domain.md`.
+
 ## 记忆系统 (R39+)
 
 四种 schema 实体 + handoff 草稿. STATE.md 只读 claims/questions/rounds;

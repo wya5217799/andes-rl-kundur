@@ -11,6 +11,16 @@ set -eu
 
 REPO_ROOT="$(git rev-parse --show-toplevel)"
 
+# Repository-wide structure and artifact policy. The command is dependency-free
+# and uses the same public seam as CI.
+python "$REPO_ROOT/scripts/repo_health.py" check >/dev/null 2>&1 || {
+    echo "PRE-COMMIT: repository governance reports active findings:" >&2
+    python "$REPO_ROOT/scripts/repo_health.py" check >&2
+    echo "" >&2
+    echo "Fix new findings; checked-in baseline debt remains non-blocking." >&2
+    exit 2
+}
+
 # Existing check
 python "$REPO_ROOT/scripts/githooks/check_ranker_version_bump.py"
 
