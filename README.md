@@ -60,7 +60,8 @@ the pip install step.
 
 # Single-checkpoint DDIC evaluation
 /home/<user>/andes_venv/bin/python scripts/andes_scratch.py scripts/eval_ddic.py \
-    --ckpt-dir results/v4_lstm_s49 --suffix best --label r21
+    --ckpt-dir results/v4_lstm_s49 --suffix best --label r21 \
+    --out-dir results/eval_ddic_r21
 
 # 11-axis paper-grade ranking
 /home/<user>/andes_venv/bin/python scripts/score_run.py \
@@ -70,7 +71,7 @@ the pip install step.
 /home/<user>/andes_venv/bin/python scripts/andes_scratch.py scripts/eval_ensemble.py \
     --ckpt-dirs results/v4_lstm_s49 results/v4_lstm_s54 \
     --suffixes best best --weights 0.98 0.02 --agg weighted \
-    --label hawe_w9802
+    --label hawe_w9802 --out-dir results/eval_hawe_w9802
 ```
 
 ### Memory subsystem

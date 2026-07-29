@@ -33,12 +33,15 @@ thin.
 
 ## Enforcement
 
-`python scripts/repo_health.py check` discovers top-level script entrypoints and
-requires each to match a lifecycle classifier. A newly added, unclassified
-entrypoint is an error. An `active` entrypoint owned by a completed round is
-reported as an archive candidate.
+`python scripts/repo_health.py check` discovers maintained scripts, research
+probes, round-local runners, and registered figure builders. Each must match a
+lifecycle classifier. A newly added, unclassified entrypoint is an error. An
+`active` entrypoint owned by a completed round is reported as an archive
+candidate. Figure adapters also declare evidence paths; the validator checks
+that the evidence exists and that the builder source references it.
 
 Maintained ANDES entrypoints are launched through
-`python scripts/andes_scratch.py <entrypoint> ...`. The adapter changes only the
-child working directory, preserving ANDES scratch files under `tmp/andes/`
-without changing environment, controller, or evaluation semantics.
+`python scripts/andes_scratch.py <entrypoint> ...`. The adapter changes the
+child working directory, preserving ANDES scratch files under `tmp/andes/`.
+Known input/output path flags are anchored to the repository before launch, so
+relative checkpoint and result paths retain their direct-entrypoint semantics.

@@ -81,3 +81,9 @@ target-version = ["py310"]
 
 [tool.mypy]
 cache_dir = "tmp/cache/mypy"
+files = [
+    "src/andes_rl_kundur/repo_governance.py",
+    "scripts/repo_health.py",
+    "scripts/andes_scratch.py",
+]
+follow_imports = "skip"

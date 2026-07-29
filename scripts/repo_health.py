@@ -58,6 +58,9 @@ def _parser() -> argparse.ArgumentParser:
 
 
 def _text_report(report: ValidationReport) -> str:
+    def ascii_safe(value: str) -> str:
+        return value.encode("ascii", errors="backslashreplace").decode("ascii")
+
     lines: list[str] = []
     findings = report.findings
     for finding in findings:
@@ -68,8 +71,8 @@ def _text_report(report: ValidationReport) -> str:
         else:
             status = "ERROR"
         lines.append(
-            f"{status} {finding.rule_id} {finding.path} :: "
-            f"{finding.message} [{finding.fingerprint}]"
+            f"{status} {finding.rule_id} {ascii_safe(finding.path)} :: "
+            f"{ascii_safe(finding.message)} [{finding.fingerprint}]"
         )
     baselined_count = sum(item.baselined for item in findings)
     prefix = "OK" if report.exit_code == 0 else "FAIL"

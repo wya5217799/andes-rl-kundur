@@ -76,6 +76,9 @@ External skills are explicit-only adapters and have no authority over project
 rounds, claims, gates, or ledgers. See
 `docs/repo-hygiene/external-skills.md`.
 
+Repository-governance type-check scope and the time-bounded legacy exception
+are recorded in `docs/repo-hygiene/type-checking.md`.
+
 ## 记忆系统 (R39+)
 
 四种 schema 实体 + handoff 草稿. STATE.md 只读 claims/questions/rounds;

@@ -23,7 +23,15 @@ def _contract(**overrides: object) -> dict[str, object]:
         "version": 1,
         "baseline": "docs/repo-hygiene/baseline.json",
         "root": {
-            "allowed": ["README.md", "docs", "memory", "output", "paper", "scripts"],
+            "allowed": [
+                "README.md",
+                "docs",
+                "memory",
+                "output",
+                "paper",
+                "results",
+                "scripts",
+            ],
             "tool_state": [],
         },
         "artifacts": [],
@@ -258,6 +266,33 @@ def test_delivery_role_paths_must_exist(tmp_path: Path) -> None:
     assert "ERROR DELIVERY_PATH_MISSING paper/main.tex" in result.stdout
 
 
+def test_unregistered_binary_inside_delivery_root_fails(tmp_path: Path) -> None:
+    (tmp_path / "README.md").write_text("# Repo\n", encoding="utf-8")
+    (tmp_path / "paper").mkdir()
+    (tmp_path / "paper" / "main.tex").write_text("", encoding="utf-8")
+    (tmp_path / "paper" / "extra.pdf").write_bytes(b"unregistered")
+    _write_contract(
+        tmp_path,
+        _contract(
+            delivery_binary_extensions=[".pdf", ".png"],
+            delivery_lines=[
+                {
+                    "id": "paper",
+                    "kind": "manuscript",
+                    "status": "active",
+                    "root": "paper",
+                    "roles": {"canonical": ["paper/main.tex"]},
+                }
+            ],
+        ),
+    )
+
+    result = _run(tmp_path)
+
+    assert result.returncode == 1
+    assert "ERROR DELIVERY_BINARY_UNDECLARED paper/extra.pdf" in result.stdout
+
+
 def test_new_executable_must_match_a_lifecycle_classifier(tmp_path: Path) -> None:
     (tmp_path / "README.md").write_text("# Repo\n", encoding="utf-8")
     (tmp_path / "scripts").mkdir()
@@ -302,6 +337,43 @@ def test_lifecycle_classifier_covers_matching_executables(tmp_path: Path) -> Non
     result = _run(tmp_path)
 
     assert result.returncode == 0, result.stdout
+
+
+def test_figure_adapter_must_declare_evidence_that_its_source_references(
+    tmp_path: Path,
+) -> None:
+    (tmp_path / "README.md").write_text("# Repo\n", encoding="utf-8")
+    builder = tmp_path / "paper" / "line" / "build_figures.py"
+    builder.parent.mkdir(parents=True)
+    builder.write_text("print('figure')\n", encoding="utf-8")
+    evidence = tmp_path / "results" / "sealed.json"
+    evidence.parent.mkdir()
+    evidence.write_text("{}\n", encoding="utf-8")
+    _write_contract(
+        tmp_path,
+        _contract(
+            executables={
+                "discover": ["paper/*/build*.py"],
+                "classifiers": [
+                    {
+                        "pattern": "paper/*/build*.py",
+                        "role": "figure-adapter",
+                        "state": "frozen",
+                        "owner": "paper",
+                        "evidence": ["results/sealed.json"],
+                    }
+                ],
+            }
+        ),
+    )
+
+    result = _run(tmp_path)
+
+    assert result.returncode == 1
+    assert (
+        "ERROR EXECUTABLE_EVIDENCE_UNREFERENCED paper/line/build_figures.py"
+        in result.stdout
+    )
 
 
 def test_completed_round_marks_active_executable_as_archive_candidate(
@@ -400,3 +472,21 @@ def test_external_adapter_lock_cannot_grant_project_write_authority(
 
     assert result.returncode == 1
     assert "ERROR EXTERNAL_AUTHORITY_LEAK docs/external.lock.json" in result.stdout
+
+
+def test_text_findings_are_ascii_safe_for_non_ascii_paths(tmp_path: Path) -> None:
+    (tmp_path / "研究").mkdir()
+    _write_contract(tmp_path, _contract())
+
+    result = _run(tmp_path)
+
+    assert result.returncode == 1
+    result.stdout.encode("ascii")
+    assert r"\u7814\u7a76" in result.stdout
+
+
+def test_real_checkout_passes_repository_health_cli() -> None:
+    result = _run(REPO_ROOT)
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "OK: 0 active finding(s), 0 baselined" in result.stdout

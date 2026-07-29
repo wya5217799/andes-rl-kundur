@@ -293,6 +293,15 @@ def _delivery_findings(root: Path, contract: dict[str, Any]) -> Iterable[Finding
         contract.get("delivery_discovery", []),
         field="delivery_discovery",
     )
+    binary_extensions = {
+        extension.casefold()
+        for extension in _list_of_strings(
+            contract.get("delivery_binary_extensions", []),
+            field="delivery_binary_extensions",
+        )
+    }
+    if any(not extension.startswith(".") for extension in binary_extensions):
+        raise ContractError("delivery_binary_extensions values must start with '.'")
     valid_kinds = {
         "external-report",
         "manuscript",
@@ -397,6 +406,30 @@ def _delivery_findings(root: Path, contract: dict[str, Any]) -> Iterable[Finding
                         f"{role} path is missing ({line_id})",
                     )
 
+        line_root_on_disk = root / line_root
+        if line_root_on_disk.is_dir() and binary_extensions:
+            declared_paths = tuple(path_roles)
+            for candidate in sorted(line_root_on_disk.rglob("*")):
+                if not candidate.is_file():
+                    continue
+                if candidate.suffix.casefold() not in binary_extensions:
+                    continue
+                relative = candidate.relative_to(root)
+                covered = any(
+                    relative == declared
+                    or (
+                        (root / declared).is_dir()
+                        and declared in relative.parents
+                    )
+                    for declared in declared_paths
+                )
+                if not covered:
+                    yield Finding(
+                        "DELIVERY_BINARY_UNDECLARED",
+                        relative.as_posix(),
+                        f"binary is not assigned a delivery role ({line_id})",
+                    )
+
     for pattern in discovery:
         for candidate in sorted(root.glob(pattern)):
             if not candidate.is_dir():
@@ -413,6 +446,9 @@ def _delivery_findings(root: Path, contract: dict[str, Any]) -> Iterable[Finding
 def _round_owner(path: Path, owner: str) -> str | None:
     if re.fullmatch(r"R\d+", owner, flags=re.IGNORECASE):
         return owner.upper()
+    if owner == "round-from-path":
+        match = re.search(r"(?:^|/)R(\d+)(?:/|$)", path.as_posix(), flags=re.IGNORECASE)
+        return f"R{match.group(1)}" if match else None
     if owner != "round-from-filename":
         return None
     match = re.search(r"(?:^|[_-])r(\d+)", path.stem, flags=re.IGNORECASE)
@@ -459,7 +495,7 @@ def _executable_findings(root: Path, contract: dict[str, Any]) -> Iterable[Findi
         "training-adapter",
     }
     valid_states = {"active", "archived", "exempt", "frozen", "generated"}
-    parsed_classifiers: list[dict[str, str]] = []
+    parsed_classifiers: list[dict[str, Any]] = []
     for index, classifier in enumerate(classifiers):
         if not isinstance(classifier, dict):
             raise ContractError(f"executables.classifiers[{index}] must be an object")
@@ -485,12 +521,22 @@ def _executable_findings(root: Path, contract: dict[str, Any]) -> Iterable[Findi
             raise ContractError(
                 f"executables.classifiers[{index}].owner must be a string"
             )
+        evidence_paths = _list_of_strings(
+            classifier.get("evidence", []),
+            field=f"executables.classifiers[{index}].evidence",
+        )
+        if role == "figure-adapter" and not evidence_paths:
+            raise ContractError(
+                f"executables.classifiers[{index}].evidence must not be empty "
+                "for a figure-adapter"
+            )
         parsed_classifiers.append(
             {
                 "pattern": pattern,
                 "role": role,
                 "state": state,
                 "owner": owner,
+                "evidence": evidence_paths,
             }
         )
 
@@ -504,7 +550,7 @@ def _executable_findings(root: Path, contract: dict[str, Any]) -> Iterable[Findi
             (
                 item
                 for item in parsed_classifiers
-                if fnmatch.fnmatch(relative_posix, item["pattern"])
+                if fnmatch.fnmatch(relative_posix, str(item["pattern"]))
             ),
             None,
         )
@@ -515,7 +561,38 @@ def _executable_findings(root: Path, contract: dict[str, Any]) -> Iterable[Findi
                 "executable has no lifecycle classifier",
             )
             continue
-        round_id = _round_owner(relative, classifier["owner"])
+        if classifier["role"] == "figure-adapter":
+            try:
+                source = executable.read_text(encoding="utf-8")
+            except UnicodeDecodeError:
+                yield Finding(
+                    "EXECUTABLE_UNREADABLE",
+                    relative_posix,
+                    "executable is not UTF-8 text",
+                )
+                continue
+            for evidence_value in classifier["evidence"]:
+                evidence_path = _relative_path(
+                    evidence_value,
+                    field=f"evidence for {relative_posix}",
+                )
+                if not (root / evidence_path).exists():
+                    yield Finding(
+                        "EXECUTABLE_EVIDENCE_MISSING",
+                        evidence_path.as_posix(),
+                        f"declared evidence for {relative_posix} is missing",
+                    )
+                elif (
+                    evidence_path.as_posix() not in source
+                    and evidence_path.stem not in source
+                ):
+                    yield Finding(
+                        "EXECUTABLE_EVIDENCE_UNREFERENCED",
+                        relative_posix,
+                        f"figure adapter does not reference {evidence_path.as_posix()}",
+                    )
+
+        round_id = _round_owner(relative, str(classifier["owner"]))
         if (
             classifier["state"] == "active"
             and round_id is not None

@@ -14,6 +14,8 @@ Usage:
 Failure modes:
     A missing script exits 2. The child process exit status is propagated.
     Scratch directories are retained for inspection and are never deleted.
+    Known repository input/output path flags keep repository-root-relative
+    semantics even though the child working directory changes.
 """
 
 from __future__ import annotations
@@ -26,6 +28,13 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+_SINGLE_REPOSITORY_PATH_FLAGS = {
+    "--ckpt-dir",
+    "--out-dir",
+    "--resume",
+    "--save-dir",
+}
+_MULTI_REPOSITORY_PATH_FLAGS = {"--ckpt-dirs"}
 
 
 def _parser() -> argparse.ArgumentParser:
@@ -48,6 +57,41 @@ def _run_directory(parent: Path, script: Path) -> Path:
     return run_dir
 
 
+def _repository_path(value: str) -> str:
+    path = Path(value).expanduser()
+    if not path.is_absolute():
+        path = ROOT / path
+    return str(path.resolve())
+
+
+def _anchor_repository_path_arguments(values: list[str]) -> list[str]:
+    """Preserve maintained entrypoints' historical repository-path semantics."""
+
+    anchored: list[str] = []
+    index = 0
+    while index < len(values):
+        value = values[index]
+        name, separator, inline_value = value.partition("=")
+        if separator and name in (
+            _SINGLE_REPOSITORY_PATH_FLAGS | _MULTI_REPOSITORY_PATH_FLAGS
+        ):
+            anchored.append(f"{name}={_repository_path(inline_value)}")
+            index += 1
+            continue
+        anchored.append(value)
+        if value in _SINGLE_REPOSITORY_PATH_FLAGS and index + 1 < len(values):
+            index += 1
+            anchored.append(_repository_path(values[index]))
+        elif value in _MULTI_REPOSITORY_PATH_FLAGS:
+            index += 1
+            while index < len(values) and not values[index].startswith("-"):
+                anchored.append(_repository_path(values[index]))
+                index += 1
+            continue
+        index += 1
+    return anchored
+
+
 def main(argv: list[str] | None = None) -> int:
     args = _parser().parse_args(argv)
     script = args.script if args.script.is_absolute() else ROOT / args.script
@@ -63,7 +107,11 @@ def main(argv: list[str] | None = None) -> int:
     run_dir = _run_directory(scratch_root, script)
     print(f"SCRATCH_DIR={run_dir}", flush=True)
     completed = subprocess.run(
-        [sys.executable, str(script), *args.args],
+        [
+            sys.executable,
+            str(script),
+            *_anchor_repository_path_arguments(args.args),
+        ],
         cwd=run_dir,
         check=False,
     )

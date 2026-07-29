@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import subprocess
 import sys
 from pathlib import Path
@@ -61,3 +62,54 @@ def test_launcher_propagates_child_exit_status(tmp_path: Path) -> None:
     )
 
     assert result.returncode == 7
+
+
+def test_launcher_anchors_repository_path_arguments_before_changing_cwd(
+    tmp_path: Path,
+) -> None:
+    script = tmp_path / "record_args.py"
+    script.write_text(
+        "import json, sys\n"
+        "from pathlib import Path\n"
+        "Path('args.json').write_text(json.dumps(sys.argv[1:]), encoding='utf-8')\n",
+        encoding="utf-8",
+    )
+    scratch_root = tmp_path / "scratch"
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(LAUNCHER),
+            "--scratch-root",
+            str(scratch_root),
+            str(script),
+            "--resume",
+            "results/input",
+            "--save-dir=results/output",
+            "--ckpt-dirs",
+            "results/a",
+            "results/b",
+            "--suffixes",
+            "best",
+            "final",
+        ],
+        capture_output=True,
+        check=False,
+        text=True,
+        encoding="utf-8",
+    )
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    run_dir = next(scratch_root.iterdir())
+    child_args = json.loads((run_dir / "args.json").read_text(encoding="utf-8"))
+    assert child_args == [
+        "--resume",
+        str(REPO_ROOT / "results" / "input"),
+        f"--save-dir={REPO_ROOT / 'results' / 'output'}",
+        "--ckpt-dirs",
+        str(REPO_ROOT / "results" / "a"),
+        str(REPO_ROOT / "results" / "b"),
+        "--suffixes",
+        "best",
+        "final",
+    ]

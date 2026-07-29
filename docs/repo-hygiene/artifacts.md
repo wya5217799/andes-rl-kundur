@@ -22,6 +22,12 @@ Small historical logs that are still cited by current claim provenance live
 under `_legacy/logs/`; this is an archive exception, not an active runtime
 output location.
 
+The contract's `delivery_binary_extensions` list defines the enforced binary
+set. Every matching file under a registered delivery root must be covered by a
+declared role path; a declared directory covers its descendants. Undeclared
+binaries fail repository health even when ignored by Git, preventing local
+build debris from becoming a second delivery source.
+
 When a release PDF is a second physical copy of a manuscript PDF, the artifact
 contract declares a `byte-identical` relationship. Repository health compares
 their SHA-256 content and fails on drift.

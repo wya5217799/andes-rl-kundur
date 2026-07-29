@@ -50,6 +50,22 @@
     "docs/research/external_A报告",
     "lessons"
   ],
+  "delivery_binary_extensions": [
+    ".bin",
+    ".ckpt",
+    ".docx",
+    ".gif",
+    ".gz",
+    ".jpeg",
+    ".jpg",
+    ".pdf",
+    ".png",
+    ".pptx",
+    ".pt",
+    ".pth",
+    ".xlsx",
+    ".zip"
+  ],
   "delivery_lines": [
     {
       "id": "icems2026",
@@ -212,9 +228,77 @@
   "executables": {
     "discover": [
       "scripts/*.py",
-      "scripts/*.sh"
+      "scripts/*.sh",
+      "probes/**/*.py",
+      "probes/**/*.sh",
+      "memory/rounds/R*/**/*.py",
+      "memory/rounds/R*/**/*.sh",
+      "paper/*/build*.py",
+      "paper/*/figures/*.py",
+      "研究计划/proposal/figures/*.py"
     ],
     "classifiers": [
+      {
+        "pattern": "probes/r*.py",
+        "role": "round-probe",
+        "state": "frozen",
+        "owner": "round-from-filename"
+      },
+      {
+        "pattern": "probes/*.py",
+        "role": "round-probe",
+        "state": "frozen",
+        "owner": "legacy-provenance"
+      },
+      {
+        "pattern": "probes/*.sh",
+        "role": "round-runner",
+        "state": "frozen",
+        "owner": "legacy-provenance"
+      },
+      {
+        "pattern": "memory/rounds/R*/*.py",
+        "role": "round-runner",
+        "state": "frozen",
+        "owner": "round-from-path"
+      },
+      {
+        "pattern": "memory/rounds/R*/*.sh",
+        "role": "round-runner",
+        "state": "frozen",
+        "owner": "round-from-path"
+      },
+      {
+        "pattern": "paper/icems2026/build_figures.py",
+        "role": "figure-adapter",
+        "state": "frozen",
+        "owner": "icems2026",
+        "evidence": [
+          "results/r274_prospective_active_power_authority/active_power_authority_summary.json",
+          "results/r275_fast_md_authority/fast_md_authority_summary.json",
+          "results/r277_learning_gap_oracle/learning_gap_oracle_summary.json",
+          "results/r279_fresh_bank/formal_bank.json",
+          "results/r279_formal_evaluation/formal_summary.json",
+          "results/r279_formal_evaluation/traces",
+          "results/r280_r279_action_audit_correction/correction_summary.json"
+        ]
+      },
+      {
+        "pattern": "研究计划/proposal/figures/make_progression.py",
+        "role": "figure-adapter",
+        "state": "frozen",
+        "owner": "research-proposal",
+        "evidence": [
+          "memory/claims/CLM-0123.md",
+          "memory/claims/CLM-0131.md",
+          "memory/claims/CLM-0149.md",
+          "memory/claims/CLM-0186.md",
+          "memory/claims/CLM-0250.md",
+          "memory/claims/CLM-0254.md",
+          "memory/claims/CLM-0295.md",
+          "memory/claims/CLM-0425.md"
+        ]
+      },
       {
         "pattern": "scripts/repo_health.py",
         "role": "maintenance",
@@ -382,7 +466,8 @@
         "docs/agents/issue-tracker.md",
         "docs/agents/domain.md",
         "docs/repo-hygiene/executables.md",
-        "docs/repo-hygiene/external-skills.md"
+        "docs/repo-hygiene/external-skills.md",
+        "docs/repo-hygiene/type-checking.md"
       ]
     },
     {

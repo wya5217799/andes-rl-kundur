@@ -60,7 +60,7 @@ def main() -> None:
     })
     fig, ax = plt.subplots(figsize=(8.0, 4.7))
 
-    # plateau band (91-trial structural plateau, README / CLM-0148/0149)
+    # plateau band (91-trial structural plateau, README / CLM-0149)
     ax.axhspan(0.38, 0.43, color="#1565c0", alpha=0.07, zorder=0)
     ax.text(200, 0.396, "RL plateau band (91 trials)", fontsize=7.5,
             color="#1565c0", ha="center", va="center", style="italic")
