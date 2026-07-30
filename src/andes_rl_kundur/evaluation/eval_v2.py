@@ -53,6 +53,14 @@ PRIMARY_METRICS = (
     "normalized_sync_loss_hz2",
     "fast_inter_area_iae_hz_s",
 )
+STORAGE_VECTOR_FIELDS = (
+    "bess_actual_power_system_pu",
+    "bess_commanded_power_system_pu",
+    "bess_requested_power_system_pu",
+    "bess_soc",
+    "bess_charge_energy_mwh_total",
+    "bess_discharge_energy_mwh_total",
+)
 CONTROLLER_PATTERN = re.compile(r"^(centralized|shared)_s(\d+)$")
 
 
@@ -99,6 +107,13 @@ def _load_record(path: Path) -> dict[str, Any]:
         raise EvaluationContractError(
             f"{path.name}: metric_frequency_basis must be andes_physical_hz"
         )
+    if not np.isclose(
+        float(record.get("andes_nominal_frequency_hz", math.nan)),
+        60.0,
+        rtol=0.0,
+        atol=1e-12,
+    ):
+        raise EvaluationContractError(f"{path.name}: andes_nominal_frequency_hz must be 60")
     return record
 
 
@@ -110,6 +125,10 @@ def _trace_arrays(record: Mapping[str, Any]) -> tuple[np.ndarray, np.ndarray, fl
             [row["delta_f_physical_hz"] for row in rows],
             dtype=float,
         )
+        absolute_frequency = np.asarray(
+            [row["freq_hz_physical"] for row in rows],
+            dtype=float,
+        )
     except (KeyError, TypeError, ValueError) as exc:
         raise EvaluationContractError(
             f"{record['scenario']}/{record['controller']}: malformed physical trace"
@@ -118,6 +137,21 @@ def _trace_arrays(record: Mapping[str, Any]) -> tuple[np.ndarray, np.ndarray, fl
         raise EvaluationContractError(
             f"{record['scenario']}/{record['controller']}: "
             "delta_f_physical_hz must have shape [time, 4]"
+        )
+    if absolute_frequency.shape != frequency.shape or not np.all(np.isfinite(absolute_frequency)):
+        raise EvaluationContractError(
+            f"{record['scenario']}/{record['controller']}: "
+            "freq_hz_physical must have shape [time, 4]"
+        )
+    if not np.allclose(
+        absolute_frequency - 60.0,
+        frequency,
+        rtol=0.0,
+        atol=1e-9,
+    ):
+        raise EvaluationContractError(
+            f"{record['scenario']}/{record['controller']}: "
+            "60-Hz absolute and deviation frequency traces disagree"
         )
     if not np.all(np.isfinite(time)) or not np.all(np.isfinite(frequency)):
         raise EvaluationContractError("trace time and frequency must be finite")
@@ -293,6 +327,17 @@ def _action_and_storage(
         "constraint_violation_count": int(constraint_count),
         "saturation_reason_count": int(saturation_count),
     }
+    for key in STORAGE_VECTOR_FIELDS:
+        if _as_array(rows, key, columns=AGENT_COUNT) is None:
+            violations.append(f"missing_or_invalid_{key}")
+    if not all(isinstance(row.get("bess_constraint_violations"), list) for row in rows):
+        violations.append("missing_or_invalid_bess_constraint_violations")
+    if not all(
+        isinstance(row.get("bess_saturation_reasons"), list)
+        and len(row["bess_saturation_reasons"]) == AGENT_COUNT
+        for row in rows
+    ):
+        violations.append("missing_or_invalid_bess_saturation_reasons")
     for source_key, output_key, reducer in (
         ("bess_actual_power_system_pu", "max_abs_actual_power_system_pu", "max_abs"),
         (
@@ -345,7 +390,7 @@ def _verify_sidecars(
             mismatched.append(path.name)
     if provided == 0:
         status = "not_provided"
-        passed = True
+        passed = False
     elif missing or mismatched:
         status = "failed"
         passed = False
@@ -546,6 +591,34 @@ def evaluate_trace_directory(
             f"incomplete paired matrix; missing {len(missing_pairs)} pairs: "
             + ", ".join(missing_pairs[:5])
         )
+    for scenario in scenarios:
+        _, baseline_record = keyed[(baseline, scenario)]
+        baseline_time, _, _ = _trace_arrays(baseline_record)
+        baseline_active_steps = _active_steps(
+            baseline_record,
+            len(baseline_record["traces"]),
+        )
+        for controller in controllers:
+            _, candidate_record = keyed[(controller, scenario)]
+            candidate_time, _, _ = _trace_arrays(candidate_record)
+            candidate_active_steps = _active_steps(
+                candidate_record,
+                len(candidate_record["traces"]),
+            )
+            if (
+                candidate_time.shape != baseline_time.shape
+                or not np.allclose(
+                    candidate_time,
+                    baseline_time,
+                    rtol=0.0,
+                    atol=1e-12,
+                )
+                or candidate_active_steps != baseline_active_steps
+            ):
+                raise EvaluationContractError(
+                    f"{scenario}/{controller}: paired time grid or active window "
+                    f"does not match {baseline}"
+                )
 
     metric_rows: dict[str, dict[str, dict[str, float]]] = defaultdict(dict)
     legacy_rows: dict[str, dict[str, dict[str, float]]] = defaultdict(dict)
@@ -582,7 +655,12 @@ def evaluate_trace_directory(
             value = record.get(key)
             if value:
                 provenance_values[key].add(str(value))
-    provenance_pass = all(len(values) <= 1 for values in provenance_values.values())
+    provenance_present = all(
+        bool(record.get(key)) for _, record in records for key in provenance_values
+    )
+    provenance_pass = provenance_present and all(
+        len(values) == 1 for values in provenance_values.values()
+    )
     sidecars = _verify_sidecars(trace_paths, trace_hashes)
     overall_pass = not action_violations and provenance_pass and sidecars["pass"]
 

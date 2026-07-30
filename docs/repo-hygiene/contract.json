@@ -324,6 +324,12 @@
         "owner": "paper-grade-evaluation"
       },
       {
+        "pattern": "scripts/eval_v2.py",
+        "role": "evaluation-adapter",
+        "state": "active",
+        "owner": "objective-controller-evaluation"
+      },
+      {
         "pattern": "scripts/eval_ddic.py",
         "role": "evaluation-adapter",
         "state": "active",

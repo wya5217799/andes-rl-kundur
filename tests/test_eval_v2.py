@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import hashlib
 import json
+import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -12,6 +14,8 @@ from andes_rl_kundur.evaluation.eval_v2 import (
     main,
     render_markdown,
 )
+
+ROOT = Path(__file__).resolve().parents[1]
 
 
 def _write_trace(
@@ -36,6 +40,12 @@ def _write_trace(
                     amplitude,
                     -amplitude,
                     -amplitude,
+                ],
+                "freq_hz_physical": [
+                    60.0 + amplitude,
+                    60.0 + amplitude,
+                    60.0 - amplitude,
+                    60.0 - amplitude,
                 ],
                 "r278_q": q_value,
                 "r278_raw_z": [q_value, q_value, -q_value, -q_value],
@@ -65,6 +75,7 @@ def _write_trace(
         "n_steps": len(traces),
         "requested_steps": len(traces),
         "metric_frequency_basis": "andes_physical_hz",
+        "andes_nominal_frequency_hz": 60.0,
         "formal_bank_sha256": "bank-hash",
         "formal_seal_sha256": "seal-hash",
         "controller_config": {
@@ -77,6 +88,17 @@ def _write_trace(
         "traces": traces,
     }
     path = root / f"{scenario}__{controller}.json"
+    data = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()
+    path.write_bytes(data)
+    path.with_suffix(".json.sha256").write_text(
+        f"{hashlib.sha256(data).hexdigest()}  {path.name}\n",
+        encoding="utf-8",
+    )
+
+
+def _rewrite_trace(path: Path, mutate: object) -> None:
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    mutate(payload)  # type: ignore[operator]
     data = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()
     path.write_bytes(data)
     path.with_suffix(".json.sha256").write_text(
@@ -188,6 +210,77 @@ def test_eval_v2_keeps_action_validity_as_a_hard_gate(tmp_path: Path) -> None:
     assert "diagnostic_only" in scorecard["validity"]["interpretation"]
 
 
+def test_eval_v2_requires_provenance_and_input_hash_sidecars(tmp_path: Path) -> None:
+    traces = tmp_path / "traces"
+    _write_paired_fixture(traces)
+    for path in traces.glob("*.json"):
+        _rewrite_trace(
+            path,
+            lambda payload: (
+                payload.pop("formal_bank_sha256"),
+                payload.pop("formal_seal_sha256"),
+            ),
+        )
+        path.with_suffix(".json.sha256").unlink()
+
+    scorecard = evaluate_trace_directory(traces, bootstrap_resamples=100)
+
+    assert scorecard["validity"]["overall_pass"] is False
+    assert scorecard["validity"]["provenance_consistent"] is False
+    assert scorecard["validity"]["sidecar_sha256"]["pass"] is False
+
+
+def test_eval_v2_rejects_missing_storage_execution_telemetry(tmp_path: Path) -> None:
+    traces = tmp_path / "traces"
+    _write_paired_fixture(traces)
+    path = traces / "s1__centralized_s17.json"
+
+    def remove_storage(payload: dict[str, object]) -> None:
+        for row in payload["traces"]:  # type: ignore[index]
+            row.pop("bess_actual_power_system_pu")
+
+    _rewrite_trace(path, remove_storage)
+
+    scorecard = evaluate_trace_directory(traces, bootstrap_resamples=100)
+
+    assert scorecard["validity"]["overall_pass"] is False
+    assert (
+        scorecard["validity"]["action_contract"]["failed_check_counts"][
+            "missing_or_invalid_bess_actual_power_system_pu"
+        ]
+        == 1
+    )
+
+
+def test_eval_v2_rejects_mismatched_paired_time_grids(tmp_path: Path) -> None:
+    traces = tmp_path / "traces"
+    _write_paired_fixture(traces)
+    path = traces / "s1__centralized_s17.json"
+
+    def stretch_time(payload: dict[str, object]) -> None:
+        for index, row in enumerate(payload["traces"]):  # type: ignore[index]
+            row["t"] = float(index * 2)
+
+    _rewrite_trace(path, stretch_time)
+
+    with pytest.raises(EvaluationContractError, match="time grid"):
+        evaluate_trace_directory(traces, bootstrap_resamples=100)
+
+
+def test_eval_v2_rejects_mislabeled_60_hz_trace(tmp_path: Path) -> None:
+    traces = tmp_path / "traces"
+    _write_paired_fixture(traces)
+    path = traces / "s1__q0.json"
+
+    def corrupt_absolute_frequency(payload: dict[str, object]) -> None:
+        payload["traces"][0]["freq_hz_physical"][0] += 1.0  # type: ignore[index]
+
+    _rewrite_trace(path, corrupt_absolute_frequency)
+
+    with pytest.raises(EvaluationContractError, match="60-Hz"):
+        evaluate_trace_directory(traces, bootstrap_resamples=100)
+
+
 def test_eval_v2_cli_writes_auditable_json_markdown_and_hashes(
     tmp_path: Path,
 ) -> None:
@@ -217,6 +310,19 @@ def test_eval_v2_cli_writes_auditable_json_markdown_and_hashes(
     persisted = json.loads(json_path.read_text(encoding="utf-8"))
     assert persisted["source"]["trace_count"] == 4
     assert "# EVAL-v2 objective scorecard" in markdown_path.read_text(encoding="utf-8")
+
+
+def test_eval_v2_thin_script_is_runnable_from_repo_root() -> None:
+    result = subprocess.run(
+        [sys.executable, "scripts/eval_v2.py", "--help"],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stderr
+    assert "EVAL-v2" in result.stdout
 
 
 def test_eval_v2_markdown_leads_with_invalidity(tmp_path: Path) -> None:
