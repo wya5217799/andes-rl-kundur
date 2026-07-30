@@ -593,11 +593,20 @@ def evaluate_trace_directory(
         )
     for scenario in scenarios:
         _, baseline_record = keyed[(baseline, scenario)]
-        baseline_time, _, _ = _trace_arrays(baseline_record)
+        baseline_time, _, baseline_dt = _trace_arrays(baseline_record)
         baseline_active_steps = _active_steps(
             baseline_record,
             len(baseline_record["traces"]),
         )
+        if not np.isclose(
+            baseline_active_steps * baseline_dt,
+            3.0,
+            rtol=0.0,
+            atol=1e-9,
+        ):
+            raise EvaluationContractError(
+                f"{scenario}/{baseline}: active window must be exactly 3 seconds"
+            )
         for controller in controllers:
             _, candidate_record = keyed[(controller, scenario)]
             candidate_time, _, _ = _trace_arrays(candidate_record)

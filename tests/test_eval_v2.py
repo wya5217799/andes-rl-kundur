@@ -267,6 +267,23 @@ def test_eval_v2_rejects_mismatched_paired_time_grids(tmp_path: Path) -> None:
         evaluate_trace_directory(traces, bootstrap_resamples=100)
 
 
+def test_eval_v2_requires_the_named_active_window_to_equal_three_seconds(
+    tmp_path: Path,
+) -> None:
+    traces = tmp_path / "traces"
+    _write_paired_fixture(traces)
+
+    def shorten_grid(payload: dict[str, object]) -> None:
+        for index, row in enumerate(payload["traces"]):  # type: ignore[index]
+            row["t"] = float(index * 0.5)
+
+    for path in traces.glob("*.json"):
+        _rewrite_trace(path, shorten_grid)
+
+    with pytest.raises(EvaluationContractError, match="exactly 3 seconds"):
+        evaluate_trace_directory(traces, bootstrap_resamples=100)
+
+
 def test_eval_v2_rejects_mislabeled_60_hz_trace(tmp_path: Path) -> None:
     traces = tmp_path / "traces"
     _write_paired_fixture(traces)
