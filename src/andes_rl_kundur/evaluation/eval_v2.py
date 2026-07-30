@@ -56,6 +56,7 @@ DEFAULT_ACTIVE_STEPS = 15
 DEFAULT_FINAL_WINDOW_STEPS = 50
 RAW_SATURATION_THRESHOLD = 0.9
 NEAR_ZERO_Q_FRACTION_OF_LIMIT = 0.1
+Q_BOUNDARY_FRACTION_OF_LIMIT = 0.9
 AREA_PATTERN = np.asarray([1.0, 1.0, -1.0, -1.0])
 
 
@@ -379,7 +380,7 @@ def _action_and_storage(
                 "q_total_variation": float(np.sum(np.abs(boundary))),
                 "active_q_l1_s": float(np.sum(np.abs(q[:active_steps])) * dt),
                 "q_boundary_residence_fraction": float(
-                    np.mean(np.abs(q[:active_steps]) >= RAW_SATURATION_THRESHOLD * abs(q_max))
+                    np.mean(np.abs(q[:active_steps]) >= Q_BOUNDARY_FRACTION_OF_LIMIT * abs(q_max))
                 ),
                 "post_window_max_abs_q": float(
                     np.max(np.abs(q[active_steps:])) if len(q) > active_steps else 0.0
@@ -695,14 +696,24 @@ def _scenario_metadata(
             missing = [
                 controller
                 for controller, record in zip(controllers, records, strict=True)
-                if field not in record or not str(record[field]).strip()
+                if field not in record
             ]
             if missing:
                 raise EvaluationContractError(
                     f"{scenario}: paired traces missing scenario metadata {field}: "
                     + ", ".join(missing)
                 )
-            values = {str(record[field]) for record in records}
+            invalid = [
+                controller
+                for controller, record in zip(controllers, records, strict=True)
+                if not isinstance(record[field], str) or not record[field].strip()
+            ]
+            if invalid:
+                raise EvaluationContractError(
+                    f"{scenario}: paired traces contain invalid scenario metadata {field}: "
+                    + ", ".join(invalid)
+                )
+            values = {str(record[field]).strip() for record in records}
             if len(values) > 1:
                 raise EvaluationContractError(
                     f"{scenario}: paired traces disagree on scenario metadata {field}"
@@ -1129,6 +1140,7 @@ def evaluate_trace_directory(
                 "scope": "active_window",
                 "same_sign_saturation_abs_raw_threshold": RAW_SATURATION_THRESHOLD,
                 "near_zero_executed_q_fraction_of_limit": (NEAR_ZERO_Q_FRACTION_OF_LIMIT),
+                "q_boundary_abs_fraction_of_limit": Q_BOUNDARY_FRACTION_OF_LIMIT,
             },
             "no_composite_score_or_rank": True,
         },

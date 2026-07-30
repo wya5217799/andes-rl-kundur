@@ -320,6 +320,7 @@ def test_eval_v2_exposes_projection_nullspace_and_cancellation_diagnostics(
         "scope": "active_window",
         "same_sign_saturation_abs_raw_threshold": 0.9,
         "near_zero_executed_q_fraction_of_limit": 0.1,
+        "q_boundary_abs_fraction_of_limit": 0.9,
     }
 
 
@@ -576,6 +577,24 @@ def test_eval_v2_rejects_missing_paired_scenario_metadata(tmp_path: Path) -> Non
     _rewrite_trace(path, remove_sign)
 
     with pytest.raises(EvaluationContractError, match="missing scenario metadata sign"):
+        evaluate_trace_directory(traces, bootstrap_resamples=100)
+
+
+@pytest.mark.parametrize("malformed_sign", [None, [], {"direction": "positive"}])
+def test_eval_v2_rejects_malformed_paired_scenario_metadata(
+    tmp_path: Path,
+    malformed_sign: object,
+) -> None:
+    traces = tmp_path / "traces"
+    _write_paired_fixture(traces)
+    path = traces / "s1__centralized_s17.json"
+
+    def corrupt_sign(payload: dict[str, object]) -> None:
+        payload["sign"] = malformed_sign
+
+    _rewrite_trace(path, corrupt_sign)
+
+    with pytest.raises(EvaluationContractError, match="invalid scenario metadata sign"):
         evaluate_trace_directory(traces, bootstrap_resamples=100)
 
 
