@@ -9,6 +9,21 @@ mixed together:
 
 The module never produces a composite score or winner rank.  Its output is a
 diagnostic scorecard, not a replacement for a prospectively sealed round.
+
+Library usage::
+
+    scorecard = evaluate_trace_directory("results/.../traces")
+    write_scorecard(scorecard, "tmp/eval-v2", overwrite=True)
+
+CLI usage::
+
+    python scripts/eval_v2.py --trace-dir results/.../traces \
+        --output-dir tmp/eval-v2 --overwrite
+
+Malformed or incomplete paired inputs raise :class:`EvaluationContractError`.
+Per-trace execution violations remain in the scorecard and set
+``validity.diagnostic_pass`` false; formal paper-evidence eligibility always
+remains external to this module.
 """
 
 from __future__ import annotations
@@ -20,6 +35,7 @@ import math
 import re
 from collections import Counter, defaultdict
 from collections.abc import Mapping, Sequence
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
@@ -41,22 +57,30 @@ DEFAULT_FINAL_WINDOW_STEPS = 50
 RAW_SATURATION_THRESHOLD = 0.9
 NEAR_ZERO_Q_FRACTION_OF_LIMIT = 0.1
 AREA_PATTERN = np.asarray([1.0, 1.0, -1.0, -1.0])
-PERFORMANCE_METRICS = (
-    "normalized_sync_loss_hz2",
-    "fast_inter_area_iae_hz_s",
-    "first_3s_common_iae_hz_s",
-    "full_inter_area_iae_hz_s",
-    "vsg_mean_iae_hz_s",
-    "final_window_common_abs_mean_hz",
-    "worst_bus_peak_abs_hz",
-    "max_abs_rocof_hz_s",
-    "secondary_3_to_10s_common_peak_abs_hz",
-    "secondary_3_to_10s_inter_area_rms_hz",
+
+
+@dataclass(frozen=True)
+class MetricSpec:
+    """One physical endpoint and its predeclared reporting role."""
+
+    name: str
+    role: str
+
+
+METRIC_SPECS = (
+    MetricSpec("normalized_sync_loss_hz2", "registered_co_primary"),
+    MetricSpec("fast_inter_area_iae_hz_s", "registered_co_primary"),
+    MetricSpec("first_3s_common_iae_hz_s", "exploratory_physical"),
+    MetricSpec("full_inter_area_iae_hz_s", "exploratory_physical"),
+    MetricSpec("vsg_mean_iae_hz_s", "exploratory_physical"),
+    MetricSpec("final_window_common_abs_mean_hz", "exploratory_physical"),
+    MetricSpec("worst_bus_peak_abs_hz", "exploratory_physical"),
+    MetricSpec("max_abs_rocof_hz_s", "exploratory_physical"),
+    MetricSpec("secondary_3_to_10s_common_peak_abs_hz", "exploratory_physical"),
+    MetricSpec("secondary_3_to_10s_inter_area_rms_hz", "exploratory_physical"),
 )
-PRIMARY_METRICS = (
-    "normalized_sync_loss_hz2",
-    "fast_inter_area_iae_hz_s",
-)
+PERFORMANCE_METRICS = tuple(spec.name for spec in METRIC_SPECS)
+PRIMARY_METRICS = tuple(spec.name for spec in METRIC_SPECS if spec.role == "registered_co_primary")
 STORAGE_VECTOR_FIELDS = (
     "bess_actual_power_system_pu",
     "bess_commanded_power_system_pu",
@@ -69,6 +93,7 @@ SCENARIO_METADATA_FIELDS = ("location", "sign", "severity")
 STRATIFIED_ACTION_METRICS = (
     "active_q_l1_s",
     "q_total_variation",
+    "q_boundary_residence_fraction",
     "executed_q_abs_mean_normalized",
     "raw_vote_abs_mean",
     "raw_area_contrast_abs_mean",
@@ -353,6 +378,9 @@ def _action_and_storage(
                 "max_abs_q_slew_per_step": float(np.max(np.abs(boundary))),
                 "q_total_variation": float(np.sum(np.abs(boundary))),
                 "active_q_l1_s": float(np.sum(np.abs(q[:active_steps])) * dt),
+                "q_boundary_residence_fraction": float(
+                    np.mean(np.abs(q[:active_steps]) >= RAW_SATURATION_THRESHOLD * abs(q_max))
+                ),
                 "post_window_max_abs_q": float(
                     np.max(np.abs(q[active_steps:])) if len(q) > active_steps else 0.0
                 ),
@@ -401,8 +429,7 @@ def _action_and_storage(
             action["raw_projection_max_abs_error"] = float(
                 np.max(np.abs(q[:active_steps] - reconstructed_q))
             )
-            projection_tolerance = max(q_magnitude_tolerance, q_slew_tolerance)
-            if action["raw_projection_max_abs_error"] > projection_tolerance:
+            if action["raw_projection_max_abs_error"] > q_magnitude_tolerance:
                 violations.append("raw_projection_mismatch")
 
     action_norm = _as_array(rows, "action_norm")
@@ -665,14 +692,22 @@ def _scenario_metadata(
         row: dict[str, str] = {}
         for field in SCENARIO_METADATA_FIELDS:
             records = [keyed[(controller, scenario)][1] for controller in controllers]
-            present = [record[field] for record in records if field in record]
-            values = {str(value) for value in present}
+            missing = [
+                controller
+                for controller, record in zip(controllers, records, strict=True)
+                if field not in record or not str(record[field]).strip()
+            ]
+            if missing:
+                raise EvaluationContractError(
+                    f"{scenario}: paired traces missing scenario metadata {field}: "
+                    + ", ".join(missing)
+                )
+            values = {str(record[field]) for record in records}
             if len(values) > 1:
                 raise EvaluationContractError(
                     f"{scenario}: paired traces disagree on scenario metadata {field}"
                 )
-            if len(present) == len(records) and values:
-                row[field] = next(iter(values))
+            row[field] = next(iter(values))
         result[scenario] = row
     return result
 
@@ -753,6 +788,29 @@ def _stratified_family_effects(
                             for scenario in group_scenarios
                         ]
                     right_mean = float(np.mean(right_values))
+                    scenario_effects = [
+                        {
+                            "scenario": scenario,
+                            "ratio_of_means_percent": (
+                                100.0 * (left_value / right_value - 1.0)
+                                if right_value > 0.0
+                                else None
+                            ),
+                        }
+                        for scenario, left_value, right_value in zip(
+                            group_scenarios,
+                            left_values,
+                            right_values,
+                            strict=True,
+                        )
+                    ]
+                    finite_effects = [
+                        row for row in scenario_effects if row["ratio_of_means_percent"] is not None
+                    ]
+                    finite_effects.sort(
+                        key=lambda row: float(row["ratio_of_means_percent"]),
+                        reverse=True,
+                    )
                     metrics[metric] = {
                         "ratio_of_means_percent": (
                             100.0 * (float(np.mean(left_values)) / right_mean - 1.0)
@@ -770,6 +828,7 @@ def _stratified_family_effects(
                             )
                         ),
                         "scenario_count": len(group_scenarios),
+                        "worst_2": finite_effects[:2],
                         "lower_is_better": True,
                     }
                 group_result["comparisons"][name] = {
@@ -1051,10 +1110,10 @@ def evaluate_trace_directory(
             "performance_metrics": list(PERFORMANCE_METRICS),
             "primary_metrics": list(PRIMARY_METRICS),
             "metric_roles": {
-                "registered_co_primary": list(PRIMARY_METRICS),
-                "exploratory_physical": [
-                    metric for metric in PERFORMANCE_METRICS if metric not in PRIMARY_METRICS
-                ],
+                role: [spec.name for spec in METRIC_SPECS if spec.role == role]
+                for role in ("registered_co_primary", "exploratory_physical")
+            }
+            | {
                 "legacy_compatibility": ["paper_cum_rf_sum_hz2"],
             },
             "tail_fraction": tail_fraction,
@@ -1155,6 +1214,19 @@ def _format_number(value: float | None, digits: int = 5) -> str:
     if value is None:
         return "NA"
     return f"{float(value):.{digits}g}"
+
+
+def _format_worst_two(
+    rows: Sequence[Mapping[str, Any]],
+    *,
+    value_key: str,
+    suffix: str = "",
+) -> str:
+    if not rows:
+        return "NA"
+    return "<br>".join(
+        f"`{row['scenario']}` / {_format_number(row.get(value_key))}{suffix}" for row in rows
+    )
 
 
 def render_markdown(scorecard: Mapping[str, Any]) -> str:
@@ -1319,36 +1391,29 @@ def render_markdown(scorecard: Mapping[str, Any]) -> str:
             "## Retained worst cases",
             "",
             (
-                "| Controller | Worst sync-loss scenario / value | "
-                "Worst fast inter-area scenario / value | "
-                "Worst same-sign cancellation scenario / value |"
+                "| Controller | Worst two sync-loss scenarios / values | "
+                "Worst two fast inter-area scenarios / values | "
+                "Worst two same-sign cancellation scenarios / values |"
             ),
             "|---|---|---|---|",
         ]
     )
     for controller in controllers:
         row = scorecard["controllers"][controller]
-        sync_worst = row["metrics"]["normalized_sync_loss_hz2"]["worst_1"]
-        interarea_worst = row["metrics"]["fast_inter_area_iae_hz_s"]["worst_1"]
-        cancellation = (
+        sync_worst = row["metrics"]["normalized_sync_loss_hz2"]["worst_2"]
+        interarea_worst = row["metrics"]["fast_inter_area_iae_hz_s"]["worst_2"]
+        cancellation_worst = (
             row["action_diagnostics"]
             .get(
                 "raw_same_sign_saturation_cancel_fraction",
                 {},
             )
-            .get("worst_1")
-        )
-        cancellation_text = (
-            f"`{cancellation['scenario']}` / {_format_number(cancellation['value'])}"
-            if cancellation
-            else "NA"
+            .get("worst_2", [])
         )
         lines.append(
-            f"| `{controller}` | `{sync_worst['scenario']}` / "
-            f"{_format_number(sync_worst['value'])} | "
-            f"`{interarea_worst['scenario']}` / "
-            f"{_format_number(interarea_worst['value'])} | "
-            f"{cancellation_text} |"
+            f"| `{controller}` | {_format_worst_two(sync_worst, value_key='value')} | "
+            f"{_format_worst_two(interarea_worst, value_key='value')} | "
+            f"{_format_worst_two(cancellation_worst, value_key='value')} |"
         )
 
     learned_controllers = [
@@ -1365,17 +1430,19 @@ def render_markdown(scorecard: Mapping[str, Any]) -> str:
                 "Exploratory active-window diagnostics; these are not formal efficacy claims.",
                 "",
                 (
-                    "| Controller | Family | Seed | q L1 (s) | q total variation | "
-                    "Raw-vote magnitude | Nullspace energy fraction | "
+                    "| Controller | Family | Seed | Sync loss | Fast inter-area IAE | "
+                    "q L1 (s) | q total variation | Boundary residence | "
+                    "Projection utilization | Nullspace energy fraction | "
                     "Same-sign cancellation |"
                 ),
-                "|---|---|---:|---:|---:|---:|---:|---:|",
+                "|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
             ]
         )
         for controller in learned_controllers:
             row = scorecard["controllers"][controller]
             identity = row["identity"]
             action = row["action_diagnostics"]
+            metrics = row["metrics"]
             lines.append(
                 "| "
                 + " | ".join(
@@ -1383,9 +1450,22 @@ def render_markdown(scorecard: Mapping[str, Any]) -> str:
                         f"`{controller}`",
                         str(identity["family"]),
                         str(identity["training_seed"]),
+                        _format_number(metrics["normalized_sync_loss_hz2"]["mean"]),
+                        _format_number(metrics["fast_inter_area_iae_hz_s"]["mean"]),
                         _format_number(action.get("active_q_l1_s", {}).get("mean")),
                         _format_number(action.get("q_total_variation", {}).get("mean")),
-                        _format_number(action.get("raw_vote_abs_mean", {}).get("mean")),
+                        _format_number(
+                            action.get(
+                                "q_boundary_residence_fraction",
+                                {},
+                            ).get("mean")
+                        ),
+                        _format_number(
+                            action.get(
+                                "projection_utilization_ratio_of_means",
+                                {},
+                            ).get("mean")
+                        ),
                         _format_number(
                             action.get(
                                 "raw_nullspace_energy_fraction_mean",
@@ -1437,12 +1517,16 @@ def render_markdown(scorecard: Mapping[str, Any]) -> str:
             "## Exploratory scenario strata",
             "",
             (
-                "Descriptive ratio-of-means effects only; no inferential interval and "
-                "no post-hoc subgroup claim."
+                "Descriptive ratio-of-means effects only; worst two scenario effects "
+                "retain the largest values because lower is better. No inferential "
+                "interval and no post-hoc subgroup claim."
             ),
             "",
-            "| Stratum | Comparison | Endpoint | Effect | Improved scenarios |",
-            "|---|---|---|---:|---:|",
+            (
+                "| Stratum | Comparison | Endpoint | Effect | Improved scenarios | "
+                "Worst two scenario effects |"
+            ),
+            "|---|---|---|---:|---:|---|",
         ]
     )
     for dimension, dimension_result in stratified["dimensions"].items():
@@ -1458,7 +1542,8 @@ def render_markdown(scorecard: Mapping[str, Any]) -> str:
                         f"| `{dimension}={group}` | `{name}` | `{metric}` | "
                         f"{_format_number(result['ratio_of_means_percent'])}% | "
                         f"{result['scenario_improvement_count']}/"
-                        f"{result['scenario_count']} |"
+                        f"{result['scenario_count']} | "
+                        f"{_format_worst_two(result['worst_2'], value_key='ratio_of_means_percent', suffix='%')} |"
                     )
 
     stratified_action = scorecard["stratified_action_diagnostics"]

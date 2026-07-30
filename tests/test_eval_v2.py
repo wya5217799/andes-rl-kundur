@@ -314,6 +314,7 @@ def test_eval_v2_exposes_projection_nullspace_and_cancellation_diagnostics(
     )
     assert diagnostics["raw_nullspace_energy_fraction_mean"]["mean"] == pytest.approx(2.0 / 3.0)
     assert diagnostics["executed_q_abs_mean_normalized"]["mean"] == pytest.approx(1.0 / 3.0)
+    assert diagnostics["q_boundary_residence_fraction"]["mean"] == pytest.approx(1.0 / 3.0)
     assert scorecard["contract"]["projection_diagnostic_policy"] == {
         "analysis_class": "exploratory_post_hoc",
         "scope": "active_window",
@@ -407,6 +408,13 @@ def test_eval_v2_stratifies_family_effects_by_scenario_metadata(
     assert "## Retained worst cases" in report
     assert "## Exploratory scenario strata" in report
     assert "`sign=negative`" in report
+    assert "Worst two scenario effects" in report
+    location_effect = stratified["dimensions"]["location"]["groups"]["PQ_0"]["comparisons"][
+        "shared_minus_baseline"
+    ]["metrics"]["normalized_sync_loss_hz2"]
+    assert len(location_effect["worst_2"]) == 2
+    assert "Projection utilization" in report
+    assert "Sync loss" in report
 
 
 def test_eval_v2_requires_provenance_and_input_hash_sidecars(tmp_path: Path) -> None:
@@ -495,6 +503,39 @@ def test_eval_v2_rejects_raw_votes_that_do_not_reconstruct_executed_q(
     )
 
 
+def test_eval_v2_uses_q_limit_ulp_for_raw_projection_reconstruction(
+    tmp_path: Path,
+) -> None:
+    traces = tmp_path / "traces"
+    _write_paired_fixture(traces)
+    path = traces / "s1__centralized_s17.json"
+    q_ulp = float(np.spacing(np.float32(0.25)))
+
+    def introduce_sub_slew_ulp_projection_error(payload: dict[str, object]) -> None:
+        config = payload["controller_config"]["area_residual"]  # type: ignore[index]
+        config["q_slew_max"] = 1.0
+        target_q = float(payload["traces"][1]["r278_q"]) + 2.0 * q_ulp  # type: ignore[index]
+        raw_coordinate = target_q / 0.25
+        payload["traces"][1]["r278_raw_z"] = [  # type: ignore[index]
+            raw_coordinate,
+            raw_coordinate,
+            -raw_coordinate,
+            -raw_coordinate,
+        ]
+
+    _rewrite_trace(path, introduce_sub_slew_ulp_projection_error)
+
+    scorecard = evaluate_trace_directory(traces, bootstrap_resamples=100)
+
+    assert scorecard["validity"]["diagnostic_pass"] is False
+    assert (
+        scorecard["validity"]["execution_contract"]["failed_check_counts"][
+            "raw_projection_mismatch"
+        ]
+        == 1
+    )
+
+
 def test_eval_v2_rejects_mismatched_paired_time_grids(tmp_path: Path) -> None:
     traces = tmp_path / "traces"
     _write_paired_fixture(traces)
@@ -521,6 +562,20 @@ def test_eval_v2_rejects_mismatched_paired_scenario_metadata(tmp_path: Path) -> 
     _rewrite_trace(path, change_sign)
 
     with pytest.raises(EvaluationContractError, match="scenario metadata sign"):
+        evaluate_trace_directory(traces, bootstrap_resamples=100)
+
+
+def test_eval_v2_rejects_missing_paired_scenario_metadata(tmp_path: Path) -> None:
+    traces = tmp_path / "traces"
+    _write_paired_fixture(traces)
+    path = traces / "s1__centralized_s17.json"
+
+    def remove_sign(payload: dict[str, object]) -> None:
+        payload.pop("sign")
+
+    _rewrite_trace(path, remove_sign)
+
+    with pytest.raises(EvaluationContractError, match="missing scenario metadata sign"):
         evaluate_trace_directory(traces, bootstrap_resamples=100)
 
 
