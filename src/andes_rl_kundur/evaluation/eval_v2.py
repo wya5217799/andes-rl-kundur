@@ -25,6 +25,7 @@ from typing import Any
 
 import numpy as np
 
+from andes_rl_kundur.evaluation.icems_residual import float32_limit_tolerance
 from andes_rl_kundur.evaluation.reviewer_identifiability import (
     hierarchical_seed_scenario_ratio_bootstrap,
 )
@@ -33,10 +34,13 @@ from andes_rl_kundur.evaluation.sealed_bank import (
     paired_bootstrap_contrasts,
 )
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 AGENT_COUNT = 4
 DEFAULT_ACTIVE_STEPS = 15
 DEFAULT_FINAL_WINDOW_STEPS = 50
+RAW_SATURATION_THRESHOLD = 0.9
+NEAR_ZERO_Q_FRACTION_OF_LIMIT = 0.1
+AREA_PATTERN = np.asarray([1.0, 1.0, -1.0, -1.0])
 PERFORMANCE_METRICS = (
     "normalized_sync_loss_hz2",
     "fast_inter_area_iae_hz_s",
@@ -60,6 +64,21 @@ STORAGE_VECTOR_FIELDS = (
     "bess_soc",
     "bess_charge_energy_mwh_total",
     "bess_discharge_energy_mwh_total",
+)
+SCENARIO_METADATA_FIELDS = ("location", "sign", "severity")
+STRATIFIED_ACTION_METRICS = (
+    "active_q_l1_s",
+    "q_total_variation",
+    "executed_q_abs_mean_normalized",
+    "raw_vote_abs_mean",
+    "raw_area_contrast_abs_mean",
+    "raw_common_mode_abs_mean",
+    "raw_within_area_std_mean",
+    "raw_nullspace_energy_fraction_mean",
+    "raw_high_magnitude_cancel_fraction",
+    "raw_same_sign_saturation_cancel_fraction",
+    "projection_utilization_ratio_of_means",
+    "raw_projection_max_abs_error",
 )
 CONTROLLER_PATTERN = re.compile(r"^(centralized|shared)_s(\d+)$")
 
@@ -237,10 +256,75 @@ def _nested_count(value: Any) -> int:
     return 1
 
 
+def _projection_diagnostics(
+    raw: np.ndarray,
+    q: np.ndarray,
+    *,
+    q_max: float,
+    active_steps: int,
+) -> dict[str, float]:
+    active_raw = raw[:active_steps]
+    active_q = q[:active_steps]
+    raw_abs_mean_by_step = np.mean(np.abs(active_raw), axis=1)
+    coordinate = active_raw @ AREA_PATTERN / float(AGENT_COUNT)
+    projected = coordinate[:, None] * AREA_PATTERN[None, :]
+    raw_energy = np.sum(np.square(active_raw), axis=1)
+    nullspace_energy = np.sum(np.square(active_raw - projected), axis=1)
+    nullspace_fraction = np.divide(
+        nullspace_energy,
+        raw_energy,
+        out=np.zeros_like(nullspace_energy),
+        where=raw_energy > 0.0,
+    )
+    executed_normalized = np.abs(active_q) / abs(q_max)
+    near_zero = executed_normalized < NEAR_ZERO_Q_FRACTION_OF_LIMIT
+    same_sign_saturated = np.all(active_raw > RAW_SATURATION_THRESHOLD, axis=1) | np.all(
+        active_raw < -RAW_SATURATION_THRESHOLD, axis=1
+    )
+    high_raw = raw_abs_mean_by_step > RAW_SATURATION_THRESHOLD
+    mean_raw_abs = float(np.mean(raw_abs_mean_by_step))
+    return {
+        "executed_q_abs_mean_normalized": float(np.mean(executed_normalized)),
+        "raw_area_contrast_abs_mean": float(np.mean(np.abs(coordinate))),
+        "raw_common_mode_abs_mean": float(np.mean(np.abs(np.mean(active_raw, axis=1)))),
+        "raw_within_area_std_mean": float(
+            np.mean(0.5 * (np.std(active_raw[:, :2], axis=1) + np.std(active_raw[:, 2:], axis=1)))
+        ),
+        "raw_nullspace_energy_fraction_mean": float(np.mean(nullspace_fraction)),
+        "raw_high_magnitude_cancel_fraction": float(np.mean(high_raw & near_zero)),
+        "raw_same_sign_saturation_cancel_fraction": float(np.mean(same_sign_saturated & near_zero)),
+        "projection_utilization_ratio_of_means": (
+            float(np.mean(executed_normalized)) / mean_raw_abs if mean_raw_abs > 0.0 else 0.0
+        ),
+    }
+
+
+def _reconstruct_projected_q(
+    raw: np.ndarray,
+    *,
+    q_max: float,
+    q_slew_max: float,
+    active_steps: int,
+) -> np.ndarray:
+    coordinate = raw[:active_steps] @ AREA_PATTERN / float(AGENT_COUNT)
+    reconstructed = np.empty(active_steps, dtype=float)
+    previous_q = 0.0
+    for index, raw_coordinate in enumerate(coordinate):
+        target = float(np.clip(q_max * raw_coordinate, -q_max, q_max))
+        current = float(
+            np.clip(
+                target,
+                previous_q - q_slew_max,
+                previous_q + q_slew_max,
+            )
+        )
+        reconstructed[index] = current
+        previous_q = current
+    return reconstructed
+
+
 def _action_and_storage(
     record: Mapping[str, Any],
-    *,
-    q_audit_tolerance: float,
 ) -> tuple[dict[str, float], dict[str, Any], list[str]]:
     rows = record["traces"]
     _, _, dt = _trace_arrays(record)
@@ -255,6 +339,8 @@ def _action_and_storage(
     area = config.get("area_residual", {}) if isinstance(config, Mapping) else {}
     q_max = float(area.get("q_max", 0.25)) if isinstance(area, Mapping) else 0.25
     q_slew_max = float(area.get("q_slew_max", 0.25)) if isinstance(area, Mapping) else 0.25
+    q_magnitude_tolerance = float32_limit_tolerance(abs(q_max))
+    q_slew_tolerance = float32_limit_tolerance(abs(q_slew_max))
     active_steps = _active_steps(record, len(rows))
 
     if q is None:
@@ -272,9 +358,9 @@ def _action_and_storage(
                 ),
             }
         )
-        if action["max_abs_q"] > q_max + q_audit_tolerance:
+        if action["max_abs_q"] > q_max + q_magnitude_tolerance:
             violations.append("q_magnitude")
-        if action["max_abs_q_slew_per_step"] > q_slew_max + q_audit_tolerance:
+        if action["max_abs_q_slew_per_step"] > q_slew_max + q_slew_tolerance:
             violations.append("q_slew")
         if action["post_window_max_abs_q"] > 1e-9:
             violations.append("post_window_q_nonzero")
@@ -292,9 +378,32 @@ def _action_and_storage(
         physical_tolerance = float(4 * np.spacing(np.float32(500.0)))
         if action["max_abs_physical_m_residual_sum"] > physical_tolerance:
             violations.append("physical_zero_sum")
-    if raw is not None:
+    if raw is None:
+        violations.append("missing_or_invalid_raw_vote")
+    else:
         action["raw_vote_cross_agent_std_mean"] = float(np.mean(np.std(raw[:active_steps], axis=1)))
         action["raw_vote_abs_mean"] = float(np.mean(np.abs(raw[:active_steps])))
+        if q is not None:
+            action.update(
+                _projection_diagnostics(
+                    raw,
+                    q,
+                    q_max=q_max,
+                    active_steps=active_steps,
+                )
+            )
+            reconstructed_q = _reconstruct_projected_q(
+                raw,
+                q_max=q_max,
+                q_slew_max=q_slew_max,
+                active_steps=active_steps,
+            )
+            action["raw_projection_max_abs_error"] = float(
+                np.max(np.abs(q[:active_steps] - reconstructed_q))
+            )
+            projection_tolerance = max(q_magnitude_tolerance, q_slew_tolerance)
+            if action["raw_projection_max_abs_error"] > projection_tolerance:
+                violations.append("raw_projection_mismatch")
 
     action_norm = _as_array(rows, "action_norm")
     if action_norm is not None:
@@ -545,6 +654,190 @@ def _family_effects(
     return result
 
 
+def _scenario_metadata(
+    keyed: Mapping[tuple[str, str], tuple[Path, Mapping[str, Any]]],
+    *,
+    controllers: Sequence[str],
+    scenarios: Sequence[str],
+) -> dict[str, dict[str, str]]:
+    result: dict[str, dict[str, str]] = {}
+    for scenario in scenarios:
+        row: dict[str, str] = {}
+        for field in SCENARIO_METADATA_FIELDS:
+            records = [keyed[(controller, scenario)][1] for controller in controllers]
+            present = [record[field] for record in records if field in record]
+            values = {str(value) for value in present}
+            if len(values) > 1:
+                raise EvaluationContractError(
+                    f"{scenario}: paired traces disagree on scenario metadata {field}"
+                )
+            if len(present) == len(records) and values:
+                row[field] = next(iter(values))
+        result[scenario] = row
+    return result
+
+
+def _stratified_family_effects(
+    endpoints: Mapping[str, Mapping[str, Mapping[str, float]]],
+    scenario_metadata: Mapping[str, Mapping[str, str]],
+    *,
+    baseline: str,
+) -> dict[str, Any]:
+    families: dict[str, dict[int, Mapping[str, Mapping[str, float]]]] = defaultdict(dict)
+    for controller, scenario_rows in endpoints.items():
+        identity = _controller_identity(controller)
+        training_seed = identity["training_seed"]
+        if training_seed is not None:
+            families[str(identity["family"])][int(training_seed)] = scenario_rows
+    result: dict[str, Any] = {
+        "analysis_class": "exploratory_post_hoc",
+        "method": "ratio of family means within declared scenario strata; no inferential interval",
+        "dimensions": {},
+    }
+
+    comparisons: list[tuple[str, str, str | None]] = []
+    if "centralized" in families:
+        comparisons.append(("centralized_minus_baseline", "centralized", None))
+    if "shared" in families:
+        comparisons.append(("shared_minus_baseline", "shared", None))
+    if "centralized" in families and "shared" in families:
+        comparisons.append(("shared_minus_centralized", "shared", "centralized"))
+
+    for dimension in SCENARIO_METADATA_FIELDS:
+        groups: dict[str, list[str]] = defaultdict(list)
+        for scenario, metadata in scenario_metadata.items():
+            if dimension in metadata:
+                groups[metadata[dimension]].append(scenario)
+        if not groups:
+            result["dimensions"][dimension] = {
+                "status": "unavailable",
+                "reason": f"paired traces do not provide complete {dimension} metadata",
+            }
+            continue
+        dimension_result: dict[str, Any] = {"status": "available", "groups": {}}
+        for group, group_scenarios in sorted(groups.items()):
+            group_result: dict[str, Any] = {
+                "scenario_count": len(group_scenarios),
+                "scenarios": sorted(group_scenarios),
+                "comparisons": {},
+            }
+            for name, left_family, right_family in comparisons:
+                left = families[left_family]
+                right = families[right_family] if right_family else None
+                if len(left) < 2 or (right is not None and set(left) != set(right)):
+                    group_result["comparisons"][name] = {
+                        "status": "unavailable",
+                        "reason": "at least two matched training seeds are required",
+                    }
+                    continue
+                metrics: dict[str, Any] = {}
+                for metric in PERFORMANCE_METRICS:
+                    left_values = [
+                        float(
+                            np.mean([left[seed_id][scenario][metric] for seed_id in sorted(left)])
+                        )
+                        for scenario in group_scenarios
+                    ]
+                    if right is None:
+                        right_values = [
+                            float(endpoints[baseline][scenario][metric])
+                            for scenario in group_scenarios
+                        ]
+                    else:
+                        right_values = [
+                            float(
+                                np.mean(
+                                    [right[seed_id][scenario][metric] for seed_id in sorted(right)]
+                                )
+                            )
+                            for scenario in group_scenarios
+                        ]
+                    right_mean = float(np.mean(right_values))
+                    metrics[metric] = {
+                        "ratio_of_means_percent": (
+                            100.0 * (float(np.mean(left_values)) / right_mean - 1.0)
+                            if right_mean > 0.0
+                            else None
+                        ),
+                        "scenario_improvement_count": int(
+                            sum(
+                                left_value < right_value
+                                for left_value, right_value in zip(
+                                    left_values,
+                                    right_values,
+                                    strict=True,
+                                )
+                            )
+                        ),
+                        "scenario_count": len(group_scenarios),
+                        "lower_is_better": True,
+                    }
+                group_result["comparisons"][name] = {
+                    "status": "available",
+                    "left_family": left_family,
+                    "right_family": right_family or baseline,
+                    "seed_count": len(left),
+                    "metrics": metrics,
+                }
+            dimension_result["groups"][group] = group_result
+        result["dimensions"][dimension] = dimension_result
+    return result
+
+
+def _stratified_action_diagnostics(
+    action_rows: Mapping[str, Mapping[str, Mapping[str, float]]],
+    scenario_metadata: Mapping[str, Mapping[str, str]],
+) -> dict[str, Any]:
+    families: dict[str, list[str]] = defaultdict(list)
+    for controller in action_rows:
+        identity = _controller_identity(controller)
+        if identity["training_seed"] is not None:
+            families[str(identity["family"])].append(controller)
+    result: dict[str, Any] = {
+        "analysis_class": "exploratory_post_hoc",
+        "method": "descriptive mean across controller-seed by scenario traces",
+        "dimensions": {},
+    }
+    for dimension in SCENARIO_METADATA_FIELDS:
+        groups: dict[str, list[str]] = defaultdict(list)
+        for scenario, metadata in scenario_metadata.items():
+            if dimension in metadata:
+                groups[metadata[dimension]].append(scenario)
+        if not groups:
+            result["dimensions"][dimension] = {
+                "status": "unavailable",
+                "reason": f"paired traces do not provide complete {dimension} metadata",
+            }
+            continue
+        dimension_result: dict[str, Any] = {"status": "available", "groups": {}}
+        for group, group_scenarios in sorted(groups.items()):
+            group_result: dict[str, Any] = {
+                "scenario_count": len(group_scenarios),
+                "scenarios": sorted(group_scenarios),
+                "families": {},
+            }
+            for family, controllers in sorted(families.items()):
+                metrics: dict[str, Any] = {}
+                for metric in STRATIFIED_ACTION_METRICS:
+                    values = {
+                        f"{controller}/{scenario}": action_rows[controller][scenario][metric]
+                        for controller in controllers
+                        for scenario in group_scenarios
+                        if metric in action_rows[controller][scenario]
+                    }
+                    if values:
+                        metrics[metric] = _plain_summary(values)
+                group_result["families"][family] = {
+                    "controller_count": len(controllers),
+                    "controllers": sorted(controllers),
+                    "trace_count": len(controllers) * len(group_scenarios),
+                    "metrics": metrics,
+                }
+            dimension_result["groups"][group] = group_result
+        result["dimensions"][dimension] = dimension_result
+    return result
+
+
 def evaluate_trace_directory(
     trace_dir: str | Path,
     *,
@@ -552,7 +845,6 @@ def evaluate_trace_directory(
     bootstrap_resamples: int = 10_000,
     bootstrap_seed: int = 2026073101,
     tail_fraction: float = 0.10,
-    q_audit_tolerance: float = 1e-9,
 ) -> dict[str, Any]:
     """Evaluate one complete controller-by-scenario trace matrix."""
     directory = Path(trace_dir)
@@ -562,9 +854,6 @@ def evaluate_trace_directory(
         raise EvaluationContractError("bootstrap_resamples must be at least 100")
     if not 0.0 < tail_fraction <= 1.0:
         raise EvaluationContractError("tail_fraction must be in (0, 1]")
-    if not math.isfinite(q_audit_tolerance) or q_audit_tolerance < 0.0:
-        raise EvaluationContractError("q_audit_tolerance must be finite and non-negative")
-
     trace_paths = sorted(directory.glob("*.json"))
     if not trace_paths:
         raise EvaluationContractError(f"no JSON traces found in {directory}")
@@ -591,6 +880,11 @@ def evaluate_trace_directory(
             f"incomplete paired matrix; missing {len(missing_pairs)} pairs: "
             + ", ".join(missing_pairs[:5])
         )
+    scenario_metadata = _scenario_metadata(
+        keyed,
+        controllers=controllers,
+        scenarios=scenarios,
+    )
     for scenario in scenarios:
         _, baseline_record = keyed[(baseline, scenario)]
         baseline_time, _, baseline_dt = _trace_arrays(baseline_record)
@@ -640,7 +934,6 @@ def evaluate_trace_directory(
             metrics, legacy = _trace_metrics(record)
             action, storage, violations = _action_and_storage(
                 record,
-                q_audit_tolerance=q_audit_tolerance,
             )
             metric_rows[controller][scenario] = metrics
             legacy_rows[controller][scenario] = legacy
@@ -671,7 +964,7 @@ def evaluate_trace_directory(
         len(values) == 1 for values in provenance_values.values()
     )
     sidecars = _verify_sidecars(trace_paths, trace_hashes)
-    overall_pass = not action_violations and provenance_pass and sidecars["pass"]
+    diagnostic_pass = not action_violations and provenance_pass and sidecars["pass"]
 
     controller_summaries: dict[str, Any] = {}
     for controller in controllers:
@@ -757,10 +1050,27 @@ def evaluate_trace_directory(
             "all_performance_metrics_lower_is_better": True,
             "performance_metrics": list(PERFORMANCE_METRICS),
             "primary_metrics": list(PRIMARY_METRICS),
+            "metric_roles": {
+                "registered_co_primary": list(PRIMARY_METRICS),
+                "exploratory_physical": [
+                    metric for metric in PERFORMANCE_METRICS if metric not in PRIMARY_METRICS
+                ],
+                "legacy_compatibility": ["paper_cum_rf_sum_hz2"],
+            },
             "tail_fraction": tail_fraction,
             "bootstrap_resamples": bootstrap_resamples,
             "bootstrap_seed": bootstrap_seed,
-            "q_audit_tolerance": q_audit_tolerance,
+            "action_audit_policy": {
+                "representation": "float32",
+                "q_limit_tolerance_rule": "spacing(float32(abs(limit)))",
+                "override_allowed": False,
+            },
+            "projection_diagnostic_policy": {
+                "analysis_class": "exploratory_post_hoc",
+                "scope": "active_window",
+                "same_sign_saturation_abs_raw_threshold": RAW_SATURATION_THRESHOLD,
+                "near_zero_executed_q_fraction_of_limit": (NEAR_ZERO_Q_FRACTION_OF_LIMIT),
+            },
             "no_composite_score_or_rank": True,
         },
         "source": {
@@ -770,28 +1080,36 @@ def evaluate_trace_directory(
             "scenario_count": len(scenarios),
             "controllers": controllers,
             "scenarios": scenarios,
+            "scenario_metadata": scenario_metadata,
             "trace_sha256": trace_hashes,
             "input_manifest_sha256": _sha256_bytes(manifest_payload),
             "provenance_values": {key: sorted(values) for key, values in provenance_values.items()},
         },
         "validity": {
-            "overall_pass": overall_pass,
-            "evidence_eligible": overall_pass,
+            "diagnostic_pass": diagnostic_pass,
             "interpretation": (
-                "valid_post_hoc_diagnostic"
-                if overall_pass
+                "valid_post_hoc_diagnostic_inputs"
+                if diagnostic_pass
                 else "invalid_diagnostic_only_do_not_make_performance_claims"
             ),
-            "complete_paired_matrix": True,
-            "physical_frequency_basis": True,
-            "provenance_consistent": provenance_pass,
-            "sidecar_sha256": sidecars,
-            "action_contract": {
+            "input_integrity": {
+                "pass": provenance_pass and sidecars["pass"],
+                "complete_paired_matrix": True,
+                "physical_frequency_basis": True,
+                "provenance_consistent": provenance_pass,
+                "sidecar_sha256": sidecars,
+            },
+            "execution_contract": {
                 "pass": not action_violations,
                 "violation_count": len(action_violations),
                 "failed_check_counts": dict(sorted(failed_checks.items())),
                 "violations": action_violations,
             },
+        },
+        "evidence_status": {
+            "status": "EXTERNAL_AUTHORITY_REQUIRED",
+            "eligible": None,
+            "authority": "claim/feed/verdict ledger outside EVAL-v2",
         },
         "controllers": controller_summaries,
         "paired_vs_baseline": paired,
@@ -800,6 +1118,15 @@ def evaluate_trace_directory(
             baseline=baseline,
             resamples=bootstrap_resamples,
             seed=bootstrap_seed + 100,
+        ),
+        "stratified_effects": _stratified_family_effects(
+            metric_rows,
+            scenario_metadata,
+            baseline=baseline,
+        ),
+        "stratified_action_diagnostics": _stratified_action_diagnostics(
+            action_rows,
+            scenario_metadata,
         ),
         "legacy_compatibility": {
             "paper_probe": "Yang2023 global cumulative frequency reward",
@@ -832,16 +1159,25 @@ def _format_number(value: float | None, digits: int = 5) -> str:
 
 def render_markdown(scorecard: Mapping[str, Any]) -> str:
     """Render a compact, human-auditable scorecard."""
-    valid = bool(scorecard["validity"]["overall_pass"])
-    status = "**VALID POST-HOC DIAGNOSTIC**" if valid else "**INVALID / DIAGNOSTIC ONLY**"
+    valid = bool(scorecard["validity"]["diagnostic_pass"])
+    status = "**VALID POST-HOC DIAGNOSTIC INPUTS**" if valid else "**INVALID / DIAGNOSTIC ONLY**"
     contract = scorecard["contract"]
     source = scorecard["source"]
+    input_integrity = scorecard["validity"]["input_integrity"]
+    execution_contract = scorecard["validity"]["execution_contract"]
     baseline = str(contract["baseline"])
     controllers = list(source["controllers"])
     lines = [
         "# EVAL-v2 objective scorecard",
         "",
         f"Status: {status}",
+        "",
+        "Formal evidence eligibility: **EXTERNAL AUTHORITY REQUIRED**",
+        "",
+        (
+            "EVAL-v2 validates diagnostic inputs and execution telemetry; "
+            "the claim/feed/verdict ledger owns paper-evidence status."
+        ),
         "",
         (
             f"Input: {source['trace_count']} traces, {source['scenario_count']} paired "
@@ -856,18 +1192,18 @@ def render_markdown(scorecard: Mapping[str, Any]) -> str:
         "",
         "| Check | Result |",
         "|---|---:|",
-        f"| Complete paired matrix | {scorecard['validity']['complete_paired_matrix']} |",
-        f"| Physical 60-Hz basis | {scorecard['validity']['physical_frequency_basis']} |",
-        f"| Provenance consistent | {scorecard['validity']['provenance_consistent']} |",
-        f"| SHA-256 sidecars | {scorecard['validity']['sidecar_sha256']['status']} |",
+        f"| Complete paired matrix | {input_integrity['complete_paired_matrix']} |",
+        f"| Physical 60-Hz basis | {input_integrity['physical_frequency_basis']} |",
+        f"| Provenance consistent | {input_integrity['provenance_consistent']} |",
+        f"| SHA-256 sidecars | {input_integrity['sidecar_sha256']['status']} |",
         (
             "| Action/storage contract | "
-            f"{scorecard['validity']['action_contract']['pass']} "
-            f"({scorecard['validity']['action_contract']['violation_count']} failing traces) |"
+            f"{execution_contract['pass']} "
+            f"({execution_contract['violation_count']} failing traces) |"
         ),
         "",
     ]
-    failed_counts = scorecard["validity"]["action_contract"]["failed_check_counts"]
+    failed_counts = execution_contract["failed_check_counts"]
     if failed_counts:
         lines.extend(
             [
@@ -977,6 +1313,96 @@ def render_markdown(scorecard: Mapping[str, Any]) -> str:
             + " |"
         )
 
+    lines.extend(
+        [
+            "",
+            "## Retained worst cases",
+            "",
+            (
+                "| Controller | Worst sync-loss scenario / value | "
+                "Worst fast inter-area scenario / value | "
+                "Worst same-sign cancellation scenario / value |"
+            ),
+            "|---|---|---|---|",
+        ]
+    )
+    for controller in controllers:
+        row = scorecard["controllers"][controller]
+        sync_worst = row["metrics"]["normalized_sync_loss_hz2"]["worst_1"]
+        interarea_worst = row["metrics"]["fast_inter_area_iae_hz_s"]["worst_1"]
+        cancellation = (
+            row["action_diagnostics"]
+            .get(
+                "raw_same_sign_saturation_cancel_fraction",
+                {},
+            )
+            .get("worst_1")
+        )
+        cancellation_text = (
+            f"`{cancellation['scenario']}` / {_format_number(cancellation['value'])}"
+            if cancellation
+            else "NA"
+        )
+        lines.append(
+            f"| `{controller}` | `{sync_worst['scenario']}` / "
+            f"{_format_number(sync_worst['value'])} | "
+            f"`{interarea_worst['scenario']}` / "
+            f"{_format_number(interarea_worst['value'])} | "
+            f"{cancellation_text} |"
+        )
+
+    learned_controllers = [
+        controller
+        for controller in controllers
+        if scorecard["controllers"][controller]["identity"]["training_seed"] is not None
+    ]
+    if learned_controllers:
+        lines.extend(
+            [
+                "",
+                "## Projection and training-seed diagnostics",
+                "",
+                "Exploratory active-window diagnostics; these are not formal efficacy claims.",
+                "",
+                (
+                    "| Controller | Family | Seed | q L1 (s) | q total variation | "
+                    "Raw-vote magnitude | Nullspace energy fraction | "
+                    "Same-sign cancellation |"
+                ),
+                "|---|---|---:|---:|---:|---:|---:|---:|",
+            ]
+        )
+        for controller in learned_controllers:
+            row = scorecard["controllers"][controller]
+            identity = row["identity"]
+            action = row["action_diagnostics"]
+            lines.append(
+                "| "
+                + " | ".join(
+                    [
+                        f"`{controller}`",
+                        str(identity["family"]),
+                        str(identity["training_seed"]),
+                        _format_number(action.get("active_q_l1_s", {}).get("mean")),
+                        _format_number(action.get("q_total_variation", {}).get("mean")),
+                        _format_number(action.get("raw_vote_abs_mean", {}).get("mean")),
+                        _format_number(
+                            action.get(
+                                "raw_nullspace_energy_fraction_mean",
+                                {},
+                            ).get("mean")
+                        ),
+                        _format_number(
+                            action.get(
+                                "raw_same_sign_saturation_cancel_fraction",
+                                {},
+                            ).get("mean")
+                        ),
+                    ]
+                )
+                + " |"
+            )
+
     family = scorecard["family_effects"]
     if family.get("comparisons"):
         lines.extend(
@@ -1002,6 +1428,87 @@ def render_markdown(scorecard: Mapping[str, Any]) -> str:
                 lines.append(
                     f"| `{name}` | `{metric}` | {_format_number(effect['point'])}% "
                     f"[{_format_number(interval[0])}, {_format_number(interval[1])}] |"
+                )
+
+    stratified = scorecard["stratified_effects"]
+    lines.extend(
+        [
+            "",
+            "## Exploratory scenario strata",
+            "",
+            (
+                "Descriptive ratio-of-means effects only; no inferential interval and "
+                "no post-hoc subgroup claim."
+            ),
+            "",
+            "| Stratum | Comparison | Endpoint | Effect | Improved scenarios |",
+            "|---|---|---|---:|---:|",
+        ]
+    )
+    for dimension, dimension_result in stratified["dimensions"].items():
+        if dimension_result["status"] != "available":
+            continue
+        for group, group_result in dimension_result["groups"].items():
+            for name, comparison in group_result["comparisons"].items():
+                if comparison["status"] != "available":
+                    continue
+                for metric in PRIMARY_METRICS:
+                    result = comparison["metrics"][metric]
+                    lines.append(
+                        f"| `{dimension}={group}` | `{name}` | `{metric}` | "
+                        f"{_format_number(result['ratio_of_means_percent'])}% | "
+                        f"{result['scenario_improvement_count']}/"
+                        f"{result['scenario_count']} |"
+                    )
+
+    stratified_action = scorecard["stratified_action_diagnostics"]
+    lines.extend(
+        [
+            "",
+            "### Stratified projection mechanisms",
+            "",
+            (
+                "| Stratum | Family | Mean normalized executed q | "
+                "Mean raw-vote magnitude | Mean nullspace energy | "
+                "Mean same-sign cancellation |"
+            ),
+            "|---|---|---:|---:|---:|---:|",
+        ]
+    )
+    for dimension, dimension_result in stratified_action["dimensions"].items():
+        if dimension_result["status"] != "available":
+            continue
+        for group, group_result in dimension_result["groups"].items():
+            for family_name, family_result in group_result["families"].items():
+                metrics = family_result["metrics"]
+                lines.append(
+                    "| "
+                    + " | ".join(
+                        [
+                            f"`{dimension}={group}`",
+                            f"`{family_name}`",
+                            _format_number(
+                                metrics.get(
+                                    "executed_q_abs_mean_normalized",
+                                    {},
+                                ).get("mean")
+                            ),
+                            _format_number(metrics.get("raw_vote_abs_mean", {}).get("mean")),
+                            _format_number(
+                                metrics.get(
+                                    "raw_nullspace_energy_fraction_mean",
+                                    {},
+                                ).get("mean")
+                            ),
+                            _format_number(
+                                metrics.get(
+                                    "raw_same_sign_saturation_cancel_fraction",
+                                    {},
+                                ).get("mean")
+                            ),
+                        ]
+                    )
+                    + " |"
                 )
 
     legacy = scorecard["legacy_compatibility"]
@@ -1070,7 +1577,6 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--bootstrap-resamples", type=int, default=10_000)
     parser.add_argument("--bootstrap-seed", type=int, default=2026073101)
     parser.add_argument("--tail-fraction", type=float, default=0.10)
-    parser.add_argument("--q-audit-tolerance", type=float, default=1e-9)
     parser.add_argument("--overwrite", action="store_true")
     return parser
 
@@ -1084,11 +1590,19 @@ def main(argv: Sequence[str] | None = None) -> int:
         bootstrap_resamples=args.bootstrap_resamples,
         bootstrap_seed=args.bootstrap_seed,
         tail_fraction=args.tail_fraction,
-        q_audit_tolerance=args.q_audit_tolerance,
     )
     outputs = write_scorecard(scorecard, args.output_dir, overwrite=args.overwrite)
-    print(json.dumps({"validity": scorecard["validity"], "outputs": outputs}, indent=2))
-    return 0 if scorecard["validity"]["overall_pass"] else 2
+    print(
+        json.dumps(
+            {
+                "validity": scorecard["validity"],
+                "evidence_status": scorecard["evidence_status"],
+                "outputs": outputs,
+            },
+            indent=2,
+        )
+    )
+    return 0 if scorecard["validity"]["diagnostic_pass"] else 2
 
 
 if __name__ == "__main__":
