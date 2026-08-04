@@ -632,10 +632,14 @@ def build_session_context(
         raise ContextError(str(exc)) from exc
 
     if goal.status == "blocked-active-round":
+        # Resume is execution-only under the frozen plan and compact resume
+        # contract.  AGENTS.md separately requires CLAUDE.md before any code or
+        # governance change, so loading the full engineering manual here would
+        # duplicate policy and can crowd a legitimate active plan out of the
+        # bounded cold-start budget.
         reading = _bounded_reading(
             repo_root,
             (
-                ENGINEERING_RULES,
                 ROUND_RESUME_CONTRACT,
                 *(f"memory/rounds/{round_id}/plan.md" for round_id in goal.active_rounds),
             ),

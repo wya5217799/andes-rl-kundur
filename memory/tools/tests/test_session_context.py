@@ -252,6 +252,7 @@ def test_active_round_preempts_manuscript(tmp_path: Path) -> None:
         "skills/kundur-round/references/resume-contract.md"
         in context.required_reading
     )
+    assert "CLAUDE.md" not in context.required_reading
     assert "skills/kundur-round/SKILL.md" not in context.required_reading
 
 
