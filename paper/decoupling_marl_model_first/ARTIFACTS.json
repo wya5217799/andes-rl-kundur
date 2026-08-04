@@ -1,0 +1,63 @@
+{
+  "version": 1,
+  "line_id": "decoupling-marl-model-first",
+  "artifacts": [
+    {
+      "id": "line-state",
+      "purpose": "line-state",
+      "path": "paper/decoupling_marl_model_first/LINE.md",
+      "status": "active",
+      "canonical": true,
+      "authoritative": true,
+      "producer": "project-governance",
+      "inputs": [
+        "paper/decoupling_marl_model_first/reports"
+      ],
+      "input_hashes": {
+        "paper/decoupling_marl_model_first/reports": "766ba2400ae063b6eaf24f5bd6673cba489fd9d02889317bf8ed3119851cb300"
+      },
+      "supersedes": [],
+      "review_after": null
+    },
+    {
+      "id": "experiment-feeds",
+      "purpose": "experiment-feeds",
+      "path": "paper/decoupling_marl_model_first/reports",
+      "status": "active",
+      "canonical": true,
+      "authoritative": true,
+      "producer": "kundur-round-feed",
+      "inputs": [
+        "memory/claims",
+        "memory/rounds",
+        "results"
+      ],
+      "supersedes": [],
+      "review_after": null
+    },
+    {
+      "id": "model-contract",
+      "purpose": "argument-contract",
+      "path": "paper/decoupling_marl_model_first/working/model_contract.md",
+      "status": "active",
+      "canonical": true,
+      "authoritative": false,
+      "producer": "research-supervisor",
+      "inputs": [],
+      "supersedes": [],
+      "review_after": null
+    },
+    {
+      "id": "hybrid-control-literature-note",
+      "purpose": "research-note",
+      "path": "paper/decoupling_marl_model_first/working/hybrid_control_literature_note.md",
+      "status": "active",
+      "canonical": false,
+      "authoritative": false,
+      "producer": "research",
+      "inputs": [],
+      "supersedes": [],
+      "review_after": null
+    }
+  ]
+}

@@ -18,12 +18,14 @@ The Python package was refactored into a standard `src/` layout on 2026-05-16
 
 ### Reading orientation
 
-1. `AGENTS.md` — Codex new-session bootstrap for the automatic research loop.
-2. `memory/RESEARCH_PROGRAM.md` — TPWRS thesis, phase gates, ranked questions,
-   evidence requirements, and pivot rules.
+1. `AGENTS.md` — Codex new-session bootstrap; it runs the bounded
+   `memory/tools/session_context.py` adapter.
+2. `memory/RESEARCH_PROGRAM.md` — durable TPWRS policy, read when the context
+   adapter selects research work.
 3. `CONTEXT.md` — domain glossary; individual architecture decisions are in
    `docs/adr/`.
-4. `memory/STATE.md` — auto-rendered headlines, open questions, latest round.
+4. `memory/STATE.md` — on-demand auto-rendered headlines and history, not a
+   mandatory cold-start read.
 5. `docs/README.md` — document taxonomy and durable homes.
 6. `docs/adr/` — accepted architecture decisions.
 
@@ -78,6 +80,8 @@ the pip install step.
 
 ```bash
 python memory/tools/research_goal.py --json # select/resume one TPWRS-aligned goal
+python memory/tools/session_context.py --json # bounded cold-start route
+python memory/tools/feed_check.py <feed> # pre-draft publication gate
 python memory/tools/validate.py        # check claim/question/round schema
 python memory/tools/render.py          # regenerate memory/STATE.md
 python memory/tools/status.py          # operational dashboard (training, active rounds)
@@ -98,7 +102,10 @@ See `MEMORY.md` for the full memory-subsystem design.
 | `tests/` | pytest regression suite |
 | `memory/` | Claim/question/round/note ledger, tools, and generated STATE.md |
 | `docs/` | Document taxonomy, ADRs, engineering notes, research investigations, and governance |
+| `paper/<line>/` | Registered manuscript source, feed reports, corpus, and drafts |
 | `results/` | Gitignored except `whitelist/` (paper-cited checkpoints + JSON) |
+| `tmp/` | Ignored scratch, caches, and ephemeral review output |
+| `skills/` | Repository-local process adapters; they do not replace code or evidence |
 | `_legacy/` | Frozen ancestor modules and pre-refactor research trail |
 
 ## Agents

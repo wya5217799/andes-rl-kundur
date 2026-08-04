@@ -31,6 +31,41 @@ def test_rule1_duplicate_id_fails():
     assert any("duplicate id" in e.lower() for e in errors)
 
 
+def test_feed_era_verified_claim_requires_structured_evidence_refs(tmp_path):
+    from validate import validate_claim_evidence_refs
+
+    claims = {
+        "CLM-0001": {
+            "id": "CLM-0001",
+            "type": "finding",
+            "trust": "V",
+            "round": "R281",
+        }
+    }
+
+    errors = validate_claim_evidence_refs(claims, repo_root=tmp_path)
+
+    assert any("evidence_refs" in error for error in errors)
+
+
+def test_future_claim_statement_has_fact_layer_budget(tmp_path):
+    from validate import CLAIM_STATEMENT_MAX_BYTES, validate_claim_fact_budgets
+
+    claims = {
+        "CLM-9999": {
+            "id": "CLM-9999",
+            "type": "decision",
+            "trust": "S",
+            "round": "R291",
+            "statement": "x" * (CLAIM_STATEMENT_MAX_BYTES + 1),
+        }
+    }
+
+    errors = validate_claim_fact_budgets(claims)
+
+    assert any("statement budget" in error for error in errors)
+
+
 def test_rule2_supersedes_nonexistent_target_fails():
     claims = {
         "CLM-0001": {"id": "CLM-0001", "status": "current",
@@ -769,12 +804,184 @@ def test_pre_r59_no_briefing_length_warning(tmp_path):
         f"pre-R59 should not get briefing warnings: {warnings}"
 
 
+def test_r317_plain_briefing_requires_three_reader_questions(tmp_path):
+    """From R317, the user-facing layer must answer the three reader
+    questions instead of exposing the legacy five-part technical shorthand."""
+    from validate import validate_verdict_structure  # noqa: E402
+
+    round_dir = tmp_path / "rounds" / "R317"
+    round_dir.mkdir(parents=True)
+    verdict_path = round_dir / "verdict.md"
+    legacy_body = "\n".join([
+        "**这周干了啥**：完成检查。",
+        "**结果（一句话）**：通过。",
+        "**意外**：无。",
+        "**我默认下一步做**：继续。",
+        "**你想插一脚就说**：可以调整。",
+    ])
+    verdict_path.write_text(
+        _verdict_with_q_sections(extra_body=_briefing_section(legacy_body)),
+        encoding="utf-8",
+    )
+
+    errors = validate_verdict_structure(verdict_path)
+
+    assert any("发生了什么" in error and "这说明什么" in error
+               and "下一步做什么" in error for error in errors)
+
+
+def test_r317_plain_briefing_allows_no_extra_labelled_part(tmp_path):
+    """The reader-facing layer is exactly the three-part story, not a place
+    to append a fourth technical appendix."""
+    from validate import validate_verdict_structure  # noqa: E402
+
+    round_dir = tmp_path / "rounds" / "R317"
+    round_dir.mkdir(parents=True)
+    verdict_path = round_dir / "verdict.md"
+    four_part_body = "\n".join([
+        "**发生了什么**：我们重新检查了旧办法。",
+        "**这说明什么**：新的办法达到事先要求。",
+        "**下一步做什么**：继续检查下一种办法。",
+        "**补充**：还有一份说明。",
+    ])
+    verdict_path.write_text(
+        _verdict_with_q_sections(extra_body=_briefing_section(four_part_body)),
+        encoding="utf-8",
+    )
+
+    errors = validate_verdict_structure(verdict_path)
+
+    assert any("只能按顺序包含三个标签" in error for error in errors)
+
+
+def test_r317_plain_briefing_rejects_english_and_repository_names(tmp_path):
+    """The reader-facing layer must not leak abbreviations, round IDs, or
+    filenames; those belong in the technical evidence layer."""
+    from validate import validate_verdict_structure  # noqa: E402
+
+    round_dir = tmp_path / "rounds" / "R317"
+    round_dir.mkdir(parents=True)
+    verdict_path = round_dir / "verdict.md"
+    jargon_body = "\n".join([
+        "**发生了什么**：我们完成了 R316 和 EVAL 检查。",
+        "**这说明什么**：NRMSE 已经达到要求。",
+        "**下一步做什么**：查看 analysis.json。",
+    ])
+    verdict_path.write_text(
+        _verdict_with_q_sections(extra_body=_briefing_section(jargon_body)),
+        encoding="utf-8",
+    )
+
+    errors = validate_verdict_structure(verdict_path)
+
+    assert any("英文或代码名" in error for error in errors)
+
+
+def test_r317_plain_briefing_rejects_numbers_without_result_meaning(tmp_path):
+    """Counts and identifiers do not belong in the reader-facing layer;
+    a retained number must directly communicate pass/fail or improvement."""
+    from validate import validate_verdict_structure  # noqa: E402
+
+    round_dir = tmp_path / "rounds" / "R317"
+    round_dir.mkdir(parents=True)
+    verdict_path = round_dir / "verdict.md"
+    count_body = "\n".join([
+        "**发生了什么**：我们检查了50种情况。",
+        "**这说明什么**：新的办法达到事先要求。",
+        "**下一步做什么**：继续检查下一种办法。",
+    ])
+    verdict_path.write_text(
+        _verdict_with_q_sections(extra_body=_briefing_section(count_body)),
+        encoding="utf-8",
+    )
+
+    errors = validate_verdict_structure(verdict_path)
+
+    assert any("数字" in error and "好多少、坏多少或有没有及格" in error
+               for error in errors)
+
+
+def test_r317_plain_briefing_accepts_result_explaining_number(tmp_path):
+    """A number may remain when it directly tells the reader whether the
+    result passed or how much it improved."""
+    from validate import validate_verdict_structure  # noqa: E402
+
+    round_dir = tmp_path / "rounds" / "R317"
+    round_dir.mkdir(parents=True)
+    verdict_path = round_dir / "verdict.md"
+    plain_body = "\n".join([
+        "**发生了什么**：我们重新检查了上次没有算准的办法。",
+        "**这说明什么**：最差结果比事先上限低了20%，这次通过了。",
+        "**下一步做什么**：先在电脑里检查控制办法，检查不过就停止。",
+    ])
+    verdict_path.write_text(
+        _verdict_with_q_sections(extra_body=_briefing_section(plain_body)),
+        encoding="utf-8",
+    )
+
+    errors = validate_verdict_structure(verdict_path)
+
+    assert errors == []
+
+
+def test_r317_plain_briefing_rejects_project_jargon_in_chinese(tmp_path):
+    """Translating a specialist term into Chinese does not make it suitable
+    for the reader-facing layer."""
+    from validate import validate_verdict_structure  # noqa: E402
+
+    round_dir = tmp_path / "rounds" / "R317"
+    round_dir.mkdir(parents=True)
+    verdict_path = round_dir / "verdict.md"
+    jargon_body = "\n".join([
+        "**发生了什么**：我们检查了简化模型。",
+        "**这说明什么**：归一化误差和谱半径都达到要求。",
+        "**下一步做什么**：继续检查控制办法。",
+    ])
+    verdict_path.write_text(
+        _verdict_with_q_sections(extra_body=_briefing_section(jargon_body)),
+        encoding="utf-8",
+    )
+
+    errors = validate_verdict_structure(verdict_path)
+
+    assert any("专业词" in error for error in errors)
+
+
 def test_round_num_from_verdict_path(tmp_path):
     """Helper correctly extracts round number from R<N>/verdict.md."""
     from validate import _round_num_from_verdict_path  # noqa: E402
     assert _round_num_from_verdict_path(Path("/x/R59/verdict.md")) == 59
     assert _round_num_from_verdict_path(Path("/x/R01/verdict.md")) == 1
     assert _round_num_from_verdict_path(Path("/x/README/verdict.md")) is None
+
+
+def test_future_verdict_has_pointer_layer_budget(tmp_path):
+    from validate import (
+        PI_BRIEFING_SECTION,
+        VERDICT_NONBLANK_LINE_MAX,
+        validate_verdict_structure,
+    )
+
+    round_dir = tmp_path / "rounds" / "R291"
+    round_dir.mkdir(parents=True)
+    verdict_path = round_dir / "verdict.md"
+    filler = "\n".join(
+        f"duplicate fact line {index}"
+        for index in range(VERDICT_NONBLANK_LINE_MAX + 1)
+    )
+    verdict_path.write_text(
+        "# R291 verdict\n\n"
+        "## Questions opened\n- none\n\n"
+        "## Questions closed\n- none\n\n"
+        "## Questions advanced\n- none\n\n"
+        f"{PI_BRIEFING_SECTION}\n- brief\n\n"
+        f"{filler}\n",
+        encoding="utf-8",
+    )
+
+    errors = validate_verdict_structure(verdict_path)
+
+    assert any("verdict budget" in error for error in errors)
 
 
 # ── 2026-05-19 flow audit (F2 / F3 / F5 / F7) ────────────────────────────
@@ -1105,6 +1312,44 @@ def test_r_terminal_completed_passes_when_verdict_exists(tmp_path):
     assert errors == []
 
 
+def test_feed_era_active_with_verdict_is_unclosed_lifecycle_error(tmp_path):
+    """R281+ cannot remain active after verdict.md exists."""
+    from validate import validate_round_state  # noqa: E402
+    rounds_dir = tmp_path / "rounds"
+    rd = rounds_dir / "R281"
+    plan = _write_plan(
+        rd,
+        round="R281",
+        state="active",
+        opened="2026-07-29",
+    )
+    (rd / "verdict.md").write_text("# R281\n", encoding="utf-8")
+
+    errors, _ = validate_round_state(plan)
+
+    assert any("unclosed" in error.lower() for error in errors)
+
+
+def test_future_plan_cannot_duplicate_frontmatter_state_in_body(tmp_path):
+    """R291+ plan state lives only in frontmatter so closeout cannot drift."""
+    from validate import validate_round_state  # noqa: E402
+    rounds_dir = tmp_path / "rounds"
+    plan = _write_plan(
+        rounds_dir / "R291",
+        round="R291",
+        state="active",
+        opened="2026-07-30",
+    )
+    plan.write_text(
+        plan.read_text(encoding="utf-8") + "**Status**: ACTIVE\n",
+        encoding="utf-8",
+    )
+
+    errors, _ = validate_round_state(plan)
+
+    assert any("duplicate" in error.lower() for error in errors)
+
+
 def test_warn_stale_active_after_threshold(tmp_path):
     """R176 G9: state=active + opened ≥ ROUND_STALE_ACTIVE_DAYS + no
     verdict → soft warn. Threshold tightened from 14 to 3 days to match
@@ -1353,6 +1598,29 @@ def test_close_round_completed_requires_verdict(tmp_path):
         )
 
 
+def test_close_round_feed_era_completed_requires_feed_pointer(tmp_path):
+    """R281+ cannot become completed without the publication-gated feed."""
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(
+        "close_round",
+        str(Path(__file__).resolve().parents[1] / "close_round.py"),
+    )
+    close_round_mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(close_round_mod)
+    rounds_dir = tmp_path / "memory" / "rounds"
+    round_dir = rounds_dir / "R281"
+    round_dir.mkdir(parents=True)
+    (round_dir / "verdict.md").write_text(
+        "# Verdict\n\n**Status**: PASS\n",
+        encoding="utf-8",
+    )
+    import pytest
+    with pytest.raises(ValueError, match="Feed:|feed pointer"):
+        close_round_mod.close_round(
+            "R281", "completed", rounds_dir=rounds_dir
+        )
+
+
 def test_close_round_aborted_writes_plan(tmp_path):
     """Happy path: state=aborted writes plan.md with all required fields."""
     import importlib.util
@@ -1421,6 +1689,31 @@ def test_close_round_preserves_existing_body(tmp_path):
     plan = (rd / "plan.md").read_text(encoding="utf-8")
     assert "Original body text here." in plan
     assert "state: aborted" in plan
+
+
+def test_close_round_preserves_lf_line_endings(tmp_path):
+    """Closing on Windows must not rewrite an LF plan to CRLF."""
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(
+        "close_round",
+        str(Path(__file__).resolve().parents[1] / "close_round.py"),
+    )
+    close_round_mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(close_round_mod)
+    rounds_dir = tmp_path / "rounds"
+    rd = rounds_dir / "R200"
+    rd.mkdir(parents=True)
+    plan_path = rd / "plan.md"
+    plan_path.write_bytes(
+        b"---\nround: R200\nstate: active\nopened: '2026-05-19'\n"
+        b"closed: null\n---\n# R200 plan\n\nOriginal body.\n"
+    )
+
+    close_round_mod.close_round(
+        "R200", "aborted", rounds_dir=rounds_dir, abort_reason="test"
+    )
+
+    assert b"\r\n" not in plan_path.read_bytes()
 
 
 # ---------- R176 G10: claim-into-meta-round contract ----------
@@ -1682,15 +1975,15 @@ def test_clean_note_fixtures_have_no_errors():
 # ---------- Cross-entity coverage warnings (X1, X2) ----------
 
 
-def test_warning_X1_adr_without_note_warns(tmp_path):
-    """X1: every docs/adr/*.md should have at least one note pointing to it."""
+def test_internal_adr_does_not_require_duplicate_note(tmp_path):
+    """ADR is already canonical; requiring a Note would duplicate documents."""
     from validate import warn_cross_entity_adr_coverage  # noqa: E402
     adr_dir = tmp_path / "adr"
     adr_dir.mkdir()
     (adr_dir / "0001-foo.md").write_text("# ADR placeholder\n")
     notes: dict[str, dict[str, Any]] = {}
     warnings = warn_cross_entity_adr_coverage(notes, adr_dir=adr_dir)
-    assert any("0001-foo.md" in w for w in warnings)
+    assert warnings == []
 
 
 def test_warning_X1_adr_with_note_silent(tmp_path):

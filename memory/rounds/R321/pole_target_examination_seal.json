@@ -1,0 +1,316 @@
+{
+  "schema_version": 1,
+  "round": "R321",
+  "question": "Q-0076",
+  "created_utc": "2026-08-03T12:58:46.773004+00:00",
+  "contract": {
+    "round": "R321",
+    "question": "Q-0076",
+    "stage": "exact-fixed-pole-target-model-only-examination",
+    "parent_rounds": [
+      "R316",
+      "R319",
+      "R320"
+    ],
+    "parent_claims": [
+      "CLM-0790",
+      "CLM-0805",
+      "CLM-0810"
+    ],
+    "sample_period_seconds": 0.2,
+    "horizon_steps": 50,
+    "coordinates": [
+      "common",
+      "edge_0",
+      "edge_1",
+      "edge_2"
+    ],
+    "points": [
+      {
+        "name": "HS0",
+        "initial_soc": 0.41
+      },
+      {
+        "name": "HS1",
+        "initial_soc": 0.51
+      }
+    ],
+    "controller_target_poles": [
+      0.9,
+      0.9061538461538462,
+      0.9123076923076924,
+      0.9184615384615384,
+      0.9246153846153846,
+      0.9307692307692308,
+      0.936923076923077,
+      0.943076923076923,
+      0.9492307692307692,
+      0.9553846153846154,
+      0.9615384615384616,
+      0.9676923076923076,
+      0.9738461538461538,
+      0.98
+    ],
+    "observer_target_poles": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.8,
+      0.8155555555555556,
+      0.8311111111111111,
+      0.8466666666666667,
+      0.8622222222222222,
+      0.8777777777777778,
+      0.8933333333333333,
+      0.9088888888888889,
+      0.9244444444444444,
+      0.94
+    ],
+    "placement_method": "YT",
+    "placement_relative_tolerance": 1e-06,
+    "placement_maximum_iterations": 100,
+    "placement_target_tolerance": 1e-08,
+    "controller_target_radius": 0.98,
+    "observer_target_radius": 0.94,
+    "placement_call_count_per_point_and_arm": 1,
+    "tuning_candidate_count": 0,
+    "output_scales": {
+      "HS0": [
+        0.0002668112041645563,
+        0.00015882926554077416,
+        0.00019288206508276265,
+        0.0002124274132893341
+      ],
+      "HS1": [
+        0.00025989821599602683,
+        0.00014880082973969276,
+        0.00018244950507686816,
+        0.00020106658488483798
+      ]
+    },
+    "action_scales": [
+      0.36,
+      0.36,
+      0.36,
+      0.36
+    ],
+    "delay_augmentation": {
+      "state": "z[k]=[x[k],y[k-1]]",
+      "state_matrix": "[[A,0],[C,0]]",
+      "input_matrix": "[[B],[D]]",
+      "measurement_matrix": "[0,I]",
+      "first_measurement": "zero",
+      "initial_estimate": "zero",
+      "first_command": "zero"
+    },
+    "retained_arm": "unchanged-R316-order-10-realizations",
+    "matched_baseline": {
+      "single_factor": "delete-common-differential-transfer-blocks",
+      "markov_horizon_steps": 25,
+      "era_order": 10,
+      "block_rows": 8,
+      "block_columns": 8,
+      "maximum_model_spectral_radius": 0.995,
+      "executed_plant": "unchanged-full-retained-cross-R316-realization"
+    },
+    "development_shapes": {
+      "impulse": [
+        0.05
+      ],
+      "triangle": [
+        0.02,
+        0.04,
+        0.05,
+        0.04,
+        0.02
+      ]
+    },
+    "examination_shapes": {
+      "bipolar": [
+        0.05,
+        0.05,
+        0.0,
+        -0.05,
+        -0.05
+      ]
+    },
+    "development_case_count": 32,
+    "examination_base_case_count": 16,
+    "mismatch_mode_count": 5,
+    "examination_case_count": 80,
+    "mismatch_scale": 0.15,
+    "mismatch_pointwise_ceiling": 0.2,
+    "limits": {
+      "sample_period_seconds": 0.2,
+      "node_power": 0.36,
+      "node_ramp": 0.072,
+      "system_mva": 100.0,
+      "energy_mwh": 28.0,
+      "charge_efficiency": 0.9848857802,
+      "discharge_efficiency": 0.9848857802,
+      "minimum_soc": 0.2,
+      "maximum_soc": 0.8
+    },
+    "minimum_improvement": 0.02,
+    "comparison_identifiability": {
+      "decision": "ALLOW",
+      "scientific_object": "one-exact-fixed-pole-targeted-observer-feedback-construction",
+      "single_factor": "retain-versus-delete-named-transfer-blocks",
+      "estimand": "finite-bank-normalized-output-energy-value",
+      "matched": [
+        "full-retained-cross-executed-plant-models",
+        "delivered-four-coordinate-delayed-measurement",
+        "known-point-label",
+        "four-coordinate-action-and-node-governor",
+        "sample-timing-and-horizon",
+        "pole-targets-method-tolerances-and-one-call-budget",
+        "model-order-and-zero-tuning-candidates",
+        "disturbances-and-mismatch-transforms",
+        "objective-and-metrics"
+      ]
+    },
+    "classification": [
+      "INVALID-POLE-TARGET-EXAMINATION",
+      "POLE-TARGET-NO-GO",
+      "POLE-TARGET-PASS"
+    ],
+    "eval": "NOT-APPLICABLE-MODEL-ONLY",
+    "physical_execution_authorized": false,
+    "distributed_agent_implementation_authorized": false,
+    "training_authorized": false
+  },
+  "contract_payload_sha256": "fbc13b4576db368cb076a52483cd7493d0acca8231b0e29be94ff5e0903ffc54",
+  "parent": {
+    "r316_model": {
+      "path": "results/r316_dynamic_reduction/dynamic_model.json",
+      "sha256": "da0eef3efca6bba1f176156445c355b260f9d21fe48e223191d507bb62a6c6bc"
+    },
+    "r316_analysis": {
+      "path": "results/r316_dynamic_reduction/analysis.json",
+      "sha256": "a8c0f1ec0ce03a9a08da4f47cd661e921bebf7461154bf1ebece175a68368b7c"
+    },
+    "r319_seal": {
+      "path": "memory/rounds/R319/observer_lqr_seal.json",
+      "sha256": "e444b7a900010a18396b0c988af9f4e8267a386d321398c77bfcd1d0ab80c099"
+    },
+    "r319_result": {
+      "path": "results/r319_observer_lqr/controller_result.json",
+      "sha256": "73d85646d533cc1fe15efac5da03b5a87e9ae42118258d05d9e7792878046755"
+    },
+    "r319_analysis": {
+      "path": "results/r319_observer_lqr/analysis.json",
+      "sha256": "a7c5b811dfc9d5ef4c2095bfad326e8d241d2e2762d9576f6f6e8f28707abe3e"
+    },
+    "r319_provenance": {
+      "path": "results/r319_observer_lqr/provenance.json",
+      "sha256": "6889f193d952d3f6e1efae6170d37f1353802830a26f9b9752dd686814b002d3"
+    },
+    "r320_seal": {
+      "path": "memory/rounds/R320/pole_cause_seal.json",
+      "sha256": "ba60f46bf35f406418ccaed77f27db5877fe43ffec7412d0dea7d56bf3e63ca5"
+    },
+    "r320_diagnostic": {
+      "path": "results/r320_pole_cause/diagnostic.json",
+      "sha256": "d8abeba11fbfb8b060cd5c76ecfb9f0f9ea86c9dc92ba0fd18e0d205edb044f1"
+    },
+    "r320_analysis": {
+      "path": "results/r320_pole_cause/analysis.json",
+      "sha256": "f17642e819c9b898e2e7d9866e6d06699575f7f14799347f88743919a8495177"
+    },
+    "r320_provenance": {
+      "path": "results/r320_pole_cause/provenance.json",
+      "sha256": "fce1407630a91402d71fbdc0962a0b235b2395d815eb99ffe1b6fe9abc265613"
+    }
+  },
+  "sources": {
+    "plan": {
+      "path": "memory/rounds/R321/plan.md",
+      "sha256": "a54d311084716afd7adea28e955200b5d48fe492c88408715a711d35cad1ee3f"
+    },
+    "question": {
+      "path": "memory/questions/Q-0076.md",
+      "sha256": "39f35af13d4252097ffaf3bb4ad2b0a483d773804e593af1aab4a834fc801eba"
+    },
+    "dynamic_model_claim": {
+      "path": "memory/claims/CLM-0790.md",
+      "sha256": "56efe680429ddb157da2cecba6b5e8c78c4779a132676cb131cc62cebfa2b0fb"
+    },
+    "observer_lqr_claim": {
+      "path": "memory/claims/CLM-0805.md",
+      "sha256": "4227508956797e5e55c8e623f022295812f74e006a79953d0bffb0163a0b1117"
+    },
+    "pole_target_claim": {
+      "path": "memory/claims/CLM-0810.md",
+      "sha256": "f626d4233a88497b19f11b5870e72066d7200aa0920e0541c3fe45656293b1aa"
+    },
+    "r316_model": {
+      "path": "results/r316_dynamic_reduction/dynamic_model.json",
+      "sha256": "da0eef3efca6bba1f176156445c355b260f9d21fe48e223191d507bb62a6c6bc"
+    },
+    "r316_analysis": {
+      "path": "results/r316_dynamic_reduction/analysis.json",
+      "sha256": "a8c0f1ec0ce03a9a08da4f47cd661e921bebf7461154bf1ebece175a68368b7c"
+    },
+    "r319_seal": {
+      "path": "memory/rounds/R319/observer_lqr_seal.json",
+      "sha256": "e444b7a900010a18396b0c988af9f4e8267a386d321398c77bfcd1d0ab80c099"
+    },
+    "r319_result": {
+      "path": "results/r319_observer_lqr/controller_result.json",
+      "sha256": "73d85646d533cc1fe15efac5da03b5a87e9ae42118258d05d9e7792878046755"
+    },
+    "r319_analysis": {
+      "path": "results/r319_observer_lqr/analysis.json",
+      "sha256": "a7c5b811dfc9d5ef4c2095bfad326e8d241d2e2762d9576f6f6e8f28707abe3e"
+    },
+    "r319_provenance": {
+      "path": "results/r319_observer_lqr/provenance.json",
+      "sha256": "6889f193d952d3f6e1efae6170d37f1353802830a26f9b9752dd686814b002d3"
+    },
+    "r320_seal": {
+      "path": "memory/rounds/R320/pole_cause_seal.json",
+      "sha256": "ba60f46bf35f406418ccaed77f27db5877fe43ffec7412d0dea7d56bf3e63ca5"
+    },
+    "r320_diagnostic": {
+      "path": "results/r320_pole_cause/diagnostic.json",
+      "sha256": "d8abeba11fbfb8b060cd5c76ecfb9f0f9ea86c9dc92ba0fd18e0d205edb044f1"
+    },
+    "r320_analysis": {
+      "path": "results/r320_pole_cause/analysis.json",
+      "sha256": "f17642e819c9b898e2e7d9866e6d06699575f7f14799347f88743919a8495177"
+    },
+    "r320_provenance": {
+      "path": "results/r320_pole_cause/provenance.json",
+      "sha256": "fce1407630a91402d71fbdc0962a0b235b2395d815eb99ffe1b6fe9abc265613"
+    },
+    "observer_feedback_module": {
+      "path": "src/andes_rl_kundur/control/model_first_observer_lqr.py",
+      "sha256": "339bb96e7987e1a69f40db2361241e41c96093dd1d258d3c04cedc640abcd792"
+    },
+    "pole_target_module": {
+      "path": "src/andes_rl_kundur/control/model_first_pole_target.py",
+      "sha256": "7dced433a4ccbfc94a6f4b75e3faf04f37986d69e22e909483ab3406d3acc52d"
+    },
+    "validation_probe": {
+      "path": "probes/r321_pole_target_validation.py",
+      "sha256": "898545ac4e2d92af594debd30b98ca04ff48bdf2cc3b8058e2022b2825b487ea"
+    },
+    "adapter": {
+      "path": "scripts/run_r321_pole_target_examination.py",
+      "sha256": "328b18e5849c1612e02f8639b328ad16ef96916c9a60fab1a9ec79a689de3dd6"
+    },
+    "controller_tests": {
+      "path": "tests/test_model_first_pole_target.py",
+      "sha256": "c16b77e8d3c975d0143e26278861132260c2fc2d675c7d57c5e51894815b2da8"
+    },
+    "validation_tests": {
+      "path": "tests/test_r321_pole_target_validation.py",
+      "sha256": "bcda531ef867790581017d187f4e2f2ad0f05dd5ae0a5cefd02b443bea67307d"
+    },
+    "adapter_tests": {
+      "path": "tests/test_r321_pole_target_examination.py",
+      "sha256": "368f81f0a6f7c9925aadbc5653d580ae568c2879f113372311ec4ea1bbaba8c4"
+    }
+  }
+}

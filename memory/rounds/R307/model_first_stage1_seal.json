@@ -1,0 +1,109 @@
+{
+  "contract": {
+    "active_steps": 5,
+    "classification": [
+      "INVALID-STAGE1-EXECUTION",
+      "STAGE1-AUTHORITY-NO-GO",
+      "STAGE1-PASS"
+    ],
+    "control_period_seconds": 0.2,
+    "controller_development_authorized": false,
+    "eval": {
+      "edge_trace_count": 18,
+      "evidence_status": "EXTERNAL_AUTHORITY_REQUIRED",
+      "execution_profile": "vector_power",
+      "required_active_window_seconds": 1.0
+    },
+    "operating_points": [
+      {
+        "initial_soc": 0.5,
+        "name": "OP0",
+        "tie_rx_scale": 1.0,
+        "vsg_d_device": 100.0,
+        "vsg_m_device": 200.0
+      },
+      {
+        "initial_soc": 0.3,
+        "name": "OP1",
+        "tie_rx_scale": 1.0,
+        "vsg_d_device": 75.0,
+        "vsg_m_device": 150.0
+      },
+      {
+        "initial_soc": 0.7,
+        "name": "OP2",
+        "tie_rx_scale": 2.0,
+        "vsg_d_device": 125.0,
+        "vsg_m_device": 250.0
+      }
+    ],
+    "positive_power_coordinates_system_pu": {
+      "common": [
+        0.05,
+        0.05,
+        0.05,
+        0.05
+      ],
+      "edge_0": [
+        0.05,
+        -0.05,
+        0.0,
+        0.0
+      ],
+      "edge_1": [
+        0.0,
+        0.05,
+        -0.05,
+        0.0
+      ],
+      "edge_2": [
+        0.0,
+        0.0,
+        0.05,
+        -0.05
+      ]
+    },
+    "predictor_fitting_authorized": false,
+    "question": "Q-0063",
+    "recovery_steps": 20,
+    "round": "R307",
+    "stage": "non-learning-stage1",
+    "trace_count": 27,
+    "training_authorized": false
+  },
+  "contract_payload_sha256": "3288abfc765d48acbf8670f2ac7df9f64c951a0f382e9ed0941947eb1401edfc",
+  "created_utc": "2026-08-03T07:08:18.577847+00:00",
+  "question": "Q-0063",
+  "round": "R307",
+  "schema_version": 1,
+  "sources": {
+    "adapter": {
+      "path": "scripts/run_r307_model_first_stage1.py",
+      "sha256": "1e39f53396245b2fa74881a4f7355190f46ecdb5c9db1f5f7fbb01259d64189f"
+    },
+    "contract": {
+      "path": "src/andes_rl_kundur/env/andes/model_first_contract.py",
+      "sha256": "cd8a4648719879428e2cd9037bdcb47b3fef5bcaeed6d18b98ebf0022bfa2cf5"
+    },
+    "environment": {
+      "path": "src/andes_rl_kundur/env/andes/model_first_env.py",
+      "sha256": "2387c86316525982c143644b6793b0a3b71a448501062eeff0420f51a0293978"
+    },
+    "eval_v2": {
+      "path": "src/andes_rl_kundur/evaluation/eval_v2.py",
+      "sha256": "f9a36ee8c2f393299e550ca57fe28ab15d01447415649ec102d8e2e6f2546e13"
+    },
+    "plan": {
+      "path": "memory/rounds/R307/plan.md",
+      "sha256": "cfaa31eb716784b992158dc37ddac8534c6e113e38cb2c2cbc6d2dfa291e60e3"
+    },
+    "question": {
+      "path": "memory/questions/Q-0063.md",
+      "sha256": "6287776fcd96b856585899598cfe79fad15e776db14913741920048380e5817a"
+    },
+    "stage1_evaluator": {
+      "path": "src/andes_rl_kundur/evaluation/model_first_stage1.py",
+      "sha256": "65899b4f463cab546de981b3643f157b506848e9eb4d070151a4a2e4a8bacad1"
+    }
+  }
+}

@@ -1,0 +1,693 @@
+{
+  "arms": [
+    {
+      "architecture": "scalar_equal_sharing",
+      "name": "equal_sharing_pi",
+      "sync_gain": null
+    },
+    {
+      "architecture": "central_vector",
+      "name": "central_vector__ks1",
+      "sync_gain": 1.0
+    },
+    {
+      "architecture": "distributed_dapi",
+      "name": "distributed_dapi__ks1",
+      "sync_gain": 1.0
+    }
+  ],
+  "bootstrap": {
+    "interval_percent": [
+      2.5,
+      97.5
+    ],
+    "resamples": 20000,
+    "seed": 294004,
+    "unit": "matched scenario"
+  },
+  "claim_boundary": "one modified Kundur plant and the named deterministic laws only; no pure architecture, MARL, neural, MPC, topology-generalization, stability, or deployment claim",
+  "development_selection": {
+    "selected_candidates": {
+      "central_vector": "central_vector__ks1",
+      "distributed_dapi": "distributed_dapi__ks1"
+    },
+    "summary_sha256": "44d31352dc34b2a1b7417a6fc2e60c465c7e79396f18d59f61b581fe4d1078bf"
+  },
+  "dt_seconds": 0.2,
+  "estimand": "paired held-out performance of each fixed coupling-aware vector law against scalar equal-sharing PI; central-versus-distributed is the secondary executed-formulation contrast",
+  "jobs": [
+    {
+      "arm": {
+        "architecture": "scalar_equal_sharing",
+        "name": "equal_sharing_pi",
+        "sync_gain": null
+      },
+      "name": "k1__pq_0__neg__equal_sharing_pi",
+      "order": 0,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_0",
+        "name": "k1__pq_0__neg",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "architecture": "central_vector",
+        "name": "central_vector__ks1",
+        "sync_gain": 1.0
+      },
+      "name": "k1__pq_0__neg__central_vector__ks1",
+      "order": 1,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_0",
+        "name": "k1__pq_0__neg",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "architecture": "distributed_dapi",
+        "name": "distributed_dapi__ks1",
+        "sync_gain": 1.0
+      },
+      "name": "k1__pq_0__neg__distributed_dapi__ks1",
+      "order": 2,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_0",
+        "name": "k1__pq_0__neg",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "architecture": "scalar_equal_sharing",
+        "name": "equal_sharing_pi",
+        "sync_gain": null
+      },
+      "name": "k1__pq_1__neg__equal_sharing_pi",
+      "order": 3,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_1",
+        "name": "k1__pq_1__neg",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "architecture": "central_vector",
+        "name": "central_vector__ks1",
+        "sync_gain": 1.0
+      },
+      "name": "k1__pq_1__neg__central_vector__ks1",
+      "order": 4,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_1",
+        "name": "k1__pq_1__neg",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "architecture": "distributed_dapi",
+        "name": "distributed_dapi__ks1",
+        "sync_gain": 1.0
+      },
+      "name": "k1__pq_1__neg__distributed_dapi__ks1",
+      "order": 5,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_1",
+        "name": "k1__pq_1__neg",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "architecture": "scalar_equal_sharing",
+        "name": "equal_sharing_pi",
+        "sync_gain": null
+      },
+      "name": "k1__pq_1__pos__equal_sharing_pi",
+      "order": 6,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_1",
+        "name": "k1__pq_1__pos",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "architecture": "central_vector",
+        "name": "central_vector__ks1",
+        "sync_gain": 1.0
+      },
+      "name": "k1__pq_1__pos__central_vector__ks1",
+      "order": 7,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_1",
+        "name": "k1__pq_1__pos",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "architecture": "distributed_dapi",
+        "name": "distributed_dapi__ks1",
+        "sync_gain": 1.0
+      },
+      "name": "k1__pq_1__pos__distributed_dapi__ks1",
+      "order": 8,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_1",
+        "name": "k1__pq_1__pos",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "architecture": "scalar_equal_sharing",
+        "name": "equal_sharing_pi",
+        "sync_gain": null
+      },
+      "name": "k1__pq_bus14__neg__equal_sharing_pi",
+      "order": 9,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_Bus14",
+        "name": "k1__pq_bus14__neg",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "architecture": "central_vector",
+        "name": "central_vector__ks1",
+        "sync_gain": 1.0
+      },
+      "name": "k1__pq_bus14__neg__central_vector__ks1",
+      "order": 10,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_Bus14",
+        "name": "k1__pq_bus14__neg",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "architecture": "distributed_dapi",
+        "name": "distributed_dapi__ks1",
+        "sync_gain": 1.0
+      },
+      "name": "k1__pq_bus14__neg__distributed_dapi__ks1",
+      "order": 11,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_Bus14",
+        "name": "k1__pq_bus14__neg",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "architecture": "scalar_equal_sharing",
+        "name": "equal_sharing_pi",
+        "sync_gain": null
+      },
+      "name": "k1__pq_bus14__pos__equal_sharing_pi",
+      "order": 12,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_Bus14",
+        "name": "k1__pq_bus14__pos",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "architecture": "central_vector",
+        "name": "central_vector__ks1",
+        "sync_gain": 1.0
+      },
+      "name": "k1__pq_bus14__pos__central_vector__ks1",
+      "order": 13,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_Bus14",
+        "name": "k1__pq_bus14__pos",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "architecture": "distributed_dapi",
+        "name": "distributed_dapi__ks1",
+        "sync_gain": 1.0
+      },
+      "name": "k1__pq_bus14__pos__distributed_dapi__ks1",
+      "order": 14,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_Bus14",
+        "name": "k1__pq_bus14__pos",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "architecture": "scalar_equal_sharing",
+        "name": "equal_sharing_pi",
+        "sync_gain": null
+      },
+      "name": "k1__pq_bus15__pos__equal_sharing_pi",
+      "order": 15,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_Bus15",
+        "name": "k1__pq_bus15__pos",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "architecture": "central_vector",
+        "name": "central_vector__ks1",
+        "sync_gain": 1.0
+      },
+      "name": "k1__pq_bus15__pos__central_vector__ks1",
+      "order": 16,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_Bus15",
+        "name": "k1__pq_bus15__pos",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "architecture": "distributed_dapi",
+        "name": "distributed_dapi__ks1",
+        "sync_gain": 1.0
+      },
+      "name": "k1__pq_bus15__pos__distributed_dapi__ks1",
+      "order": 17,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_Bus15",
+        "name": "k1__pq_bus15__pos",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "architecture": "scalar_equal_sharing",
+        "name": "equal_sharing_pi",
+        "sync_gain": null
+      },
+      "name": "k2__pq_0__neg__equal_sharing_pi",
+      "order": 18,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_0",
+        "name": "k2__pq_0__neg",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "architecture": "central_vector",
+        "name": "central_vector__ks1",
+        "sync_gain": 1.0
+      },
+      "name": "k2__pq_0__neg__central_vector__ks1",
+      "order": 19,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_0",
+        "name": "k2__pq_0__neg",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "architecture": "distributed_dapi",
+        "name": "distributed_dapi__ks1",
+        "sync_gain": 1.0
+      },
+      "name": "k2__pq_0__neg__distributed_dapi__ks1",
+      "order": 20,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_0",
+        "name": "k2__pq_0__neg",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "architecture": "scalar_equal_sharing",
+        "name": "equal_sharing_pi",
+        "sync_gain": null
+      },
+      "name": "k2__pq_0__pos__equal_sharing_pi",
+      "order": 21,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_0",
+        "name": "k2__pq_0__pos",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "architecture": "central_vector",
+        "name": "central_vector__ks1",
+        "sync_gain": 1.0
+      },
+      "name": "k2__pq_0__pos__central_vector__ks1",
+      "order": 22,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_0",
+        "name": "k2__pq_0__pos",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "architecture": "distributed_dapi",
+        "name": "distributed_dapi__ks1",
+        "sync_gain": 1.0
+      },
+      "name": "k2__pq_0__pos__distributed_dapi__ks1",
+      "order": 23,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_0",
+        "name": "k2__pq_0__pos",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "architecture": "scalar_equal_sharing",
+        "name": "equal_sharing_pi",
+        "sync_gain": null
+      },
+      "name": "k2__pq_1__neg__equal_sharing_pi",
+      "order": 24,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_1",
+        "name": "k2__pq_1__neg",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "architecture": "central_vector",
+        "name": "central_vector__ks1",
+        "sync_gain": 1.0
+      },
+      "name": "k2__pq_1__neg__central_vector__ks1",
+      "order": 25,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_1",
+        "name": "k2__pq_1__neg",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "architecture": "distributed_dapi",
+        "name": "distributed_dapi__ks1",
+        "sync_gain": 1.0
+      },
+      "name": "k2__pq_1__neg__distributed_dapi__ks1",
+      "order": 26,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_1",
+        "name": "k2__pq_1__neg",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "architecture": "scalar_equal_sharing",
+        "name": "equal_sharing_pi",
+        "sync_gain": null
+      },
+      "name": "k2__pq_bus14__pos__equal_sharing_pi",
+      "order": 27,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_Bus14",
+        "name": "k2__pq_bus14__pos",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "architecture": "central_vector",
+        "name": "central_vector__ks1",
+        "sync_gain": 1.0
+      },
+      "name": "k2__pq_bus14__pos__central_vector__ks1",
+      "order": 28,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_Bus14",
+        "name": "k2__pq_bus14__pos",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "architecture": "distributed_dapi",
+        "name": "distributed_dapi__ks1",
+        "sync_gain": 1.0
+      },
+      "name": "k2__pq_bus14__pos__distributed_dapi__ks1",
+      "order": 29,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_Bus14",
+        "name": "k2__pq_bus14__pos",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "architecture": "scalar_equal_sharing",
+        "name": "equal_sharing_pi",
+        "sync_gain": null
+      },
+      "name": "k2__pq_bus15__neg__equal_sharing_pi",
+      "order": 30,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_Bus15",
+        "name": "k2__pq_bus15__neg",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "architecture": "central_vector",
+        "name": "central_vector__ks1",
+        "sync_gain": 1.0
+      },
+      "name": "k2__pq_bus15__neg__central_vector__ks1",
+      "order": 31,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_Bus15",
+        "name": "k2__pq_bus15__neg",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "architecture": "distributed_dapi",
+        "name": "distributed_dapi__ks1",
+        "sync_gain": 1.0
+      },
+      "name": "k2__pq_bus15__neg__distributed_dapi__ks1",
+      "order": 32,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_Bus15",
+        "name": "k2__pq_bus15__neg",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "architecture": "scalar_equal_sharing",
+        "name": "equal_sharing_pi",
+        "sync_gain": null
+      },
+      "name": "k2__pq_bus15__pos__equal_sharing_pi",
+      "order": 33,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_Bus15",
+        "name": "k2__pq_bus15__pos",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "architecture": "central_vector",
+        "name": "central_vector__ks1",
+        "sync_gain": 1.0
+      },
+      "name": "k2__pq_bus15__pos__central_vector__ks1",
+      "order": 34,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_Bus15",
+        "name": "k2__pq_bus15__pos",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "architecture": "distributed_dapi",
+        "name": "distributed_dapi__ks1",
+        "sync_gain": 1.0
+      },
+      "name": "k2__pq_bus15__pos__distributed_dapi__ks1",
+      "order": 35,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_Bus15",
+        "name": "k2__pq_bus15__pos",
+        "tie_k": 2.0
+      }
+    }
+  ],
+  "plant": "AndesMultiVSGEnvV4Storage full nonlinear DAE",
+  "question": "Q-0051",
+  "round": "R294",
+  "scenarios": [
+    {
+      "delta_u": -1.0,
+      "location": "PQ_0",
+      "name": "k1__pq_0__neg",
+      "tie_k": 1.0
+    },
+    {
+      "delta_u": -1.0,
+      "location": "PQ_1",
+      "name": "k1__pq_1__neg",
+      "tie_k": 1.0
+    },
+    {
+      "delta_u": 1.0,
+      "location": "PQ_1",
+      "name": "k1__pq_1__pos",
+      "tie_k": 1.0
+    },
+    {
+      "delta_u": -1.0,
+      "location": "PQ_Bus14",
+      "name": "k1__pq_bus14__neg",
+      "tie_k": 1.0
+    },
+    {
+      "delta_u": 1.0,
+      "location": "PQ_Bus14",
+      "name": "k1__pq_bus14__pos",
+      "tie_k": 1.0
+    },
+    {
+      "delta_u": 1.0,
+      "location": "PQ_Bus15",
+      "name": "k1__pq_bus15__pos",
+      "tie_k": 1.0
+    },
+    {
+      "delta_u": -1.0,
+      "location": "PQ_0",
+      "name": "k2__pq_0__neg",
+      "tie_k": 2.0
+    },
+    {
+      "delta_u": 1.0,
+      "location": "PQ_0",
+      "name": "k2__pq_0__pos",
+      "tie_k": 2.0
+    },
+    {
+      "delta_u": -1.0,
+      "location": "PQ_1",
+      "name": "k2__pq_1__neg",
+      "tie_k": 2.0
+    },
+    {
+      "delta_u": 1.0,
+      "location": "PQ_Bus14",
+      "name": "k2__pq_bus14__pos",
+      "tie_k": 2.0
+    },
+    {
+      "delta_u": -1.0,
+      "location": "PQ_Bus15",
+      "name": "k2__pq_bus15__neg",
+      "tie_k": 2.0
+    },
+    {
+      "delta_u": 1.0,
+      "location": "PQ_Bus15",
+      "name": "k2__pq_bus15__pos",
+      "tie_k": 2.0
+    }
+  ],
+  "schema_version": 1,
+  "shard_count": 3,
+  "sources": {
+    "controller": {
+      "path": "src/andes_rl_kundur/control/coupling_aware_power.py",
+      "sha256": "4eff7eb6a251a22f4bf8b11df78c3e3972e9bcb9c44a1a27e589233d6543a15f"
+    },
+    "development_runner": {
+      "path": "scripts/run_r294_fast_controller_development.py",
+      "sha256": "20be7bd30982d58ad4ea49192abf20117aa7c9be76f52f81ac0b698fb41ffb6b"
+    },
+    "development_summary": {
+      "path": "results/r294_model_validation/stage_c_fast_controller_development_v1/development_summary.json",
+      "sha256": "44d31352dc34b2a1b7417a6fc2e60c465c7e79396f18d59f61b581fe4d1078bf"
+    },
+    "fast_endpoints": {
+      "path": "src/andes_rl_kundur/evaluation/fast_md_authority.py",
+      "sha256": "1ace62f74d2357d5fcbf8664099d026074201617b6c5d505b89255e6e03669aa"
+    },
+    "protocol": {
+      "path": "memory/rounds/R294/stage_d_compact_controller_validation_protocol.md",
+      "sha256": "afd549c7be5d0807b29f115d47d8727c232350daa0508ee108f3a941f1f9bd64"
+    },
+    "runner": {
+      "path": "scripts/run_r294_compact_controller_validation.py",
+      "sha256": "b623a86a448f5a6c0d2e1250776d281c679b4af082a5d04589e3d72399fe1869"
+    }
+  },
+  "stage": "stage_d_compact_controller_validation",
+  "steps": 100,
+  "thresholds": {
+    "common_ratio_interval_upper_max": 1.05,
+    "common_worst_individual_ratio_max": 1.1,
+    "differential_point_ratio_max": 0.98,
+    "differential_ratio_interval_upper_max_exclusive": 1.0
+  }
+}

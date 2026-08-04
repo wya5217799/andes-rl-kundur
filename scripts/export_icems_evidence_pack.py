@@ -65,16 +65,27 @@ def _sidecar_digest(path: Path) -> str:
 
 
 def _verified_bytes(path: Path, expected_sha256: str | None = None) -> bytes:
+    """Verify immutable text on checkouts with or without Git CRLF conversion.
+
+    Historical sidecars were computed from LF bytes.  A Windows checkout with
+    ``core.autocrlf=true`` can materialize the same tracked JSON as CRLF while
+    Git still reports a clean tree.  Accept only that exact line-ending
+    transform; every other byte change remains a hard hash failure.  Return
+    the LF-canonical bytes so downstream provenance keeps the sidecar digest.
+    """
     if not path.is_file():
         raise FileNotFoundError(f"missing evidence source: {_relative(path)}")
     expected = expected_sha256 or _sidecar_digest(path)
     data = path.read_bytes()
     actual = _sha256_bytes(data)
-    if actual != expected:
-        raise ValueError(
-            f"hash mismatch for {_relative(path)}: expected {expected}, got {actual}"
-        )
-    return data
+    if actual == expected:
+        return data
+    lf_data = data.replace(b"\r\n", b"\n")
+    if lf_data != data and _sha256_bytes(lf_data) == expected:
+        return lf_data
+    raise ValueError(
+        f"hash mismatch for {_relative(path)}: expected {expected}, got {actual}"
+    )
 
 
 def _verified_json(

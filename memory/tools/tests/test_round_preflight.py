@@ -15,6 +15,7 @@ from round_preflight import (  # noqa: E402
     _cited_run_names,
     _extract_methodology_flags,
     check_dual_metric_plan,
+    check_formal_launch_contract,
     check_plan_structure,
     check_prior_art,
     check_superseded_citations,
@@ -155,6 +156,71 @@ def test_plan_structure_silent_with_outcomes_section(tmp_path: Path):
     check_plan_structure(report, plan)
     # No no-preregistration warning expected
     assert not any(f.check == "no-preregistration" for f in report.findings)
+
+
+# ── check: formal ANDES launch contract ───────────────────────────────
+
+def test_formal_andes_plan_blocks_without_launch_contract(tmp_path: Path):
+    plan = (
+        "# R001 plan — formal run\n"
+        "- Workload: `evidence`\n"
+        "- Execute ANDES once in WSL after sealing.\n"
+    )
+    report = PreflightReport(round_id="R001", plan_path=tmp_path / "plan.md")
+    check_formal_launch_contract(report, plan, max_wsl_python_processes=3)
+    assert any(
+        f.check == "formal-launch-contract" and f.level == "BLOCK"
+        for f in report.findings
+    )
+
+
+def test_formal_andes_plan_blocks_process_count_above_repository_cap(
+        tmp_path: Path):
+    plan = (
+        "# R001 plan — formal run\n"
+        "- Workload: `evidence`\n"
+        "- Execute ANDES once in WSL after sealing.\n"
+        "## Formal launch contract\n"
+        "- formal_entry: scripts/run_formal.py --execute\n"
+        "- rehearsal_command: scripts/run_formal.py --verify-runtime\n"
+        "- rehearsal_scope: same-pre-attempt-path\n"
+        "- rehearsal_checks: source_hash,parent_hash,installed_package,"
+        "installed_case,output_absence\n"
+        "- wsl_python_processes: 4\n"
+        "- native_threads_per_process: 1\n"
+    )
+    report = PreflightReport(round_id="R001", plan_path=tmp_path / "plan.md")
+    check_formal_launch_contract(report, plan, max_wsl_python_processes=3)
+    assert any(
+        f.check == "wsl-process-cap" and f.level == "BLOCK"
+        for f in report.findings
+    )
+
+
+def test_formal_andes_plan_accepts_complete_launch_contract(tmp_path: Path):
+    plan = (
+        "# R001 plan — formal run\n"
+        "- Workload: `evidence`\n"
+        "- Execute ANDES once in WSL after sealing.\n"
+        "## Formal launch contract\n"
+        "- formal_entry: scripts/run_formal.py --execute\n"
+        "- rehearsal_command: scripts/run_formal.py --verify-runtime\n"
+        "- rehearsal_scope: same-pre-attempt-path\n"
+        "- rehearsal_checks: source_hash,parent_hash,installed_package,"
+        "installed_case,output_absence\n"
+        "- wsl_python_processes: 3\n"
+        "- native_threads_per_process: 1\n"
+    )
+    report = PreflightReport(round_id="R001", plan_path=tmp_path / "plan.md")
+    check_formal_launch_contract(report, plan, max_wsl_python_processes=3)
+    assert not any(f.level == "BLOCK" for f in report.findings)
+
+
+def test_non_andes_plan_does_not_need_formal_launch_contract(tmp_path: Path):
+    plan = "# R001 plan — offline proof\n- Workload: `evidence`\n"
+    report = PreflightReport(round_id="R001", plan_path=tmp_path / "plan.md")
+    check_formal_launch_contract(report, plan, max_wsl_python_processes=3)
+    assert report.findings == []
 
 
 # ── check: prior-art ──────────────────────────────────────────────────

@@ -1,30 +1,66 @@
-# 目标期刊决策记录：一主一备(2026-07-29 查证)
+# Venue Gate 决策记录 — SHORTLISTED（2026-07-30）
 
-**用途**: SCI 期刊扩展版投稿目标决策;与 `REPORT.md` §7、`DIFFERENTIATION_MEMO.md` 配套
-**数据口径**: 中科院分区以 **2025 年 3 月升级版**(2025-03-20 发布,当前最新正式版)为准;IF 为 2026 年 6 月发布的 2025 年度 JCR 值。2026 年 3 月中科院另发"新锐分区"试行表,主流认定仍看升级版,投稿前以单位认定口径复核。
-**查证来源**: LetPub、JustScience、ablesci、学术之家、NE电气(2025 版分区发布稿),均为第三方聚合站;官方表(journal LetPub 分区小程序/中科院分区表官方平台)投稿前再复核一次。
+**目标**：为 ICEMS 2026 的 SCI 扩展版选择“主投、备投、冲刺”路线。
+**当前状态**：短名单已形成，但尚未锁刊。主投 IJEPES，备投 EPSR，冲刺 MPCE。
+**没有锁定的原因**：官方 scope、作者指南与费用状态已刷新；“至少三区、保二稳三”依赖
+中科院分区及本单位认定口径，现有仓库材料主要来自第三方聚合站，不能视为当前官方证明。
 
-## 候选对照(2025 年 3 月升级版)
+## Pass 0 — 投稿约束
 
-| 期刊 | 大类(工程技术) | 小类(电子与电气) | IF (2025年度) | JCR | 预警 | 审稿周期(经验) | 年文量 | OA | 同类口径 |
-|---|---|---|---|---|---|---|---|---|---|
-| **IJEPES** | **2区** | 3区 | 5.3 | Q1 | 否 | 官方 ~124 天;经验 2–4 月 | ~650–980 | 混合 (APC $3500 可选) | Fu 2022 自适应惯量多 VSG [调研 ref 13] 即发表于此 |
-| **MPCE** | **2区** | 2区 | 6.2 | Q1 | 否 | 经验 2–6 月,年文量小 | ~150–180 | Gold OA ~100% | Shuai 2024 安全 RL GFM [调研 ref 38] 即发表于此 |
-| **EPSR** | **3区** | 3区 | 4.3 | Q2 | 否 | 网友 3–6 周;官方 ~9.1 周;经验"容易" | ~750–1120 | 混合 (APC $2870 可选) | 电力系统稳定/控制综合类,口径宽 |
-| IET GTD | 4区 | 4区 | 2.8 | Q2/Q3 | 否 | 1–3 月 | ~220–340 | Gold OA 100%(必付 APC) | 不满足"3 区保底",排除 |
+- 首要目标：尽快完成并发表这篇 SCI，作者期望至少中科院三区，理想为二区。
+- 论文类型：电力系统控制与稳定性；学习控制是手段，核心故事是 VSG 惯量空间配置机理及弱网验证。
+- 扩展边界：保留“所测参数共享标量策略有效但弱于集中式 TD3”的结果，不外推到
+  MARL 架构整体；不虚构 Lyapunov 证明、真实 SCR 数值或跨拓扑泛化。
+- 费用偏好：不是硬性排除 OA，但锁刊前必须确认费用和报销渠道。
 
-注:IJEPES 小类由 2023 版的 2 区降为 3 区、失去 Top;MPCE 大类由 2023 版的 1 区降为 2 区——两刊当年均属 2 区但都在缓慢下行,投稿窗口宜早不宜迟。
+## Pass 1 — 当前短名单
 
-## 推荐:主 IJEPES,备 EPSR
+| 顺位 | 期刊 | 官方页面当前可验证的匹配点 | 仍需作者确认 |
+|---|---|---|---|
+| 主投 | International Journal of Electrical Power & Energy Systems (IJEPES) | scope 覆盖电力系统建模、运行、控制和数据驱动方法；作者指南要求说明研究数据可用性，原创论文建议不超过 20 页双倍行距 | 当前中科院分区、本单位认可口径、最终页面与模板约束 |
+| 备投 | Electric Power Systems Research (EPSR) | scope 宽，覆盖发输配用电系统的规划、运行、控制与保护；官方页面显示混合 OA | 当前中科院分区、本单位认可口径、转投时的篇幅与格式 |
+| 冲刺 | Journal of Modern Power Systems and Clean Energy (MPCE) | scope 与现代电力系统建模、分析、控制和可再生能源接入匹配；期刊官网说明当前由赞助方承担开放获取费用 | 当前中科院分区、本单位认可口径、稿件竞争力与当期政策 |
 
-- **主投 IJEPES**:2 区达标、JCR Q1;收稿口径与本文最贴合(并联 VSG 自适应惯量、惯量配置、学习控制均在其近两年发文谱系内);发文量大、周期适中,第一篇 SCI 的命中概率显著高于 MPCE;非全 OA,可不付 APC。
-- **备选 EPSR**:若 IJEPES 被拒,3 区保底、审稿快(经验 3–6 周)、对控制+稳定性综合类稿件友好,转投成本低。
-- **若 PI 更重档次**:可把 MPCE 提为一志愿(小类 2 区、IF 6.2、安全 RL 同类口径),代价是年文量小、选择性强、Gold OA 必付 APC,且命中率对第一篇不友好——这是"冲",不是"主"。
-- IET GTD 已 4 区,与"3 区保底"目标不符,从候选中移除。
+## 决策
 
-## 投稿前核对清单
+1. **保持 IJEPES 为主投**：论文的系统控制、VSG 机理和数据驱动控制定位与官方 scope
+   最直接匹配；会议扩展到期刊所需的机理深度和弱网验证也能形成完整故事。
+2. **EPSR 为低成本备投**：主题匹配宽，若 IJEPES 因故事强度或版面要求拒稿，正文结构改动相对可控。
+3. **MPCE 只作冲刺项**：官方 scope 和当前 diamond OA 状态都合适，但是否值得升为主投应由论文完成后的
+   新颖性、机理完整性和作者对风险的偏好决定，不能仅凭影响因子判断。
+4. **不在这里确认“二区/三区”**：正式锁刊前，作者必须在本单位认可的中科院分区平台核验三刊当年口径。
 
-- [ ] 中科院分区表官方平台复核 IJEPES/EPSR 当年分区(2026 年底将发新版升级版,若跨年以发表年口径重查)
-- [ ] LetPub/小木虫读 IJEPES 近 6 个月投稿经验贴,确认当前实际审稿速度
-- [ ] IJEPES Guide for Authors 页数/格式限制;调研报告 §7 期刊候选名单(IET RPG、IEEE Access)不再单列,如需再补查
-- [ ] 若改走 MPCE:确认 APC 金额与报销渠道
+## Pass 2 — 锁刊条件
+
+只有同时满足以下条件，`LINE.md` 的 venue 状态才可由 `shortlisted` 改为 `locked`：
+
+- C1/C2 的完整论证和图表结构稳定，摘要与贡献点可被准确概括；
+- 用目标期刊近期论文做一次有边界的新颖性复核，不把普通关键词相似当作同一贡献；
+- 作者确认当年中科院分区、本单位认定、OA/APC 与预算；
+- 官方 Guide for Authors、伦理/数据/会议扩展要求已由 `audit-journal-submission` 刷新；
+- 主投与备投的转投成本可接受。
+
+## Pass 3 — 投稿前复核
+
+- 在写 venue-specific framing 或套模板之前复核一次；
+- 在提交前复核一次官方作者指南、费用、数据声明、会议扩展和投稿材料；
+- 若论文贡献、期刊 scope、排名口径、费用或政策发生实质变化，立即把状态改为 `revalidate`；
+- 任何第三方审稿周期、影响因子或分区数字只作线索，不作最终决策证据。
+
+## 官方来源快照（2026-07-30）
+
+- IJEPES journal page 与 Guide for Authors：
+  <https://www.sciencedirect.com/journal/international-journal-of-electrical-power-and-energy-systems>
+  和
+  <https://www.sciencedirect.com/journal/international-journal-of-electrical-power-and-energy-systems/publish/guide-for-authors>
+- EPSR journal page 与 Insights：
+  <https://www.sciencedirect.com/journal/electric-power-systems-research>
+  和
+  <https://www.sciencedirect.com/journal/electric-power-systems-research/about/insights>
+- MPCE 官方介绍与 IEEE 页面：
+  <https://www.mpce.info/mpce/site/menu/20130706094849001>
+  和
+  <https://ieeexplore.ieee.org/xpl/RecentIssue.jsp?punumber=8685265>
+
+下一次复核截止日期登记在 `ARTIFACTS.json`；到期或触发条件出现时，本记录仍可读取，但不得继续作为
+“当前有效的锁刊依据”。

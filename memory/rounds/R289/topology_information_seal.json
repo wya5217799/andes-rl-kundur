@@ -1,0 +1,233 @@
+{
+  "adapter_contract": {
+    "overrides": {
+      "question": "Q-0047",
+      "round": "R289",
+      "selection": "canonical retained parallel-circuit outages"
+    },
+    "parent_probe": "probes/r288_topology_information.py",
+    "unchanged": [
+      "allocation_library",
+      "eig_cell",
+      "mode_identification",
+      "branch_checks",
+      "estimands",
+      "classification",
+      "artifact_immutability"
+    ]
+  },
+  "asset_protection": {
+    "formal_artifacts_are_create_only": true,
+    "no_gnn": true,
+    "no_manuscript_write": true,
+    "no_time_domain": true,
+    "no_training": true,
+    "r288_read_only": true
+  },
+  "contract": {
+    "allocations": {
+      "h1_neg": [
+        200.0,
+        200.0,
+        500.0,
+        500.0
+      ],
+      "h1_pos": [
+        500.0,
+        500.0,
+        200.0,
+        200.0
+      ],
+      "h2_neg": [
+        200.0,
+        500.0,
+        200.0,
+        500.0
+      ],
+      "h2_pos": [
+        500.0,
+        200.0,
+        500.0,
+        200.0
+      ],
+      "h3_neg": [
+        200.0,
+        500.0,
+        500.0,
+        200.0
+      ],
+      "h3_pos": [
+        500.0,
+        200.0,
+        200.0,
+        500.0
+      ],
+      "q0": [
+        350.0,
+        350.0,
+        350.0,
+        350.0
+      ]
+    },
+    "anchor_mapping": {
+      "h1_neg": "R281 q=-0.25",
+      "h1_pos": "R281 q=+0.25",
+      "q0": "R281 q=0"
+    },
+    "matrix_shape": [
+      4,
+      7
+    ],
+    "mode_rule": {
+      "conjugate_merge": true,
+      "frequency_band_hz": [
+        0.2,
+        1.5
+      ],
+      "pick": "max abs(P_area1-P_area2)"
+    },
+    "nominal_anchors": {
+      "h1_neg": 0.030234522039957863,
+      "h1_pos": 0.021315342476390223,
+      "q0": 0.019472578319344958
+    },
+    "positive_real_tolerance": 1e-07,
+    "required_cell_guards": [
+      "pflow_converged",
+      "g4_zeroed",
+      "total_m_pass",
+      "opened_line_pass",
+      "bus_count_pass",
+      "vsg_count_pass",
+      "positive_real_stable"
+    ],
+    "thresholds": {
+      "anchor_damping_tolerance": 1e-06,
+      "cross_topology_cosine_min": 0.8,
+      "cross_topology_frequency_delta_max_hz": 0.1,
+      "headroom_max_min_percent": 5.0,
+      "headroom_mean_min_percent": 2.0,
+      "within_cosine_min": 0.9,
+      "within_frequency_delta_max_hz": 0.05
+    },
+    "topologies": [
+      {
+        "name": "nominal",
+        "opened_line": null
+      },
+      {
+        "endpoints": [
+          5,
+          6
+        ],
+        "group_lines": [
+          "Line_0",
+          "Line_1"
+        ],
+        "line": {
+          "b": 0.075,
+          "b1": 0.0,
+          "b2": 0.0,
+          "bus1": 5,
+          "bus2": 6,
+          "idx": "Line_0",
+          "position": 0,
+          "r": 0.005,
+          "x": 0.05
+        },
+        "name": "topology_1",
+        "opened_line": "Line_0"
+      },
+      {
+        "endpoints": [
+          6,
+          7
+        ],
+        "group_lines": [
+          "Line_2",
+          "Line_3"
+        ],
+        "line": {
+          "b": 0.03,
+          "b1": 0.0,
+          "b2": 0.0,
+          "bus1": 6,
+          "bus2": 7,
+          "idx": "Line_2",
+          "position": 2,
+          "r": 0.002,
+          "x": 0.02
+        },
+        "name": "topology_2",
+        "opened_line": "Line_2"
+      },
+      {
+        "endpoints": [
+          9,
+          10
+        ],
+        "group_lines": [
+          "Line_9",
+          "Line_10"
+        ],
+        "line": {
+          "b": 0.075,
+          "b1": 0.0,
+          "b2": 0.0,
+          "bus1": 9,
+          "bus2": 10,
+          "idx": "Line_9",
+          "position": 9,
+          "r": 0.005,
+          "x": 0.05
+        },
+        "name": "topology_3",
+        "opened_line": "Line_9"
+      }
+    ],
+    "topology_semantics": "single-circuit outage in a retained parallel group; multigraph/status/admittance change, simple adjacency unchanged"
+  },
+  "contract_payload_sha256": "3447dc799a50fbf8afea0170c65f80e124efa9c8903f078334683fa1cdc84f54",
+  "created_utc": "2026-07-30T05:33:20.903032+00:00",
+  "question": "Q-0047",
+  "round": "R289",
+  "schema_version": 1,
+  "sources": {
+    "adapter": {
+      "path": "scripts/run_r289_topology_information.py",
+      "sha256": "cf04520a41a406de9cc6e4c07d67a9d701ed54f9a72734357d0dcf0fdf844cc6"
+    },
+    "eig_common": {
+      "path": "probes/eig_alloc_common.py",
+      "sha256": "72f88c49ae025d07ec7afc461d6cccf7e8eb4a5fe010d6e0b638e0db0f0455a5"
+    },
+    "environment": {
+      "path": "src/andes_rl_kundur/env/andes/andes_vsg_env_v4.py",
+      "sha256": "b4069d4702a334526df994132ed3413c391fd412438929e0078220bbecb144d5"
+    },
+    "parent_probe": {
+      "path": "probes/r288_topology_information.py",
+      "sha256": "249c610484660a278ab557539e3f3bdbce00ef8bca15a466d8c0ce01cf8cd960"
+    },
+    "plan": {
+      "path": "memory/rounds/R289/plan.md",
+      "sha256": "f4dba35918351f07929ce809912f01f7886eddd6d151769e9cb9a35d028dfed4"
+    },
+    "pure_decision_module": {
+      "path": "src/andes_rl_kundur/evaluation/topology_information.py",
+      "sha256": "d1a1000c48884478ef5930cac5c60af9f4ca57a9d4a123b25cb8e3063ddd6111"
+    },
+    "r281_anchor_source": {
+      "path": "results/r281_eig_mechanism/summary.json",
+      "sha256": "06344bfa07e014b69fa68785172bd08c6f5c957c2afda3230612790e8d27a559"
+    },
+    "r288_structural_input": {
+      "path": "results/r288_topology_information/topology_inventory.json",
+      "sha256": "ccf52b98fc082f3469950dd7895741e4b366cabaf9b75e96bf3204c3cc8ce7a2"
+    }
+  },
+  "topology_inventory": {
+    "path": "results/r289_topology_information/topology_inventory.json",
+    "sha256": "4bf339d581a0c9d9f69b27df6948da1add20837695aed59e84e208014ef29cbc"
+  }
+}

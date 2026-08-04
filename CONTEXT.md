@@ -83,8 +83,9 @@ Four-entity research memory system (active oracle since R39):
   Q-sections (opened / closed / advanced) and — for R≥59 — a
   mandatory `## 给 PI 的话` section (see `PI 简报` below, ADR-0003).
 - **STATE.md** (`memory/STATE.md`): auto-rendered active oracle. From
-  R59 onward, top section is `## 给 PI 的简报（最新一轮）` (lifted
-  from the newest R≥59 verdict, with glossary annotation). Followed
+  R59 onward, the top section is lifted from the newest briefing. Legacy
+  rounds render `## 给 PI 的简报（最新一轮）`; R317+ renders the identifier-free
+  `## 给你的研究汇报` without glossary injection. Followed
   by the legacy 6 sections (headlines / in-flight / open Qs / recently
   closed / latest round / stats) plus `## 历史简报` at the bottom.
   Reads claims + questions + rounds + `memory/glossary.yml`.
@@ -93,27 +94,29 @@ Four-entity research memory system (active oracle since R39):
   `memory/handoffs/README.md`.
 Full design rationale: `memory/rounds/R39/plan.md`.
 
-### `PI 简报` / briefing layer
-The fourth mandatory section of `memory/rounds/RNN/verdict.md` (for
-R≥59), titled `## 给 PI 的话`. Written for the user as research
-partner, not as sign-off authority. Five fixed sub-segments:
+### `PI 简报` / 人话汇报层
+The mandatory `## 给 PI 的话` section in each post-R59 verdict. ADR-0003
+introduced it; ADR-0011 replaces its forward format from R317 onward with
+three reader questions:
 
-1. **这周干了啥** — 1–2 sentences of context
-2. **结果（一句话）** — headline number / outcome
-3. **意外** — surprising finding / risk flag — the participation hook
-4. **我默认下一步做** — agent's intended default action
-5. **你想插一脚就说** — explicit invitation; silence = default proceeds
+1. **发生了什么** — the problem and the change, in complete natural Chinese
+2. **这说明什么** — what passed, what it supports, and what remains unknown
+3. **下一步做什么** — the default next action and the condition for stopping
 
-Soft cap ≤ 30 lines (validator warns, does not block). `render.py`
-lifts the latest one to STATE.md's `## 给 PI 的简报（最新一轮）`.
-Designed in ADR-0003 (2026-05-17).
+This is a separate reader-facing layer, not a shortened technical report. It
+contains no English abbreviation, repository ID, filename, code name, or
+obvious specialist term. A number remains only when it directly communicates
+improvement, deterioration, or pass/fail. Exact terminology and data stay in
+the feed, claim, results, and technical verdict skeleton. `render.py` lifts
+the latest briefing into STATE.md.
 
-### `术语速查` / glossary inline-annotation
+### `术语速查` / glossary inline-annotation (legacy briefing support)
 `memory/glossary.yml` maps project jargon to ≤ 30-char definitions.
-`render.py` annotates each term on **first occurrence per briefing**
+`render.py` annotates each term on **first occurrence per legacy briefing**
 as `term(definition)`; subsequent uses bare. Goal: PI never hits an
 unexplained acronym in the briefing. ASCII-word lookarounds make the
-match Chinese-safe (`用LSTM时` matches `LSTM`).
+match Chinese-safe (`用LSTM时` matches `LSTM`). New R317+ briefings reject
+such terms before rendering; the glossary remains for immutable history.
 
 ### `AI 自治 vs PI 参与`
 Operational principle (R59 / ADR-0003). AI agents retain autonomous

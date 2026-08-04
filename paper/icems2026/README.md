@@ -4,8 +4,10 @@ The title is intentionally unchanged from the submitted digest. The paper
 reports the completed R274--R280 evidence chain. The formal result uses three
 predefined seeds, a prospectively generated fresh disturbance bank, and a
 size-matched centralized TD3 baseline. It supports learned differential
-allocation but not incremental value from the multi-agent factorization. No
-additional experiment is required for this manuscript version.
+allocation and shows that the tested scalar parameter-sharing factorization is
+meaningfully effective but inferior to the centralized actor. It does not
+support an architecture-wide conclusion about MARL. No additional experiment
+is required for this manuscript version.
 
 Regenerate the evidence macros and vector result figures from the fixed
 summaries and retained trajectories:

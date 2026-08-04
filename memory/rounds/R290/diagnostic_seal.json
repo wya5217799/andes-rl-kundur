@@ -1,0 +1,131 @@
+{
+  "allocation_contract": {
+    "order": [
+      "q0",
+      "h1_pos",
+      "h1_neg",
+      "h2_pos",
+      "h2_neg",
+      "h3_pos",
+      "h3_neg"
+    ],
+    "values": {
+      "h1_neg": [
+        200.0,
+        200.0,
+        500.0,
+        500.0
+      ],
+      "h1_pos": [
+        500.0,
+        500.0,
+        200.0,
+        200.0
+      ],
+      "h2_neg": [
+        200.0,
+        500.0,
+        200.0,
+        500.0
+      ],
+      "h2_pos": [
+        500.0,
+        200.0,
+        500.0,
+        200.0
+      ],
+      "h3_neg": [
+        200.0,
+        500.0,
+        500.0,
+        200.0
+      ],
+      "h3_pos": [
+        500.0,
+        200.0,
+        200.0,
+        500.0
+      ],
+      "q0": [
+        350.0,
+        350.0,
+        350.0,
+        350.0
+      ]
+    }
+  },
+  "asset_protection": {
+    "formal_artifacts_create_only": true,
+    "no_manuscript_write": true,
+    "no_time_integration": true,
+    "no_training": true,
+    "no_value_matrix": true,
+    "q0_only": true,
+    "r288_r289_read_only": true
+  },
+  "created_utc": "2026-07-30T05:47:16.873179+00:00",
+  "hypotheses": [
+    "post-setup direct Line.u mutation leaves setup-derived topology state stale",
+    "the public Line.set API with optional connectivity refresh fixes initialization",
+    "EIG continues after TDS.test_ok=False and can expose an invalid-state spectrum",
+    "a positive pair persisting after valid pre/post-setup application is physical in this model"
+  ],
+  "methods": [
+    "post_setup_direct",
+    "post_setup_set",
+    "post_setup_set_connectivity",
+    "pre_setup_set"
+  ],
+  "question": "Q-0047",
+  "round": "R290",
+  "schema_version": 1,
+  "sources": {
+    "diagnostic_script": {
+      "path": "scripts/diagnose_r290_topology_initialization.py",
+      "sha256": "f1aac177f194a5ac6f444343095384b1997c78ed1b7a56baa0b48408df944fe0"
+    },
+    "eig_common": {
+      "path": "probes/eig_alloc_common.py",
+      "sha256": "72f88c49ae025d07ec7afc461d6cccf7e8eb4a5fe010d6e0b638e0db0f0455a5"
+    },
+    "environment": {
+      "path": "src/andes_rl_kundur/env/andes/andes_vsg_env_v4.py",
+      "sha256": "b4069d4702a334526df994132ed3413c391fd412438929e0078220bbecb144d5"
+    },
+    "plan": {
+      "path": "memory/rounds/R290/plan.md",
+      "sha256": "dce5b921cc37618a8cbe657131d8eb9f0973f6c6d052bcf3fe6e1cfafe3cd36c"
+    },
+    "pure_decision_module": {
+      "path": "src/andes_rl_kundur/evaluation/topology_information.py",
+      "sha256": "2819e7890a91f4c4a620bf47950d8bdf55d080bb92686bfdc5d550721fccd444"
+    },
+    "r288_structural_input": {
+      "path": "results/r288_topology_information/topology_inventory.json",
+      "sha256": "ccf52b98fc082f3469950dd7895741e4b366cabaf9b75e96bf3204c3cc8ce7a2"
+    },
+    "r289_analysis": {
+      "path": "results/r289_topology_information/analysis.json",
+      "sha256": "6e1164ad47397e9bf406c84fcb4a465a1e2db7e8267c410fdd33161e528a0a81"
+    },
+    "r289_seal": {
+      "path": "memory/rounds/R289/topology_information_seal.json",
+      "sha256": "20c2482983db4af58656139ddd2a7edd0b419c360d70202e604f84683c244677"
+    }
+  },
+  "target": {
+    "line": "Line_2",
+    "m_vector": [
+      350.0,
+      350.0,
+      350.0,
+      350.0
+    ],
+    "nominal_control": true
+  },
+  "thresholds": {
+    "initialization_residual": "strictly below installed TDS.config.tol",
+    "method_spectrum_match_tolerance": 1e-12,
+    "positive_real_tolerance": 1e-07
+  }
+}

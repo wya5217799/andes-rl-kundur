@@ -2,7 +2,7 @@
 version: 1
 status: active
 programme_id: tpwrs-vsg-graph-residual
-current_phase: P1_residual_mechanism
+current_phase: P2_topology_generalisation
 north_star: >-
   Establish first whether physically bounded active-power and energy
   actuation creates material common-frequency-restoration authority beyond
@@ -10,9 +10,33 @@ north_star: >-
   safety-constrained multi-timescale residual policy be tested against tuned
   classical baselines on unseen operating conditions and network topologies.
 # Closed priority blocks archived verbatim in memory/RESEARCH_PROGRAM_CLOSED.md
-# (2026-07-29, all closed through R285).  Add newly authorized questions below.
+# (2026-08-01, all closed through R292).  Add newly authorized questions below.
 # YAML 书写: 条目文本禁含 ": " (冒号+空格会被解析成 mapping) — 用 "—" 替代.
-priority_questions: []
+priority_questions:
+  - id: Q-0069
+    rank: 1
+    phase: P1_residual_mechanism
+    objective: >-
+      Determine whether a coupling-retaining predictor fitted only on R312
+      predicts separately sealed unseen pulse amplitudes and operating
+      conditions within prospective common/differential error bounds.
+    required_reading:
+      - memory/questions/Q-0069.md
+      - memory/claims/CLM-0770.md
+      - results/r312_model_first_stage1/analysis.json
+      - results/r312_model_first_stage1/run_manifest.json
+      - paper/decoupling_marl_model_first/working/model_contract.md
+    verification:
+      - Fit only on source-hash-verified R312 zero and paired-response records while retaining all estimated cross blocks.
+      - Freeze new held-out amplitudes and operating conditions, endpoint errors, tolerances, and failure handling before execution.
+      - Compare the coupling-retaining predictor with a matched block-diagonal ablation using identical fitting data and budget.
+      - Require create-only held-out traces, source hashes, execution guards, and paired prediction reports before interpretation.
+    scope_limits:
+      - Predictor construction and prospective held-out validation only.
+      - R312 is fitting evidence, not headline validation; no outcome-selected split or tolerance tuning.
+      - No controller development, distributed-agent runtime, reward optimization, MARL, or neural training.
+    stop_when:
+      - The predictor is classified as PASS, NO-GO, or invalid held-out validation under the frozen rules.
 phase_order:
   - P0_evidence_repair
   - P1_residual_mechanism
@@ -134,14 +158,13 @@ not just an architecture comparison.
 
 Publication tracks register here, one line per manuscript.  Each line's
 locked decisions, current state, pending forks, and asset pointers live in
-its own LINE.md beside that manuscript's assets; this section stays lean so
-future manuscript lines add exactly one line each.  Remove or archive a line
-at publication.
+its own LINE.md beside that manuscript's assets; its durable generated
+documents are indexed by the adjacent ARTIFACTS.json.  Each active line owns
+an exclusive write scope and may declare shared evidence as read-only.  This
+section stays lean so future manuscript lines add exactly one line each.
+Remove or archive a line at publication.
 
-- [active, top priority 2026-07-29] ICEMS 2026 -> SCI journal extension:
-  primary target IJEPES, backup EPSR, C1 mechanism spine; locked decisions
-  and current state in `paper/sci_upgrade_survey/LINE.md`.  Experiment-side
-  questions: Q-0042 (closed-partial), Q-0043 (closed-positive @ R283),
-  Q-0044 (closed-positive @ R285), Q-0045 (closed-positive @ R286 —
-  weak-tie SURVIVES, retention >=92%, location read clean).  Experiment
-  side complete 2026-07-29; drafting remains.
+- [active, top priority 2026-07-30] ICEMS 2026 -> SCI journal extension.
+  Current action, venue decision, evidence frontier, and all detailed pointers
+  live only in `paper/sci_upgrade_survey/LINE.md`; experiment side is closed
+  through R287 and no new experiment is authorized.

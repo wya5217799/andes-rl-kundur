@@ -1,9 +1,12 @@
 from __future__ import annotations
 
 import json
+import shutil
 import subprocess
 import sys
 from pathlib import Path
+
+import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 LAUNCHER = REPO_ROOT / "scripts" / "andes_scratch.py"
@@ -62,6 +65,48 @@ def test_launcher_propagates_child_exit_status(tmp_path: Path) -> None:
     )
 
     assert result.returncode == 7
+
+
+@pytest.mark.skipif(shutil.which("wsl.exe") is None, reason="WSL is unavailable")
+def test_wsl_launcher_replaces_itself_instead_of_holding_a_wrapper_process(
+    tmp_path: Path,
+) -> None:
+    script = tmp_path / "record_parent.py"
+    script.write_text(
+        "import os\n"
+        "from pathlib import Path\n"
+        "raw = Path(f'/proc/{os.getppid()}/cmdline').read_bytes()\n"
+        "print('PARENT_CMD=' + raw.replace(b'\\x00', b' ').decode(), flush=True)\n",
+        encoding="utf-8",
+    )
+
+    def wsl_path(path: Path) -> str:
+        resolved = path.resolve()
+        drive = resolved.drive.rstrip(":").lower()
+        tail = resolved.as_posix().split(":", maxsplit=1)[1].lstrip("/")
+        return f"/mnt/{drive}/{tail}"
+
+    result = subprocess.run(
+        [
+            "wsl.exe",
+            "/home/wya/andes_venv/bin/python",
+            wsl_path(LAUNCHER),
+            "--scratch-root",
+            wsl_path(tmp_path / "scratch"),
+            wsl_path(script),
+        ],
+        capture_output=True,
+        check=False,
+        text=True,
+        encoding="utf-8",
+        timeout=20,
+    )
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    parent_line = next(
+        line for line in result.stdout.splitlines() if line.startswith("PARENT_CMD=")
+    )
+    assert "andes_scratch.py" not in parent_line
 
 
 def test_launcher_anchors_repository_path_arguments_before_changing_cwd(

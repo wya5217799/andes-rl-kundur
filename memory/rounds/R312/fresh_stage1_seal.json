@@ -1,0 +1,177 @@
+{
+  "contract": {
+    "active_steps": 5,
+    "classification": [
+      "INVALID-STAGE1-EXECUTION",
+      "STAGE1-AUTHORITY-NO-GO",
+      "STAGE1-PASS"
+    ],
+    "control_period_seconds": 0.2,
+    "controller_development_authorized": false,
+    "eval": {
+      "bootstrap_resamples": 10000,
+      "bootstrap_seed": 2026080312,
+      "effect_optimization_authorized": false,
+      "evidence_status": "EXTERNAL_AUTHORITY_REQUIRED",
+      "execution_profile": "vector_power",
+      "guard_synthesis": {
+        "fail_closed": true,
+        "mapping": {
+          "completed": true,
+          "finite_telemetry": true,
+          "system_exit_code": 0,
+          "tds_test_ok": true
+        },
+        "source": "authoritative Stage-1 source fields"
+      },
+      "required_active_window_seconds": 1.0,
+      "source_bound_view": true,
+      "trigger": {
+        "run_manifest_trace_count": 27,
+        "source_sidecars_required": true,
+        "verified_edge_record_count": 18
+      }
+    },
+    "forbidden_source_rounds": [
+      "R307",
+      "R308",
+      "R310"
+    ],
+    "fresh_execution_required": true,
+    "operating_points": [
+      {
+        "initial_soc": 0.5,
+        "name": "OP0",
+        "tie_rx_scale": 1.0,
+        "vsg_d_device": 100.0,
+        "vsg_m_device": 200.0
+      },
+      {
+        "initial_soc": 0.3,
+        "name": "OP1",
+        "tie_rx_scale": 1.0,
+        "vsg_d_device": 75.0,
+        "vsg_m_device": 150.0
+      },
+      {
+        "initial_soc": 0.7,
+        "name": "OP2",
+        "tie_rx_scale": 2.0,
+        "vsg_d_device": 125.0,
+        "vsg_m_device": 250.0
+      }
+    ],
+    "optimization_rules": {
+      "INVALID-STAGE1-EXECUTION": "new-cause-specific-canary-only",
+      "STAGE1-AUTHORITY-NO-GO": "one-single-factor-nonlearning-diagnosis-or-stop",
+      "STAGE1-PASS": "predictor-construction-in-separate-round-only"
+    },
+    "positive_power_coordinates_system_pu": {
+      "common": [
+        0.05,
+        0.05,
+        0.05,
+        0.05
+      ],
+      "edge_0": [
+        0.05,
+        -0.05,
+        0.0,
+        0.0
+      ],
+      "edge_1": [
+        0.0,
+        0.05,
+        -0.05,
+        0.0
+      ],
+      "edge_2": [
+        0.0,
+        0.0,
+        0.05,
+        -0.05
+      ]
+    },
+    "predictor_fitting_authorized": false,
+    "question": "Q-0068",
+    "recovery_steps": 20,
+    "round": "R312",
+    "solver": {
+      "dynamic_tiny_correction_threshold": 1e-16,
+      "dynamic_tolerance": 1e-10,
+      "initialization_tiny_correction_threshold": 1e-10,
+      "initialization_tolerance": 0.0001,
+      "transition_count": 1
+    },
+    "stage": "fresh-nonlearning-stage1-with-guarded-eval",
+    "trace_count": 27,
+    "training_authorized": false
+  },
+  "contract_payload_sha256": "534037c3f0289c14343e1b554b5393969d859016287bf97bf5a5c0d091563070",
+  "created_utc": "2026-08-03T08:49:50.218316+00:00",
+  "question": "Q-0068",
+  "round": "R312",
+  "schema_version": 1,
+  "sources": {
+    "adapter": {
+      "path": "scripts/run_r312_model_first_stage1.py",
+      "sha256": "03a0f32e646abaf1a9830e8a5e0052809c2fe3af35029f5c1b5e5c9c1f1df69b"
+    },
+    "adapter_tests": {
+      "path": "tests/test_r312_model_first_stage1.py",
+      "sha256": "f4406ba316b5733c491ccd6eb93596571b762f4e370dc47fa8a6d5c038935fb0"
+    },
+    "environment": {
+      "path": "src/andes_rl_kundur/env/andes/model_first_env.py",
+      "sha256": "8b8aa445aafe4b40182cfe60b2dad3cf639dca98ff695d176b01bb5784965f13"
+    },
+    "eval_guard_tests": {
+      "path": "tests/test_model_first_stage1_eval_guards.py",
+      "sha256": "510a60cd445d43a6901f6c9db9a97da34086355ab93941387cf33821f2674ebc"
+    },
+    "eval_guards": {
+      "path": "src/andes_rl_kundur/evaluation/model_first_stage1_eval_guards.py",
+      "sha256": "046608a72b463695062d6a54288c6a32fb481ed959b0b2a8c90fed86bc6a45bb"
+    },
+    "eval_v2": {
+      "path": "src/andes_rl_kundur/evaluation/eval_v2.py",
+      "sha256": "f9a36ee8c2f393299e550ca57fe28ab15d01447415649ec102d8e2e6f2546e13"
+    },
+    "eval_view": {
+      "path": "src/andes_rl_kundur/evaluation/model_first_stage1_eval_view.py",
+      "sha256": "c546b2185db1b31a9242621a9e8ed4d5c3ff868bc5a397a75e04db4e10d50c7d"
+    },
+    "eval_view_tests": {
+      "path": "tests/test_model_first_stage1_eval_view.py",
+      "sha256": "a9f57a0dcec80240c69d977c6911b1c17cc3d5b08f30d12601b779a154fa1e02"
+    },
+    "execution_core": {
+      "path": "scripts/run_r310_model_first_stage1.py",
+      "sha256": "9a46c4a8a73e45ca283993e618eba9ad4f060e81efb6ad967af4baaa9dd95b35"
+    },
+    "model_contract": {
+      "path": "src/andes_rl_kundur/env/andes/model_first_contract.py",
+      "sha256": "f64feca6089f03840c3cd3ae63d9b0a3b869ab06b5c518eb8df8b0c69a6f6184"
+    },
+    "plan": {
+      "path": "memory/rounds/R312/plan.md",
+      "sha256": "6324bd9a9756a720a98afaa485bf73e826cb6e0f04bae95011be12e7bb4769b2"
+    },
+    "question": {
+      "path": "memory/questions/Q-0068.md",
+      "sha256": "6586ba9263f354b6e293b4cdb39834735777541e5db8d40599a0be18d912477e"
+    },
+    "solver_contract": {
+      "path": "src/andes_rl_kundur/evaluation/model_first_two_phase_tds_canary.py",
+      "sha256": "6a57ab94e406b3a45e9eb997ba8e4b0b32d09d901035b998c123ff5278f9d2de"
+    },
+    "stage1_evaluator": {
+      "path": "src/andes_rl_kundur/evaluation/model_first_stage1.py",
+      "sha256": "42b878f4b0528089442fee8783ad70465b530b7f1310b75ddf10417460986727"
+    },
+    "stage1_tests": {
+      "path": "tests/test_model_first_stage1.py",
+      "sha256": "47edc102fd5c2ecf2d2c071acfd09b6248847450d045656da6895389b233000c"
+    }
+  }
+}

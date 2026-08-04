@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import subprocess
 import sys
@@ -370,10 +371,7 @@ def test_figure_adapter_must_declare_evidence_that_its_source_references(
     result = _run(tmp_path)
 
     assert result.returncode == 1
-    assert (
-        "ERROR EXECUTABLE_EVIDENCE_UNREFERENCED paper/line/build_figures.py"
-        in result.stdout
-    )
+    assert "ERROR EXECUTABLE_EVIDENCE_UNREFERENCED paper/line/build_figures.py" in result.stdout
 
 
 def test_completed_round_marks_active_executable_as_archive_candidate(
@@ -432,6 +430,49 @@ def test_navigation_adapter_rejects_known_stale_status_copies(tmp_path: Path) ->
     assert "ERROR NAV_FORBIDDEN_TEXT README.md" in result.stdout
 
 
+def test_future_round_document_budget_blocks_extra_prose(tmp_path: Path) -> None:
+    (tmp_path / "README.md").write_text("# Repo\n", encoding="utf-8")
+    round_dir = tmp_path / "memory" / "rounds" / "R287"
+    round_dir.mkdir(parents=True)
+    (round_dir / "plan.md").write_text("# Plan\n", encoding="utf-8")
+    (round_dir / "verdict.md").write_text("# Verdict\n", encoding="utf-8")
+    (round_dir / "analysis_notes.md").write_text("# Duplicate prose\n", encoding="utf-8")
+    _write_contract(
+        tmp_path,
+        _contract(
+            round_documents={
+                "enforce_from": 287,
+                "allowed_markdown": ["plan.md", "verdict.md"],
+            }
+        ),
+    )
+
+    result = _run(tmp_path)
+
+    assert result.returncode == 1
+    assert ("ERROR ROUND_DOCUMENT_UNDECLARED memory/rounds/R287/analysis_notes.md") in result.stdout
+
+
+def test_round_document_budget_grandfathers_history(tmp_path: Path) -> None:
+    (tmp_path / "README.md").write_text("# Repo\n", encoding="utf-8")
+    old_round = tmp_path / "memory" / "rounds" / "R286"
+    old_round.mkdir(parents=True)
+    (old_round / "historical_notes.md").write_text("# History\n", encoding="utf-8")
+    _write_contract(
+        tmp_path,
+        _contract(
+            round_documents={
+                "enforce_from": 287,
+                "allowed_markdown": ["plan.md", "verdict.md"],
+            }
+        ),
+    )
+
+    result = _run(tmp_path)
+
+    assert result.returncode == 0, result.stdout
+
+
 def test_external_adapter_lock_cannot_grant_project_write_authority(
     tmp_path: Path,
 ) -> None:
@@ -472,6 +513,677 @@ def test_external_adapter_lock_cannot_grant_project_write_authority(
 
     assert result.returncode == 1
     assert "ERROR EXTERNAL_AUTHORITY_LEAK docs/external.lock.json" in result.stdout
+
+
+def _active_manuscript_contract() -> dict[str, object]:
+    return _contract(
+        delivery_lines=[
+            {
+                "id": "paper-a",
+                "kind": "manuscript",
+                "status": "active",
+                "root": "paper/a",
+                "roles": {
+                    "canonical": [
+                        "paper/a/LINE.md",
+                        "paper/a/ARTIFACTS.json",
+                    ]
+                },
+            }
+        ],
+        manuscript_lines={
+            "entry_name": "LINE.md",
+            "manifest_name": "ARTIFACTS.json",
+            "time_sensitive_purposes": ["venue-decision"],
+        },
+    )
+
+
+def _write_manuscript_line(
+    root: Path,
+    *,
+    write_root: str = "paper/a",
+    artifacts: list[dict[str, object]] | None = None,
+) -> None:
+    line_root = root / "paper" / "a"
+    line_root.mkdir(parents=True)
+    (line_root / "LINE.md").write_text(
+        (
+            "---\n"
+            "line_id: paper-a\n"
+            "status: active\n"
+            "priority: 1\n"
+            "stage: drafting\n"
+            "artifact_manifest: paper/a/ARTIFACTS.json\n"
+            "scope:\n"
+            "  write_roots:\n"
+            f"    - {write_root}\n"
+            "  shared_read_roots: []\n"
+            "venue:\n"
+            "  status: shortlisted\n"
+            "  primary: Journal A\n"
+            "  backup: Journal B\n"
+            "  decision_record: paper/a/venue.md\n"
+            "  official_source_status: partial\n"
+            "required_reading:\n"
+            "  - paper/a/LINE.md\n"
+            "---\n"
+            "# Line\n"
+        ),
+        encoding="utf-8",
+    )
+    (line_root / "venue.md").write_text("# Venue\n", encoding="utf-8")
+    registered_artifacts = (
+        list(artifacts)
+        if artifacts is not None
+        else [
+            {
+                "id": "line",
+                "purpose": "line-state",
+                "path": "paper/a/LINE.md",
+                "status": "active",
+                "canonical": True,
+                "authoritative": True,
+                "producer": "test",
+                "inputs": [],
+                "supersedes": [],
+                "review_after": None,
+            }
+        ]
+    )
+    registered_artifacts.append(
+        {
+            "id": "venue-record",
+            "purpose": "venue-record",
+            "path": "paper/a/venue.md",
+            "status": "active",
+            "canonical": True,
+            "authoritative": False,
+            "producer": "test",
+            "inputs": [],
+            "supersedes": [],
+            "review_after": None,
+        }
+    )
+    payload = {
+        "version": 1,
+        "line_id": "paper-a",
+        "artifacts": registered_artifacts,
+    }
+    (line_root / "ARTIFACTS.json").write_text(
+        json.dumps(payload),
+        encoding="utf-8",
+    )
+
+
+def test_manuscript_write_scope_cannot_escape_delivery_root(tmp_path: Path) -> None:
+    (tmp_path / "README.md").write_text("# Repo\n", encoding="utf-8")
+    _write_manuscript_line(tmp_path, write_root="paper")
+    _write_contract(tmp_path, _active_manuscript_contract())
+
+    result = _run(tmp_path)
+
+    assert result.returncode == 1
+    assert "ERROR MANUSCRIPT_WRITE_SCOPE_ESCAPE paper" in result.stdout
+
+
+def test_locked_conference_manuscript_does_not_require_transfer_backup(
+    tmp_path: Path,
+) -> None:
+    (tmp_path / "README.md").write_text("# Repo\n", encoding="utf-8")
+    _write_manuscript_line(tmp_path)
+    line_path = tmp_path / "paper" / "a" / "LINE.md"
+    line_text = line_path.read_text(encoding="utf-8")
+    line_text = line_text.replace(
+        "venue:\n"
+        "  status: shortlisted\n"
+        "  primary: Journal A\n"
+        "  backup: Journal B\n"
+        "  decision_record: paper/a/venue.md\n"
+        "  official_source_status: partial\n",
+        "venue:\n"
+        "  kind: conference\n"
+        "  status: locked\n"
+        "  primary: Conference A\n"
+        "  decision_record: paper/a/venue.md\n"
+        "  official_source_status: current\n",
+    )
+    line_text = line_text.replace(
+        "required_reading:\n",
+        "decision_refs:\n"
+        "  - paper/a/venue.md#decision\n"
+        "required_reading:\n",
+    )
+    line_path.write_text(line_text, encoding="utf-8")
+    _write_contract(tmp_path, _active_manuscript_contract())
+
+    result = _run(tmp_path)
+
+    assert result.returncode == 0, result.stdout
+
+
+def test_round_document_budget_allows_only_exact_retained_path(tmp_path: Path) -> None:
+    (tmp_path / "README.md").write_text("# Repo\n", encoding="utf-8")
+    retained = tmp_path / "memory" / "rounds" / "R295"
+    future = tmp_path / "memory" / "rounds" / "R296"
+    retained.mkdir(parents=True)
+    future.mkdir(parents=True)
+    name = "consensus_timescale_probe_protocol.md"
+    (retained / name).write_text("# Sealed exception\n", encoding="utf-8")
+    (future / name).write_text("# Must remain blocked\n", encoding="utf-8")
+    _write_contract(
+        tmp_path,
+        _contract(
+            round_documents={
+                "enforce_from": 287,
+                "allowed_markdown": ["plan.md", "verdict.md"],
+                "allowed_paths": [f"R295/{name}"],
+            }
+        ),
+    )
+
+    result = _run(tmp_path)
+
+    assert result.returncode == 1
+    assert f"ROUND_DOCUMENT_UNDECLARED memory/rounds/R296/{name}" in result.stdout
+    assert f"ROUND_DOCUMENT_UNDECLARED memory/rounds/R295/{name}" not in result.stdout
+
+
+def test_manuscript_transient_build_files_do_not_require_registration(
+    tmp_path: Path,
+) -> None:
+    (tmp_path / "README.md").write_text("# Repo\n", encoding="utf-8")
+    _write_manuscript_line(tmp_path)
+    line_path = tmp_path / "paper" / "a" / "LINE.md"
+    line_text = line_path.read_text(encoding="utf-8").replace(
+        "required_reading:\n",
+        "decision_refs:\n"
+        "  - paper/a/venue.md#decision\n"
+        "required_reading:\n",
+    )
+    line_path.write_text(line_text, encoding="utf-8")
+    (tmp_path / "paper" / "a" / "main.aux").write_text("transient\n", encoding="utf-8")
+    cache = tmp_path / "paper" / "a" / "__pycache__"
+    cache.mkdir()
+    (cache / "builder.pyc").write_bytes(b"transient")
+    contract = _active_manuscript_contract()
+    manuscript_policy = contract["manuscript_lines"]
+    assert isinstance(manuscript_policy, dict)
+    manuscript_policy["transient_patterns"] = [
+        "**/__pycache__/**",
+        "**/*.aux",
+    ]
+    _write_contract(tmp_path, contract)
+
+    result = _run(tmp_path)
+
+    assert result.returncode == 0, result.stdout
+
+
+def test_manuscript_evidence_ref_cannot_target_another_line(tmp_path: Path) -> None:
+    (tmp_path / "README.md").write_text("# Repo\n", encoding="utf-8")
+    _write_manuscript_line(tmp_path)
+    other = tmp_path / "paper" / "other"
+    other.mkdir(parents=True)
+    feed = other / "R01.md"
+    feed.write_text("# Feed\nCLM-0001\n", encoding="utf-8")
+    claims = tmp_path / "memory" / "claims"
+    claims.mkdir(parents=True)
+    (claims / "CLM-0001.md").write_text(
+        "# Claim\npaper/other/R01.md\n",
+        encoding="utf-8",
+    )
+    line_path = tmp_path / "paper" / "a" / "LINE.md"
+    line_text = line_path.read_text(encoding="utf-8").replace(
+        "required_reading:\n",
+        "decision_refs:\n"
+        "  - paper/a/venue.md#decision\n"
+        "evidence_refs:\n"
+        "  - CLM-0001 -> paper/other/R01.md\n"
+        "required_reading:\n",
+    )
+    line_path.write_text(line_text, encoding="utf-8")
+    _write_contract(tmp_path, _active_manuscript_contract())
+
+    result = _run(tmp_path)
+
+    assert result.returncode == 1
+    assert "ERROR MANUSCRIPT_EVIDENCE_SCOPE_ESCAPE paper/a/LINE.md" in result.stdout
+
+
+def test_invalid_utf8_manuscript_line_returns_finding_instead_of_traceback(
+    tmp_path: Path,
+) -> None:
+    (tmp_path / "README.md").write_text("# Repo\n", encoding="utf-8")
+    line_root = tmp_path / "paper" / "a"
+    line_root.mkdir(parents=True)
+    (line_root / "LINE.md").write_bytes(b"\xff")
+    _write_contract(tmp_path, _active_manuscript_contract())
+
+    result = _run(tmp_path)
+
+    assert result.returncode == 1
+    assert "ERROR MANUSCRIPT_LINE_INVALID paper/a/LINE.md" in result.stdout
+    assert "Traceback" not in result.stderr
+
+
+def test_document_manifest_allows_one_active_canonical_per_purpose(
+    tmp_path: Path,
+) -> None:
+    (tmp_path / "README.md").write_text("# Repo\n", encoding="utf-8")
+    _write_manuscript_line(
+        tmp_path,
+        artifacts=[
+            {
+                "id": artifact_id,
+                "purpose": "review",
+                "path": "paper/a/LINE.md",
+                "status": "active",
+                "canonical": True,
+                "authoritative": False,
+                "producer": "test",
+                "inputs": [],
+                "supersedes": [],
+                "review_after": None,
+            }
+            for artifact_id in ("review-1", "review-2")
+        ],
+    )
+    _write_contract(tmp_path, _active_manuscript_contract())
+
+    result = _run(tmp_path)
+
+    assert result.returncode == 1
+    assert "ERROR DOCUMENT_CANONICAL_DUPLICATE" in result.stdout
+
+
+def test_expired_active_document_blocks_current_use(tmp_path: Path) -> None:
+    (tmp_path / "README.md").write_text("# Repo\n", encoding="utf-8")
+    _write_manuscript_line(
+        tmp_path,
+        artifacts=[
+            {
+                "id": "venue",
+                "purpose": "venue-decision",
+                "path": "paper/a/LINE.md",
+                "status": "active",
+                "canonical": True,
+                "authoritative": False,
+                "producer": "test",
+                "inputs": [],
+                "supersedes": [],
+                "review_after": "2000-01-01",
+            }
+        ],
+    )
+    _write_contract(tmp_path, _active_manuscript_contract())
+
+    result = _run(tmp_path)
+
+    assert result.returncode == 1
+    assert "ERROR DOCUMENT_REVIEW_EXPIRED paper/a/LINE.md" in result.stdout
+
+
+def test_active_document_input_hash_drift_blocks_current_use(
+    tmp_path: Path,
+) -> None:
+    (tmp_path / "README.md").write_text("# Repo\n", encoding="utf-8")
+    source = tmp_path / "paper" / "source.md"
+    source.parent.mkdir()
+    source.write_text("new\n", encoding="utf-8")
+    old_hash = hashlib.sha256(b"old\n").hexdigest()
+    _write_manuscript_line(
+        tmp_path,
+        artifacts=[
+            {
+                "id": "review",
+                "purpose": "review",
+                "path": "paper/a/LINE.md",
+                "status": "active",
+                "canonical": True,
+                "authoritative": False,
+                "producer": "test",
+                "inputs": ["paper/source.md"],
+                "input_hashes": {"paper/source.md": old_hash},
+                "supersedes": [],
+                "review_after": None,
+            }
+        ],
+    )
+    _write_contract(tmp_path, _active_manuscript_contract())
+
+    result = _run(tmp_path)
+
+    assert result.returncode == 1
+    assert "ERROR DOCUMENT_INPUT_DRIFT paper/a/LINE.md" in result.stdout
+
+
+def test_active_document_directory_input_hash_drift_blocks_current_use(
+    tmp_path: Path,
+) -> None:
+    (tmp_path / "README.md").write_text("# Repo\n", encoding="utf-8")
+    old_hash = hashlib.sha256(b"old tree").hexdigest()
+    _write_manuscript_line(
+        tmp_path,
+        artifacts=[
+            {
+                "id": "line",
+                "purpose": "line-state",
+                "path": "paper/a/LINE.md",
+                "status": "active",
+                "canonical": True,
+                "authoritative": True,
+                "producer": "test",
+                "inputs": ["paper/a/reports"],
+                "input_hashes": {"paper/a/reports": old_hash},
+                "supersedes": [],
+                "review_after": None,
+            },
+            {
+                "id": "feeds",
+                "purpose": "experiment-feeds",
+                "path": "paper/a/reports",
+                "status": "active",
+                "canonical": True,
+                "authoritative": True,
+                "producer": "test",
+                "inputs": [],
+                "supersedes": [],
+                "review_after": None,
+            },
+        ],
+    )
+    reports = tmp_path / "paper" / "a" / "reports"
+    reports.mkdir()
+    (reports / "R01.md").write_text("# New feed\n", encoding="utf-8")
+    _write_contract(tmp_path, _active_manuscript_contract())
+
+    result = _run(tmp_path)
+
+    assert result.returncode == 1
+    assert "ERROR DOCUMENT_INPUT_DRIFT paper/a/LINE.md" in result.stdout
+
+
+def test_line_state_must_watch_authoritative_experiment_feed_directory(
+    tmp_path: Path,
+) -> None:
+    (tmp_path / "README.md").write_text("# Repo\n", encoding="utf-8")
+    _write_manuscript_line(
+        tmp_path,
+        artifacts=[
+            {
+                "id": "line",
+                "purpose": "line-state",
+                "path": "paper/a/LINE.md",
+                "status": "active",
+                "canonical": True,
+                "authoritative": True,
+                "producer": "test",
+                "inputs": [],
+                "supersedes": [],
+                "review_after": None,
+            },
+            {
+                "id": "feeds",
+                "purpose": "experiment-feeds",
+                "path": "paper/a/reports",
+                "status": "active",
+                "canonical": True,
+                "authoritative": True,
+                "producer": "test",
+                "inputs": [],
+                "supersedes": [],
+                "review_after": None,
+            },
+        ],
+    )
+    reports = tmp_path / "paper" / "a" / "reports"
+    reports.mkdir()
+    _write_contract(tmp_path, _active_manuscript_contract())
+
+    result = _run(tmp_path)
+
+    assert result.returncode == 1
+    assert "ERROR DOCUMENT_NAVIGATION_WATCH_MISSING paper/a/LINE.md" in result.stdout
+
+
+def test_required_reading_cannot_eager_load_authoritative_feed(
+    tmp_path: Path,
+) -> None:
+    (tmp_path / "README.md").write_text("# Repo\n", encoding="utf-8")
+    old_hash = hashlib.sha256(b"old tree").hexdigest()
+    _write_manuscript_line(
+        tmp_path,
+        artifacts=[
+            {
+                "id": "line",
+                "purpose": "line-state",
+                "path": "paper/a/LINE.md",
+                "status": "active",
+                "canonical": True,
+                "authoritative": True,
+                "producer": "test",
+                "inputs": ["paper/a/reports"],
+                "input_hashes": {"paper/a/reports": old_hash},
+                "supersedes": [],
+                "review_after": None,
+            },
+            {
+                "id": "feeds",
+                "purpose": "experiment-feeds",
+                "path": "paper/a/reports",
+                "status": "active",
+                "canonical": True,
+                "authoritative": True,
+                "producer": "test",
+                "inputs": [],
+                "supersedes": [],
+                "review_after": None,
+            },
+        ],
+    )
+    reports = tmp_path / "paper" / "a" / "reports"
+    reports.mkdir()
+    feed = reports / "R01.md"
+    feed.write_text("# Feed\nCLM-0001\n", encoding="utf-8")
+    claims = tmp_path / "memory" / "claims"
+    claims.mkdir(parents=True)
+    (claims / "CLM-0001.md").write_text(
+        "# Claim\npaper/a/reports/R01.md\n",
+        encoding="utf-8",
+    )
+    line_path = tmp_path / "paper" / "a" / "LINE.md"
+    line_text = line_path.read_text(encoding="utf-8")
+    line_path.write_text(
+        line_text.replace(
+            "required_reading:\n  - paper/a/LINE.md\n",
+            "evidence_refs:\n"
+            "  - CLM-0001 -> paper/a/reports/R01.md\n"
+            "required_reading:\n"
+            "  - paper/a/LINE.md\n"
+            "  - paper/a/reports/R01.md\n",
+        ),
+        encoding="utf-8",
+    )
+    _write_contract(tmp_path, _active_manuscript_contract())
+
+    result = _run(tmp_path)
+
+    assert result.returncode == 1
+    assert "ERROR MANUSCRIPT_EAGER_EVIDENCE_LOAD paper/a/LINE.md" in result.stdout
+
+
+def test_latest_experiment_feed_must_be_acknowledged_by_evidence_refs(
+    tmp_path: Path,
+) -> None:
+    (tmp_path / "README.md").write_text("# Repo\n", encoding="utf-8")
+    old_hash = hashlib.sha256(b"old tree").hexdigest()
+    _write_manuscript_line(
+        tmp_path,
+        artifacts=[
+            {
+                "id": "line",
+                "purpose": "line-state",
+                "path": "paper/a/LINE.md",
+                "status": "active",
+                "canonical": True,
+                "authoritative": True,
+                "producer": "test",
+                "inputs": ["paper/a/reports"],
+                "input_hashes": {"paper/a/reports": old_hash},
+                "supersedes": [],
+                "review_after": None,
+            },
+            {
+                "id": "feeds",
+                "purpose": "experiment-feeds",
+                "path": "paper/a/reports",
+                "status": "active",
+                "canonical": True,
+                "authoritative": True,
+                "producer": "test",
+                "inputs": [],
+                "supersedes": [],
+                "review_after": None,
+            },
+        ],
+    )
+    reports = tmp_path / "paper" / "a" / "reports"
+    reports.mkdir()
+    (reports / "R01.md").write_text("# Feed 1\nCLM-0001\n", encoding="utf-8")
+    (reports / "R02.md").write_text("# Feed 2\nCLM-0002\n", encoding="utf-8")
+    claims = tmp_path / "memory" / "claims"
+    claims.mkdir(parents=True)
+    (claims / "CLM-0001.md").write_text(
+        "# Claim\npaper/a/reports/R01.md\n",
+        encoding="utf-8",
+    )
+    line_path = tmp_path / "paper" / "a" / "LINE.md"
+    line_text = line_path.read_text(encoding="utf-8")
+    line_path.write_text(
+        line_text.replace(
+            "required_reading:\n",
+            "evidence_refs:\n  - CLM-0001 -> paper/a/reports/R01.md\nrequired_reading:\n",
+        ),
+        encoding="utf-8",
+    )
+    _write_contract(tmp_path, _active_manuscript_contract())
+
+    result = _run(tmp_path)
+
+    assert result.returncode == 1
+    assert "ERROR DOCUMENT_NAVIGATION_FRONTIER_STALE paper/a/LINE.md" in result.stdout
+
+
+def test_manuscript_line_navigation_budget_is_enforced(tmp_path: Path) -> None:
+    (tmp_path / "README.md").write_text("# Repo\n", encoding="utf-8")
+    _write_manuscript_line(tmp_path)
+    line_path = tmp_path / "paper" / "a" / "LINE.md"
+    line_path.write_text(
+        line_path.read_text(encoding="utf-8") + ("extra\n" * 20),
+        encoding="utf-8",
+    )
+    contract = _active_manuscript_contract()
+    manuscript_policy = contract["manuscript_lines"]
+    assert isinstance(manuscript_policy, dict)
+    manuscript_policy["navigation_budgets"] = {
+        "line_max_lines": 10,
+        "line_max_bytes": 1_000_000,
+        "required_reading_max_bytes": 1_000_000,
+    }
+    _write_contract(tmp_path, contract)
+
+    result = _run(tmp_path)
+
+    assert result.returncode == 1
+    assert "ERROR MANUSCRIPT_LINE_BUDGET_EXCEEDED paper/a/LINE.md" in result.stdout
+
+
+def test_manuscript_required_reading_byte_budget_is_enforced(
+    tmp_path: Path,
+) -> None:
+    (tmp_path / "README.md").write_text("# Repo\n", encoding="utf-8")
+    source_path = tmp_path / "paper" / "a" / "source.md"
+    _write_manuscript_line(
+        tmp_path,
+        artifacts=[
+            {
+                "id": "line",
+                "purpose": "line-state",
+                "path": "paper/a/LINE.md",
+                "status": "active",
+                "canonical": True,
+                "authoritative": True,
+                "producer": "test",
+                "inputs": [],
+                "supersedes": [],
+                "review_after": None,
+            },
+            {
+                "id": "source",
+                "purpose": "source",
+                "path": "paper/a/source.md",
+                "status": "active",
+                "canonical": True,
+                "authoritative": False,
+                "producer": "test",
+                "inputs": [],
+                "supersedes": [],
+                "review_after": None,
+            },
+        ],
+    )
+    source_path.write_text("x" * 4096, encoding="utf-8")
+    line_path = tmp_path / "paper" / "a" / "LINE.md"
+    line_path.write_text(
+        line_path.read_text(encoding="utf-8").replace(
+            "  - paper/a/LINE.md\n",
+            "  - paper/a/LINE.md\n  - paper/a/source.md\n",
+        ),
+        encoding="utf-8",
+    )
+    contract = _active_manuscript_contract()
+    manuscript_policy = contract["manuscript_lines"]
+    assert isinstance(manuscript_policy, dict)
+    manuscript_policy["navigation_budgets"] = {
+        "line_max_lines": 1000,
+        "line_max_bytes": 1_000_000,
+        "required_reading_max_bytes": 1024,
+    }
+    _write_contract(tmp_path, contract)
+
+    result = _run(tmp_path)
+
+    assert result.returncode == 1
+    assert "ERROR MANUSCRIPT_CONTEXT_BUDGET_EXCEEDED paper/a/LINE.md" in result.stdout
+
+
+def test_active_manuscript_requires_lazy_decision_references(tmp_path: Path) -> None:
+    (tmp_path / "README.md").write_text("# Repo\n", encoding="utf-8")
+    _write_manuscript_line(tmp_path)
+    _write_contract(tmp_path, _active_manuscript_contract())
+
+    result = _run(tmp_path)
+
+    assert result.returncode == 1
+    assert "ERROR MANUSCRIPT_DECISION_REFS_MISSING paper/a/LINE.md" in result.stdout
+
+
+def test_unregistered_durable_file_inside_manuscript_line_fails(
+    tmp_path: Path,
+) -> None:
+    (tmp_path / "README.md").write_text("# Repo\n", encoding="utf-8")
+    _write_manuscript_line(tmp_path)
+    (tmp_path / "paper" / "a" / "review-final-v2.md").write_text(
+        "# Unregistered\n",
+        encoding="utf-8",
+    )
+    _write_contract(tmp_path, _active_manuscript_contract())
+
+    result = _run(tmp_path)
+
+    assert result.returncode == 1
+    assert "ERROR DOCUMENT_UNREGISTERED paper/a/review-final-v2.md" in result.stdout
 
 
 def test_text_findings_are_ascii_safe_for_non_ascii_paths(tmp_path: Path) -> None:

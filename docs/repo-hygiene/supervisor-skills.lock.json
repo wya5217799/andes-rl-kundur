@@ -1,0 +1,30 @@
+{
+  "name": "supervisor-skills",
+  "generated_date": "2026-07-30",
+  "license": "CC-BY-NC-SA-4.0",
+  "source_repositories": [
+    {
+      "url": "https://github.com/HKUSTDial/Supervisor-Skills.git",
+      "commit": "aff5de9e5b902df0ef51e955d4c78b22793d763a"
+    }
+  ],
+  "project_write_authority": [],
+  "install": {
+    "scope": "global",
+    "path_hint": "$HOME/.agents/skills",
+    "update_method": "Review upstream changes, update the pinned commit, then rerun the global skill-scope validator."
+  },
+  "skills": [
+    "benchmark-paper-template",
+    "deep-research",
+    "drawio-reconstruction",
+    "figure-designer",
+    "idea-evaluator",
+    "intro-drafter",
+    "paper-polish",
+    "paper-writer",
+    "pre-submission-reviewer",
+    "tech-paper-template",
+    "vibe-research-workflow"
+  ]
+}

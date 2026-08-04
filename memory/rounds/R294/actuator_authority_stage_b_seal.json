@@ -1,0 +1,3596 @@
+{
+  "active_steps": 15,
+  "arms": [
+    {
+      "actuator": "zero",
+      "coordinate": "none",
+      "name": "baseline",
+      "orientation": "zero"
+    },
+    {
+      "actuator": "M",
+      "coordinate": "common",
+      "name": "m__common__minus",
+      "orientation": "minus"
+    },
+    {
+      "actuator": "M",
+      "coordinate": "common",
+      "name": "m__common__plus",
+      "orientation": "plus"
+    },
+    {
+      "actuator": "M",
+      "coordinate": "interarea",
+      "name": "m__interarea__minus",
+      "orientation": "minus"
+    },
+    {
+      "actuator": "M",
+      "coordinate": "interarea",
+      "name": "m__interarea__plus",
+      "orientation": "plus"
+    },
+    {
+      "actuator": "D",
+      "coordinate": "common",
+      "name": "d__common__minus",
+      "orientation": "minus"
+    },
+    {
+      "actuator": "D",
+      "coordinate": "common",
+      "name": "d__common__plus",
+      "orientation": "plus"
+    },
+    {
+      "actuator": "D",
+      "coordinate": "interarea",
+      "name": "d__interarea__minus",
+      "orientation": "minus"
+    },
+    {
+      "actuator": "D",
+      "coordinate": "interarea",
+      "name": "d__interarea__plus",
+      "orientation": "plus"
+    },
+    {
+      "actuator": "P",
+      "coordinate": "common",
+      "name": "p__common__minus",
+      "orientation": "minus"
+    },
+    {
+      "actuator": "P",
+      "coordinate": "common",
+      "name": "p__common__plus",
+      "orientation": "plus"
+    },
+    {
+      "actuator": "P",
+      "coordinate": "interarea",
+      "name": "p__interarea__minus",
+      "orientation": "minus"
+    },
+    {
+      "actuator": "P",
+      "coordinate": "interarea",
+      "name": "p__interarea__plus",
+      "orientation": "plus"
+    }
+  ],
+  "claim_boundary": "authority screening only; no controller performance, multi-agent value, neural value, general stability, or deployment conclusion",
+  "coordinate_matrix": [
+    [
+      0.5,
+      0.5,
+      0.5,
+      0.5
+    ],
+    [
+      0.5,
+      0.5,
+      -0.5,
+      -0.5
+    ],
+    [
+      0.7071067811865475,
+      -0.7071067811865475,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.7071067811865475,
+      -0.7071067811865475
+    ]
+  ],
+  "dt_seconds": 0.2,
+  "estimand": "central paired full-DAE trajectory sensitivity under each declared safe probe budget; cross-actuator ratios are budget-normalized, not equal-unit gains",
+  "jobs": [
+    {
+      "arm": {
+        "actuator": "zero",
+        "coordinate": "none",
+        "name": "baseline",
+        "orientation": "zero"
+      },
+      "name": "k1__pq_0__neg__baseline",
+      "order": 0,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_0",
+        "name": "k1__pq_0__neg",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "M",
+        "coordinate": "common",
+        "name": "m__common__minus",
+        "orientation": "minus"
+      },
+      "name": "k1__pq_0__neg__m__common__minus",
+      "order": 1,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_0",
+        "name": "k1__pq_0__neg",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "M",
+        "coordinate": "common",
+        "name": "m__common__plus",
+        "orientation": "plus"
+      },
+      "name": "k1__pq_0__neg__m__common__plus",
+      "order": 2,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_0",
+        "name": "k1__pq_0__neg",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "M",
+        "coordinate": "interarea",
+        "name": "m__interarea__minus",
+        "orientation": "minus"
+      },
+      "name": "k1__pq_0__neg__m__interarea__minus",
+      "order": 3,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_0",
+        "name": "k1__pq_0__neg",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "M",
+        "coordinate": "interarea",
+        "name": "m__interarea__plus",
+        "orientation": "plus"
+      },
+      "name": "k1__pq_0__neg__m__interarea__plus",
+      "order": 4,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_0",
+        "name": "k1__pq_0__neg",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "D",
+        "coordinate": "common",
+        "name": "d__common__minus",
+        "orientation": "minus"
+      },
+      "name": "k1__pq_0__neg__d__common__minus",
+      "order": 5,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_0",
+        "name": "k1__pq_0__neg",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "D",
+        "coordinate": "common",
+        "name": "d__common__plus",
+        "orientation": "plus"
+      },
+      "name": "k1__pq_0__neg__d__common__plus",
+      "order": 6,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_0",
+        "name": "k1__pq_0__neg",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "D",
+        "coordinate": "interarea",
+        "name": "d__interarea__minus",
+        "orientation": "minus"
+      },
+      "name": "k1__pq_0__neg__d__interarea__minus",
+      "order": 7,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_0",
+        "name": "k1__pq_0__neg",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "D",
+        "coordinate": "interarea",
+        "name": "d__interarea__plus",
+        "orientation": "plus"
+      },
+      "name": "k1__pq_0__neg__d__interarea__plus",
+      "order": 8,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_0",
+        "name": "k1__pq_0__neg",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "P",
+        "coordinate": "common",
+        "name": "p__common__minus",
+        "orientation": "minus"
+      },
+      "name": "k1__pq_0__neg__p__common__minus",
+      "order": 9,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_0",
+        "name": "k1__pq_0__neg",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "P",
+        "coordinate": "common",
+        "name": "p__common__plus",
+        "orientation": "plus"
+      },
+      "name": "k1__pq_0__neg__p__common__plus",
+      "order": 10,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_0",
+        "name": "k1__pq_0__neg",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "P",
+        "coordinate": "interarea",
+        "name": "p__interarea__minus",
+        "orientation": "minus"
+      },
+      "name": "k1__pq_0__neg__p__interarea__minus",
+      "order": 11,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_0",
+        "name": "k1__pq_0__neg",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "P",
+        "coordinate": "interarea",
+        "name": "p__interarea__plus",
+        "orientation": "plus"
+      },
+      "name": "k1__pq_0__neg__p__interarea__plus",
+      "order": 12,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_0",
+        "name": "k1__pq_0__neg",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "zero",
+        "coordinate": "none",
+        "name": "baseline",
+        "orientation": "zero"
+      },
+      "name": "k1__pq_0__pos__baseline",
+      "order": 13,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_0",
+        "name": "k1__pq_0__pos",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "M",
+        "coordinate": "common",
+        "name": "m__common__minus",
+        "orientation": "minus"
+      },
+      "name": "k1__pq_0__pos__m__common__minus",
+      "order": 14,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_0",
+        "name": "k1__pq_0__pos",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "M",
+        "coordinate": "common",
+        "name": "m__common__plus",
+        "orientation": "plus"
+      },
+      "name": "k1__pq_0__pos__m__common__plus",
+      "order": 15,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_0",
+        "name": "k1__pq_0__pos",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "M",
+        "coordinate": "interarea",
+        "name": "m__interarea__minus",
+        "orientation": "minus"
+      },
+      "name": "k1__pq_0__pos__m__interarea__minus",
+      "order": 16,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_0",
+        "name": "k1__pq_0__pos",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "M",
+        "coordinate": "interarea",
+        "name": "m__interarea__plus",
+        "orientation": "plus"
+      },
+      "name": "k1__pq_0__pos__m__interarea__plus",
+      "order": 17,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_0",
+        "name": "k1__pq_0__pos",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "D",
+        "coordinate": "common",
+        "name": "d__common__minus",
+        "orientation": "minus"
+      },
+      "name": "k1__pq_0__pos__d__common__minus",
+      "order": 18,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_0",
+        "name": "k1__pq_0__pos",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "D",
+        "coordinate": "common",
+        "name": "d__common__plus",
+        "orientation": "plus"
+      },
+      "name": "k1__pq_0__pos__d__common__plus",
+      "order": 19,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_0",
+        "name": "k1__pq_0__pos",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "D",
+        "coordinate": "interarea",
+        "name": "d__interarea__minus",
+        "orientation": "minus"
+      },
+      "name": "k1__pq_0__pos__d__interarea__minus",
+      "order": 20,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_0",
+        "name": "k1__pq_0__pos",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "D",
+        "coordinate": "interarea",
+        "name": "d__interarea__plus",
+        "orientation": "plus"
+      },
+      "name": "k1__pq_0__pos__d__interarea__plus",
+      "order": 21,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_0",
+        "name": "k1__pq_0__pos",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "P",
+        "coordinate": "common",
+        "name": "p__common__minus",
+        "orientation": "minus"
+      },
+      "name": "k1__pq_0__pos__p__common__minus",
+      "order": 22,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_0",
+        "name": "k1__pq_0__pos",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "P",
+        "coordinate": "common",
+        "name": "p__common__plus",
+        "orientation": "plus"
+      },
+      "name": "k1__pq_0__pos__p__common__plus",
+      "order": 23,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_0",
+        "name": "k1__pq_0__pos",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "P",
+        "coordinate": "interarea",
+        "name": "p__interarea__minus",
+        "orientation": "minus"
+      },
+      "name": "k1__pq_0__pos__p__interarea__minus",
+      "order": 24,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_0",
+        "name": "k1__pq_0__pos",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "P",
+        "coordinate": "interarea",
+        "name": "p__interarea__plus",
+        "orientation": "plus"
+      },
+      "name": "k1__pq_0__pos__p__interarea__plus",
+      "order": 25,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_0",
+        "name": "k1__pq_0__pos",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "zero",
+        "coordinate": "none",
+        "name": "baseline",
+        "orientation": "zero"
+      },
+      "name": "k1__pq_1__neg__baseline",
+      "order": 26,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_1",
+        "name": "k1__pq_1__neg",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "M",
+        "coordinate": "common",
+        "name": "m__common__minus",
+        "orientation": "minus"
+      },
+      "name": "k1__pq_1__neg__m__common__minus",
+      "order": 27,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_1",
+        "name": "k1__pq_1__neg",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "M",
+        "coordinate": "common",
+        "name": "m__common__plus",
+        "orientation": "plus"
+      },
+      "name": "k1__pq_1__neg__m__common__plus",
+      "order": 28,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_1",
+        "name": "k1__pq_1__neg",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "M",
+        "coordinate": "interarea",
+        "name": "m__interarea__minus",
+        "orientation": "minus"
+      },
+      "name": "k1__pq_1__neg__m__interarea__minus",
+      "order": 29,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_1",
+        "name": "k1__pq_1__neg",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "M",
+        "coordinate": "interarea",
+        "name": "m__interarea__plus",
+        "orientation": "plus"
+      },
+      "name": "k1__pq_1__neg__m__interarea__plus",
+      "order": 30,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_1",
+        "name": "k1__pq_1__neg",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "D",
+        "coordinate": "common",
+        "name": "d__common__minus",
+        "orientation": "minus"
+      },
+      "name": "k1__pq_1__neg__d__common__minus",
+      "order": 31,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_1",
+        "name": "k1__pq_1__neg",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "D",
+        "coordinate": "common",
+        "name": "d__common__plus",
+        "orientation": "plus"
+      },
+      "name": "k1__pq_1__neg__d__common__plus",
+      "order": 32,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_1",
+        "name": "k1__pq_1__neg",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "D",
+        "coordinate": "interarea",
+        "name": "d__interarea__minus",
+        "orientation": "minus"
+      },
+      "name": "k1__pq_1__neg__d__interarea__minus",
+      "order": 33,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_1",
+        "name": "k1__pq_1__neg",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "D",
+        "coordinate": "interarea",
+        "name": "d__interarea__plus",
+        "orientation": "plus"
+      },
+      "name": "k1__pq_1__neg__d__interarea__plus",
+      "order": 34,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_1",
+        "name": "k1__pq_1__neg",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "P",
+        "coordinate": "common",
+        "name": "p__common__minus",
+        "orientation": "minus"
+      },
+      "name": "k1__pq_1__neg__p__common__minus",
+      "order": 35,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_1",
+        "name": "k1__pq_1__neg",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "P",
+        "coordinate": "common",
+        "name": "p__common__plus",
+        "orientation": "plus"
+      },
+      "name": "k1__pq_1__neg__p__common__plus",
+      "order": 36,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_1",
+        "name": "k1__pq_1__neg",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "P",
+        "coordinate": "interarea",
+        "name": "p__interarea__minus",
+        "orientation": "minus"
+      },
+      "name": "k1__pq_1__neg__p__interarea__minus",
+      "order": 37,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_1",
+        "name": "k1__pq_1__neg",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "P",
+        "coordinate": "interarea",
+        "name": "p__interarea__plus",
+        "orientation": "plus"
+      },
+      "name": "k1__pq_1__neg__p__interarea__plus",
+      "order": 38,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_1",
+        "name": "k1__pq_1__neg",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "zero",
+        "coordinate": "none",
+        "name": "baseline",
+        "orientation": "zero"
+      },
+      "name": "k1__pq_1__pos__baseline",
+      "order": 39,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_1",
+        "name": "k1__pq_1__pos",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "M",
+        "coordinate": "common",
+        "name": "m__common__minus",
+        "orientation": "minus"
+      },
+      "name": "k1__pq_1__pos__m__common__minus",
+      "order": 40,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_1",
+        "name": "k1__pq_1__pos",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "M",
+        "coordinate": "common",
+        "name": "m__common__plus",
+        "orientation": "plus"
+      },
+      "name": "k1__pq_1__pos__m__common__plus",
+      "order": 41,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_1",
+        "name": "k1__pq_1__pos",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "M",
+        "coordinate": "interarea",
+        "name": "m__interarea__minus",
+        "orientation": "minus"
+      },
+      "name": "k1__pq_1__pos__m__interarea__minus",
+      "order": 42,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_1",
+        "name": "k1__pq_1__pos",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "M",
+        "coordinate": "interarea",
+        "name": "m__interarea__plus",
+        "orientation": "plus"
+      },
+      "name": "k1__pq_1__pos__m__interarea__plus",
+      "order": 43,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_1",
+        "name": "k1__pq_1__pos",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "D",
+        "coordinate": "common",
+        "name": "d__common__minus",
+        "orientation": "minus"
+      },
+      "name": "k1__pq_1__pos__d__common__minus",
+      "order": 44,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_1",
+        "name": "k1__pq_1__pos",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "D",
+        "coordinate": "common",
+        "name": "d__common__plus",
+        "orientation": "plus"
+      },
+      "name": "k1__pq_1__pos__d__common__plus",
+      "order": 45,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_1",
+        "name": "k1__pq_1__pos",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "D",
+        "coordinate": "interarea",
+        "name": "d__interarea__minus",
+        "orientation": "minus"
+      },
+      "name": "k1__pq_1__pos__d__interarea__minus",
+      "order": 46,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_1",
+        "name": "k1__pq_1__pos",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "D",
+        "coordinate": "interarea",
+        "name": "d__interarea__plus",
+        "orientation": "plus"
+      },
+      "name": "k1__pq_1__pos__d__interarea__plus",
+      "order": 47,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_1",
+        "name": "k1__pq_1__pos",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "P",
+        "coordinate": "common",
+        "name": "p__common__minus",
+        "orientation": "minus"
+      },
+      "name": "k1__pq_1__pos__p__common__minus",
+      "order": 48,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_1",
+        "name": "k1__pq_1__pos",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "P",
+        "coordinate": "common",
+        "name": "p__common__plus",
+        "orientation": "plus"
+      },
+      "name": "k1__pq_1__pos__p__common__plus",
+      "order": 49,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_1",
+        "name": "k1__pq_1__pos",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "P",
+        "coordinate": "interarea",
+        "name": "p__interarea__minus",
+        "orientation": "minus"
+      },
+      "name": "k1__pq_1__pos__p__interarea__minus",
+      "order": 50,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_1",
+        "name": "k1__pq_1__pos",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "P",
+        "coordinate": "interarea",
+        "name": "p__interarea__plus",
+        "orientation": "plus"
+      },
+      "name": "k1__pq_1__pos__p__interarea__plus",
+      "order": 51,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_1",
+        "name": "k1__pq_1__pos",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "zero",
+        "coordinate": "none",
+        "name": "baseline",
+        "orientation": "zero"
+      },
+      "name": "k1__pq_bus14__neg__baseline",
+      "order": 52,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_Bus14",
+        "name": "k1__pq_bus14__neg",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "M",
+        "coordinate": "common",
+        "name": "m__common__minus",
+        "orientation": "minus"
+      },
+      "name": "k1__pq_bus14__neg__m__common__minus",
+      "order": 53,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_Bus14",
+        "name": "k1__pq_bus14__neg",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "M",
+        "coordinate": "common",
+        "name": "m__common__plus",
+        "orientation": "plus"
+      },
+      "name": "k1__pq_bus14__neg__m__common__plus",
+      "order": 54,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_Bus14",
+        "name": "k1__pq_bus14__neg",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "M",
+        "coordinate": "interarea",
+        "name": "m__interarea__minus",
+        "orientation": "minus"
+      },
+      "name": "k1__pq_bus14__neg__m__interarea__minus",
+      "order": 55,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_Bus14",
+        "name": "k1__pq_bus14__neg",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "M",
+        "coordinate": "interarea",
+        "name": "m__interarea__plus",
+        "orientation": "plus"
+      },
+      "name": "k1__pq_bus14__neg__m__interarea__plus",
+      "order": 56,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_Bus14",
+        "name": "k1__pq_bus14__neg",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "D",
+        "coordinate": "common",
+        "name": "d__common__minus",
+        "orientation": "minus"
+      },
+      "name": "k1__pq_bus14__neg__d__common__minus",
+      "order": 57,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_Bus14",
+        "name": "k1__pq_bus14__neg",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "D",
+        "coordinate": "common",
+        "name": "d__common__plus",
+        "orientation": "plus"
+      },
+      "name": "k1__pq_bus14__neg__d__common__plus",
+      "order": 58,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_Bus14",
+        "name": "k1__pq_bus14__neg",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "D",
+        "coordinate": "interarea",
+        "name": "d__interarea__minus",
+        "orientation": "minus"
+      },
+      "name": "k1__pq_bus14__neg__d__interarea__minus",
+      "order": 59,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_Bus14",
+        "name": "k1__pq_bus14__neg",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "D",
+        "coordinate": "interarea",
+        "name": "d__interarea__plus",
+        "orientation": "plus"
+      },
+      "name": "k1__pq_bus14__neg__d__interarea__plus",
+      "order": 60,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_Bus14",
+        "name": "k1__pq_bus14__neg",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "P",
+        "coordinate": "common",
+        "name": "p__common__minus",
+        "orientation": "minus"
+      },
+      "name": "k1__pq_bus14__neg__p__common__minus",
+      "order": 61,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_Bus14",
+        "name": "k1__pq_bus14__neg",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "P",
+        "coordinate": "common",
+        "name": "p__common__plus",
+        "orientation": "plus"
+      },
+      "name": "k1__pq_bus14__neg__p__common__plus",
+      "order": 62,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_Bus14",
+        "name": "k1__pq_bus14__neg",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "P",
+        "coordinate": "interarea",
+        "name": "p__interarea__minus",
+        "orientation": "minus"
+      },
+      "name": "k1__pq_bus14__neg__p__interarea__minus",
+      "order": 63,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_Bus14",
+        "name": "k1__pq_bus14__neg",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "P",
+        "coordinate": "interarea",
+        "name": "p__interarea__plus",
+        "orientation": "plus"
+      },
+      "name": "k1__pq_bus14__neg__p__interarea__plus",
+      "order": 64,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_Bus14",
+        "name": "k1__pq_bus14__neg",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "zero",
+        "coordinate": "none",
+        "name": "baseline",
+        "orientation": "zero"
+      },
+      "name": "k1__pq_bus14__pos__baseline",
+      "order": 65,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_Bus14",
+        "name": "k1__pq_bus14__pos",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "M",
+        "coordinate": "common",
+        "name": "m__common__minus",
+        "orientation": "minus"
+      },
+      "name": "k1__pq_bus14__pos__m__common__minus",
+      "order": 66,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_Bus14",
+        "name": "k1__pq_bus14__pos",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "M",
+        "coordinate": "common",
+        "name": "m__common__plus",
+        "orientation": "plus"
+      },
+      "name": "k1__pq_bus14__pos__m__common__plus",
+      "order": 67,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_Bus14",
+        "name": "k1__pq_bus14__pos",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "M",
+        "coordinate": "interarea",
+        "name": "m__interarea__minus",
+        "orientation": "minus"
+      },
+      "name": "k1__pq_bus14__pos__m__interarea__minus",
+      "order": 68,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_Bus14",
+        "name": "k1__pq_bus14__pos",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "M",
+        "coordinate": "interarea",
+        "name": "m__interarea__plus",
+        "orientation": "plus"
+      },
+      "name": "k1__pq_bus14__pos__m__interarea__plus",
+      "order": 69,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_Bus14",
+        "name": "k1__pq_bus14__pos",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "D",
+        "coordinate": "common",
+        "name": "d__common__minus",
+        "orientation": "minus"
+      },
+      "name": "k1__pq_bus14__pos__d__common__minus",
+      "order": 70,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_Bus14",
+        "name": "k1__pq_bus14__pos",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "D",
+        "coordinate": "common",
+        "name": "d__common__plus",
+        "orientation": "plus"
+      },
+      "name": "k1__pq_bus14__pos__d__common__plus",
+      "order": 71,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_Bus14",
+        "name": "k1__pq_bus14__pos",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "D",
+        "coordinate": "interarea",
+        "name": "d__interarea__minus",
+        "orientation": "minus"
+      },
+      "name": "k1__pq_bus14__pos__d__interarea__minus",
+      "order": 72,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_Bus14",
+        "name": "k1__pq_bus14__pos",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "D",
+        "coordinate": "interarea",
+        "name": "d__interarea__plus",
+        "orientation": "plus"
+      },
+      "name": "k1__pq_bus14__pos__d__interarea__plus",
+      "order": 73,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_Bus14",
+        "name": "k1__pq_bus14__pos",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "P",
+        "coordinate": "common",
+        "name": "p__common__minus",
+        "orientation": "minus"
+      },
+      "name": "k1__pq_bus14__pos__p__common__minus",
+      "order": 74,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_Bus14",
+        "name": "k1__pq_bus14__pos",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "P",
+        "coordinate": "common",
+        "name": "p__common__plus",
+        "orientation": "plus"
+      },
+      "name": "k1__pq_bus14__pos__p__common__plus",
+      "order": 75,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_Bus14",
+        "name": "k1__pq_bus14__pos",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "P",
+        "coordinate": "interarea",
+        "name": "p__interarea__minus",
+        "orientation": "minus"
+      },
+      "name": "k1__pq_bus14__pos__p__interarea__minus",
+      "order": 76,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_Bus14",
+        "name": "k1__pq_bus14__pos",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "P",
+        "coordinate": "interarea",
+        "name": "p__interarea__plus",
+        "orientation": "plus"
+      },
+      "name": "k1__pq_bus14__pos__p__interarea__plus",
+      "order": 77,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_Bus14",
+        "name": "k1__pq_bus14__pos",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "zero",
+        "coordinate": "none",
+        "name": "baseline",
+        "orientation": "zero"
+      },
+      "name": "k1__pq_bus15__neg__baseline",
+      "order": 78,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_Bus15",
+        "name": "k1__pq_bus15__neg",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "M",
+        "coordinate": "common",
+        "name": "m__common__minus",
+        "orientation": "minus"
+      },
+      "name": "k1__pq_bus15__neg__m__common__minus",
+      "order": 79,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_Bus15",
+        "name": "k1__pq_bus15__neg",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "M",
+        "coordinate": "common",
+        "name": "m__common__plus",
+        "orientation": "plus"
+      },
+      "name": "k1__pq_bus15__neg__m__common__plus",
+      "order": 80,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_Bus15",
+        "name": "k1__pq_bus15__neg",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "M",
+        "coordinate": "interarea",
+        "name": "m__interarea__minus",
+        "orientation": "minus"
+      },
+      "name": "k1__pq_bus15__neg__m__interarea__minus",
+      "order": 81,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_Bus15",
+        "name": "k1__pq_bus15__neg",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "M",
+        "coordinate": "interarea",
+        "name": "m__interarea__plus",
+        "orientation": "plus"
+      },
+      "name": "k1__pq_bus15__neg__m__interarea__plus",
+      "order": 82,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_Bus15",
+        "name": "k1__pq_bus15__neg",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "D",
+        "coordinate": "common",
+        "name": "d__common__minus",
+        "orientation": "minus"
+      },
+      "name": "k1__pq_bus15__neg__d__common__minus",
+      "order": 83,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_Bus15",
+        "name": "k1__pq_bus15__neg",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "D",
+        "coordinate": "common",
+        "name": "d__common__plus",
+        "orientation": "plus"
+      },
+      "name": "k1__pq_bus15__neg__d__common__plus",
+      "order": 84,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_Bus15",
+        "name": "k1__pq_bus15__neg",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "D",
+        "coordinate": "interarea",
+        "name": "d__interarea__minus",
+        "orientation": "minus"
+      },
+      "name": "k1__pq_bus15__neg__d__interarea__minus",
+      "order": 85,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_Bus15",
+        "name": "k1__pq_bus15__neg",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "D",
+        "coordinate": "interarea",
+        "name": "d__interarea__plus",
+        "orientation": "plus"
+      },
+      "name": "k1__pq_bus15__neg__d__interarea__plus",
+      "order": 86,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_Bus15",
+        "name": "k1__pq_bus15__neg",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "P",
+        "coordinate": "common",
+        "name": "p__common__minus",
+        "orientation": "minus"
+      },
+      "name": "k1__pq_bus15__neg__p__common__minus",
+      "order": 87,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_Bus15",
+        "name": "k1__pq_bus15__neg",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "P",
+        "coordinate": "common",
+        "name": "p__common__plus",
+        "orientation": "plus"
+      },
+      "name": "k1__pq_bus15__neg__p__common__plus",
+      "order": 88,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_Bus15",
+        "name": "k1__pq_bus15__neg",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "P",
+        "coordinate": "interarea",
+        "name": "p__interarea__minus",
+        "orientation": "minus"
+      },
+      "name": "k1__pq_bus15__neg__p__interarea__minus",
+      "order": 89,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_Bus15",
+        "name": "k1__pq_bus15__neg",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "P",
+        "coordinate": "interarea",
+        "name": "p__interarea__plus",
+        "orientation": "plus"
+      },
+      "name": "k1__pq_bus15__neg__p__interarea__plus",
+      "order": 90,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_Bus15",
+        "name": "k1__pq_bus15__neg",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "zero",
+        "coordinate": "none",
+        "name": "baseline",
+        "orientation": "zero"
+      },
+      "name": "k1__pq_bus15__pos__baseline",
+      "order": 91,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_Bus15",
+        "name": "k1__pq_bus15__pos",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "M",
+        "coordinate": "common",
+        "name": "m__common__minus",
+        "orientation": "minus"
+      },
+      "name": "k1__pq_bus15__pos__m__common__minus",
+      "order": 92,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_Bus15",
+        "name": "k1__pq_bus15__pos",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "M",
+        "coordinate": "common",
+        "name": "m__common__plus",
+        "orientation": "plus"
+      },
+      "name": "k1__pq_bus15__pos__m__common__plus",
+      "order": 93,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_Bus15",
+        "name": "k1__pq_bus15__pos",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "M",
+        "coordinate": "interarea",
+        "name": "m__interarea__minus",
+        "orientation": "minus"
+      },
+      "name": "k1__pq_bus15__pos__m__interarea__minus",
+      "order": 94,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_Bus15",
+        "name": "k1__pq_bus15__pos",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "M",
+        "coordinate": "interarea",
+        "name": "m__interarea__plus",
+        "orientation": "plus"
+      },
+      "name": "k1__pq_bus15__pos__m__interarea__plus",
+      "order": 95,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_Bus15",
+        "name": "k1__pq_bus15__pos",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "D",
+        "coordinate": "common",
+        "name": "d__common__minus",
+        "orientation": "minus"
+      },
+      "name": "k1__pq_bus15__pos__d__common__minus",
+      "order": 96,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_Bus15",
+        "name": "k1__pq_bus15__pos",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "D",
+        "coordinate": "common",
+        "name": "d__common__plus",
+        "orientation": "plus"
+      },
+      "name": "k1__pq_bus15__pos__d__common__plus",
+      "order": 97,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_Bus15",
+        "name": "k1__pq_bus15__pos",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "D",
+        "coordinate": "interarea",
+        "name": "d__interarea__minus",
+        "orientation": "minus"
+      },
+      "name": "k1__pq_bus15__pos__d__interarea__minus",
+      "order": 98,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_Bus15",
+        "name": "k1__pq_bus15__pos",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "D",
+        "coordinate": "interarea",
+        "name": "d__interarea__plus",
+        "orientation": "plus"
+      },
+      "name": "k1__pq_bus15__pos__d__interarea__plus",
+      "order": 99,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_Bus15",
+        "name": "k1__pq_bus15__pos",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "P",
+        "coordinate": "common",
+        "name": "p__common__minus",
+        "orientation": "minus"
+      },
+      "name": "k1__pq_bus15__pos__p__common__minus",
+      "order": 100,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_Bus15",
+        "name": "k1__pq_bus15__pos",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "P",
+        "coordinate": "common",
+        "name": "p__common__plus",
+        "orientation": "plus"
+      },
+      "name": "k1__pq_bus15__pos__p__common__plus",
+      "order": 101,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_Bus15",
+        "name": "k1__pq_bus15__pos",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "P",
+        "coordinate": "interarea",
+        "name": "p__interarea__minus",
+        "orientation": "minus"
+      },
+      "name": "k1__pq_bus15__pos__p__interarea__minus",
+      "order": 102,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_Bus15",
+        "name": "k1__pq_bus15__pos",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "P",
+        "coordinate": "interarea",
+        "name": "p__interarea__plus",
+        "orientation": "plus"
+      },
+      "name": "k1__pq_bus15__pos__p__interarea__plus",
+      "order": 103,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_Bus15",
+        "name": "k1__pq_bus15__pos",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "zero",
+        "coordinate": "none",
+        "name": "baseline",
+        "orientation": "zero"
+      },
+      "name": "k2__pq_0__neg__baseline",
+      "order": 104,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_0",
+        "name": "k2__pq_0__neg",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "M",
+        "coordinate": "common",
+        "name": "m__common__minus",
+        "orientation": "minus"
+      },
+      "name": "k2__pq_0__neg__m__common__minus",
+      "order": 105,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_0",
+        "name": "k2__pq_0__neg",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "M",
+        "coordinate": "common",
+        "name": "m__common__plus",
+        "orientation": "plus"
+      },
+      "name": "k2__pq_0__neg__m__common__plus",
+      "order": 106,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_0",
+        "name": "k2__pq_0__neg",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "M",
+        "coordinate": "interarea",
+        "name": "m__interarea__minus",
+        "orientation": "minus"
+      },
+      "name": "k2__pq_0__neg__m__interarea__minus",
+      "order": 107,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_0",
+        "name": "k2__pq_0__neg",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "M",
+        "coordinate": "interarea",
+        "name": "m__interarea__plus",
+        "orientation": "plus"
+      },
+      "name": "k2__pq_0__neg__m__interarea__plus",
+      "order": 108,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_0",
+        "name": "k2__pq_0__neg",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "D",
+        "coordinate": "common",
+        "name": "d__common__minus",
+        "orientation": "minus"
+      },
+      "name": "k2__pq_0__neg__d__common__minus",
+      "order": 109,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_0",
+        "name": "k2__pq_0__neg",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "D",
+        "coordinate": "common",
+        "name": "d__common__plus",
+        "orientation": "plus"
+      },
+      "name": "k2__pq_0__neg__d__common__plus",
+      "order": 110,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_0",
+        "name": "k2__pq_0__neg",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "D",
+        "coordinate": "interarea",
+        "name": "d__interarea__minus",
+        "orientation": "minus"
+      },
+      "name": "k2__pq_0__neg__d__interarea__minus",
+      "order": 111,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_0",
+        "name": "k2__pq_0__neg",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "D",
+        "coordinate": "interarea",
+        "name": "d__interarea__plus",
+        "orientation": "plus"
+      },
+      "name": "k2__pq_0__neg__d__interarea__plus",
+      "order": 112,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_0",
+        "name": "k2__pq_0__neg",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "P",
+        "coordinate": "common",
+        "name": "p__common__minus",
+        "orientation": "minus"
+      },
+      "name": "k2__pq_0__neg__p__common__minus",
+      "order": 113,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_0",
+        "name": "k2__pq_0__neg",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "P",
+        "coordinate": "common",
+        "name": "p__common__plus",
+        "orientation": "plus"
+      },
+      "name": "k2__pq_0__neg__p__common__plus",
+      "order": 114,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_0",
+        "name": "k2__pq_0__neg",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "P",
+        "coordinate": "interarea",
+        "name": "p__interarea__minus",
+        "orientation": "minus"
+      },
+      "name": "k2__pq_0__neg__p__interarea__minus",
+      "order": 115,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_0",
+        "name": "k2__pq_0__neg",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "P",
+        "coordinate": "interarea",
+        "name": "p__interarea__plus",
+        "orientation": "plus"
+      },
+      "name": "k2__pq_0__neg__p__interarea__plus",
+      "order": 116,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_0",
+        "name": "k2__pq_0__neg",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "zero",
+        "coordinate": "none",
+        "name": "baseline",
+        "orientation": "zero"
+      },
+      "name": "k2__pq_0__pos__baseline",
+      "order": 117,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_0",
+        "name": "k2__pq_0__pos",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "M",
+        "coordinate": "common",
+        "name": "m__common__minus",
+        "orientation": "minus"
+      },
+      "name": "k2__pq_0__pos__m__common__minus",
+      "order": 118,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_0",
+        "name": "k2__pq_0__pos",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "M",
+        "coordinate": "common",
+        "name": "m__common__plus",
+        "orientation": "plus"
+      },
+      "name": "k2__pq_0__pos__m__common__plus",
+      "order": 119,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_0",
+        "name": "k2__pq_0__pos",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "M",
+        "coordinate": "interarea",
+        "name": "m__interarea__minus",
+        "orientation": "minus"
+      },
+      "name": "k2__pq_0__pos__m__interarea__minus",
+      "order": 120,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_0",
+        "name": "k2__pq_0__pos",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "M",
+        "coordinate": "interarea",
+        "name": "m__interarea__plus",
+        "orientation": "plus"
+      },
+      "name": "k2__pq_0__pos__m__interarea__plus",
+      "order": 121,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_0",
+        "name": "k2__pq_0__pos",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "D",
+        "coordinate": "common",
+        "name": "d__common__minus",
+        "orientation": "minus"
+      },
+      "name": "k2__pq_0__pos__d__common__minus",
+      "order": 122,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_0",
+        "name": "k2__pq_0__pos",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "D",
+        "coordinate": "common",
+        "name": "d__common__plus",
+        "orientation": "plus"
+      },
+      "name": "k2__pq_0__pos__d__common__plus",
+      "order": 123,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_0",
+        "name": "k2__pq_0__pos",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "D",
+        "coordinate": "interarea",
+        "name": "d__interarea__minus",
+        "orientation": "minus"
+      },
+      "name": "k2__pq_0__pos__d__interarea__minus",
+      "order": 124,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_0",
+        "name": "k2__pq_0__pos",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "D",
+        "coordinate": "interarea",
+        "name": "d__interarea__plus",
+        "orientation": "plus"
+      },
+      "name": "k2__pq_0__pos__d__interarea__plus",
+      "order": 125,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_0",
+        "name": "k2__pq_0__pos",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "P",
+        "coordinate": "common",
+        "name": "p__common__minus",
+        "orientation": "minus"
+      },
+      "name": "k2__pq_0__pos__p__common__minus",
+      "order": 126,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_0",
+        "name": "k2__pq_0__pos",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "P",
+        "coordinate": "common",
+        "name": "p__common__plus",
+        "orientation": "plus"
+      },
+      "name": "k2__pq_0__pos__p__common__plus",
+      "order": 127,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_0",
+        "name": "k2__pq_0__pos",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "P",
+        "coordinate": "interarea",
+        "name": "p__interarea__minus",
+        "orientation": "minus"
+      },
+      "name": "k2__pq_0__pos__p__interarea__minus",
+      "order": 128,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_0",
+        "name": "k2__pq_0__pos",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "P",
+        "coordinate": "interarea",
+        "name": "p__interarea__plus",
+        "orientation": "plus"
+      },
+      "name": "k2__pq_0__pos__p__interarea__plus",
+      "order": 129,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_0",
+        "name": "k2__pq_0__pos",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "zero",
+        "coordinate": "none",
+        "name": "baseline",
+        "orientation": "zero"
+      },
+      "name": "k2__pq_1__neg__baseline",
+      "order": 130,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_1",
+        "name": "k2__pq_1__neg",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "M",
+        "coordinate": "common",
+        "name": "m__common__minus",
+        "orientation": "minus"
+      },
+      "name": "k2__pq_1__neg__m__common__minus",
+      "order": 131,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_1",
+        "name": "k2__pq_1__neg",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "M",
+        "coordinate": "common",
+        "name": "m__common__plus",
+        "orientation": "plus"
+      },
+      "name": "k2__pq_1__neg__m__common__plus",
+      "order": 132,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_1",
+        "name": "k2__pq_1__neg",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "M",
+        "coordinate": "interarea",
+        "name": "m__interarea__minus",
+        "orientation": "minus"
+      },
+      "name": "k2__pq_1__neg__m__interarea__minus",
+      "order": 133,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_1",
+        "name": "k2__pq_1__neg",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "M",
+        "coordinate": "interarea",
+        "name": "m__interarea__plus",
+        "orientation": "plus"
+      },
+      "name": "k2__pq_1__neg__m__interarea__plus",
+      "order": 134,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_1",
+        "name": "k2__pq_1__neg",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "D",
+        "coordinate": "common",
+        "name": "d__common__minus",
+        "orientation": "minus"
+      },
+      "name": "k2__pq_1__neg__d__common__minus",
+      "order": 135,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_1",
+        "name": "k2__pq_1__neg",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "D",
+        "coordinate": "common",
+        "name": "d__common__plus",
+        "orientation": "plus"
+      },
+      "name": "k2__pq_1__neg__d__common__plus",
+      "order": 136,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_1",
+        "name": "k2__pq_1__neg",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "D",
+        "coordinate": "interarea",
+        "name": "d__interarea__minus",
+        "orientation": "minus"
+      },
+      "name": "k2__pq_1__neg__d__interarea__minus",
+      "order": 137,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_1",
+        "name": "k2__pq_1__neg",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "D",
+        "coordinate": "interarea",
+        "name": "d__interarea__plus",
+        "orientation": "plus"
+      },
+      "name": "k2__pq_1__neg__d__interarea__plus",
+      "order": 138,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_1",
+        "name": "k2__pq_1__neg",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "P",
+        "coordinate": "common",
+        "name": "p__common__minus",
+        "orientation": "minus"
+      },
+      "name": "k2__pq_1__neg__p__common__minus",
+      "order": 139,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_1",
+        "name": "k2__pq_1__neg",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "P",
+        "coordinate": "common",
+        "name": "p__common__plus",
+        "orientation": "plus"
+      },
+      "name": "k2__pq_1__neg__p__common__plus",
+      "order": 140,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_1",
+        "name": "k2__pq_1__neg",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "P",
+        "coordinate": "interarea",
+        "name": "p__interarea__minus",
+        "orientation": "minus"
+      },
+      "name": "k2__pq_1__neg__p__interarea__minus",
+      "order": 141,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_1",
+        "name": "k2__pq_1__neg",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "P",
+        "coordinate": "interarea",
+        "name": "p__interarea__plus",
+        "orientation": "plus"
+      },
+      "name": "k2__pq_1__neg__p__interarea__plus",
+      "order": 142,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_1",
+        "name": "k2__pq_1__neg",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "zero",
+        "coordinate": "none",
+        "name": "baseline",
+        "orientation": "zero"
+      },
+      "name": "k2__pq_1__pos__baseline",
+      "order": 143,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_1",
+        "name": "k2__pq_1__pos",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "M",
+        "coordinate": "common",
+        "name": "m__common__minus",
+        "orientation": "minus"
+      },
+      "name": "k2__pq_1__pos__m__common__minus",
+      "order": 144,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_1",
+        "name": "k2__pq_1__pos",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "M",
+        "coordinate": "common",
+        "name": "m__common__plus",
+        "orientation": "plus"
+      },
+      "name": "k2__pq_1__pos__m__common__plus",
+      "order": 145,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_1",
+        "name": "k2__pq_1__pos",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "M",
+        "coordinate": "interarea",
+        "name": "m__interarea__minus",
+        "orientation": "minus"
+      },
+      "name": "k2__pq_1__pos__m__interarea__minus",
+      "order": 146,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_1",
+        "name": "k2__pq_1__pos",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "M",
+        "coordinate": "interarea",
+        "name": "m__interarea__plus",
+        "orientation": "plus"
+      },
+      "name": "k2__pq_1__pos__m__interarea__plus",
+      "order": 147,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_1",
+        "name": "k2__pq_1__pos",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "D",
+        "coordinate": "common",
+        "name": "d__common__minus",
+        "orientation": "minus"
+      },
+      "name": "k2__pq_1__pos__d__common__minus",
+      "order": 148,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_1",
+        "name": "k2__pq_1__pos",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "D",
+        "coordinate": "common",
+        "name": "d__common__plus",
+        "orientation": "plus"
+      },
+      "name": "k2__pq_1__pos__d__common__plus",
+      "order": 149,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_1",
+        "name": "k2__pq_1__pos",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "D",
+        "coordinate": "interarea",
+        "name": "d__interarea__minus",
+        "orientation": "minus"
+      },
+      "name": "k2__pq_1__pos__d__interarea__minus",
+      "order": 150,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_1",
+        "name": "k2__pq_1__pos",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "D",
+        "coordinate": "interarea",
+        "name": "d__interarea__plus",
+        "orientation": "plus"
+      },
+      "name": "k2__pq_1__pos__d__interarea__plus",
+      "order": 151,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_1",
+        "name": "k2__pq_1__pos",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "P",
+        "coordinate": "common",
+        "name": "p__common__minus",
+        "orientation": "minus"
+      },
+      "name": "k2__pq_1__pos__p__common__minus",
+      "order": 152,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_1",
+        "name": "k2__pq_1__pos",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "P",
+        "coordinate": "common",
+        "name": "p__common__plus",
+        "orientation": "plus"
+      },
+      "name": "k2__pq_1__pos__p__common__plus",
+      "order": 153,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_1",
+        "name": "k2__pq_1__pos",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "P",
+        "coordinate": "interarea",
+        "name": "p__interarea__minus",
+        "orientation": "minus"
+      },
+      "name": "k2__pq_1__pos__p__interarea__minus",
+      "order": 154,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_1",
+        "name": "k2__pq_1__pos",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "P",
+        "coordinate": "interarea",
+        "name": "p__interarea__plus",
+        "orientation": "plus"
+      },
+      "name": "k2__pq_1__pos__p__interarea__plus",
+      "order": 155,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_1",
+        "name": "k2__pq_1__pos",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "zero",
+        "coordinate": "none",
+        "name": "baseline",
+        "orientation": "zero"
+      },
+      "name": "k2__pq_bus14__neg__baseline",
+      "order": 156,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_Bus14",
+        "name": "k2__pq_bus14__neg",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "M",
+        "coordinate": "common",
+        "name": "m__common__minus",
+        "orientation": "minus"
+      },
+      "name": "k2__pq_bus14__neg__m__common__minus",
+      "order": 157,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_Bus14",
+        "name": "k2__pq_bus14__neg",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "M",
+        "coordinate": "common",
+        "name": "m__common__plus",
+        "orientation": "plus"
+      },
+      "name": "k2__pq_bus14__neg__m__common__plus",
+      "order": 158,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_Bus14",
+        "name": "k2__pq_bus14__neg",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "M",
+        "coordinate": "interarea",
+        "name": "m__interarea__minus",
+        "orientation": "minus"
+      },
+      "name": "k2__pq_bus14__neg__m__interarea__minus",
+      "order": 159,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_Bus14",
+        "name": "k2__pq_bus14__neg",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "M",
+        "coordinate": "interarea",
+        "name": "m__interarea__plus",
+        "orientation": "plus"
+      },
+      "name": "k2__pq_bus14__neg__m__interarea__plus",
+      "order": 160,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_Bus14",
+        "name": "k2__pq_bus14__neg",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "D",
+        "coordinate": "common",
+        "name": "d__common__minus",
+        "orientation": "minus"
+      },
+      "name": "k2__pq_bus14__neg__d__common__minus",
+      "order": 161,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_Bus14",
+        "name": "k2__pq_bus14__neg",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "D",
+        "coordinate": "common",
+        "name": "d__common__plus",
+        "orientation": "plus"
+      },
+      "name": "k2__pq_bus14__neg__d__common__plus",
+      "order": 162,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_Bus14",
+        "name": "k2__pq_bus14__neg",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "D",
+        "coordinate": "interarea",
+        "name": "d__interarea__minus",
+        "orientation": "minus"
+      },
+      "name": "k2__pq_bus14__neg__d__interarea__minus",
+      "order": 163,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_Bus14",
+        "name": "k2__pq_bus14__neg",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "D",
+        "coordinate": "interarea",
+        "name": "d__interarea__plus",
+        "orientation": "plus"
+      },
+      "name": "k2__pq_bus14__neg__d__interarea__plus",
+      "order": 164,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_Bus14",
+        "name": "k2__pq_bus14__neg",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "P",
+        "coordinate": "common",
+        "name": "p__common__minus",
+        "orientation": "minus"
+      },
+      "name": "k2__pq_bus14__neg__p__common__minus",
+      "order": 165,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_Bus14",
+        "name": "k2__pq_bus14__neg",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "P",
+        "coordinate": "common",
+        "name": "p__common__plus",
+        "orientation": "plus"
+      },
+      "name": "k2__pq_bus14__neg__p__common__plus",
+      "order": 166,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_Bus14",
+        "name": "k2__pq_bus14__neg",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "P",
+        "coordinate": "interarea",
+        "name": "p__interarea__minus",
+        "orientation": "minus"
+      },
+      "name": "k2__pq_bus14__neg__p__interarea__minus",
+      "order": 167,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_Bus14",
+        "name": "k2__pq_bus14__neg",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "P",
+        "coordinate": "interarea",
+        "name": "p__interarea__plus",
+        "orientation": "plus"
+      },
+      "name": "k2__pq_bus14__neg__p__interarea__plus",
+      "order": 168,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_Bus14",
+        "name": "k2__pq_bus14__neg",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "zero",
+        "coordinate": "none",
+        "name": "baseline",
+        "orientation": "zero"
+      },
+      "name": "k2__pq_bus14__pos__baseline",
+      "order": 169,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_Bus14",
+        "name": "k2__pq_bus14__pos",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "M",
+        "coordinate": "common",
+        "name": "m__common__minus",
+        "orientation": "minus"
+      },
+      "name": "k2__pq_bus14__pos__m__common__minus",
+      "order": 170,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_Bus14",
+        "name": "k2__pq_bus14__pos",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "M",
+        "coordinate": "common",
+        "name": "m__common__plus",
+        "orientation": "plus"
+      },
+      "name": "k2__pq_bus14__pos__m__common__plus",
+      "order": 171,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_Bus14",
+        "name": "k2__pq_bus14__pos",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "M",
+        "coordinate": "interarea",
+        "name": "m__interarea__minus",
+        "orientation": "minus"
+      },
+      "name": "k2__pq_bus14__pos__m__interarea__minus",
+      "order": 172,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_Bus14",
+        "name": "k2__pq_bus14__pos",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "M",
+        "coordinate": "interarea",
+        "name": "m__interarea__plus",
+        "orientation": "plus"
+      },
+      "name": "k2__pq_bus14__pos__m__interarea__plus",
+      "order": 173,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_Bus14",
+        "name": "k2__pq_bus14__pos",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "D",
+        "coordinate": "common",
+        "name": "d__common__minus",
+        "orientation": "minus"
+      },
+      "name": "k2__pq_bus14__pos__d__common__minus",
+      "order": 174,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_Bus14",
+        "name": "k2__pq_bus14__pos",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "D",
+        "coordinate": "common",
+        "name": "d__common__plus",
+        "orientation": "plus"
+      },
+      "name": "k2__pq_bus14__pos__d__common__plus",
+      "order": 175,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_Bus14",
+        "name": "k2__pq_bus14__pos",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "D",
+        "coordinate": "interarea",
+        "name": "d__interarea__minus",
+        "orientation": "minus"
+      },
+      "name": "k2__pq_bus14__pos__d__interarea__minus",
+      "order": 176,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_Bus14",
+        "name": "k2__pq_bus14__pos",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "D",
+        "coordinate": "interarea",
+        "name": "d__interarea__plus",
+        "orientation": "plus"
+      },
+      "name": "k2__pq_bus14__pos__d__interarea__plus",
+      "order": 177,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_Bus14",
+        "name": "k2__pq_bus14__pos",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "P",
+        "coordinate": "common",
+        "name": "p__common__minus",
+        "orientation": "minus"
+      },
+      "name": "k2__pq_bus14__pos__p__common__minus",
+      "order": 178,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_Bus14",
+        "name": "k2__pq_bus14__pos",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "P",
+        "coordinate": "common",
+        "name": "p__common__plus",
+        "orientation": "plus"
+      },
+      "name": "k2__pq_bus14__pos__p__common__plus",
+      "order": 179,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_Bus14",
+        "name": "k2__pq_bus14__pos",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "P",
+        "coordinate": "interarea",
+        "name": "p__interarea__minus",
+        "orientation": "minus"
+      },
+      "name": "k2__pq_bus14__pos__p__interarea__minus",
+      "order": 180,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_Bus14",
+        "name": "k2__pq_bus14__pos",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "P",
+        "coordinate": "interarea",
+        "name": "p__interarea__plus",
+        "orientation": "plus"
+      },
+      "name": "k2__pq_bus14__pos__p__interarea__plus",
+      "order": 181,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_Bus14",
+        "name": "k2__pq_bus14__pos",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "zero",
+        "coordinate": "none",
+        "name": "baseline",
+        "orientation": "zero"
+      },
+      "name": "k2__pq_bus15__neg__baseline",
+      "order": 182,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_Bus15",
+        "name": "k2__pq_bus15__neg",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "M",
+        "coordinate": "common",
+        "name": "m__common__minus",
+        "orientation": "minus"
+      },
+      "name": "k2__pq_bus15__neg__m__common__minus",
+      "order": 183,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_Bus15",
+        "name": "k2__pq_bus15__neg",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "M",
+        "coordinate": "common",
+        "name": "m__common__plus",
+        "orientation": "plus"
+      },
+      "name": "k2__pq_bus15__neg__m__common__plus",
+      "order": 184,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_Bus15",
+        "name": "k2__pq_bus15__neg",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "M",
+        "coordinate": "interarea",
+        "name": "m__interarea__minus",
+        "orientation": "minus"
+      },
+      "name": "k2__pq_bus15__neg__m__interarea__minus",
+      "order": 185,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_Bus15",
+        "name": "k2__pq_bus15__neg",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "M",
+        "coordinate": "interarea",
+        "name": "m__interarea__plus",
+        "orientation": "plus"
+      },
+      "name": "k2__pq_bus15__neg__m__interarea__plus",
+      "order": 186,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_Bus15",
+        "name": "k2__pq_bus15__neg",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "D",
+        "coordinate": "common",
+        "name": "d__common__minus",
+        "orientation": "minus"
+      },
+      "name": "k2__pq_bus15__neg__d__common__minus",
+      "order": 187,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_Bus15",
+        "name": "k2__pq_bus15__neg",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "D",
+        "coordinate": "common",
+        "name": "d__common__plus",
+        "orientation": "plus"
+      },
+      "name": "k2__pq_bus15__neg__d__common__plus",
+      "order": 188,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_Bus15",
+        "name": "k2__pq_bus15__neg",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "D",
+        "coordinate": "interarea",
+        "name": "d__interarea__minus",
+        "orientation": "minus"
+      },
+      "name": "k2__pq_bus15__neg__d__interarea__minus",
+      "order": 189,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_Bus15",
+        "name": "k2__pq_bus15__neg",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "D",
+        "coordinate": "interarea",
+        "name": "d__interarea__plus",
+        "orientation": "plus"
+      },
+      "name": "k2__pq_bus15__neg__d__interarea__plus",
+      "order": 190,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_Bus15",
+        "name": "k2__pq_bus15__neg",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "P",
+        "coordinate": "common",
+        "name": "p__common__minus",
+        "orientation": "minus"
+      },
+      "name": "k2__pq_bus15__neg__p__common__minus",
+      "order": 191,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_Bus15",
+        "name": "k2__pq_bus15__neg",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "P",
+        "coordinate": "common",
+        "name": "p__common__plus",
+        "orientation": "plus"
+      },
+      "name": "k2__pq_bus15__neg__p__common__plus",
+      "order": 192,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_Bus15",
+        "name": "k2__pq_bus15__neg",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "P",
+        "coordinate": "interarea",
+        "name": "p__interarea__minus",
+        "orientation": "minus"
+      },
+      "name": "k2__pq_bus15__neg__p__interarea__minus",
+      "order": 193,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_Bus15",
+        "name": "k2__pq_bus15__neg",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "P",
+        "coordinate": "interarea",
+        "name": "p__interarea__plus",
+        "orientation": "plus"
+      },
+      "name": "k2__pq_bus15__neg__p__interarea__plus",
+      "order": 194,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_Bus15",
+        "name": "k2__pq_bus15__neg",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "zero",
+        "coordinate": "none",
+        "name": "baseline",
+        "orientation": "zero"
+      },
+      "name": "k2__pq_bus15__pos__baseline",
+      "order": 195,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_Bus15",
+        "name": "k2__pq_bus15__pos",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "M",
+        "coordinate": "common",
+        "name": "m__common__minus",
+        "orientation": "minus"
+      },
+      "name": "k2__pq_bus15__pos__m__common__minus",
+      "order": 196,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_Bus15",
+        "name": "k2__pq_bus15__pos",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "M",
+        "coordinate": "common",
+        "name": "m__common__plus",
+        "orientation": "plus"
+      },
+      "name": "k2__pq_bus15__pos__m__common__plus",
+      "order": 197,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_Bus15",
+        "name": "k2__pq_bus15__pos",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "M",
+        "coordinate": "interarea",
+        "name": "m__interarea__minus",
+        "orientation": "minus"
+      },
+      "name": "k2__pq_bus15__pos__m__interarea__minus",
+      "order": 198,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_Bus15",
+        "name": "k2__pq_bus15__pos",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "M",
+        "coordinate": "interarea",
+        "name": "m__interarea__plus",
+        "orientation": "plus"
+      },
+      "name": "k2__pq_bus15__pos__m__interarea__plus",
+      "order": 199,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_Bus15",
+        "name": "k2__pq_bus15__pos",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "D",
+        "coordinate": "common",
+        "name": "d__common__minus",
+        "orientation": "minus"
+      },
+      "name": "k2__pq_bus15__pos__d__common__minus",
+      "order": 200,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_Bus15",
+        "name": "k2__pq_bus15__pos",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "D",
+        "coordinate": "common",
+        "name": "d__common__plus",
+        "orientation": "plus"
+      },
+      "name": "k2__pq_bus15__pos__d__common__plus",
+      "order": 201,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_Bus15",
+        "name": "k2__pq_bus15__pos",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "D",
+        "coordinate": "interarea",
+        "name": "d__interarea__minus",
+        "orientation": "minus"
+      },
+      "name": "k2__pq_bus15__pos__d__interarea__minus",
+      "order": 202,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_Bus15",
+        "name": "k2__pq_bus15__pos",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "D",
+        "coordinate": "interarea",
+        "name": "d__interarea__plus",
+        "orientation": "plus"
+      },
+      "name": "k2__pq_bus15__pos__d__interarea__plus",
+      "order": 203,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_Bus15",
+        "name": "k2__pq_bus15__pos",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "P",
+        "coordinate": "common",
+        "name": "p__common__minus",
+        "orientation": "minus"
+      },
+      "name": "k2__pq_bus15__pos__p__common__minus",
+      "order": 204,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_Bus15",
+        "name": "k2__pq_bus15__pos",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "P",
+        "coordinate": "common",
+        "name": "p__common__plus",
+        "orientation": "plus"
+      },
+      "name": "k2__pq_bus15__pos__p__common__plus",
+      "order": 205,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_Bus15",
+        "name": "k2__pq_bus15__pos",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "P",
+        "coordinate": "interarea",
+        "name": "p__interarea__minus",
+        "orientation": "minus"
+      },
+      "name": "k2__pq_bus15__pos__p__interarea__minus",
+      "order": 206,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_Bus15",
+        "name": "k2__pq_bus15__pos",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "actuator": "P",
+        "coordinate": "interarea",
+        "name": "p__interarea__plus",
+        "orientation": "plus"
+      },
+      "name": "k2__pq_bus15__pos__p__interarea__plus",
+      "order": 207,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_Bus15",
+        "name": "k2__pq_bus15__pos",
+        "tie_k": 2.0
+      }
+    }
+  ],
+  "physical_coordinate_amplitudes": {
+    "D": 40.0,
+    "M": 40.0,
+    "P": 0.2
+  },
+  "plant": "AndesMultiVSGEnvV4Storage full nonlinear DAE",
+  "question": "Q-0051",
+  "round": "R294",
+  "scenarios": [
+    {
+      "delta_u": -1.0,
+      "location": "PQ_0",
+      "name": "k1__pq_0__neg",
+      "tie_k": 1.0
+    },
+    {
+      "delta_u": 1.0,
+      "location": "PQ_0",
+      "name": "k1__pq_0__pos",
+      "tie_k": 1.0
+    },
+    {
+      "delta_u": -1.0,
+      "location": "PQ_1",
+      "name": "k1__pq_1__neg",
+      "tie_k": 1.0
+    },
+    {
+      "delta_u": 1.0,
+      "location": "PQ_1",
+      "name": "k1__pq_1__pos",
+      "tie_k": 1.0
+    },
+    {
+      "delta_u": -1.0,
+      "location": "PQ_Bus14",
+      "name": "k1__pq_bus14__neg",
+      "tie_k": 1.0
+    },
+    {
+      "delta_u": 1.0,
+      "location": "PQ_Bus14",
+      "name": "k1__pq_bus14__pos",
+      "tie_k": 1.0
+    },
+    {
+      "delta_u": -1.0,
+      "location": "PQ_Bus15",
+      "name": "k1__pq_bus15__neg",
+      "tie_k": 1.0
+    },
+    {
+      "delta_u": 1.0,
+      "location": "PQ_Bus15",
+      "name": "k1__pq_bus15__pos",
+      "tie_k": 1.0
+    },
+    {
+      "delta_u": -1.0,
+      "location": "PQ_0",
+      "name": "k2__pq_0__neg",
+      "tie_k": 2.0
+    },
+    {
+      "delta_u": 1.0,
+      "location": "PQ_0",
+      "name": "k2__pq_0__pos",
+      "tie_k": 2.0
+    },
+    {
+      "delta_u": -1.0,
+      "location": "PQ_1",
+      "name": "k2__pq_1__neg",
+      "tie_k": 2.0
+    },
+    {
+      "delta_u": 1.0,
+      "location": "PQ_1",
+      "name": "k2__pq_1__pos",
+      "tie_k": 2.0
+    },
+    {
+      "delta_u": -1.0,
+      "location": "PQ_Bus14",
+      "name": "k2__pq_bus14__neg",
+      "tie_k": 2.0
+    },
+    {
+      "delta_u": 1.0,
+      "location": "PQ_Bus14",
+      "name": "k2__pq_bus14__pos",
+      "tie_k": 2.0
+    },
+    {
+      "delta_u": -1.0,
+      "location": "PQ_Bus15",
+      "name": "k2__pq_bus15__neg",
+      "tie_k": 2.0
+    },
+    {
+      "delta_u": 1.0,
+      "location": "PQ_Bus15",
+      "name": "k2__pq_bus15__pos",
+      "tie_k": 2.0
+    }
+  ],
+  "schema_version": 1,
+  "shard_count": 3,
+  "sources": {
+    "active_power_contract": {
+      "path": "src/andes_rl_kundur/control/active_power.py",
+      "sha256": "a8eb07f803d5d17823afb7e87ac0cb2475b6590da1d120fa0ba22740fb15dd0c"
+    },
+    "base_environment": {
+      "path": "src/andes_rl_kundur/env/andes/base_env.py",
+      "sha256": "8b440dc995fe72063fd2a76e8cc36ebc3b109cd148b287e95ee0218603a31ef3"
+    },
+    "coordinate_module": {
+      "path": "src/andes_rl_kundur/evaluation/model_validation.py",
+      "sha256": "54dc13c76dd7a3023efc93eab2a2d214edae0a9b0fb5c67b8365141d13dfe150"
+    },
+    "environment": {
+      "path": "src/andes_rl_kundur/env/andes/andes_vsg_env_v4.py",
+      "sha256": "b4069d4702a334526df994132ed3413c391fd412438929e0078220bbecb144d5"
+    },
+    "protocol": {
+      "path": "memory/rounds/R294/stage_b_protocol.md",
+      "sha256": "8925e40526cb90e54c6659f2c6a302dbf22fddd11a840ede1c45480ac5f7a1a2"
+    },
+    "pure_module": {
+      "path": "src/andes_rl_kundur/evaluation/coupled_actuator_authority.py",
+      "sha256": "ab5b6384b4548a141b363e56b274d4a491d7123184bc1366d86b271ad4644b52"
+    },
+    "runner": {
+      "path": "scripts/run_r294_actuator_authority.py",
+      "sha256": "e6a6256246092700fdf1c71d033661fbe5bb2300b5e04ec1e3de35fd0a266721"
+    },
+    "storage_environment": {
+      "path": "src/andes_rl_kundur/env/andes/andes_vsg_storage_env.py",
+      "sha256": "544e63fc4d16de43197c1d5ffaca8351f32faec160cce2803053074826eceabf"
+    }
+  },
+  "stage": "stage_b_full_dae_actuator_authority",
+  "steps": 50,
+  "thresholds": {
+    "budget_relevance_ratio_min": 0.25,
+    "linearity_nonlinearity_ratio_median_max": 0.25,
+    "linearity_nonlinearity_ratio_worst_max": 0.5
+  },
+  "tie_lines": [
+    "Line_4",
+    "Line_5",
+    "Line_6"
+  ]
+}

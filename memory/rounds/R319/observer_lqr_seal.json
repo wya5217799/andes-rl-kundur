@@ -1,0 +1,199 @@
+{
+  "schema_version": 1,
+  "round": "R319",
+  "question": "Q-0074",
+  "created_utc": "2026-08-03T12:22:58.644387+00:00",
+  "contract": {
+    "round": "R319",
+    "question": "Q-0074",
+    "stage": "model-only-delay-augmented-observer-lqr",
+    "parent_round": "R316",
+    "parent_claims": [
+      "CLM-0790",
+      "CLM-0795",
+      "CLM-0800"
+    ],
+    "sample_period_seconds": 0.2,
+    "horizon_steps": 50,
+    "coordinates": [
+      "common",
+      "edge_0",
+      "edge_1",
+      "edge_2"
+    ],
+    "points": [
+      {
+        "name": "HS0",
+        "initial_soc": 0.41
+      },
+      {
+        "name": "HS1",
+        "initial_soc": 0.51
+      }
+    ],
+    "delay_augmentation": {
+      "state": "z[k]=[x[k],y[k-1]]",
+      "state_matrix": "[[A,0],[C,0]]",
+      "input_matrix": "[[B],[D]]",
+      "measurement_matrix": "[0,I]",
+      "first_measurement": "zero",
+      "initial_estimate": "zero",
+      "first_command": "zero"
+    },
+    "controller": {
+      "kind": "full-order-generalized-output-energy-discrete-LQR",
+      "output_scale": "retained-model-development-pooled-RMS",
+      "output_scale_floor_fraction": 0.05,
+      "action_scale": "node-power-ceiling-divided-by-basis-column-maximum",
+      "feedthrough_in_cost": true
+    },
+    "observer": {
+      "kind": "full-order-corrected-state-dual-discrete-Riccati",
+      "disturbance_scale": 0.05,
+      "measurement_fraction_of_output_scale": 0.01,
+      "process_covariance_identity_floor": 1e-12,
+      "initial_state": "zero"
+    },
+    "synthesis_count_per_point_and_arm": 1,
+    "tuning_candidate_count": 0,
+    "retained_arm": "unchanged-R316-order-10-realizations",
+    "matched_baseline": {
+      "single_factor": "delete-common-differential-transfer-blocks",
+      "markov_horizon_steps": 25,
+      "era_order": 10,
+      "block_rows": 8,
+      "block_columns": 8,
+      "maximum_model_spectral_radius": 0.995,
+      "executed_plant": "unchanged-full-retained-cross-R316-realization"
+    },
+    "development_shapes": {
+      "impulse": [
+        0.05
+      ],
+      "triangle": [
+        0.02,
+        0.04,
+        0.05,
+        0.04,
+        0.02
+      ]
+    },
+    "examination_shapes": {
+      "bipolar": [
+        0.05,
+        0.05,
+        0.0,
+        -0.05,
+        -0.05
+      ]
+    },
+    "development_case_count": 32,
+    "examination_base_case_count": 16,
+    "mismatch_mode_count": 5,
+    "examination_case_count": 80,
+    "mismatch_scale": 0.15,
+    "mismatch_pointwise_ceiling": 0.2,
+    "limits": {
+      "sample_period_seconds": 0.2,
+      "node_power": 0.36,
+      "node_ramp": 0.072,
+      "system_mva": 100.0,
+      "energy_mwh": 28.0,
+      "charge_efficiency": 0.9848857802,
+      "discharge_efficiency": 0.9848857802,
+      "minimum_soc": 0.2,
+      "maximum_soc": 0.8
+    },
+    "maximum_pole_radius": 0.995,
+    "minimum_improvement": 0.02,
+    "comparison_identifiability": {
+      "decision": "ALLOW",
+      "single_factor": "retain-versus-delete-named-transfer-blocks",
+      "matched": [
+        "full-retained-cross-executed-plant-models",
+        "delivered-four-coordinate-delayed-measurement",
+        "known-point-label",
+        "four-coordinate-action-and-node-governor",
+        "sample-timing-and-horizon",
+        "model-order-and-one-synthesis-per-point",
+        "zero-tuning-candidates",
+        "disturbances-and-mismatch-transforms",
+        "objective-and-metrics"
+      ]
+    },
+    "classification": [
+      "INVALID-OBSERVER-LQR",
+      "OBSERVER-LQR-NO-GO",
+      "OBSERVER-LQR-PASS"
+    ],
+    "eval": "NOT-APPLICABLE-MODEL-ONLY",
+    "physical_execution_authorized": false,
+    "distributed_agent_implementation_authorized": false,
+    "training_authorized": false
+  },
+  "contract_payload_sha256": "b3e51dbf4b677787eed895459a42538ac2507b1eaaade4ed70393c531ab4b994",
+  "parent": {
+    "dynamic_model": {
+      "path": "results/r316_dynamic_reduction/dynamic_model.json",
+      "sha256": "da0eef3efca6bba1f176156445c355b260f9d21fe48e223191d507bb62a6c6bc"
+    },
+    "analysis": {
+      "path": "results/r316_dynamic_reduction/analysis.json",
+      "sha256": "a8c0f1ec0ce03a9a08da4f47cd661e921bebf7461154bf1ebece175a68368b7c"
+    }
+  },
+  "sources": {
+    "plan": {
+      "path": "memory/rounds/R319/plan.md",
+      "sha256": "ef7b322646d4b252a14dff91e9e7096e8de56375ab94d65ec4430b61ca671bf9"
+    },
+    "question": {
+      "path": "memory/questions/Q-0074.md",
+      "sha256": "ce4cbf56fd2e75c70f4508e3d58b33655a2c101cd324480301ea5586516a6648"
+    },
+    "dynamic_model_claim": {
+      "path": "memory/claims/CLM-0790.md",
+      "sha256": "56efe680429ddb157da2cecba6b5e8c78c4779a132676cb131cc62cebfa2b0fb"
+    },
+    "static_rejection_claim": {
+      "path": "memory/claims/CLM-0795.md",
+      "sha256": "5a38fd8321f2b2979b9881bbd88fd58392892420ae6e263fba34fcd9af449f47"
+    },
+    "cause_claim": {
+      "path": "memory/claims/CLM-0800.md",
+      "sha256": "fdcbe7d5047cb3fe1722c24e0f95395d794b6c3dc6e76cf7b63bf2bba459b9ae"
+    },
+    "parent_model": {
+      "path": "results/r316_dynamic_reduction/dynamic_model.json",
+      "sha256": "da0eef3efca6bba1f176156445c355b260f9d21fe48e223191d507bb62a6c6bc"
+    },
+    "parent_analysis": {
+      "path": "results/r316_dynamic_reduction/analysis.json",
+      "sha256": "a8c0f1ec0ce03a9a08da4f47cd661e921bebf7461154bf1ebece175a68368b7c"
+    },
+    "controller_module": {
+      "path": "src/andes_rl_kundur/control/model_first_observer_lqr.py",
+      "sha256": "339bb96e7987e1a69f40db2361241e41c96093dd1d258d3c04cedc640abcd792"
+    },
+    "validation_probe": {
+      "path": "probes/r319_observer_lqr_validation.py",
+      "sha256": "b765c22063f6679b991a9feab3eedfd598319711c9ca7a2da1f715475f2cd8d0"
+    },
+    "adapter": {
+      "path": "scripts/run_r319_observer_lqr.py",
+      "sha256": "4fdb9b704593c675ec1520b11280b33ff8db36e3317daa2f3b49367a6c14ab25"
+    },
+    "controller_tests": {
+      "path": "tests/test_model_first_observer_lqr.py",
+      "sha256": "db690b4a85a570ca9e9dab065c51c8098d34c01b124a3c87f82a58823e1d407d"
+    },
+    "validation_tests": {
+      "path": "tests/test_r319_observer_lqr_validation.py",
+      "sha256": "c4b2cbd0c367a25770c8d697ee27de6ac22a58ca64fc3ffd272ae92b8471310a"
+    },
+    "adapter_tests": {
+      "path": "tests/test_r319_observer_lqr.py",
+      "sha256": "01d5290bb76cc301208fc482b58c8c2adb6e88fe4c51b356d6069b611d30acc9"
+    }
+  }
+}

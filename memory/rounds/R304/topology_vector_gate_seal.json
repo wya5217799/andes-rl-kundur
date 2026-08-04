@@ -1,0 +1,198 @@
+{
+  "asset_protection": {
+    "current_icems_line_read_only": true,
+    "formal_artifacts_create_only": true,
+    "no_time_domain_performance": true,
+    "no_topology_generalization_claim": true,
+    "no_training": true
+  },
+  "contract": {
+    "actions": {
+      "common_m_model_units": 350.0,
+      "coordinate": "R292 path-edge single-edge basis",
+      "order": [
+        "q0",
+        "e01_pos",
+        "e01_neg",
+        "e12_pos",
+        "e12_neg",
+        "e23_pos",
+        "e23_neg"
+      ],
+      "total_m_model_units": 1400.0,
+      "values": {
+        "e01_neg": [
+          425.0,
+          275.0,
+          350.0,
+          350.0
+        ],
+        "e01_pos": [
+          275.0,
+          425.0,
+          350.0,
+          350.0
+        ],
+        "e12_neg": [
+          350.0,
+          425.0,
+          275.0,
+          350.0
+        ],
+        "e12_pos": [
+          350.0,
+          275.0,
+          425.0,
+          350.0
+        ],
+        "e23_neg": [
+          350.0,
+          350.0,
+          425.0,
+          275.0
+        ],
+        "e23_pos": [
+          350.0,
+          350.0,
+          275.0,
+          425.0
+        ],
+        "q0": [
+          350.0,
+          350.0,
+          350.0,
+          350.0
+        ]
+      }
+    },
+    "eval_profile": "vector_inertia",
+    "matrix_shape": [
+      3,
+      7
+    ],
+    "mode_rule": {
+      "conjugate_merge": true,
+      "frequency_band_hz": [
+        0.2,
+        1.5
+      ],
+      "pick": "max abs(P_area1-P_area2) on machine omega participation"
+    },
+    "positive_real_tolerance": 1e-07,
+    "required_cell_guards": [
+      "pflow_converged",
+      "g4_zeroed",
+      "total_m_pass",
+      "action_value_pass",
+      "opened_line_pass",
+      "bus_count_pass",
+      "vsg_count_pass",
+      "initialization_pass",
+      "tds_test_ok",
+      "system_exit_zero",
+      "residual_pass",
+      "eig_run_pass",
+      "spectrum_finite",
+      "spectrum_pass"
+    ],
+    "shard_count": 3,
+    "thresholds": {
+      "cross_topology_cosine_min": 0.8,
+      "cross_topology_frequency_delta_max_hz": 0.1,
+      "distinct_oracle_actions_min": 2,
+      "headroom_max_min_percent": 5.0,
+      "headroom_mean_min_percent": 2.0,
+      "within_cosine_min": 0.9,
+      "within_frequency_delta_max_hz": 0.05
+    },
+    "topologies": [
+      {
+        "name": "nominal",
+        "opened_line": "none"
+      },
+      {
+        "name": "line_0_out",
+        "opened_line": "Line_0"
+      },
+      {
+        "name": "line_9_out",
+        "opened_line": "Line_9"
+      }
+    ]
+  },
+  "contract_payload_sha256": "d8d0443d0fed9259df834033ba9112507d8976b3a005c4e8b29ed2876c6d0b0f",
+  "created_utc": "2026-08-03T00:06:46.848625+00:00",
+  "question": "Q-0061",
+  "round": "R304",
+  "schema_version": 1,
+  "sources": {
+    "adapter": {
+      "path": "scripts/run_r304_topology_vector_gate.py",
+      "sha256": "ed1c56edda5f5740765698bb2e891f4708e13ddd81a14959079f39c856dfa9f7"
+    },
+    "adapter_tests": {
+      "path": "tests/test_r304_topology_vector_adapter.py",
+      "sha256": "1831341b62696b46c7c4a60908e3061c9aa45c0405909f3f15560fb9e522cc1d"
+    },
+    "eval_tests": {
+      "path": "tests/test_eval_v2.py",
+      "sha256": "0ae28a01af4de52669d04782e719aa5c1a14e74b2c8cef5603ae8ecefefbb00d"
+    },
+    "eval_v2": {
+      "path": "src/andes_rl_kundur/evaluation/eval_v2.py",
+      "sha256": "603a8084da836410eaa49a829fe8b205b8a85ae991512baffd51676aa92c68dd"
+    },
+    "gate_tests": {
+      "path": "tests/test_r304_topology_vector_gate.py",
+      "sha256": "f756274318d47165c28344c07a83e057f02cca4d7fe1e9ae8d8b70180de68c4d"
+    },
+    "plan": {
+      "path": "memory/rounds/R304/plan.md",
+      "sha256": "57e33a4e334fb7cec8c4e30b25d1bf860a812847d85e5cd2eb5c330f6ec47ec4"
+    },
+    "pure_gate": {
+      "path": "probes/r304_topology_vector_gate.py",
+      "sha256": "11863ccd67f99ffc0554597a8fc4a2389cc4e0383b6a901fa811402e519df8a7"
+    },
+    "question": {
+      "path": "memory/questions/Q-0061.md",
+      "sha256": "47ab36e2b4282828d91ce81d8ce51fff7b5e35d52ec2f29df314a11922bc487d"
+    },
+    "scratch_launcher": {
+      "path": "scripts/andes_scratch.py",
+      "sha256": "616e7b43fca41c7931a0fef7dc6285591f3a7c53a99345efbe852fcb1271513d"
+    },
+    "topology_status": {
+      "path": "src/andes_rl_kundur/evaluation/topology_status.py",
+      "sha256": "3233c8a1b7d702cbdfae3e774b1c7665f1929b7263454fa7fe23361b8490e0ab"
+    },
+    "v4_environment": {
+      "path": "src/andes_rl_kundur/env/andes/andes_vsg_env_v4.py",
+      "sha256": "b4069d4702a334526df994132ed3413c391fd412438929e0078220bbecb144d5"
+    },
+    "vector_contract": {
+      "path": "src/andes_rl_kundur/control/vector_inertia_residual.py",
+      "sha256": "f7efa8d6e8cffac5f33e90613800ed28e9dc52a59320a4d6a7a18aa259ecabce"
+    },
+    "vector_control_tests": {
+      "path": "tests/test_vector_residual_control.py",
+      "sha256": "2d5d5f884b50d9e38d2c3971ffb7822dd8d5c641ab16e15bc00e983d1cb08095"
+    },
+    "vector_environment": {
+      "path": "src/andes_rl_kundur/env/andes/distributed_residual_env.py",
+      "sha256": "faef17a3e9bcf47c3173a6827d76cf00d1e2c70f944d6eed300c8fa54f296983"
+    },
+    "vector_evaluation_tests": {
+      "path": "tests/test_vector_residual_evaluation.py",
+      "sha256": "fda825ead77c4c2433835435bb5bcc1d134066db0ecf9c70e910c00711daf7fb"
+    },
+    "vector_runner": {
+      "path": "src/andes_rl_kundur/evaluation/vector_residual.py",
+      "sha256": "19497bde12db5bd73123f381da56c060f4dd13ab0e04565eacbdff9280b8dbbf"
+    }
+  },
+  "topology_inventory": {
+    "path": "results/r304_topology_vector_gate/topology_inventory.json",
+    "sha256": "10a09fb47b3d9200c8780283e9470b02855ebc7536d5203107f8c30724ef7212"
+  }
+}

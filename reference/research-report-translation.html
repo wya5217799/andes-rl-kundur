@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>实验汇报术语翻译卡</title>
+  <link rel="stylesheet" href="../assets/teaching.css">
+</head>
+<body>
+  <h1>实验汇报术语翻译卡</h1>
+  <p class="lede">不要先背定义。先判断这个词在故事中扮演什么角色。</p>
+
+  <table>
+    <thead>
+      <tr><th>术语</th><th>自然中文</th><th>在实验里的角色</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>HP1 / HQ0 / HQ1</code></td><td>几个工况的代号，类似试卷 A、B、C</td><td>场景标签，本身没有物理结论</td></tr>
+      <tr><td><code>operating condition</code></td><td>电网开始实验时所处的具体状态</td><td>实验条件</td></tr>
+      <tr><td><code>development data</code></td><td>允许研究者看答案、用来改模型的资料</td><td>学习资料</td></tr>
+      <tr><td><code>holdout</code></td><td>改模型时不许偷看的新考题</td><td>正式考试</td></tr>
+      <tr><td><code>freeze</code></td><td>考试前把方法和门槛锁死</td><td>防止看成绩改规则</td></tr>
+      <tr><td><code>local simplex</code></td><td>用附近几个已知工况按固定权重拼出新工况的预测</td><td>预测方法</td></tr>
+      <tr><td><code>predictor</code></td><td>给定扰动后，预先估计系统会怎样响应的简化模型</td><td>被考试的对象</td></tr>
+      <tr><td><code>ANDES trajectory</code></td><td>仿真器跑一次后得到的一整段时间变化记录</td><td>物理仿真记录</td></tr>
+      <tr><td><code>EVAL view</code></td><td>从已有仿真记录整理出的审计视图</td><td>检查材料，不是又跑一次物理实验</td></tr>
+      <tr><td><code>NRMSE</code></td><td>把整体预测偏差缩放后得到的误差分数；越小越好</td><td>判卷分数</td></tr>
+      <tr><td><code>cross output</code></td><td>动了一个坐标，却在另一个坐标上也出现的响应</td><td>被保留的耦合信息</td></tr>
+      <tr><td><code>ablation</code></td><td>只拿掉一个成分，再与完整方法公平比较</td><td>判断该成分是否有用</td></tr>
+      <tr><td><code>dynamic mismatch</code></td><td>简化动态模型与真实仿真动态之间还可能出现的差距</td><td>下一道尚未通过的门</td></tr>
+    </tbody>
+  </table>
+
+  <h2>固定翻译顺序</h2>
+  <p class="answer"><strong>旧问题 → 哪些资料可以学习 → 方法怎样锁定 → 用什么新题考试 → 成绩如何 → 只允许得出什么。</strong></p>
+
+  <p class="caption">术语含义以 <a href="../paper/decoupling_marl_model_first/reports/R314.md">R314 正式 feed</a> 为准。对应课程：<a href="../lessons/0003-translate-r314-into-natural-chinese.html">把 R314 翻译成自然中文</a>。</p>
+</body>
+</html>

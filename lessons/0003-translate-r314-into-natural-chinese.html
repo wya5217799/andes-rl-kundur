@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>把 R314 翻译成真正的中文</title>
+  <link rel="stylesheet" href="../assets/teaching.css">
+</head>
+<body>
+  <h1>把 R314 翻译成真正的中文</h1>
+  <p class="lede">目标：不逐词背术语，而是把一段科研压缩语还原成完整故事。</p>
+
+  <p class="answer"><strong>你判断得很准：</strong>原汇报像“没有翻译好的中文”，因为它保留了英文科研写作的名词骨架，却省掉了中文最需要的动作和关系。你缺的不是词汇量，而是<strong>把名词重新变回动词</strong>。</p>
+
+  <h2>原句</h2>
+  <p>“把 R313 的失败工况 HP1 只降格成 development 点，冻结两个 local simplex，然后在 HQ0/HQ1 上重新跑了 34 条全新 ANDES 轨迹和 24 条 EVAL 视图。”</p>
+
+  <h2>真正的中文</h2>
+  <p class="answer"><strong>上一次，模型在 HP1 这种电网状态下预测不准。现在我们已经看过 HP1 的结果，因此不能再把它当作公平的新考试，只能把它加入学习资料。随后，我们先锁定一种“主要参考附近已知工况”的预测办法，再拿两个从未参与改模型的新工况 HQ0、HQ1 重新考试。考试材料包括 34 次新的 ANDES 仿真，以及从其中部分记录整理出的 24 份执行审计视图。</strong></p>
+
+  <h2>每个名词其实在句子里有一个角色</h2>
+  <table>
+    <thead>
+      <tr><th>报告中的词</th><th>它不是什么</th><th>它在故事里是什么</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>HP1</code></td><td>不是一种新算法</td><td>上次没考好的旧工况</td></tr>
+      <tr><td><code>development 点</code></td><td>不是“效果更好”的点</td><td>已经看过答案、允许拿来改模型的资料</td></tr>
+      <tr><td><code>local simplex</code></td><td>不是控制器或智能体</td><td>用附近已知工况加权预测新工况的方法</td></tr>
+      <tr><td><code>HQ0/HQ1</code></td><td>不是两个性能指标</td><td>改模型时没看过的两道新考题</td></tr>
+      <tr><td><code>34 条 trajectory</code></td><td>不是 34 个不同算法</td><td>ANDES 真正重新运行得到的 34 段时间记录</td></tr>
+      <tr><td><code>24 条 EVAL view</code></td><td>不是另外 24 次物理仿真</td><td>从源记录生成、用来核对执行是否合规的审计材料</td></tr>
+    </tbody>
+  </table>
+
+  <h2>结果句也翻译一次</h2>
+  <p><strong>压缩语：</strong>“最大 NRMSE 为 0.09061 ≤ 0.15，保留 cross 输出比硬删 cross 降低 99.46% 的 cross 误差。”</p>
+  <p class="answer"><strong>自然中文：</strong>在所有新考题里，最差的一次预测误差分数仍然没有超过事先规定的及格线。并且，当模型承认“动一个方向也会牵动另一个方向”时，预测明显更准；如果为了看起来解耦而把这种牵连强行删掉，反而会预测错。</p>
+
+  <h2>整轮实验只讲了一件事</h2>
+  <p>这个“参考附近工况、同时保留交叉影响”的预测模型，在这两种新工况和这些小脉冲上通过了考试。</p>
+  <p><strong>它没有说：</strong>控制器已经设计好；动态模型在所有动作下都可靠；分布式智能体有效；MARL 优于其他方法。</p>
+
+  <h2>以后怎样自己翻译</h2>
+  <p>看到一串术语，不要从第一个词开始查字典。先把它们塞进下面六个空位：</p>
+  <p class="answer"><strong>以前哪里失败了？→ 哪些旧答案现在可以学习？→ 这次锁定了什么办法？→ 拿什么新题考试？→ 考得怎样？→ 只能推出什么？</strong></p>
+
+  <h2>一分钟练习</h2>
+  <p>先不看答案，把“HP1 降格为 development 点”翻成一句不含英文的中文。</p>
+  <details>
+    <summary>查看参考答案</summary>
+    <p>HP1 的结果已经被研究者看过，所以它不能继续充当未知考题，只能作为改进预测模型时允许使用的学习资料。</p>
+  </details>
+
+  <p class="caption">主要依据：<a href="../paper/decoupling_marl_model_first/reports/R314.md">R314 正式 feed</a>。随手查词时看 <a href="../reference/research-report-translation.html">实验汇报术语翻译卡</a>。上一课：<a href="0002-read-experiment-report-as-decision.html">把汇报读成研究决策</a>。任何一句仍像机器翻译，直接贴给我，我继续替你拆成动作。</p>
+</body>
+</html>

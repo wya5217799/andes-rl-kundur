@@ -1,0 +1,256 @@
+{
+  "contract": {
+    "R313_HP0_fitting_forbidden": true,
+    "R313_HP1_development_only": true,
+    "active_steps": 5,
+    "classification": [
+      "INVALID-LOCAL-PREDICTOR-VALIDATION",
+      "LOCAL-PREDICTOR-NO-GO",
+      "LOCAL-PREDICTOR-PASS"
+    ],
+    "comparison_identifiability": {
+      "R313_to_R314_difference": "combined-added-HP1-development-data-plus-local-simplex-rule",
+      "R313_vs_R314": "QUALIFY",
+      "cross_estimand": "heldout-cross-output-prediction-error-in-this-local-template",
+      "local_full_vs_block": "ALLOW",
+      "local_single_factor": "retain-versus-zero-common-differential-cross-output",
+      "stay_out": [
+        "isolated-causal-value-of-local-rule",
+        "isolated-causal-value-of-added-data",
+        "predictor-class-superiority",
+        "controller-efficacy",
+        "distributed-execution-value",
+        "multi-agent-or-MARL-value",
+        "topology-or-deployment-generalization"
+      ]
+    },
+    "controller_development_authorized": false,
+    "development_sources": {
+      "R312": {
+        "question": "Q-0068",
+        "trace_count": 27
+      },
+      "R313_HP1_only": {
+        "amplitudes_system_pu": [
+          0.025,
+          0.065
+        ],
+        "question": "Q-0069",
+        "trace_count": 17
+      },
+      "forbidden_R313_operating_points": [
+        "HP0"
+      ],
+      "total_trace_count": 44
+    },
+    "distributed_agent_implementation_authorized": false,
+    "eval": {
+      "bootstrap_resamples": 10000,
+      "bootstrap_seed": 2026080314,
+      "effect_optimization_authorized": false,
+      "evidence_status": "EXTERNAL_AUTHORITY_REQUIRED",
+      "execution_profile": "vector_power",
+      "guard_synthesis": {
+        "fail_closed": true,
+        "mapping": {
+          "completed": true,
+          "finite_telemetry": true,
+          "system_exit_code": 0,
+          "tds_test_ok": true
+        },
+        "source": "authoritative R314 physical record fields"
+      },
+      "required_active_window_seconds": 1.0,
+      "source_bound_view": true,
+      "trigger": {
+        "run_manifest_trace_count": 34,
+        "source_sidecars_required": true,
+        "verified_edge_record_count": 24
+      }
+    },
+    "fresh_holdout_required": true,
+    "holdout_amplitudes_system_pu": [
+      0.025,
+      0.065
+    ],
+    "holdout_fitting_forbidden": true,
+    "holdout_operating_points": [
+      {
+        "initial_soc": 0.4,
+        "name": "HQ0",
+        "simplex": [
+          "OP0",
+          "OP1",
+          "HP1"
+        ],
+        "tie_rx_scale": 1.1,
+        "training_weights": {
+          "HP1": 0.5,
+          "OP0": 0.2,
+          "OP1": 0.3,
+          "OP2": 0.0
+        },
+        "vsg_d_device": 87.5,
+        "vsg_m_device": 175.0
+      },
+      {
+        "initial_soc": 0.52,
+        "name": "HQ1",
+        "simplex": [
+          "OP0",
+          "OP2",
+          "HP1"
+        ],
+        "tie_rx_scale": 1.4,
+        "training_weights": {
+          "HP1": 0.5,
+          "OP0": 0.2,
+          "OP1": 0.0,
+          "OP2": 0.3
+        },
+        "vsg_d_device": 102.5,
+        "vsg_m_device": 205.0
+      }
+    ],
+    "holdout_trace_count": 34,
+    "model_authority": {
+      "amplitude_model": "linear-equal-average-unit-response",
+      "development_amplitudes_system_pu": [
+        0.025,
+        0.065
+      ],
+      "development_point": "HP1",
+      "training_questions": [
+        "Q-0068",
+        "Q-0069"
+      ],
+      "training_rounds": [
+        "R312",
+        "R313"
+      ],
+      "training_trace_count": 44
+    },
+    "optimization_rules": {
+      "INVALID-LOCAL-PREDICTOR-VALIDATION": "new-cause-specific-canary-only",
+      "LOCAL-PREDICTOR-NO-GO": "registered-amplitude-diagnosis-or-pivot-to-dynamic-reduction",
+      "LOCAL-PREDICTOR-PASS": "dynamic-reduction-and-mismatch-gate-separate-round"
+    },
+    "predictor": {
+      "amplitude_scaling": "linear-no-quadratic-term",
+      "development_response": "equal-average-unit-response-at-0.05",
+      "kind": "central-difference-25-step-local-simplex-template",
+      "output_coordinates": "exact-weighted-common-plus-three-differential",
+      "validation_zero_usage": "actual-response-reference-only"
+    },
+    "question": "Q-0070",
+    "recovery_steps": 20,
+    "round": "R314",
+    "sample_period_seconds": 0.2,
+    "stage": "sealed-local-simplex-predictor-holdout",
+    "thresholds": {
+      "aggregate_cross_squared_error_reduction_min": 0.2,
+      "cross_record_win_fraction_min": 0.75,
+      "peak_magnitude_relative_error_max": 0.1,
+      "peak_timing_error_seconds_max": 0.2,
+      "total_nrmse_max": 0.15
+    },
+    "training_authorized": false
+  },
+  "contract_payload_sha256": "94b471c6b76df43d7ba8d058796f234ceccc3fe0ccedb8778f5627441e49d75f",
+  "created_utc": "2026-08-03T09:40:20.930618+00:00",
+  "development_artifacts": {
+    "R312": {
+      "analysis": {
+        "path": "results/r312_model_first_stage1/analysis.json",
+        "sha256": "75804e5fb3f704a3d0b878db20819f997c15aaa46ae6d6dcc886879eea361c02"
+      },
+      "provenance": {
+        "path": "results/r312_model_first_stage1/provenance.json",
+        "sha256": "84a016e6d6a29156770eef097882f9da5fdf20b8abbef564b9a0aa3654cdeafa"
+      },
+      "run_manifest": {
+        "path": "results/r312_model_first_stage1/run_manifest.json",
+        "sha256": "194f38791edbd1d43c7942774b4f1a553ec741b257da15156d64dd597dd344e4"
+      }
+    },
+    "R313_HP1_only": {
+      "analysis": {
+        "path": "results/r313_model_first_predictor/analysis.json",
+        "sha256": "65c3cdbaffa92f9c82cc52775cc2ab472501b421102e6a44f0972edf760ff299"
+      },
+      "provenance": {
+        "path": "results/r313_model_first_predictor/provenance.json",
+        "sha256": "e67325ffc067df13bf86ffed30405997ea390d5a256da93b21c6726f94e3e829"
+      },
+      "run_manifest": {
+        "path": "results/r313_model_first_predictor/run_manifest.json",
+        "sha256": "4d3f096125a1c57405073a9efa788e4c01e364381ab16040aacd5fbc74f86955"
+      }
+    }
+  },
+  "question": "Q-0070",
+  "round": "R314",
+  "schema_version": 1,
+  "sources": {
+    "adapter": {
+      "path": "scripts/run_r314_local_predictor.py",
+      "sha256": "11441bbc938d678ad1394d1f0a1f656299d12b92867fa589faa69de8ed6bc50d"
+    },
+    "adapter_tests": {
+      "path": "tests/test_r314_local_predictor.py",
+      "sha256": "fdb69f89ced017e45e6ccc0858f8aa34cd8a8c8d8cc9f50286639dc0f4aade16"
+    },
+    "environment": {
+      "path": "src/andes_rl_kundur/env/andes/model_first_env.py",
+      "sha256": "8b8aa445aafe4b40182cfe60b2dad3cf639dca98ff695d176b01bb5784965f13"
+    },
+    "eval_guards": {
+      "path": "src/andes_rl_kundur/evaluation/model_first_stage1_eval_guards.py",
+      "sha256": "046608a72b463695062d6a54288c6a32fb481ed959b0b2a8c90fed86bc6a45bb"
+    },
+    "eval_v2": {
+      "path": "src/andes_rl_kundur/evaluation/eval_v2.py",
+      "sha256": "f9a36ee8c2f393299e550ca57fe28ab15d01447415649ec102d8e2e6f2546e13"
+    },
+    "eval_view": {
+      "path": "src/andes_rl_kundur/evaluation/model_first_stage1_eval_view.py",
+      "sha256": "c546b2185db1b31a9242621a9e8ed4d5c3ff868bc5a397a75e04db4e10d50c7d"
+    },
+    "execution_core": {
+      "path": "scripts/run_r310_model_first_stage1.py",
+      "sha256": "729cce9be0506ed404b3b9ad4d2aef8a5d4d35bf0c7b1b5196724d8c607d3257"
+    },
+    "lifecycle_core": {
+      "path": "scripts/run_r313_model_first_predictor.py",
+      "sha256": "c32427aeb4f3c169b69285969a45101fe48016778de11c1767396719399cb55c"
+    },
+    "model_contract": {
+      "path": "src/andes_rl_kundur/env/andes/model_first_contract.py",
+      "sha256": "1fd3dd02c363185c27a8af6f006853f82bf258676ef1ab3c7928c6db4d93cbf6"
+    },
+    "plan": {
+      "path": "memory/rounds/R314/plan.md",
+      "sha256": "1cfed95d8a25e2e8fe7a3508651076817a496689c52023ea136b007e7d87ef17"
+    },
+    "predictor": {
+      "path": "src/andes_rl_kundur/evaluation/model_first_predictor.py",
+      "sha256": "fe3c23aa9422d01204717727620368ba1cd9ca19d0b871a087b47aa6bf4f5ee8"
+    },
+    "predictor_tests": {
+      "path": "tests/test_model_first_predictor.py",
+      "sha256": "e624aec3b634cffc90700918ea63931aebb78f26d328bf34d89a3a2561b9b3cd"
+    },
+    "question": {
+      "path": "memory/questions/Q-0070.md",
+      "sha256": "6abe874e1a0a848b30b54f6f7c8d82678d8f2b4e306be50efe0ac1443626e3fd"
+    },
+    "validation_probe": {
+      "path": "probes/r313_predictor_validation.py",
+      "sha256": "6781dfea4029cf3a6622adc5d8310a95951e2745f8050723b256fafec5b68dfd"
+    },
+    "validation_tests": {
+      "path": "tests/test_r313_predictor_validation.py",
+      "sha256": "3057620f6ecaa892d706dc9d07798b9f5c6aaf3303894189595e84da8e513c1f"
+    }
+  }
+}

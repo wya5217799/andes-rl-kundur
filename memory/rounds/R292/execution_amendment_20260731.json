@@ -1,0 +1,78 @@
+{
+  "round_id": "R292",
+  "record_type": "execution_amendment",
+  "recorded_on": "2026-07-31",
+  "title": "Versioned q0-screen recovery",
+  "trigger": {
+    "stopped_after": "six frozen training runs and 24 fresh-bank q0 trajectories",
+    "stopped_before": "formal evaluation",
+    "implementation_error": "The R292 adapter reused audit_zero_support_screen_record, which requires zero_support identity, zero BESS power, constant SOC, and M_es=200, although the frozen R292 q0 arm uses controller q0, active droop-PI BESS, and M_es=350 during its 15-step pulse before returning to 200.",
+    "performance_endpoints_inspected_before_amendment": false,
+    "uninspected_endpoint_classes": [
+      "co-primary",
+      "guard",
+      "tail",
+      "learned-controller"
+    ]
+  },
+  "preservation": {
+    "failed_screen_seal": "memory/rounds/R292/fresh_bank_screen_seal.json",
+    "failed_screen_tree": "results/r292_fresh_bank/",
+    "failed_formal_log": "results/r292_unattended/logs/formal_prepare.log",
+    "formal_seal_created_by_failed_attempt": false,
+    "formal_trajectories_created_by_failed_attempt": 0,
+    "training_artifacts_immutable": true,
+    "original_fresh_bank_sources_immutable": true
+  },
+  "authorized_recovery": {
+    "screen_audit": "Validate q0 identity, 300-step completion, 60-Hz schema, frozen 15-step common-inertia timing, zero edge/node residual, D=0, BESS/SOC bounds, saturation/constraint status, finite values, and trace hash without evaluating frequency performance.",
+    "screen_reuse": "Verify the original seal, candidate bank, provenance, and all 24 trace hashes, then re-audit those immutable raw traces into versioned outputs with zero ANDES runs and zero scenario redraws.",
+    "formal_matrix": {
+      "arms": "q0 plus three centralized-vector seeds plus three distributed-edge seeds",
+      "candidate_cases": 24,
+      "trajectories": 168,
+      "environment_seed": 42,
+      "steps": 300,
+      "wsl_workers": 3,
+      "failure_retention": true,
+      "retry_or_overwrite": false
+    },
+    "statistics_unchanged": {
+      "hierarchical_bootstrap_resamples": 20000,
+      "bootstrap_seed": 2026073102,
+      "materiality_threshold_percent": -2.0,
+      "guards": [
+        "action",
+        "storage",
+        "physical",
+        "tail",
+        "provenance"
+      ]
+    }
+  },
+  "comparison_identifiability": {
+    "decision": "QUALIFY",
+    "executed_objects": "A joint-20D centralized actor and a neighbour-endpoint 10D shared edge actor control the same three edge-flow coordinates, feasible set, actuator path, timing, training budget, seed budget, critic form, reward, and fresh evaluation bank. Deployment information differs: joint versus endpoint-only.",
+    "identified_estimand": "The guarded performance contrast between these two frozen information-and-execution objects in the R292 scalar-common-plus-vector-residual formulation.",
+    "allowed_claim": "The neighbour-only distributed edge policy is superior, not separated, inferior, or lacks reproducible value relative to q0 and the matched joint-information centralized vector policy in this executed setup.",
+    "stay_out_claims": [
+      "pure MARL architectural value independent of information access",
+      "all decentralized or multi-agent methods",
+      "arbitrary communication graphs",
+      "delay or dropout robustness",
+      "topology generalization",
+      "stability",
+      "cross-simulator",
+      "HIL",
+      "deployment readiness"
+    ]
+  },
+  "stop_conditions": [
+    "original artifact or hash drift",
+    "new screen failure",
+    "formal trajectory failure",
+    "changed matrix or statistical budget",
+    "action, storage, physical, tail, or provenance guard failure"
+  ],
+  "scientific_gate": "A passing engineering recovery only reopens frozen formal execution; it does not validate a scientific claim until the full formal summary and round publication and close-out gates complete."
+}

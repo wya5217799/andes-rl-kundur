@@ -1,0 +1,163 @@
+{
+  "contract": {
+    "active_steps": 5,
+    "classification": [
+      "INVALID-STAGE1-EXECUTION",
+      "STAGE1-AUTHORITY-NO-GO",
+      "STAGE1-PASS"
+    ],
+    "control_period_seconds": 0.2,
+    "controller_development_authorized": false,
+    "eval": {
+      "bootstrap_resamples": 10000,
+      "bootstrap_seed": 2026080310,
+      "effect_optimization_authorized": false,
+      "evidence_status": "EXTERNAL_AUTHORITY_REQUIRED",
+      "execution_profile": "vector_power",
+      "required_active_window_seconds": 1.0,
+      "source_bound_view": {
+        "all_other_fields": "deep-copy unchanged",
+        "pulse_sign": "copy original sign",
+        "sign": "paired",
+        "source_record": "bind original path and sha256"
+      },
+      "trigger": {
+        "run_manifest_trace_count": 27,
+        "source_sidecars_required": true,
+        "verified_edge_record_count": 18
+      }
+    },
+    "forbidden_source_rounds": [
+      "R307",
+      "R308"
+    ],
+    "fresh_execution_required": true,
+    "operating_points": [
+      {
+        "initial_soc": 0.5,
+        "name": "OP0",
+        "tie_rx_scale": 1.0,
+        "vsg_d_device": 100.0,
+        "vsg_m_device": 200.0
+      },
+      {
+        "initial_soc": 0.3,
+        "name": "OP1",
+        "tie_rx_scale": 1.0,
+        "vsg_d_device": 75.0,
+        "vsg_m_device": 150.0
+      },
+      {
+        "initial_soc": 0.7,
+        "name": "OP2",
+        "tie_rx_scale": 2.0,
+        "vsg_d_device": 125.0,
+        "vsg_m_device": 250.0
+      }
+    ],
+    "optimization_rules": {
+      "INVALID-STAGE1-EXECUTION": "new-cause-specific-canary-only",
+      "STAGE1-AUTHORITY-NO-GO": "one-single-factor-nonlearning-diagnosis-or-stop",
+      "STAGE1-PASS": "predictor-construction-in-separate-round-only"
+    },
+    "positive_power_coordinates_system_pu": {
+      "common": [
+        0.05,
+        0.05,
+        0.05,
+        0.05
+      ],
+      "edge_0": [
+        0.05,
+        -0.05,
+        0.0,
+        0.0
+      ],
+      "edge_1": [
+        0.0,
+        0.05,
+        -0.05,
+        0.0
+      ],
+      "edge_2": [
+        0.0,
+        0.0,
+        0.05,
+        -0.05
+      ]
+    },
+    "predictor_fitting_authorized": false,
+    "question": "Q-0066",
+    "recovery_steps": 20,
+    "round": "R310",
+    "solver": {
+      "dynamic_tiny_correction_threshold": 1e-16,
+      "dynamic_tolerance": 1e-10,
+      "initialization_tiny_correction_threshold": 1e-10,
+      "initialization_tolerance": 0.0001,
+      "transition_count": 1
+    },
+    "stage": "fresh-nonlearning-stage1",
+    "trace_count": 27,
+    "training_authorized": false
+  },
+  "contract_payload_sha256": "79f00a212259b98fedb1136b932541a21ffe40cdae90089150ff01ac372779c6",
+  "created_utc": "2026-08-03T08:19:49.514711+00:00",
+  "question": "Q-0066",
+  "round": "R310",
+  "schema_version": 1,
+  "sources": {
+    "adapter": {
+      "path": "scripts/run_r310_model_first_stage1.py",
+      "sha256": "95e4d46df9fe3618d993c7cf29428ad074eb820b41f44e5bbfde94aab97fa176"
+    },
+    "adapter_tests": {
+      "path": "tests/test_r310_model_first_stage1.py",
+      "sha256": "ed155df5fb7bdc487cbe6407bca7d6d2772e2f2064ef785607ef6e7a75b31c5c"
+    },
+    "contract_tests": {
+      "path": "tests/test_model_first_contract.py",
+      "sha256": "66c1a8c8ea33089af3bdd200293bc7a1601d786c9e48363a5a132d47f8bec856"
+    },
+    "environment": {
+      "path": "src/andes_rl_kundur/env/andes/model_first_env.py",
+      "sha256": "8b8aa445aafe4b40182cfe60b2dad3cf639dca98ff695d176b01bb5784965f13"
+    },
+    "eval_v2": {
+      "path": "src/andes_rl_kundur/evaluation/eval_v2.py",
+      "sha256": "f9a36ee8c2f393299e550ca57fe28ab15d01447415649ec102d8e2e6f2546e13"
+    },
+    "eval_view": {
+      "path": "src/andes_rl_kundur/evaluation/model_first_stage1_eval_view.py",
+      "sha256": "8487aad83cdf58ebc7a919cd4b59759a90f028ae003fbd329c9fadab67382924"
+    },
+    "eval_view_tests": {
+      "path": "tests/test_model_first_stage1_eval_view.py",
+      "sha256": "f259e8fda83e781dc70359cf02ace7cad8a51c62879adfaa20a8bd7a0418c3dd"
+    },
+    "model_contract": {
+      "path": "paper/decoupling_marl_model_first/working/model_contract.md",
+      "sha256": "f10cf28f39e702966481d007bf0157fd43804873558afe71fe07ca8d4a055caa"
+    },
+    "plan": {
+      "path": "memory/rounds/R310/plan.md",
+      "sha256": "90e4a7d0f1fd9ec826ba5865860bdb5445301bf24811e4700d2661cd438a8773"
+    },
+    "pure_contract": {
+      "path": "src/andes_rl_kundur/env/andes/model_first_contract.py",
+      "sha256": "f64feca6089f03840c3cd3ae63d9b0a3b869ab06b5c518eb8df8b0c69a6f6184"
+    },
+    "question": {
+      "path": "memory/questions/Q-0066.md",
+      "sha256": "7a6ec2a4b8ce63cc1fe813ede80e4f17a532399789ff06c4ab17ada4070ba276"
+    },
+    "stage1_evaluator": {
+      "path": "src/andes_rl_kundur/evaluation/model_first_stage1.py",
+      "sha256": "42b878f4b0528089442fee8783ad70465b530b7f1310b75ddf10417460986727"
+    },
+    "stage1_tests": {
+      "path": "tests/test_model_first_stage1.py",
+      "sha256": "47edc102fd5c2ecf2d2c071acfd09b6248847450d045656da6895389b233000c"
+    }
+  }
+}

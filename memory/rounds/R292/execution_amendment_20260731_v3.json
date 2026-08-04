@@ -1,0 +1,49 @@
+{
+  "round_id": "R292",
+  "record_type": "execution_amendment",
+  "recorded_on": "2026-07-31",
+  "supersedes_for_future_execution": "memory/rounds/R292/execution_amendment_20260731.json",
+  "title": "Versioned q0-screen bank aggregation recovery",
+  "trigger": {
+    "failed_attempt": "fresh-bank-q0-contract-reaudit-v2",
+    "failed_at": "bank aggregation after 24 immutable traces had been individually re-audited",
+    "implementation_error": "The v2 adapter replaced the record-level storage-zero audit but still called assess_screened_authority_bank, whose plant guard is also intentionally fixed to storage_zero.",
+    "failure_preceded_frequency_performance_aggregation": true,
+    "performance_endpoints_inspected": false,
+    "andes_trajectories_run": 0
+  },
+  "preservation": {
+    "v2_seal": "memory/rounds/R292/fresh_bank_screen_v2_seal.json",
+    "v2_partial_output": "results/r292_fresh_bank_v2/",
+    "v2_status_and_logs": "results/r292_recovery_unattended/",
+    "preserve_byte_for_byte": true,
+    "retry_or_overwrite": false
+  },
+  "authorized_change": {
+    "new_component": "A separate R292 q0 bank aggregator that consumes only reduced completion and physical-audit rows.",
+    "guards": "Reuse the already registered candidate count, location-sign balance, severity balance, included-count, exclusion-count, edge-count, magnitude, completion, and pre-controller-freeze guards unchanged.",
+    "new_paths": [
+      "memory/rounds/R292/fresh_bank_screen_v3_seal.json",
+      "results/r292_fresh_bank_v3/",
+      "memory/rounds/R292/formal_v3_seal.json",
+      "results/r292_formal_evaluation_v3/",
+      "results/r292_recovery_v3_unattended/"
+    ]
+  },
+  "unchanged_contract": {
+    "raw_q0_trace_hashes": 24,
+    "formal_trajectories": 168,
+    "formal_workers": 3,
+    "training_runs": 6,
+    "training_or_seed_selection_change": false,
+    "scenario_redraw": false,
+    "threshold_or_endpoint_change": false,
+    "comparison_identifiability": "QUALIFY"
+  },
+  "stop_conditions": [
+    "any original or v2 failed-artifact drift",
+    "any R292 q0 physical-audit failure",
+    "any registered bank guard failure",
+    "any formal trajectory, provenance, action, storage, physical, or tail guard failure"
+  ]
+}

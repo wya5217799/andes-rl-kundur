@@ -1,0 +1,674 @@
+{
+  "contract": {
+    "classification": [
+      "INVALID-MODEL-FIDELITY-CHECK",
+      "PARAMETER-PROVENANCE-NO-GO",
+      "TIME-STEP-CONVERGENCE-NO-GO",
+      "MODEL-FIDELITY-GATE-PASS"
+    ],
+    "closed_loop_executed": false,
+    "controller_executed": false,
+    "distributed_agent_implementation_authorized": false,
+    "eval_status": "NOT-APPLICABLE-OPEN-LOOP-CONVERGENCE",
+    "execution": {
+      "active_steps": 5,
+      "control_period_seconds": 0.2,
+      "coordinate": "edge_2",
+      "dynamic_tiny_correction_threshold": 1e-16,
+      "dynamic_tolerance": 1e-10,
+      "initialization_tiny_correction_threshold": 1e-10,
+      "initialization_tolerance": 0.0001,
+      "operating_point": "OP0",
+      "pulse_system_pu": [
+        0.0,
+        0.0,
+        -0.05,
+        0.05
+      ],
+      "recovery_steps": 20,
+      "sign": "negative",
+      "tds_max_segment_seconds": [
+        0.04,
+        0.02,
+        0.01
+      ],
+      "tds_method": "trapezoid",
+      "tds_substeps": [
+        5,
+        10,
+        20
+      ]
+    },
+    "parameter_bindings": [
+      {
+        "base": "100-MVA system",
+        "binding_status": "bound",
+        "calibration_ceiling": "benchmark operating assumption; not measured load",
+        "id": "added_loads_system_pu",
+        "physically_calibrated": false,
+        "provenance_class": "literature-derived",
+        "represented_object": "added proxy-bus operating load",
+        "source_locator": "src/andes_rl_kundur/env/andes/andes_vsg_env_v4.py#AndesMultiVSGEnvV4.NEW_LOADS",
+        "unit": "p.u.",
+        "value": {
+          "bus14": {
+            "p": 2.48,
+            "q": 0.0
+          },
+          "bus15": {
+            "p": 0.0,
+            "q": 0.0
+          }
+        }
+      },
+      {
+        "base": "execution",
+        "binding_status": "bound",
+        "calibration_ceiling": "paper-path sampling assumption; not hardware delay",
+        "id": "control_period_seconds",
+        "physically_calibrated": false,
+        "provenance_class": "explicit-modelling-assumption",
+        "represented_object": "sampled controller boundary",
+        "source_locator": "paper/decoupling_marl_model_first/working/model_contract.md#equation-to-implementation-reconciliation; memory/rounds/R324/plan.md#frozen-physical-execution",
+        "unit": "s",
+        "value": 0.2
+      },
+      {
+        "base": "200-MVA device",
+        "binding_status": "bound",
+        "calibration_ceiling": "declared benchmark/proxy assumption; not a calibrated device",
+        "id": "controlled_vsg_active_dispatch_device_pu",
+        "physically_calibrated": false,
+        "provenance_class": "explicit-modelling-assumption",
+        "represented_object": "each controlled static generator",
+        "source_locator": "src/andes_rl_kundur/env/andes/andes_vsg_env_v4.py#AndesMultiVSGEnvV4._build_system",
+        "unit": "p.u.",
+        "value": 0.5
+      },
+      {
+        "base": "200-MVA device input",
+        "binding_status": "bound",
+        "calibration_ceiling": "paper-range design proxy; not identified damping",
+        "id": "controlled_vsg_damping_device",
+        "physically_calibrated": false,
+        "provenance_class": "literature-derived",
+        "represented_object": "four GENCLS proxies",
+        "source_locator": "src/andes_rl_kundur/env/andes/andes_vsg_env_v4.py#L16-L18; paper/decoupling_marl_model_first/working/model_contract.md#equation-to-implementation-reconciliation",
+        "unit": "GENCLS D",
+        "value": [
+          100.0,
+          100.0,
+          100.0,
+          100.0
+        ]
+      },
+      {
+        "base": "device",
+        "binding_status": "bound",
+        "calibration_ceiling": "declared benchmark/proxy assumption; not a calibrated device",
+        "id": "controlled_vsg_device_rating_mva",
+        "physically_calibrated": false,
+        "provenance_class": "explicit-modelling-assumption",
+        "represented_object": "each controlled GENCLS proxy",
+        "source_locator": "src/andes_rl_kundur/env/andes/base_env.py#AndesBaseEnv.VSG_SN",
+        "unit": "MVA",
+        "value": 200.0
+      },
+      {
+        "base": "200-MVA device input",
+        "binding_status": "bound",
+        "calibration_ceiling": "paper-range design proxy; not identified inertia",
+        "id": "controlled_vsg_inertia_device",
+        "physically_calibrated": false,
+        "provenance_class": "literature-derived",
+        "represented_object": "four GENCLS proxies",
+        "source_locator": "src/andes_rl_kundur/env/andes/andes_vsg_env_v4.py#L16-L18; paper/decoupling_marl_model_first/working/model_contract.md#equation-to-implementation-reconciliation",
+        "unit": "M=2H",
+        "value": [
+          200.0,
+          200.0,
+          200.0,
+          200.0
+        ]
+      },
+      {
+        "base": "network",
+        "binding_status": "bound",
+        "calibration_ceiling": "topology proxy; not site calibration",
+        "id": "controlled_vsg_locations",
+        "physically_calibrated": false,
+        "provenance_class": "literature-derived",
+        "represented_object": "four controlled GENCLS proxies",
+        "source_locator": "src/andes_rl_kundur/env/andes/andes_vsg_env_v4.py#AndesMultiVSGEnvV4.VSG_BUSES",
+        "unit": "bus indices",
+        "value": [
+          12,
+          16,
+          14,
+          15
+        ]
+      },
+      {
+        "base": "device",
+        "binding_status": "bound",
+        "calibration_ceiling": "declared benchmark/proxy assumption; not a calibrated device",
+        "id": "controlled_vsg_stator_resistance_pu",
+        "physically_calibrated": false,
+        "provenance_class": "explicit-modelling-assumption",
+        "represented_object": "controlled GENCLS electrical proxy",
+        "source_locator": "src/andes_rl_kundur/env/andes/andes_vsg_env_v4.py#AndesMultiVSGEnvV4._build_system",
+        "unit": "p.u.",
+        "value": 0.001
+      },
+      {
+        "base": "device",
+        "binding_status": "bound",
+        "calibration_ceiling": "declared benchmark/proxy assumption; not a calibrated device",
+        "id": "controlled_vsg_transient_reactance_pu",
+        "physically_calibrated": false,
+        "provenance_class": "explicit-modelling-assumption",
+        "represented_object": "controlled GENCLS electrical proxy",
+        "source_locator": "src/andes_rl_kundur/env/andes/andes_vsg_env_v4.py#AndesMultiVSGEnvV4._build_system",
+        "unit": "p.u.",
+        "value": 0.15
+      },
+      {
+        "base": "case",
+        "binding_status": "bound",
+        "calibration_ceiling": "declared benchmark/proxy assumption; not a calibrated device",
+        "id": "default_line_trip_disabled",
+        "physically_calibrated": false,
+        "provenance_class": "explicit-modelling-assumption",
+        "represented_object": "Line 8 default event",
+        "source_locator": "paper/decoupling_marl_model_first/working/model_contract.md#equation-to-implementation-reconciliation",
+        "unit": "boolean",
+        "value": true
+      },
+      {
+        "base": "100-MVA system",
+        "binding_status": "bound",
+        "calibration_ceiling": "conservative one-second nameplate ramp; not manufacturer data",
+        "id": "external_ramp_system_pu_per_second",
+        "physically_calibrated": false,
+        "provenance_class": "explicit-modelling-assumption",
+        "represented_object": "repository power projection",
+        "source_locator": "src/andes_rl_kundur/control/active_power.py#r272_frozen_bess_contract; memory/rounds/R272/plan.md#per-device-frozen-fields",
+        "unit": "system p.u./s",
+        "value": 0.36
+      },
+      {
+        "base": "execution",
+        "binding_status": "bound",
+        "calibration_ceiling": "numerical initialization protocol only",
+        "id": "initialization_seconds",
+        "physically_calibrated": false,
+        "provenance_class": "explicit-modelling-assumption",
+        "represented_object": "unperturbed TDS initialization",
+        "source_locator": "paper/decoupling_marl_model_first/working/model_contract.md#equation-to-implementation-reconciliation; memory/rounds/R324/plan.md#frozen-physical-execution",
+        "unit": "s",
+        "value": 0.5
+      },
+      {
+        "base": "ANDES 2.0.0",
+        "binding_status": "bound",
+        "calibration_ceiling": "benchmark case only; not a measured installation",
+        "id": "kundur_case_identity",
+        "physically_calibrated": false,
+        "provenance_class": "case-source",
+        "represented_object": "two-area benchmark network",
+        "source_locator": "andes://kundur/kundur_full.xlsx; paper/decoupling_marl_model_first/working/model_contract.md#model-of-record-and-physical-base",
+        "unit": "case",
+        "value": "ANDES kundur_full.xlsx"
+      },
+      {
+        "base": "system",
+        "binding_status": "bound",
+        "calibration_ceiling": "case nominal only",
+        "id": "nominal_frequency_hz",
+        "physically_calibrated": false,
+        "provenance_class": "case-source",
+        "represented_object": "physical frequency base",
+        "source_locator": "andes://kundur/kundur_full.xlsx; paper/decoupling_marl_model_first/working/model_contract.md#model-of-record-and-physical-base",
+        "unit": "Hz",
+        "value": 60.0
+      },
+      {
+        "base": "execution",
+        "binding_status": "bound",
+        "calibration_ceiling": "probe protocol only",
+        "id": "open_loop_active_duration_seconds",
+        "physically_calibrated": false,
+        "provenance_class": "explicit-modelling-assumption",
+        "represented_object": "held pulse duration",
+        "source_locator": "memory/rounds/R324/plan.md#frozen-physical-execution",
+        "unit": "s",
+        "value": 1.0
+      },
+      {
+        "base": "100-MVA system",
+        "binding_status": "bound",
+        "calibration_ceiling": "small-signal probe, not a controller command distribution",
+        "id": "open_loop_pulse",
+        "physically_calibrated": false,
+        "provenance_class": "explicit-modelling-assumption",
+        "represented_object": "edge-2 signed ESD1 request",
+        "source_locator": "paper/decoupling_marl_model_first/working/model_contract.md#equation-to-implementation-reconciliation#stage-0-and-stage-1-non-learning-probe-contract; memory/rounds/R324/plan.md#frozen-physical-execution",
+        "unit": "system p.u.",
+        "value": [
+          0.0,
+          0.0,
+          -0.05,
+          0.05
+        ]
+      },
+      {
+        "base": "execution",
+        "binding_status": "bound",
+        "calibration_ceiling": "finite observation window only",
+        "id": "open_loop_recovery_duration_seconds",
+        "physically_calibrated": false,
+        "provenance_class": "explicit-modelling-assumption",
+        "represented_object": "zero-request recovery",
+        "source_locator": "memory/rounds/R324/plan.md#frozen-physical-execution",
+        "unit": "s",
+        "value": 4.0
+      },
+      {
+        "base": "case",
+        "binding_status": "bound",
+        "calibration_ceiling": "declared benchmark/proxy assumption; not a calibrated device",
+        "id": "original_g4_retained",
+        "physically_calibrated": false,
+        "provenance_class": "explicit-modelling-assumption",
+        "represented_object": "original Kundur generator 4",
+        "source_locator": "paper/decoupling_marl_model_first/working/model_contract.md#equation-to-implementation-reconciliation",
+        "unit": "boolean",
+        "value": true
+      },
+      {
+        "base": "network case base",
+        "binding_status": "bound",
+        "calibration_ceiling": "declared benchmark/proxy assumption; not a calibrated device",
+        "id": "radial_line_reactance_pu",
+        "physically_calibrated": false,
+        "provenance_class": "explicit-modelling-assumption",
+        "represented_object": "four added radial connections",
+        "source_locator": "src/andes_rl_kundur/env/andes/andes_vsg_env_v4.py#AndesMultiVSGEnvV4.NEW_LINE_X",
+        "unit": "p.u.",
+        "value": 0.2
+      },
+      {
+        "base": "network case base",
+        "binding_status": "bound",
+        "calibration_ceiling": "declared benchmark/proxy assumption; not a calibrated device",
+        "id": "radial_line_resistance_pu",
+        "physically_calibrated": false,
+        "provenance_class": "explicit-modelling-assumption",
+        "represented_object": "four added radial connections",
+        "source_locator": "src/andes_rl_kundur/env/andes/andes_vsg_env_v4.py#AndesMultiVSGEnvV4.NEW_LINE_R",
+        "unit": "p.u.",
+        "value": 0.002
+      },
+      {
+        "base": "network case base",
+        "binding_status": "bound",
+        "calibration_ceiling": "declared benchmark/proxy assumption; not a calibrated device",
+        "id": "radial_line_shunt_pu",
+        "physically_calibrated": false,
+        "provenance_class": "explicit-modelling-assumption",
+        "represented_object": "four added radial connections",
+        "source_locator": "src/andes_rl_kundur/env/andes/andes_vsg_env_v4.py#AndesMultiVSGEnvV4.NEW_LINE_B",
+        "unit": "p.u.",
+        "value": 0.0175
+      },
+      {
+        "base": "bus",
+        "binding_status": "bound",
+        "calibration_ceiling": "matched benchmark voltage base; not line identification",
+        "id": "radial_line_voltage_kv",
+        "physically_calibrated": false,
+        "provenance_class": "case-source",
+        "represented_object": "four added radial connections",
+        "source_locator": "src/andes_rl_kundur/env/andes/andes_vsg_env_v4.py#AndesMultiVSGEnvV4.NEW_BUS_VN",
+        "unit": "kV",
+        "value": 230.0
+      },
+      {
+        "base": "device",
+        "binding_status": "bound",
+        "calibration_ceiling": "software default; not identified hardware response",
+        "id": "storage_active_current_lag_seconds",
+        "physically_calibrated": false,
+        "provenance_class": "official-model-default",
+        "represented_object": "ESD1/PVD1 active-current state",
+        "source_locator": "paper/decoupling_marl_model_first/reports/R323.md#official-source-scope; src/andes_rl_kundur/control/active_power.py#r272_frozen_bess_contract",
+        "unit": "s",
+        "value": 0.02
+      },
+      {
+        "base": "36-MVA device",
+        "binding_status": "bound",
+        "calibration_ceiling": "nameplate current assumption; no fault-current claim",
+        "id": "storage_active_current_limit_device_pu",
+        "physically_calibrated": false,
+        "provenance_class": "official-model-default",
+        "represented_object": "PVD1/ESD1 active current",
+        "source_locator": "paper/decoupling_marl_model_first/reports/R323.md#official-source-scope; src/andes_rl_kundur/control/active_power.py#EnergyFeasibleBESSContract",
+        "unit": "p.u.",
+        "value": 1.0
+      },
+      {
+        "base": "device",
+        "binding_status": "bound",
+        "calibration_ceiling": "declared benchmark/proxy assumption; not a calibrated device",
+        "id": "storage_active_power_priority",
+        "physically_calibrated": false,
+        "provenance_class": "explicit-modelling-assumption",
+        "represented_object": "ESD1 current priority",
+        "source_locator": "src/andes_rl_kundur/env/andes/andes_vsg_storage_env.py#pqflag",
+        "unit": "boolean",
+        "value": true
+      },
+      {
+        "base": "device",
+        "binding_status": "bound",
+        "calibration_ceiling": "derived aggregate; not calibrated hardware",
+        "id": "storage_device_energy_mwh",
+        "physically_calibrated": false,
+        "provenance_class": "derived",
+        "represented_object": "50-module storage equivalent",
+        "source_locator": "src/andes_rl_kundur/control/active_power.py#EnergyFeasibleBESSContract.device_energy_mwh",
+        "unit": "MWh",
+        "value": 28.0
+      },
+      {
+        "base": "device",
+        "binding_status": "bound",
+        "calibration_ceiling": "derived aggregate; not calibrated hardware",
+        "id": "storage_device_power_mva",
+        "physically_calibrated": false,
+        "provenance_class": "derived",
+        "represented_object": "50-module storage equivalent",
+        "source_locator": "src/andes_rl_kundur/control/active_power.py#EnergyFeasibleBESSContract.device_power_mva",
+        "unit": "MVA",
+        "value": 36.0
+      },
+      {
+        "base": "grid-to-storage",
+        "binding_status": "bound",
+        "calibration_ceiling": "equal split of a literature lower-bound round-trip value",
+        "id": "storage_efficiencies",
+        "physically_calibrated": false,
+        "provenance_class": "derived",
+        "represented_object": "ESD1 SOC energy conversion",
+        "source_locator": "https://doi.org/10.1016/j.epsr.2022.108567; memory/rounds/R272/plan.md#per-device-frozen-fields",
+        "unit": "fraction",
+        "value": {
+          "charge": 0.9848857802,
+          "discharge": 0.9848857802,
+          "round_trip": 0.97
+        }
+      },
+      {
+        "base": "network",
+        "binding_status": "bound",
+        "calibration_ceiling": "declared benchmark/proxy assumption; not a calibrated device",
+        "id": "storage_locations",
+        "physically_calibrated": false,
+        "provenance_class": "explicit-modelling-assumption",
+        "represented_object": "four independent ESD1 devices",
+        "source_locator": "src/andes_rl_kundur/env/andes/andes_vsg_storage_env.py#AndesMultiVSGEnvV4Storage._pre_setup_addons",
+        "unit": "bus indices",
+        "value": [
+          12,
+          16,
+          14,
+          15
+        ]
+      },
+      {
+        "base": "aggregate",
+        "binding_status": "bound",
+        "calibration_ceiling": "feasibility sizing assumption; not a real installation",
+        "id": "storage_module_count",
+        "physically_calibrated": false,
+        "provenance_class": "explicit-modelling-assumption",
+        "represented_object": "each storage equivalent",
+        "source_locator": "memory/rounds/R272/plan.md#frozen-physical-contract",
+        "unit": "modules/device",
+        "value": 50
+      },
+      {
+        "base": "module",
+        "binding_status": "bound",
+        "calibration_ceiling": "capacity anchor only; not the simulated plant manufacturer",
+        "id": "storage_module_energy_mwh",
+        "physically_calibrated": false,
+        "provenance_class": "literature-derived",
+        "represented_object": "experimental BESS module anchor",
+        "source_locator": "https://doi.org/10.1016/j.epsr.2022.108567; memory/rounds/R272/plan.md#capacity-anchor",
+        "unit": "MWh",
+        "value": 0.56
+      },
+      {
+        "base": "module",
+        "binding_status": "bound",
+        "calibration_ceiling": "capacity anchor only; not the simulated plant manufacturer",
+        "id": "storage_module_power_mva",
+        "physically_calibrated": false,
+        "provenance_class": "literature-derived",
+        "represented_object": "experimental BESS module anchor",
+        "source_locator": "https://doi.org/10.1016/j.epsr.2022.108567; memory/rounds/R272/plan.md#capacity-anchor",
+        "unit": "MVA",
+        "value": 0.72
+      },
+      {
+        "base": "36-MVA device",
+        "binding_status": "bound",
+        "calibration_ceiling": "model/nameplate boundary; not validated converter capability",
+        "id": "storage_power_limit_device_pu",
+        "physically_calibrated": false,
+        "provenance_class": "official-model-default",
+        "represented_object": "ESD1 active-power capability",
+        "source_locator": "paper/decoupling_marl_model_first/reports/R323.md#official-source-scope; src/andes_rl_kundur/env/andes/andes_vsg_storage_env.py#pmx",
+        "unit": "p.u.",
+        "value": 1.0
+      },
+      {
+        "base": "device",
+        "binding_status": "bound",
+        "calibration_ceiling": "declared benchmark/proxy assumption; not a calibrated device",
+        "id": "storage_reactive_power_excluded",
+        "physically_calibrated": false,
+        "provenance_class": "explicit-modelling-assumption",
+        "represented_object": "ESD1 reactive service",
+        "source_locator": "src/andes_rl_kundur/env/andes/andes_vsg_storage_env.py#qmn-qmx",
+        "unit": "boolean",
+        "value": true
+      },
+      {
+        "base": "device energy",
+        "binding_status": "bound",
+        "calibration_ceiling": "typical-range assumption; not measured initial SOC",
+        "id": "storage_soc_contract",
+        "physically_calibrated": false,
+        "provenance_class": "literature-derived",
+        "represented_object": "storage energy state",
+        "source_locator": "https://www.wecc.org/sites/default/files/documents/meeting/2024/ESD%20Modeling%20Guidelines%20-%20Final.pdf; memory/rounds/R272/plan.md#per-device-frozen-fields",
+        "unit": "fraction",
+        "value": {
+          "initial": 0.5,
+          "maximum": 0.8,
+          "minimum": 0.2
+        }
+      },
+      {
+        "base": "device",
+        "binding_status": "bound",
+        "calibration_ceiling": "software scaling default; not hardware identification",
+        "id": "storage_soc_integrator_scale",
+        "physically_calibrated": false,
+        "provenance_class": "official-model-default",
+        "represented_object": "ESD1 SOC differential equation",
+        "source_locator": "paper/decoupling_marl_model_first/reports/R323.md#official-source-scope; src/andes_rl_kundur/env/andes/andes_vsg_storage_env.py#Tf",
+        "unit": "s",
+        "value": 1.0
+      },
+      {
+        "base": "system",
+        "binding_status": "bound",
+        "calibration_ceiling": "case base only; not equipment calibration",
+        "id": "system_base_mva",
+        "physically_calibrated": false,
+        "provenance_class": "case-source",
+        "represented_object": "per-unit conversion base",
+        "source_locator": "andes://kundur/kundur_full.xlsx; paper/decoupling_marl_model_first/working/model_contract.md#model-of-record-and-physical-base",
+        "unit": "MVA",
+        "value": 100.0
+      },
+      {
+        "base": "ANDES TDS",
+        "binding_status": "bound",
+        "calibration_ceiling": "phasor-domain numerical method; no EMT equivalence",
+        "id": "tds_method",
+        "physically_calibrated": false,
+        "provenance_class": "official-model-default",
+        "represented_object": "DAE integration",
+        "source_locator": "paper/decoupling_marl_model_first/reports/R323.md#official-source-scope; memory/rounds/R324/plan.md#frozen-physical-execution",
+        "unit": "method",
+        "value": "trapezoid"
+      },
+      {
+        "base": "ANDES TDS",
+        "binding_status": "bound",
+        "calibration_ceiling": "numerical stopping contract; not physical calibration",
+        "id": "tds_solver_tolerances",
+        "physically_calibrated": false,
+        "provenance_class": "explicit-modelling-assumption",
+        "represented_object": "initialization and pulse execution",
+        "source_locator": "memory/rounds/R324/plan.md#frozen-physical-execution; memory/rounds/R309/plan.md",
+        "unit": "Newton correction",
+        "value": {
+          "dynamic": 1e-10,
+          "dynamic_tiny": 1e-16,
+          "initialization": 0.0001,
+          "initialization_tiny": 1e-10
+        }
+      },
+      {
+        "base": "execution",
+        "binding_status": "bound",
+        "calibration_ceiling": "prospective convergence sequence only",
+        "id": "tds_substep_refinement",
+        "physically_calibrated": false,
+        "provenance_class": "explicit-modelling-assumption",
+        "represented_object": "maximum TDS segment length",
+        "source_locator": "memory/rounds/R324/plan.md#frozen-physical-execution",
+        "unit": "substeps per 0.2 s",
+        "value": [
+          5,
+          10,
+          20
+        ]
+      },
+      {
+        "base": "100-MVA device",
+        "binding_status": "bound",
+        "calibration_ceiling": "location/rating literature-motivated; dynamics are an uncalibrated proxy",
+        "id": "wind_proxy_contract",
+        "physically_calibrated": false,
+        "provenance_class": "explicit-modelling-assumption",
+        "represented_object": "separate low-inertia GENCLS wind proxy",
+        "source_locator": "src/andes_rl_kundur/env/andes/andes_vsg_env_v4.py#AndesMultiVSGEnvV4.WF2",
+        "unit": "mixed",
+        "value": {
+          "D": 0.0,
+          "M": 0.1,
+          "bus": 8,
+          "p0_device_pu": 1.0,
+          "ra": 0.001,
+          "rating_mva": 100.0,
+          "xd1": 0.15
+        }
+      }
+    ],
+    "question": "Q-0079",
+    "round": "R324",
+    "stage": "parameter-provenance-and-open-loop-time-step-convergence",
+    "thresholds": {
+      "maximum_achieved_power_difference_system_pu": 0.0005,
+      "maximum_frequency_difference_hz": 0.001,
+      "maximum_peak_time_difference_seconds": 0.20000000000100002,
+      "maximum_soc_difference": 1e-06,
+      "terminal_state_normalized_l2_difference": 0.0001
+    },
+    "training_authorized": false
+  },
+  "contract_payload_sha256": "b21b0cdbee442f7501f866e249f84051d5680e76b73ac38676672840650c3bc2",
+  "created_utc": "2026-08-03T14:34:25.405957+00:00",
+  "question": "Q-0079",
+  "round": "R324",
+  "schema_version": 1,
+  "sources": {
+    "active_power_contract": {
+      "path": "src/andes_rl_kundur/control/active_power.py",
+      "sha256": "fa5d978fbc51115e33af01279189aad41ccaf2fb8a23e403091c29fd0960d0c5"
+    },
+    "adapter": {
+      "path": "scripts/run_r324_model_fidelity.py",
+      "sha256": "68b157ab2ee65d7decdfc030afb89f432857f24b7276656a04d915b4e1865cd2"
+    },
+    "adapter_tests": {
+      "path": "tests/test_r324_model_fidelity.py",
+      "sha256": "829fd6d299dd6fdbc3b1d8b813d6f55be1618878af3514f4d70461aa5bdd35a7"
+    },
+    "base_environment": {
+      "path": "src/andes_rl_kundur/env/andes/base_env.py",
+      "sha256": "8b440dc995fe72063fd2a76e8cc36ebc3b109cd148b287e95ee0218603a31ef3"
+    },
+    "model_configuration": {
+      "path": "src/andes_rl_kundur/env/andes/model_first_contract.py",
+      "sha256": "1fd3dd02c363185c27a8af6f006853f82bf258676ef1ab3c7928c6db4d93cbf6"
+    },
+    "model_contract": {
+      "path": "paper/decoupling_marl_model_first/working/model_contract.md",
+      "sha256": "f10cf28f39e702966481d007bf0157fd43804873558afe71fe07ca8d4a055caa"
+    },
+    "model_environment": {
+      "path": "src/andes_rl_kundur/env/andes/model_first_env.py",
+      "sha256": "8b8aa445aafe4b40182cfe60b2dad3cf639dca98ff695d176b01bb5784965f13"
+    },
+    "plan": {
+      "path": "memory/rounds/R324/plan.md",
+      "sha256": "652e09a15727aad8e8f04aa0fef04a3aba3016e954e7f8124fc14201e91381ac"
+    },
+    "question": {
+      "path": "memory/questions/Q-0079.md",
+      "sha256": "cb2dad204594f2a15f8878a3b2f4a656ac6dd954d654d96b5b32480f54a95d84"
+    },
+    "r272_parameter_source": {
+      "path": "memory/rounds/R272/plan.md",
+      "sha256": "d5be439d74c2c4de54c35a0efceff9b8787f692e61d1c32280c57076aeb5b17c"
+    },
+    "r323_official_audit": {
+      "path": "paper/decoupling_marl_model_first/reports/R323.md",
+      "sha256": "709a16268e002ac16c67a98638d253faa62b330e3295dd26eee1d9e6fe26069f"
+    },
+    "storage_environment": {
+      "path": "src/andes_rl_kundur/env/andes/andes_vsg_storage_env.py",
+      "sha256": "544e63fc4d16de43197c1d5ffaca8351f32faec160cce2803053074826eceabf"
+    },
+    "v4_environment": {
+      "path": "src/andes_rl_kundur/env/andes/andes_vsg_env_v4.py",
+      "sha256": "b4069d4702a334526df994132ed3413c391fd412438929e0078220bbecb144d5"
+    },
+    "validator": {
+      "path": "probes/r324_model_fidelity_validation.py",
+      "sha256": "4b09d39c71c4bc953aa520c12179e78723ec347f26caca930b7185e87ccbd928"
+    },
+    "validator_tests": {
+      "path": "tests/test_r324_model_fidelity_validation.py",
+      "sha256": "356f7424fbce6f1ad28ef2acaa08e9643a0e09234ffc6cdd41b4a5f1574e6d99"
+    }
+  }
+}

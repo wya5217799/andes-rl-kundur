@@ -1,8 +1,9 @@
 """Render memory/STATE.md as an active oracle.
 
 Sections, in order:
-0. (R≥59) 给 PI 的简报（最新一轮） — extracted from newest R≥59 verdict's
-   `## 给 PI 的话` body, with `memory/glossary.yml` first-use annotation
+0. (R≥59) reader briefing — extracted from the newest R≥59 verdict's
+   `## 给 PI 的话` body. Legacy rounds keep the old heading and glossary;
+   R317+ uses an identifier-free heading and jargon-free source text.
 1. Headline Numbers — claims tagged `headline`, status=current
 2. In-Flight — round dirs with plan.md but no verdict*.md
 3. Open Questions — Q files with status in {open, in-flight}
@@ -37,16 +38,17 @@ ROUND_DIR_RE = re.compile(r"^R(\d+)$")
 
 # PI briefing extraction (ADR-0003). Mirrors validate.py constants.
 PI_BRIEFING_CUTOFF = 59
+PI_PLAIN_LANGUAGE_CUTOFF = 317
 PI_BRIEFING_SECTION = "## 给 PI 的话"
 PI_BRIEFING_BLOCK_RE = re.compile(
     rf"^{re.escape(PI_BRIEFING_SECTION)}\s*\n+(.*?)(?=\n##\s|\Z)",
     re.MULTILINE | re.DOTALL,
 )
-# The "结果（一句话）" sub-segment line — used for the 历史简报 section.
-# Matches a bolded "结果（一句话）" label followed by its content on the
-# same line.
+# The historical headline line. ADR-0003 used "结果（一句话）"; ADR-0011
+# uses the reader-facing "这说明什么" from R317 onward. Accept both so old
+# verdicts remain immutable and new plain-language briefings still render.
 PI_BRIEFING_HEADLINE_RE = re.compile(
-    r"\*\*结果（一句话）\*\*[：:]\s*(.+?)(?:\n|$)"
+    r"\*\*(?:结果（一句话）|这说明什么)\*\*[：:]\s*(.+?)(?:\n|$)"
 )
 # Historical briefings section: how many past R≥59 rounds to surface.
 HISTORICAL_BRIEFINGS_KEEP = 5
@@ -239,7 +241,7 @@ def _extract_pi_briefing(verdict_path: Path | None) -> str | None:
 
 
 def _extract_pi_briefing_headline(verdict_path: Path | None) -> str | None:
-    """Extract just the `**结果（一句话）**` line from a briefing.
+    """Extract the legacy result or current meaning line from a briefing.
 
     Used for the `## 历史简报` section so older rounds appear as one-liners
     rather than full briefings.
@@ -625,12 +627,22 @@ def render_state(
     # 0. (R≥59) PI briefing — top of file, before the agent-facing sections.
     # Omitted entirely until the first R≥59 verdict with a briefing exists.
     if latest_briefing_body and latest_briefing_round:
-        lines.append(
-            f"## 给 PI 的简报（最新一轮 — {latest_briefing_round.name}）"
+        plain_language = (
+            _round_num(latest_briefing_round) >= PI_PLAIN_LANGUAGE_CUTOFF
         )
+        if plain_language:
+            lines.append("## 给你的研究汇报")
+        else:
+            lines.append(
+                f"## 给 PI 的简报（最新一轮 — {latest_briefing_round.name}）"
+            )
         lines.append("")
-        annotated = _annotate_first_use(latest_briefing_body, glossary)
-        lines.append(annotated)
+        rendered_briefing = (
+            latest_briefing_body
+            if plain_language
+            else _annotate_first_use(latest_briefing_body, glossary)
+        )
+        lines.append(rendered_briefing)
         lines.append("")
 
     # 1. Headlines

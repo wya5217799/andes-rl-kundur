@@ -1,0 +1,151 @@
+{
+  "version": 1,
+  "line_id": "sci-upgrade-survey",
+  "artifacts": [
+    {
+      "id": "line-state",
+      "purpose": "line-state",
+      "path": "paper/sci_upgrade_survey/LINE.md",
+      "status": "active",
+      "canonical": true,
+      "authoritative": true,
+      "producer": "project-governance",
+      "inputs": [
+        "paper/sci_upgrade_survey/reports"
+      ],
+      "input_hashes": {
+        "paper/sci_upgrade_survey/reports": "d8450b4087a41cdea9542bed0318ff21e99a3481249fc06b29d71d639c842755"
+      },
+      "supersedes": [],
+      "review_after": null
+    },
+    {
+      "id": "venue-decision",
+      "purpose": "venue-decision",
+      "path": "paper/sci_upgrade_survey/JOURNAL_TARGET.md",
+      "status": "active",
+      "canonical": true,
+      "authoritative": false,
+      "producer": "venue-gate",
+      "inputs": [
+        "paper/sci_upgrade_survey/REPORT.md",
+        "paper/sci_upgrade_survey/DIFFERENTIATION_MEMO.md"
+      ],
+      "input_hashes": {
+        "paper/sci_upgrade_survey/REPORT.md": "761ca8967c425fa25a3a58e8e8c17d5d36cbf60087ede6d3c9e6f6265ee5895c",
+        "paper/sci_upgrade_survey/DIFFERENTIATION_MEMO.md": "a34d9a6a8b591644abbf604b93bc8bff9b82d1ee5757bda60fa0daa2589412d7"
+      },
+      "supersedes": [],
+      "review_after": "2026-09-30"
+    },
+    {
+      "id": "literature-landscape",
+      "purpose": "literature-landscape",
+      "path": "paper/sci_upgrade_survey/REPORT.md",
+      "status": "active",
+      "canonical": true,
+      "authoritative": false,
+      "producer": "deep-research",
+      "inputs": [
+        "paper/sci_upgrade_survey/corpus"
+      ],
+      "supersedes": [],
+      "review_after": "2026-10-29"
+    },
+    {
+      "id": "literature-corpus",
+      "purpose": "literature-corpus",
+      "path": "paper/sci_upgrade_survey/corpus",
+      "status": "active",
+      "canonical": true,
+      "authoritative": false,
+      "producer": "deep-research",
+      "inputs": [],
+      "supersedes": [],
+      "review_after": null
+    },
+    {
+      "id": "differentiation-memo",
+      "purpose": "differentiation",
+      "path": "paper/sci_upgrade_survey/DIFFERENTIATION_MEMO.md",
+      "status": "active",
+      "canonical": true,
+      "authoritative": false,
+      "producer": "deep-research",
+      "inputs": [
+        "paper/icems2026/main.tex",
+        "paper/sci_upgrade_survey/REPORT.md"
+      ],
+      "input_hashes": {
+        "paper/icems2026/main.tex": "0fa477a9784c15ad6d56a66dcd10927ffd2dc4c0bbbb1aa9ea18af684f40536f",
+        "paper/sci_upgrade_survey/REPORT.md": "761ca8967c425fa25a3a58e8e8c17d5d36cbf60087ede6d3c9e6f6265ee5895c"
+      },
+      "supersedes": [],
+      "review_after": "2026-10-29"
+    },
+    {
+      "id": "experiment-feeds",
+      "purpose": "experiment-feeds",
+      "path": "paper/sci_upgrade_survey/reports",
+      "status": "active",
+      "canonical": true,
+      "authoritative": true,
+      "producer": "kundur-round-feed",
+      "inputs": [
+        "memory/claims",
+        "memory/rounds",
+        "results"
+      ],
+      "supersedes": [],
+      "review_after": null
+    },
+    {
+      "id": "draft-c1-mechanism",
+      "purpose": "draft-c1-mechanism",
+      "path": "paper/sci_upgrade_survey/draft/sec_C1_mechanism_skeleton.md",
+      "status": "active",
+      "canonical": true,
+      "authoritative": false,
+      "producer": "paper-drafting",
+      "inputs": [
+        "paper/sci_upgrade_survey/reports/R281.md",
+        "paper/sci_upgrade_survey/reports/R282.md",
+        "paper/sci_upgrade_survey/reports/R283.md",
+        "paper/sci_upgrade_survey/reports/R284.md",
+        "paper/sci_upgrade_survey/reports/R285.md"
+      ],
+      "input_hashes": {
+        "paper/sci_upgrade_survey/reports/R281.md": "090388bc29a6afa876f7a6eab6cfafbd22ff045f0313ec5cafb8b772c7325a5d",
+        "paper/sci_upgrade_survey/reports/R282.md": "488362e0138a60479153b63ac07ad1eb9a5a5c28f37669f0012a74953e467356",
+        "paper/sci_upgrade_survey/reports/R283.md": "93089140ee93f04c60d88151942e1d9abc9c1e1365fb6859fcfb167a21300eb9",
+        "paper/sci_upgrade_survey/reports/R284.md": "173a594edc206028b388ff1b265a92402dd44780576dba047453e41ece294d46",
+        "paper/sci_upgrade_survey/reports/R285.md": "94e35fa1071943fa7cef3c830ed110df5c06c90805640f933597270f4b86c497"
+      },
+      "supersedes": [],
+      "review_after": null
+    },
+    {
+      "id": "draft-c2-weak-grid",
+      "purpose": "draft-c2-weak-grid",
+      "path": "paper/sci_upgrade_survey/draft/sec_C2_weak_grid_skeleton.md",
+      "status": "active",
+      "canonical": true,
+      "authoritative": false,
+      "producer": "paper-drafting",
+      "inputs": [
+        "paper/sci_upgrade_survey/reports/R283.md",
+        "paper/sci_upgrade_survey/reports/R285.md",
+        "paper/sci_upgrade_survey/reports/R286.md",
+        "paper/sci_upgrade_survey/reports/R287.md"
+      ],
+      "input_hashes": {
+        "paper/sci_upgrade_survey/reports/R283.md": "93089140ee93f04c60d88151942e1d9abc9c1e1365fb6859fcfb167a21300eb9",
+        "paper/sci_upgrade_survey/reports/R285.md": "94e35fa1071943fa7cef3c830ed110df5c06c90805640f933597270f4b86c497",
+        "paper/sci_upgrade_survey/reports/R286.md": "b45bfd379a20ab54ae8d9cec3b011e02a59c847c8dcded3edc0188e998a13272",
+        "paper/sci_upgrade_survey/reports/R287.md": "d87b383069acfff2f775563b1fea057b0c0ce1b0775dfe6a333fe04feb65e064"
+      },
+      "supersedes": [],
+      "review_after": null
+    }
+  ]
+}

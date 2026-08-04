@@ -1,0 +1,888 @@
+{
+  "schema_version": 1,
+  "round": "R330",
+  "question": "Q-0083",
+  "created_utc": "2026-08-03T19:45:12.093145+00:00",
+  "contract": {
+    "round": "R330",
+    "question": "Q-0083",
+    "stage": "model-only-frozen-estimator-untouched-holdout",
+    "parent_round": "R329",
+    "points": [
+      "HS0",
+      "HS1"
+    ],
+    "holdout_case_names": [
+      "HS0/separated_doublet/common/positive",
+      "HS0/separated_doublet/common/negative",
+      "HS0/separated_doublet/edge_0/positive",
+      "HS0/separated_doublet/edge_0/negative",
+      "HS0/separated_doublet/edge_1/positive",
+      "HS0/separated_doublet/edge_1/negative",
+      "HS0/separated_doublet/edge_2/positive",
+      "HS0/separated_doublet/edge_2/negative",
+      "HS1/separated_doublet/common/positive",
+      "HS1/separated_doublet/common/negative",
+      "HS1/separated_doublet/edge_0/positive",
+      "HS1/separated_doublet/edge_0/negative",
+      "HS1/separated_doublet/edge_1/positive",
+      "HS1/separated_doublet/edge_1/negative",
+      "HS1/separated_doublet/edge_2/positive",
+      "HS1/separated_doublet/edge_2/negative"
+    ],
+    "holdout_case_records": [
+      {
+        "name": "HS0/separated_doublet/common/positive",
+        "point": "HS0",
+        "initial_soc": 0.41,
+        "disturbance": {
+          "shape": [
+            50,
+            4
+          ],
+          "dtype": "<f8",
+          "bytes_sha256": "4e27a7ff759e261e2cb6cc840bef1d7e8095c62b7cdb328c0ff6a5196edd09bf"
+        },
+        "payload_sha256": "3fbe0beb0085f5206d81446b173b5c54488961b9f1fe17e1744297c6bb653a1e"
+      },
+      {
+        "name": "HS0/separated_doublet/common/negative",
+        "point": "HS0",
+        "initial_soc": 0.41,
+        "disturbance": {
+          "shape": [
+            50,
+            4
+          ],
+          "dtype": "<f8",
+          "bytes_sha256": "b6f38f18468525ea874e8e66e1d2a09274f18547c5217777c38978f9b91efd03"
+        },
+        "payload_sha256": "29bc5ba1edba1ef4f1e42fa92318e6caf04664ff8b31208d0debbd65591ac58f"
+      },
+      {
+        "name": "HS0/separated_doublet/edge_0/positive",
+        "point": "HS0",
+        "initial_soc": 0.41,
+        "disturbance": {
+          "shape": [
+            50,
+            4
+          ],
+          "dtype": "<f8",
+          "bytes_sha256": "ea7bccd26cc163b0288cce7254a9110b93040d64dd2a79037865b532445b0892"
+        },
+        "payload_sha256": "d4496fed575a79193013107d869300c1b73f6ca1dd25240325f6fa838364089f"
+      },
+      {
+        "name": "HS0/separated_doublet/edge_0/negative",
+        "point": "HS0",
+        "initial_soc": 0.41,
+        "disturbance": {
+          "shape": [
+            50,
+            4
+          ],
+          "dtype": "<f8",
+          "bytes_sha256": "c98683119afed1b0f56974562906ec02bb024c0e7e189ef2d5d7a7946ced67ff"
+        },
+        "payload_sha256": "76ba37f3e2d84fb544903b0128a2c184bcec14d3455bf6814215b1265ee9b1ed"
+      },
+      {
+        "name": "HS0/separated_doublet/edge_1/positive",
+        "point": "HS0",
+        "initial_soc": 0.41,
+        "disturbance": {
+          "shape": [
+            50,
+            4
+          ],
+          "dtype": "<f8",
+          "bytes_sha256": "5c3c85b53c722d2a4ffcead5104476064f3bb45323de52987c90f3e0bd106dba"
+        },
+        "payload_sha256": "a24a398d6cf3cb387b075d13acdd855acc03001c6e083ea690a23e0e5aaeb12d"
+      },
+      {
+        "name": "HS0/separated_doublet/edge_1/negative",
+        "point": "HS0",
+        "initial_soc": 0.41,
+        "disturbance": {
+          "shape": [
+            50,
+            4
+          ],
+          "dtype": "<f8",
+          "bytes_sha256": "dcff844910cf3ce7fc6c2cd4cb96b5f77790866b77724a8f5a8b5587d2ac31c1"
+        },
+        "payload_sha256": "4236d18fa50e02ce968ca86d12ced89c0ad88d960f4641d08a2b5ef517cf279f"
+      },
+      {
+        "name": "HS0/separated_doublet/edge_2/positive",
+        "point": "HS0",
+        "initial_soc": 0.41,
+        "disturbance": {
+          "shape": [
+            50,
+            4
+          ],
+          "dtype": "<f8",
+          "bytes_sha256": "c3c7010f2115b354b2e8ed9b3a3c3a9eea1aa77a9ec87afa19a86767a846c937"
+        },
+        "payload_sha256": "6bcf65ac6ca98aba672b59ae47d9fae3ba87ce71b682dffc1ed4b10ed2fa573c"
+      },
+      {
+        "name": "HS0/separated_doublet/edge_2/negative",
+        "point": "HS0",
+        "initial_soc": 0.41,
+        "disturbance": {
+          "shape": [
+            50,
+            4
+          ],
+          "dtype": "<f8",
+          "bytes_sha256": "a3ce1b5322d5d5bd37fbbe47d8d8105bedba346263bdc7d9f72727d431c3b4f4"
+        },
+        "payload_sha256": "2f72925f587c87dd5553da28e395cdb2a8d4d924942cc95b7b2dca3cd6b11189"
+      },
+      {
+        "name": "HS1/separated_doublet/common/positive",
+        "point": "HS1",
+        "initial_soc": 0.51,
+        "disturbance": {
+          "shape": [
+            50,
+            4
+          ],
+          "dtype": "<f8",
+          "bytes_sha256": "4e27a7ff759e261e2cb6cc840bef1d7e8095c62b7cdb328c0ff6a5196edd09bf"
+        },
+        "payload_sha256": "dd4af3a56a6fa5992ae1c3c84dd2a910f302acbe6e27c766731332a196b42b50"
+      },
+      {
+        "name": "HS1/separated_doublet/common/negative",
+        "point": "HS1",
+        "initial_soc": 0.51,
+        "disturbance": {
+          "shape": [
+            50,
+            4
+          ],
+          "dtype": "<f8",
+          "bytes_sha256": "b6f38f18468525ea874e8e66e1d2a09274f18547c5217777c38978f9b91efd03"
+        },
+        "payload_sha256": "5d11d723723278e54b11f0112c9dca8cea73614592b605ab81c3c035ee853640"
+      },
+      {
+        "name": "HS1/separated_doublet/edge_0/positive",
+        "point": "HS1",
+        "initial_soc": 0.51,
+        "disturbance": {
+          "shape": [
+            50,
+            4
+          ],
+          "dtype": "<f8",
+          "bytes_sha256": "ea7bccd26cc163b0288cce7254a9110b93040d64dd2a79037865b532445b0892"
+        },
+        "payload_sha256": "21d6af342083a41c59e6d7e7e223fa5356019685d24ba1efc4260a807f21f150"
+      },
+      {
+        "name": "HS1/separated_doublet/edge_0/negative",
+        "point": "HS1",
+        "initial_soc": 0.51,
+        "disturbance": {
+          "shape": [
+            50,
+            4
+          ],
+          "dtype": "<f8",
+          "bytes_sha256": "c98683119afed1b0f56974562906ec02bb024c0e7e189ef2d5d7a7946ced67ff"
+        },
+        "payload_sha256": "bcf86c6259490595b76c10773b973a28da8647c1cb2bbdd9d5fbf072ef0cdccb"
+      },
+      {
+        "name": "HS1/separated_doublet/edge_1/positive",
+        "point": "HS1",
+        "initial_soc": 0.51,
+        "disturbance": {
+          "shape": [
+            50,
+            4
+          ],
+          "dtype": "<f8",
+          "bytes_sha256": "5c3c85b53c722d2a4ffcead5104476064f3bb45323de52987c90f3e0bd106dba"
+        },
+        "payload_sha256": "158a78f7dda4ad693909775e22c30838985980b5b23d7584e6aceccd8ed2736f"
+      },
+      {
+        "name": "HS1/separated_doublet/edge_1/negative",
+        "point": "HS1",
+        "initial_soc": 0.51,
+        "disturbance": {
+          "shape": [
+            50,
+            4
+          ],
+          "dtype": "<f8",
+          "bytes_sha256": "dcff844910cf3ce7fc6c2cd4cb96b5f77790866b77724a8f5a8b5587d2ac31c1"
+        },
+        "payload_sha256": "e58a686b7588f54e4f2343dd38f51bb5fb69f5ea03007364be37d345e3603ea6"
+      },
+      {
+        "name": "HS1/separated_doublet/edge_2/positive",
+        "point": "HS1",
+        "initial_soc": 0.51,
+        "disturbance": {
+          "shape": [
+            50,
+            4
+          ],
+          "dtype": "<f8",
+          "bytes_sha256": "c3c7010f2115b354b2e8ed9b3a3c3a9eea1aa77a9ec87afa19a86767a846c937"
+        },
+        "payload_sha256": "46c6ff705a66e1c7157980d11c1ac9f85740af3e0e699b64564958c92d6b9822"
+      },
+      {
+        "name": "HS1/separated_doublet/edge_2/negative",
+        "point": "HS1",
+        "initial_soc": 0.51,
+        "disturbance": {
+          "shape": [
+            50,
+            4
+          ],
+          "dtype": "<f8",
+          "bytes_sha256": "a3ce1b5322d5d5bd37fbbe47d8d8105bedba346263bdc7d9f72727d431c3b4f4"
+        },
+        "payload_sha256": "e5a588741676a334d2e11494a36fc5cb7881c69a049af864d025518d1c185825"
+      }
+    ],
+    "holdout_base_case_count": 16,
+    "mismatch_modes": [
+      "nominal",
+      "plus_scale",
+      "minus_scale",
+      "signed_reflection",
+      "common_differential_exchange"
+    ],
+    "holdout_case_count": 80,
+    "solver": {
+      "name": "osqp",
+      "version": "1.1.3",
+      "algebra": "builtin",
+      "linear_solver": "direct",
+      "maximum_iterations": 20000,
+      "absolute_tolerance": 1e-09,
+      "relative_tolerance": 1e-09,
+      "feasibility_tolerance": 1e-08,
+      "polishing": false,
+      "warm_starting": true,
+      "adaptive_rho": true,
+      "adaptive_rho_interval": 25,
+      "scaled_termination": false,
+      "check_termination": 25,
+      "accepted_status": "solved",
+      "workspace_scope": "fresh-per-case-reused-within-case"
+    },
+    "limits": {
+      "sample_period_seconds": 0.2,
+      "node_power": 0.36,
+      "node_ramp": 0.072,
+      "system_mva": 100.0,
+      "energy_mwh": 28.0,
+      "charge_efficiency": 0.9848857802,
+      "discharge_efficiency": 0.9848857802,
+      "minimum_soc": 0.2,
+      "maximum_soc": 0.8
+    },
+    "runtime_dependency_fingerprint": {
+      "python_version": "3.14.3",
+      "python_executable_sha256": "cce21c0e8710e304273e98ac4b2b0f5aceb639acbcd2343cbaa5c4e81619c45b",
+      "numpy_version": "2.4.3",
+      "scipy_version": "1.17.1",
+      "osqp_version": "1.1.3",
+      "osqp_algebra": "builtin",
+      "osqp_distribution_sha256": "510f0736dc4568aba3e0bb0a6e6236c2ec6cd2944513b5f98ff79fa193ef5b72",
+      "threadpoolctl_version": "3.6.0",
+      "threadpoolctl_distribution_sha256": "ae3ededa2e007170bc311aeb6e7029e4e3e30f45eff9eebbabfec5dff6ad2440"
+    },
+    "gates": {
+      "holdout_mean_output_energy_ratio_maximum": 0.98,
+      "holdout_worst_output_energy_ratio_maximum": 1.0
+    },
+    "frozen_design_fingerprints": {
+      "HS0": {
+        "payload_sha256": "638ec95b695e75b1c07bcee6629baeeb99fd63904effbe8db940204a261f128e",
+        "arrays": {
+          "plant_state": {
+            "shape": [
+              10,
+              10
+            ],
+            "dtype": "<f8",
+            "bytes_sha256": "b00e24b4ed72427181cbbc6c4995e802f8673415f65cdfc53667f373a9bc11d9"
+          },
+          "plant_input": {
+            "shape": [
+              10,
+              4
+            ],
+            "dtype": "<f8",
+            "bytes_sha256": "ab65feb1c8f3be0e2f6402eabfbe4d8a41dee4d83d3a7afe9c9ec3e58984693b"
+          },
+          "plant_output": {
+            "shape": [
+              4,
+              10
+            ],
+            "dtype": "<f8",
+            "bytes_sha256": "6eab4b554bec1c28a744b8c701efaa3f952ec6aa33ff226fdfdac4d40a1377f3"
+          },
+          "plant_feedthrough": {
+            "shape": [
+              4,
+              4
+            ],
+            "dtype": "<f8",
+            "bytes_sha256": "404c9f80630f8c041248d76626549263085d04455db030ed95bc24b9f6f51233"
+          },
+          "plant_singular_values": {
+            "shape": [
+              10
+            ],
+            "dtype": "<f8",
+            "bytes_sha256": "c009ec1594ac7ab0bb6938d0b47304396d70a1af3be8225f81c8a07fe278d3b4"
+          },
+          "controller_state": {
+            "shape": [
+              14,
+              14
+            ],
+            "dtype": "<f8",
+            "bytes_sha256": "6dea51bf8cb33c1fbf5513e97eacd41a7713f808443eca7fb750c9825b59a550"
+          },
+          "controller_input": {
+            "shape": [
+              14,
+              4
+            ],
+            "dtype": "<f8",
+            "bytes_sha256": "23a83135509fb735c5815a5df5b24aa0ef8e21ecc4bce6d65c84c0f6542b9e95"
+          },
+          "controller_measurement": {
+            "shape": [
+              4,
+              14
+            ],
+            "dtype": "<f8",
+            "bytes_sha256": "11b2bde22a400c1340b2f3693a910c8f34cc8d1b5749078c037804e34502d084"
+          },
+          "controller_regulated_output": {
+            "shape": [
+              4,
+              14
+            ],
+            "dtype": "<f8",
+            "bytes_sha256": "64c66f07a00607cfe4c198aa51e13d4ddd904f68243b63746dcce2ab6e4c6479"
+          },
+          "controller_feedthrough": {
+            "shape": [
+              4,
+              4
+            ],
+            "dtype": "<f8",
+            "bytes_sha256": "404c9f80630f8c041248d76626549263085d04455db030ed95bc24b9f6f51233"
+          },
+          "controller_filter_gain": {
+            "shape": [
+              14,
+              4
+            ],
+            "dtype": "<f8",
+            "bytes_sha256": "a0d7f92b2948e08dd383c5d02243f2c6f00df245b52c11497528ef48ae94e444"
+          },
+          "controller_output_scales": {
+            "shape": [
+              4
+            ],
+            "dtype": "<f8",
+            "bytes_sha256": "4aad3e2f1d4f1df2babf03a9154ed40a103a4160e17d06bf632f26b255226613"
+          },
+          "controller_action_scales": {
+            "shape": [
+              4
+            ],
+            "dtype": "<f8",
+            "bytes_sha256": "f0c2bc1959509bfab69dde990429d69b1d3ba390bc2abf467ca4cfa99c7eb128"
+          },
+          "controller_observer_poles": {
+            "shape": [
+              14
+            ],
+            "dtype": "<f8",
+            "bytes_sha256": "7c199236a6d1cee3adae4118cdbe451bd3df03d3999b3afb9330b7f0463118d3"
+          },
+          "estimator_transition": {
+            "shape": [
+              14,
+              14
+            ],
+            "dtype": "<f8",
+            "bytes_sha256": "25520be12008a636d326c4e6703fc2a42c6795804ec7939b192feea43c6e6c30"
+          },
+          "estimator_control": {
+            "shape": [
+              14,
+              4
+            ],
+            "dtype": "<f8",
+            "bytes_sha256": "7ed7474085f696069c80e47d4b84ef02fb15f9ea920235328ea7b81323e369b4"
+          },
+          "estimator_measurement": {
+            "shape": [
+              4,
+              14
+            ],
+            "dtype": "<f8",
+            "bytes_sha256": "d3eb2949b06c805a3f338fa6905322470ecf8a35b682774c558b4b08d408b548"
+          },
+          "estimator_feedthrough": {
+            "shape": [
+              4,
+              4
+            ],
+            "dtype": "<f8",
+            "bytes_sha256": "404c9f80630f8c041248d76626549263085d04455db030ed95bc24b9f6f51233"
+          },
+          "estimator_filter_gain": {
+            "shape": [
+              14,
+              4
+            ],
+            "dtype": "<f8",
+            "bytes_sha256": "3503e3ff9d38df2ed9fef2a5314f70abc913fce3a1a5728aa29d34fd64966daa"
+          },
+          "estimator_covariance": {
+            "shape": [
+              14,
+              14
+            ],
+            "dtype": "<f8",
+            "bytes_sha256": "a54a9de28f3cd9adf4dcbf5c40c3be071c235c4a9367ed67a9c902f6b555bc6c"
+          },
+          "estimator_process_covariance": {
+            "shape": [
+              14,
+              14
+            ],
+            "dtype": "<f8",
+            "bytes_sha256": "22058df20d2684aac0dc9d9c6bf78ad49cec76e5c71313edc8b4c5f648dda2cf"
+          },
+          "estimator_measurement_covariance": {
+            "shape": [
+              4,
+              4
+            ],
+            "dtype": "<f8",
+            "bytes_sha256": "9de3261b0b5b9cce864bfbea6993814d5f51543a58e97f11f5c6c8d3ecc6b5e4"
+          }
+        },
+        "scalars": {
+          "controller_horizon_steps": 25,
+          "controller_observer_target_max_abs_error": 3.0753177782116836e-14,
+          "estimator_physical_state_order": 10,
+          "estimator_observability_rank": 14
+        }
+      },
+      "HS1": {
+        "payload_sha256": "256345eebe74559f5f44826afa6aa7e0675c6d77a067c440ca9108cffbd1fe8a",
+        "arrays": {
+          "plant_state": {
+            "shape": [
+              10,
+              10
+            ],
+            "dtype": "<f8",
+            "bytes_sha256": "cfb42cd6ac0c0e9b01dbf5d361fa65036b7bd3c7b97f922002deb6cd270419d7"
+          },
+          "plant_input": {
+            "shape": [
+              10,
+              4
+            ],
+            "dtype": "<f8",
+            "bytes_sha256": "cbe118f28402afaee73a457cd3e6a46c4814adc8a2718ebcaf56f02eb16b8356"
+          },
+          "plant_output": {
+            "shape": [
+              4,
+              10
+            ],
+            "dtype": "<f8",
+            "bytes_sha256": "fe6c71d9f351e5d3bce12a243bfb087228cae126874079a1e2d4a1ef4ad7c02e"
+          },
+          "plant_feedthrough": {
+            "shape": [
+              4,
+              4
+            ],
+            "dtype": "<f8",
+            "bytes_sha256": "26d929e008778c13a47e0a4fe3c40ee76cfbfb9cd216bfd238bc5e47edf429ee"
+          },
+          "plant_singular_values": {
+            "shape": [
+              10
+            ],
+            "dtype": "<f8",
+            "bytes_sha256": "72e3b03da5b3d7d6499408b876fd4d430866605bd8425a18129a5e53860a7a42"
+          },
+          "controller_state": {
+            "shape": [
+              14,
+              14
+            ],
+            "dtype": "<f8",
+            "bytes_sha256": "395adeb80d590370ade346a45e4f0b9aedddecf261fdec0a9c37b3f3caa25cbb"
+          },
+          "controller_input": {
+            "shape": [
+              14,
+              4
+            ],
+            "dtype": "<f8",
+            "bytes_sha256": "8cb611deb0f959b3815122a14035530e08ad75983aaaa58faae0950f0d6c1dcd"
+          },
+          "controller_measurement": {
+            "shape": [
+              4,
+              14
+            ],
+            "dtype": "<f8",
+            "bytes_sha256": "11b2bde22a400c1340b2f3693a910c8f34cc8d1b5749078c037804e34502d084"
+          },
+          "controller_regulated_output": {
+            "shape": [
+              4,
+              14
+            ],
+            "dtype": "<f8",
+            "bytes_sha256": "fc376edac0bf331cf9ea68b32df08e396821bed25f4c4bd789f3793a4e5e14b6"
+          },
+          "controller_feedthrough": {
+            "shape": [
+              4,
+              4
+            ],
+            "dtype": "<f8",
+            "bytes_sha256": "26d929e008778c13a47e0a4fe3c40ee76cfbfb9cd216bfd238bc5e47edf429ee"
+          },
+          "controller_filter_gain": {
+            "shape": [
+              14,
+              4
+            ],
+            "dtype": "<f8",
+            "bytes_sha256": "3ced1ea9e0052970c9b08ba0ca24f3a44d2d721d026e81a214f503ce415f6ab0"
+          },
+          "controller_output_scales": {
+            "shape": [
+              4
+            ],
+            "dtype": "<f8",
+            "bytes_sha256": "7e6a1e3ad5df0a83a92b7f833688d2ae822cda5de525a6402542a474dc439ede"
+          },
+          "controller_action_scales": {
+            "shape": [
+              4
+            ],
+            "dtype": "<f8",
+            "bytes_sha256": "f0c2bc1959509bfab69dde990429d69b1d3ba390bc2abf467ca4cfa99c7eb128"
+          },
+          "controller_observer_poles": {
+            "shape": [
+              14
+            ],
+            "dtype": "<f8",
+            "bytes_sha256": "9b8c2c93aa95a8a7500706cc7d70b5da710a22b90d2c296b5b451e334232a4d8"
+          },
+          "estimator_transition": {
+            "shape": [
+              14,
+              14
+            ],
+            "dtype": "<f8",
+            "bytes_sha256": "b69f2baf8b4b806415bc8fef6847765916582eb1b3445dd68397381b494e6416"
+          },
+          "estimator_control": {
+            "shape": [
+              14,
+              4
+            ],
+            "dtype": "<f8",
+            "bytes_sha256": "14f0c8c356d414bf62e087d7188373fdc3dbf020713db6b2576e579d7ff59f84"
+          },
+          "estimator_measurement": {
+            "shape": [
+              4,
+              14
+            ],
+            "dtype": "<f8",
+            "bytes_sha256": "d189bf415b63a716ffc78d2dec69da57e8a8477ac2758a3c4e410d6960ff8a2f"
+          },
+          "estimator_feedthrough": {
+            "shape": [
+              4,
+              4
+            ],
+            "dtype": "<f8",
+            "bytes_sha256": "26d929e008778c13a47e0a4fe3c40ee76cfbfb9cd216bfd238bc5e47edf429ee"
+          },
+          "estimator_filter_gain": {
+            "shape": [
+              14,
+              4
+            ],
+            "dtype": "<f8",
+            "bytes_sha256": "0b70355d03205e449728eff8413e48931ee9972c2ba185797de86509f9fa2e05"
+          },
+          "estimator_covariance": {
+            "shape": [
+              14,
+              14
+            ],
+            "dtype": "<f8",
+            "bytes_sha256": "a785c3930099aa6051accd2e8589c019102f03ed369e5b15fb424cb9f65ea0c0"
+          },
+          "estimator_process_covariance": {
+            "shape": [
+              14,
+              14
+            ],
+            "dtype": "<f8",
+            "bytes_sha256": "22058df20d2684aac0dc9d9c6bf78ad49cec76e5c71313edc8b4c5f648dda2cf"
+          },
+          "estimator_measurement_covariance": {
+            "shape": [
+              4,
+              4
+            ],
+            "dtype": "<f8",
+            "bytes_sha256": "8138f4826f1603bc1cfacaba5645267b400c625020530d82be66e781fec375db"
+          }
+        },
+        "scalars": {
+          "controller_horizon_steps": 25,
+          "controller_observer_target_max_abs_error": 1.2423395645555502e-13,
+          "estimator_physical_state_order": 10,
+          "estimator_observability_rank": 14
+        }
+      }
+    },
+    "mismatch_fingerprints": {
+      "nominal": {
+        "shape": [
+          4,
+          4
+        ],
+        "dtype": "<f8",
+        "bytes_sha256": "38723a2e5e8a17aa7950dc008209944e898f69a7bd10a23c839d341e935fd5ca"
+      },
+      "plus_scale": {
+        "shape": [
+          4,
+          4
+        ],
+        "dtype": "<f8",
+        "bytes_sha256": "f56673e638fde590d3fd2f449b8a6e4439d8d39c591034e24127f6f84bf2c282"
+      },
+      "minus_scale": {
+        "shape": [
+          4,
+          4
+        ],
+        "dtype": "<f8",
+        "bytes_sha256": "a83f101d16d109b3ada199d0bdcb58cbc2624e0fdc72e8aa4557458a94a840e9"
+      },
+      "signed_reflection": {
+        "shape": [
+          4,
+          4
+        ],
+        "dtype": "<f8",
+        "bytes_sha256": "c85570243a725041d0000bd4f7ad123d640f4231664016cefe1d59d3772271b4"
+      },
+      "common_differential_exchange": {
+        "shape": [
+          4,
+          4
+        ],
+        "dtype": "<f8",
+        "bytes_sha256": "c65e81dcfc3ebd501cb0338170004c98bab12fef5646ae32040c0db686f2e893"
+      }
+    },
+    "holdout": {
+      "candidate_count": 1,
+      "resynthesis_or_tuning": "forbidden",
+      "output_definition": "model-output-plus-registered-linear-mismatch",
+      "zero_control_comparator": "same-plant-case-mismatch-and-score",
+      "maximum_normalized_solver_residual_ratio": 1.0,
+      "holdout_workers": 8,
+      "native_numerical_threads_per_worker": 1,
+      "canonical_pass_count": 2,
+      "physical_execution": "forbidden"
+    },
+    "comparison_identifiability": {
+      "decision": "ALLOW",
+      "estimand": "frozen-R329-package-versus-zero-control-on-registered-holdout",
+      "claim_ceiling": "this-reduced-model-package-and-holdout-only"
+    },
+    "classification": [
+      "INVALID-ESTIMATOR-HOLDOUT",
+      "ESTIMATOR-HOLDOUT-NO-GO",
+      "ESTIMATOR-HOLDOUT-PASS"
+    ],
+    "eval": "NOT-APPLICABLE-DETERMINISTIC-MODEL-ONLY",
+    "physical_execution_authorized": false,
+    "distributed_agent_implementation_authorized": false,
+    "training_authorized": false
+  },
+  "contract_payload_sha256": "dfb39e35dc61e834f91d0ebca4d82d39ef0364cb7f016eeb76f9b8efa411d5fa",
+  "parent": {
+    "r329_seal": {
+      "path": "memory/rounds/R329/disturbance_estimator_seal.json",
+      "sha256": "a36340c17ca5738946d2bc42f7ddb54a17af1a3211d98f58bec0c7fcebd405aa"
+    },
+    "r329_execution": {
+      "path": "results/r329_disturbance_estimator/execution.json",
+      "sha256": "7c00deed23592096f9e1b9c10563f9a29f76ef985b74e7d273b82276c824da27"
+    },
+    "r329_analysis": {
+      "path": "results/r329_disturbance_estimator/analysis.json",
+      "sha256": "5c2a7bc9cbde1595bee2def418a13c13a60cb378d1db12b0baeb4f8ca539ca74"
+    },
+    "r329_provenance": {
+      "path": "results/r329_disturbance_estimator/provenance.json",
+      "sha256": "c8132996e3d2236deb41d4b168ac7beba0d82ec9e57d7793d35f41d20353181f"
+    },
+    "r329_manifest": {
+      "path": "results/r329_disturbance_estimator/run_manifest.json",
+      "sha256": "7755eaf801747126ec36dffdbf4523927303738c3717a53b3f70dd7883f214a5"
+    },
+    "r329_contract_payload_sha256": "7111b6f70eb66dcfa53c6010dded76a32eb73c6d039e95f004ab2617d9c21f9f",
+    "r329_expected_closure_source_drift": [
+      "plan",
+      "question"
+    ],
+    "r326_seal": {
+      "path": "memory/rounds/R326/solver_adequacy_seal.json",
+      "sha256": "9eb3c136fd8248a2dd362d33d77b49a0197c2db7b48574ae0050d005242dd40d"
+    },
+    "r326_authority": {
+      "r328_seal_sha256": "80b4672466c07b4d1b185bccdd05d10e095a5756810c248ef83b8a0324b1b699",
+      "r328_source_path": "memory/rounds/R328/estimation_cause_seal.json",
+      "r326_source_sha256": "9eb3c136fd8248a2dd362d33d77b49a0197c2db7b48574ae0050d005242dd40d"
+    },
+    "r326_contract_payload_sha256": "c5ba96d90426b55539cf44af564f9ef669fc2bbe47a82ff358bb4be9c8ed6cc2"
+  },
+  "sources": {
+    "plan": {
+      "path": "memory/rounds/R330/plan.md",
+      "sha256": "762fa254e60fcee4787beb7cef54d277c9c16490fa7a7902acbe3cb7a277748e"
+    },
+    "question": {
+      "path": "memory/questions/Q-0083.md",
+      "sha256": "6123654704f88bb71d02b521446f828f14a22bf127fc9a7ffac52dee07df0c17"
+    },
+    "r329_seal": {
+      "path": "memory/rounds/R329/disturbance_estimator_seal.json",
+      "sha256": "a36340c17ca5738946d2bc42f7ddb54a17af1a3211d98f58bec0c7fcebd405aa"
+    },
+    "r329_execution": {
+      "path": "results/r329_disturbance_estimator/execution.json",
+      "sha256": "7c00deed23592096f9e1b9c10563f9a29f76ef985b74e7d273b82276c824da27"
+    },
+    "r329_analysis": {
+      "path": "results/r329_disturbance_estimator/analysis.json",
+      "sha256": "5c2a7bc9cbde1595bee2def418a13c13a60cb378d1db12b0baeb4f8ca539ca74"
+    },
+    "r329_provenance": {
+      "path": "results/r329_disturbance_estimator/provenance.json",
+      "sha256": "c8132996e3d2236deb41d4b168ac7beba0d82ec9e57d7793d35f41d20353181f"
+    },
+    "r329_manifest": {
+      "path": "results/r329_disturbance_estimator/run_manifest.json",
+      "sha256": "7755eaf801747126ec36dffdbf4523927303738c3717a53b3f70dd7883f214a5"
+    },
+    "r329_final_plan": {
+      "path": "memory/rounds/R329/plan.md",
+      "sha256": "a3c38c22beb5a2460a4f58b0915a3be1cfb139910a8b9bd208f1f987b3d67870"
+    },
+    "r329_final_question": {
+      "path": "memory/questions/Q-0082.md",
+      "sha256": "35595a5ed00c292341d61fb132e11c42574ca824ad7f5383e33d529bee1ddebd"
+    },
+    "r326_seal": {
+      "path": "memory/rounds/R326/solver_adequacy_seal.json",
+      "sha256": "9eb3c136fd8248a2dd362d33d77b49a0197c2db7b48574ae0050d005242dd40d"
+    },
+    "r325_holdout_definition": {
+      "path": "scripts/run_r325_constrained_horizon.py",
+      "sha256": "86f952a61e156f82e660fc355f9d7855d09830ab8135fa6f336de544834689d8"
+    },
+    "r329_claim": {
+      "path": "memory/claims/CLM-0855.md",
+      "sha256": "bafed94300b500519111871f4b2007a61b70db9f9b227d2b3bdbf0e889a5f4b9"
+    },
+    "r329_feed": {
+      "path": "paper/decoupling_marl_model_first/reports/R329.md",
+      "sha256": "4d29f6967889c95a5ca38e67a9e7c608a36a25baa56208fcfd1cb57421b00c72"
+    },
+    "controller_module": {
+      "path": "src/andes_rl_kundur/control/model_first_constrained_qp.py",
+      "sha256": "191d06e7fcf11779ba7493959c4c73001e76367e611b1b11a2f792f51d4d849a"
+    },
+    "controller_formulation_module": {
+      "path": "src/andes_rl_kundur/control/model_first_constrained_horizon.py",
+      "sha256": "a2fd06bcb3a8c128653c7c49c041383cbcf4492b87a9c091b8dfb5e5a048f42b"
+    },
+    "feedback_limits_module": {
+      "path": "src/andes_rl_kundur/control/model_first_offline_feedback.py",
+      "sha256": "c154e73c4e6f642029284bdeb3f7acb087378c2a46bc0c8e90c8c4cf4c5e573e"
+    },
+    "dynamic_reduction_module": {
+      "path": "src/andes_rl_kundur/evaluation/model_first_dynamic_reduction.py",
+      "sha256": "4cc9a99b6a3a558ae24f621605e41684ccfe10a9abcc3cb84156d0bdea3128f7"
+    },
+    "action_map_module": {
+      "path": "src/andes_rl_kundur/env/andes/model_first_contract.py",
+      "sha256": "1fd3dd02c363185c27a8af6f006853f82bf258676ef1ab3c7928c6db4d93cbf6"
+    },
+    "estimator_module": {
+      "path": "src/andes_rl_kundur/control/model_first_disturbance_estimator.py",
+      "sha256": "cfbc5cf9bdb91a58beddaf337c541c43f6d2567b0371bd8c25b22b101d3a0058"
+    },
+    "validation_probe": {
+      "path": "probes/r330_estimator_holdout.py",
+      "sha256": "ea075018069297e364599934ae3a921f1152424354b1a4e85c62d0a9ddb90ef2"
+    },
+    "adapter": {
+      "path": "scripts/run_r330_estimator_holdout.py",
+      "sha256": "b602b3095627d579ef992ff8ee396c9f00b95cdcbc6befcc1bc7cb6cb6eb4ffb"
+    },
+    "validation_tests": {
+      "path": "tests/test_r330_estimator_holdout.py",
+      "sha256": "7ec251eacdb48688d936dfbea300c4ad3feb62427726381ee41787c67b91e7de"
+    },
+    "adapter_tests": {
+      "path": "tests/test_r330_estimator_holdout_adapter.py",
+      "sha256": "da6f44c472734af504cec004ba76e2893f5c1212f7e6560f14b90e9639d73c06"
+    },
+    "project_dependencies": {
+      "path": "pyproject.toml",
+      "sha256": "39ac1631ea29195457ad89f9015f877968ad9e68556040f43a2050cac17f7792"
+    },
+    "artifact_io": {
+      "path": "memory/tools/artifact_io.py",
+      "sha256": "03c42cddde3cd4281aeca341c74114c8ad6a10bd52546ed3f3cceefe74aeb6c8"
+    }
+  }
+}

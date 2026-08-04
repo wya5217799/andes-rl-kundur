@@ -1,0 +1,171 @@
+{
+  "schema_version": 1,
+  "round": "R328",
+  "question": "Q-0081",
+  "created_utc": "2026-08-03T18:39:23.896428+00:00",
+  "contract": {
+    "round": "R328",
+    "question": "Q-0081",
+    "stage": "model-only-retained-state-estimation-cause",
+    "parent_round": "R327",
+    "development_case_count": 32,
+    "solver": {
+      "name": "osqp",
+      "version": "1.1.3",
+      "algebra": "builtin",
+      "linear_solver": "direct",
+      "maximum_iterations": 20000,
+      "absolute_tolerance": 1e-09,
+      "relative_tolerance": 1e-09,
+      "feasibility_tolerance": 1e-08,
+      "polishing": false,
+      "warm_starting": true,
+      "adaptive_rho": true,
+      "adaptive_rho_interval": 25,
+      "scaled_termination": false,
+      "check_termination": 25,
+      "accepted_status": "solved",
+      "workspace_scope": "fresh-per-case-reused-within-case"
+    },
+    "gates": {
+      "development_mean_output_energy_ratio_maximum": 0.98,
+      "development_worst_output_energy_ratio_maximum": 1.0
+    },
+    "estimation_diagnosis": {
+      "arm": "retained_cross",
+      "single_factor": "observer-estimate-to-exact-augmented-state",
+      "exact_state": "retained-plant-state-plus-previous-delivered-output",
+      "maximum_constraint_residual": 1e-08,
+      "maximum_normalized_residual_ratio": 1.0,
+      "require_every_case_below_zero_control": true,
+      "development_workers": 8,
+      "native_numerical_threads_per_worker": 1,
+      "holdout_access": "forbidden",
+      "cross_deleted_oracle": "forbidden-nonidentifiable-state-basis"
+    },
+    "comparison_identifiability": {
+      "decision": "ALLOW",
+      "estimand": "retained-controller-estimation-layer-loss-on-development-bank",
+      "oracle_information": true
+    },
+    "classification": [
+      "INVALID-ESTIMATION-DIAGNOSIS",
+      "ESTIMATION-NOT-DOMINANT",
+      "ESTIMATION-LAYER-CAUSE"
+    ],
+    "eval": "NOT-APPLICABLE-MODEL-ONLY",
+    "physical_execution_authorized": false,
+    "distributed_agent_implementation_authorized": false,
+    "training_authorized": false
+  },
+  "contract_payload_sha256": "c0930e1569d8533e3710d251419b5a8e44095dfab56269568bef48b220c4ad7e",
+  "parent": {
+    "r326_execution": {
+      "path": "results/r326_solver_adequacy/execution.json",
+      "sha256": "d65c4d9d6f3beffe7137a25ba88879e1160ffc322db83fde08f7ed7ebaf6c404"
+    },
+    "r327_seal": {
+      "path": "memory/rounds/R327/reference_recovery_seal.json",
+      "sha256": "6c320543c9b7c79a683bba3630a7a69cc3bb741ff1cdcc67675264c996ffe1fc"
+    },
+    "r327_execution": {
+      "path": "results/r327_reference_recovery/execution.json",
+      "sha256": "9df3982f4fee806aa782f9e1dacb540ff9bb39ab0d0da8cbc46c6f467f8c3a5f"
+    },
+    "r327_analysis": {
+      "path": "results/r327_reference_recovery/analysis.json",
+      "sha256": "6165b7f950bffe4f820825b39607d20473c79de825d8efe0eb68538c2c5dc13e"
+    },
+    "r327_provenance": {
+      "path": "results/r327_reference_recovery/provenance.json",
+      "sha256": "2faba5c7df17d230dc392753375cccfb6b07537bc5e723c41672d9cd81404d92"
+    },
+    "r327_manifest": {
+      "path": "results/r327_reference_recovery/run_manifest.json",
+      "sha256": "b8d89c79bc09a2b8e4792cdd2fce316d81bddc6b9e6b879fd78db0c48988c36d"
+    },
+    "r327_contract_payload_sha256": "02f2d7a56a6b349212a1a40c4196663eb79513a0f849b51de694619ff4dbd8a4"
+  },
+  "sources": {
+    "plan": {
+      "path": "memory/rounds/R328/plan.md",
+      "sha256": "720e660712740f6bbbe1cda964a4a917fa67cfa7b1cd6540ec42fb6b5f23a7cb"
+    },
+    "question": {
+      "path": "memory/questions/Q-0081.md",
+      "sha256": "9b06f5233470c34a0aedf163b97fc8fd677fdcbef8a0f7c4fd6cfddb06ed9bed"
+    },
+    "r326_seal": {
+      "path": "memory/rounds/R326/solver_adequacy_seal.json",
+      "sha256": "9eb3c136fd8248a2dd362d33d77b49a0197c2db7b48574ae0050d005242dd40d"
+    },
+    "r326_execution": {
+      "path": "results/r326_solver_adequacy/execution.json",
+      "sha256": "d65c4d9d6f3beffe7137a25ba88879e1160ffc322db83fde08f7ed7ebaf6c404"
+    },
+    "r327_seal": {
+      "path": "memory/rounds/R327/reference_recovery_seal.json",
+      "sha256": "6c320543c9b7c79a683bba3630a7a69cc3bb741ff1cdcc67675264c996ffe1fc"
+    },
+    "r327_execution": {
+      "path": "results/r327_reference_recovery/execution.json",
+      "sha256": "9df3982f4fee806aa782f9e1dacb540ff9bb39ab0d0da8cbc46c6f467f8c3a5f"
+    },
+    "r327_analysis": {
+      "path": "results/r327_reference_recovery/analysis.json",
+      "sha256": "6165b7f950bffe4f820825b39607d20473c79de825d8efe0eb68538c2c5dc13e"
+    },
+    "r327_provenance": {
+      "path": "results/r327_reference_recovery/provenance.json",
+      "sha256": "2faba5c7df17d230dc392753375cccfb6b07537bc5e723c41672d9cd81404d92"
+    },
+    "r327_manifest": {
+      "path": "results/r327_reference_recovery/run_manifest.json",
+      "sha256": "b8d89c79bc09a2b8e4792cdd2fce316d81bddc6b9e6b879fd78db0c48988c36d"
+    },
+    "r327_claim": {
+      "path": "memory/claims/CLM-0845.md",
+      "sha256": "1f0437f80f48f4ebebd471dbb5a25b844459b7c5702f78de0066f455e6b31306"
+    },
+    "r327_feed": {
+      "path": "paper/decoupling_marl_model_first/reports/R327.md",
+      "sha256": "06e2c581c211373f94211005e9716eb92b4e353635246a2cebc13ca15262dcaa"
+    },
+    "r325_adapter": {
+      "path": "scripts/run_r325_constrained_horizon.py",
+      "sha256": "86f952a61e156f82e660fc355f9d7855d09830ab8135fa6f336de544834689d8"
+    },
+    "r326_adapter": {
+      "path": "scripts/run_r326_solver_adequacy.py",
+      "sha256": "eacf3b82c8f272d19b12637dd058f08790555f6965e8fa27b409473fe9228187"
+    },
+    "solver_module": {
+      "path": "src/andes_rl_kundur/control/model_first_constrained_qp.py",
+      "sha256": "191d06e7fcf11779ba7493959c4c73001e76367e611b1b11a2f792f51d4d849a"
+    },
+    "validation_probe": {
+      "path": "probes/r328_estimation_cause.py",
+      "sha256": "793903f739f71f82c94f0c32752982c45a218ba2e1f0b5a56bbb7894c2f96388"
+    },
+    "adapter": {
+      "path": "scripts/run_r328_estimation_cause.py",
+      "sha256": "6a80d0c6398703c01ab21757bf7931bf5630894a81dc7201c60ae58ca064bbfd"
+    },
+    "validation_tests": {
+      "path": "tests/test_r328_estimation_cause.py",
+      "sha256": "f9a0d6c52c720fd6cecc92efc2666ec2e02d9d7827b20308445410d69aa91ce2"
+    },
+    "adapter_tests": {
+      "path": "tests/test_r328_estimation_cause_adapter.py",
+      "sha256": "2f73399a2f1520777e5fc3a4fc0c0cf1ff7d848f2078501df506e4a622dc7880"
+    },
+    "project_dependencies": {
+      "path": "pyproject.toml",
+      "sha256": "39ac1631ea29195457ad89f9015f877968ad9e68556040f43a2050cac17f7792"
+    },
+    "artifact_io": {
+      "path": "memory/tools/artifact_io.py",
+      "sha256": "03c42cddde3cd4281aeca341c74114c8ad6a10bd52546ed3f3cceefe74aeb6c8"
+    }
+  }
+}

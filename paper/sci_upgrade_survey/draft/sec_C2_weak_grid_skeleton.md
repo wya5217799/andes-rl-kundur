@@ -1,168 +1,79 @@
-# C2 — Weak-grid validation section skeleton (for PI review, not submission prose)
+# C2 weak-grid validation — argument contract
 
-> Working title: **"Validation Boundary: Allocation Sensitivity Under
-> Weakening Grid Strength"**
-> Role in the paper chain (REPORT.md §7): link 4 — *give the boundary*, as
-> the validation section of the C1 spine (REPORT.md §7 recommends C2 merge
-> into C1 as its generalization axis, not a standalone paper).
-> Sources: feed `reports/R283.md`; claim CLM-0630; execution amendment
-> `memory/rounds/R283/execution_amendment_20260729.md`; honesty boundaries
-> DIFFERENTIATION\_MEMO.md §4.
-> Conventions as in the C1 skeleton: \[CLM-06xx] = traceability notes,
-> \[N] = REPORT.md survey reference number.
+Status: PI-review contract, not manuscript prose. This file specifies what a
+future section may argue; it deliberately contains no copied result values.
 
-## Paragraph plan
+## Authority and role
 
-### P1 — Motivation and the declared proxy
+- Story role: validation boundary for the C1 allocation-mechanism spine.
+- Research decision: `paper/sci_upgrade_survey/REPORT.md` §7.
+- Honesty boundary: `paper/sci_upgrade_survey/DIFFERENTIATION_MEMO.md` §4.
+- Evidence authority: CLM-0630, CLM-0640, CLM-0645, and CLM-0650, followed by
+  their registered feeds and result locators.
+- Drafting rule: claim card first, feed second, machine result only when exact
+  values are needed. This contract is never a numerical source.
 
-Drafted sentences:
+## Paragraph map
 
-> Grid-forming resources are increasingly deployed in weak grids, where
-> small-signal stability margins shrink and the value of any control
-> authority must be re-examined \[10]\[5]. We therefore test how the
-> allocation–damping sensitivity of the previous section varies along two
-> prospectively frozen strength axes. The first scales the aggregate VSG
-> inertia (M0 = 100 to 300, executed M vector multiplied by M0/200). The
-> second scales the resistance and reactance of the inter-area tie corridor
-> (three 7–8 circuits) by k = 1.0, 1.5, 2.0 — a *declared* proxy for
-> short-circuit ratio: we report it as a reactance scaling, not converted
-> to SCR units, and both axes and the q subset {0, ±0.25} were frozen
-> before the first eigenvalue \[CLM-0630].
+| Paragraph | Purpose | Allowed evidence | Required boundary |
+|---|---|---|---|
+| P1 | Motivate the grid-strength validation and define the declared proxy. | CLM-0630; R283 Frozen setup | Corridor impedance scaling is a proxy, not converted SCR. |
+| P2 | Establish the measured electrical-strength gradient. | CLM-0630; R283 Observations/Conclusions | Same identified branch; scanned range only. |
+| P3 | Explain the observed change in mapping shape and useful direction. | CLM-0630; R283 Conclusions | Empirical structure, not a global monotone law or mechanism proof. |
+| P4 | Bound the inertia-axis result by the mapped identification zone. | CLM-0630, CLM-0640; R283/R285 Conclusions | Flagged cells are unmeasured, not negative evidence. |
+| P5 | Give the minimum identification and guard defense needed for reproducibility. | CLM-0630, CLM-0640; R283/R285 setup and guards | Do not turn the screen into a physical theory. |
+| P6 | State frozen-controller time-domain survival under the declared proxy. | CLM-0645, CLM-0650; R286/R287 Conclusions | Zero training; one controller family, bank, topology, and tested boundary. |
+| P7 | Close with non-claims and transfer limits. | All four claims; all feed Limits sections | No collapse threshold, retraining, topology transfer, cross-simulator, HIL, or sustained restoration claim. |
 
-Evidence notes: proxy declaration wording is load-bearing — reviewers will
-attack "SCR proxy"; the honest-declaration phrasing is the defense.
-Sensitivity metric S = |ζ(+0.25) − ζ(−0.25)| / |ζ(0)| defined here or in
-C1 (decision: define once in C1 P2, recall here).
+## Evidence locators
 
-### P2 — Electrical axis: a confirmed, monotone strength gradient
+- R283 feed: `paper/sci_upgrade_survey/reports/R283.md`; machine sources:
+  `results/r283_strength_sweep/summary.json` and `branch_analysis.json`.
+- R285 feed: `paper/sci_upgrade_survey/reports/R285.md`; machine sources:
+  `results/r285_hybridization_map/summary.json` and `zone_analysis.json`.
+- R286 feed: `paper/sci_upgrade_survey/reports/R286.md`; machine source:
+  `results/r286_weak_grid_td/weak_tie_summary.json`.
+- R287 feed: `paper/sci_upgrade_survey/reports/R287.md`; machine source:
+  `results/r287_weak_grid_stress/weak_tie_summary.json`.
+- Exact wording and numbers must be re-read from these authorities at drafting
+  time; they must not be reconstructed from memory or copied into navigation.
 
-Drafted sentences:
+## Figure and table contract
 
-> Sensitivity grows monotonically as the tie weakens: S = 0.458 at
-> k = 1.0, 1.050 at k = 1.5, and 2.053 at k = 2.0 — a 4.5-fold increase
-> across the scanned range, with every point verified on the same mode
-> branch. The baseline inter-area mode itself weakens consistently (damping
-> ratio 0.0195 to 0.0129, frequency 0.527 to 0.482 Hz), confirming the
-> proxy moves the plant in the intended physical direction \[CLM-0630].
+- W1: strength sensitivity across the two declared axes. Show invalid
+  identification cells without inventing values.
+- W2: measured allocation-response shape across corridor settings. Keep the
+  scanned-range qualifier visible.
+- T2: identification validity and guards, with flagged cells distinguished
+  from measured effects.
+- T3 or compact inline result: frozen-controller endpoint effects and retained
+  value across the tested corridor settings.
+- Figures consume the registered machine results above; this file provides
+  layout intent only.
 
-Evidence notes: all numbers → CLM-0630 / branch\_analysis.json.
+## Wording constraints
 
-### P3 — Structure change: weak grid removes the upturn, grows the gain
+Allowed:
 
-Drafted sentences:
+- “within the scanned range”;
+- “declared corridor-impedance-scaling proxy”;
+- “identification boundary”;
+- “frozen centralized controller” and “through the tested boundary”.
 
-> Weaker ties do not merely amplify the sensitivity; they change the
-> mapping's shape. The U-shaped upturn authenticated at k = 1.0 disappears
-> at k ≥ 1.5 (ζ at q = +0.25 falls below its q = 0 value: 0.0148 versus
-> 0.0161 at k = 1.5; 0.0069 versus 0.0129 at k = 2.0), so the mapping
-> becomes monotone over the measured range, and the beneficial-direction
-> gain at full amplitude grows from +55% at k = 1.0 to +159% at k = 2.0
-> \[CLM-0630]. Within the scanned range, placement matters more — and more
-> predictably — in a weaker grid.
+Forbidden:
 
-Evidence notes: "within the scanned range" is the required bound; do not
-drop it. The last sentence is the section's takeaway — bounded form per
-R283 feed C1/C2.
+- converting the proxy into SCR or penetration values;
+- “allocation creates damping” or an unrestricted monotonic law;
+- assigning a physical mechanism to flagged identification cells;
+- treating survival as a collapse threshold or weak-grid retraining result;
+- topology generalization, cross-simulator transfer, HIL validation, or
+  sustained common-frequency restoration.
 
-### P4 — Inertia axis: partial gradient plus an honest blind spot
+## PI decisions before prose
 
-Drafted sentences:
+1. Use separate W1/W2 figures or one two-panel figure?
+2. Keep the identification-zone map in the main text or an appendix?
+3. Keep P5 here or move it to a shared reproducibility section?
 
-> Halving-to-1.5× aggregate VSG inertia moves sensitivity in the same
-> direction: on the levels where mode identification is valid, S falls from
-> 0.458 at M0 = 200 to 0.199 at M0 = 300 (ratio 2.3), and the valid
-> M0 = 100 pair corroborates the trend (+53% at q = +0.25, matching the
-> earlier development probe). Below M0 = 200, however, the inter-area
-> branch hybridizes with VSG local modes at q = ±0.25 (M0 = 150) and at
-> q = -0.25 (M0 = 100); our pre-registered screen flags these points, so
-> the low-inertia gradient is unmeasured — not absent \[CLM-0630].
-
-Evidence notes: "unmeasured — not absent" is mandatory phrasing (PI-facing
-honesty line from R283 verdict). Flagged points never quoted as results.
-
-### P5 — Identification integrity (short, methods-flavored)
-
-Drafted sentences:
-
-> All 24 points reuse the previous section's in-script identification rule
-> unchanged; a branch-validity screen (participation cosine ≥ 0.9 and
-> frequency step < 0.05 Hz against each level's q = 0 anchor, whose
-> cross-level chain permits physical frequency drift) separates genuine
-> branch swaps from real structure. The M0 = 200 and k = 1.0 anchor rows
-> reproduce the previous section's values within 10⁻⁶, and every guard
-> (contract inertia limits, zero-sum per level, power-flow convergence)
-> passes at all 24 points \[CLM-0630].
-
-Evidence notes: screen criteria → execution amendment. This paragraph is
-the reproducibility defense; keep it compact.
-
-### P6 — Limits
-
-Drafted sentences:
-
-> The strength axes are declared scalings on a single two-area plant: the
-> tie-corridor proxy is not a unit-converted SCR, the hybridization zone
-> below M0 = 200 is uncharacterized, transient survival of the
-> small-signal ordering is untested, and no topology or cross-simulator
-> evidence is claimed \[CLM-0630].
-
-```
-Figure / table specs
-```
-
-* **Fig W1 (main)**: S vs k (axis B, 3 points, monotone) alongside S vs M0
-  (axis A, valid levels only, flagged levels shown as open markers without
-  values). Data: `results/r283_strength_sweep/branch_analysis.json`
-  (`axis_a.valid_S`, `axis_b.valid_S`).
-
-* **Fig W2 (main)**: ζ vs q at k = 1.0 / 1.5 / 2.0 (three curves) — shows
-  the upturn disappearing and the beneficial-side slope steepening. Data:
-  `results/r283_strength_sweep/summary.json` (`axis_b[].runs`).
-
-* **Table T2**: per-level ζ(q) for both axes with flagged cells marked
-  "identification flag (branch swap)", anchor-check row, guard summary.
-  Data: summary.json + branch\_analysis.json.
-
-## Bounded-wording bank (use) and banned list (never)
-
-Use:
-
-* "within the scanned ranges, allocation matters more in weaker grids"
-  \[CLM-0630]
-
-* "the mapping becomes monotone over the measured range as the tie
-  weakens, and the beneficial-direction gain grows to +159%" \[CLM-0630]
-
-* "the low-inertia gradient is unmeasured, not absent" \[CLM-0630]
-
-* "a declared reactance-scaling proxy, not converted to SCR units"
-
-Never:
-
-* real SCR units or any conversion of k into SCR / penetration percentages
-
-* "allocation creates damping" / global monotone law (P3 says *measured
-  range*, always qualified)
-
-* any claim about the hybridization zone's physics (it is flagged, not
-  explained)
-
-* any transient, topology, cross-simulator, or HIL claim
-
-* any new number not in CLM-0630
-
-## Citation anchors for this section
-
-\[10] Xin et al. (grid strength vs small-signal stability) — P1 anchor;
-\[5] Dörfler & Groß review — P1 context; \[1] Milano et al. — optional P1
-framing; \[2]\[4] one tie-back sentence to placement lineage in P3 or the
-section's closing. Final numbering at assembly.
-
-## Open drafting decisions for PI
-
-1. Fig W1 + W2 both, or merge into one two-panel figure?
-2. P4's blind spot: name Q-0044-style follow-up explicitly as future work,
-   or leave it at "unmeasured — not absent"?
-3. Does P5 live here, or move to a shared Methods/Reproducibility appendix
-   covering both C1 and C2?
-
+Formal prose, LaTeX, and polished figures remain blocked until these decisions
+and the user’s explicit drafting authorization are present.

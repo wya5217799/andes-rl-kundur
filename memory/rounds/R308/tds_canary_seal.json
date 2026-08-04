@@ -1,0 +1,70 @@
+{
+  "contract": {
+    "active_steps": 5,
+    "algebraic_readback_semantics": "post_control_step_recomputed_dae_g",
+    "algebraic_residual_max": 1e-08,
+    "control_period_seconds": 0.2,
+    "controller_development_authorized": false,
+    "evaluation_kind": "bounded_execution_integrity_not_eval_v2_efficacy",
+    "full_stage1_authorized": false,
+    "operating_point": "OP1",
+    "parameter_sweep_authorized": false,
+    "predictor_fitting_authorized": false,
+    "question": "Q-0064",
+    "recovery_steps": 20,
+    "round": "R308",
+    "stage": "solver-readback-diagnosis-only",
+    "tds_convergence_tolerance": 1e-10,
+    "tds_method": "trapezoid",
+    "tds_stopping_semantics": "max_abs_newton_correction",
+    "tds_tiny_correction_threshold": 1e-16,
+    "trace_bank": [
+      "OP1/zero/zero",
+      "OP1/edge_2/negative"
+    ],
+    "training_authorized": false
+  },
+  "contract_payload_sha256": "c876217c01875d5a52fd3fb685ca6055faa7dafe624b47d195c1fb9fa99a3ad9",
+  "created_utc": "2026-08-03T07:31:18.351651+00:00",
+  "question": "Q-0064",
+  "round": "R308",
+  "schema_version": 1,
+  "sources": {
+    "adapter": {
+      "path": "scripts/run_r308_model_first_tds_canary.py",
+      "sha256": "7c94a3e2350154d852d1c2e14f551e688d23a076c56e792ce696887c5c836135"
+    },
+    "adapter_tests": {
+      "path": "tests/test_r308_model_first_tds_canary.py",
+      "sha256": "b235c75c6b8f9039cdd176f15e9b51f6628d4ee0b787d8239da6ef60a61c5778"
+    },
+    "contract": {
+      "path": "src/andes_rl_kundur/env/andes/model_first_contract.py",
+      "sha256": "2155c96a8ee6b345be7b3c8452174ba383d9d36ec7ca56c92f06a272e3c0e607"
+    },
+    "contract_tests": {
+      "path": "tests/test_model_first_contract.py",
+      "sha256": "0c09431b5ab8bad250a09f3d98437ec6a3b777c25bd40d52c39b717402f71b6e"
+    },
+    "environment": {
+      "path": "src/andes_rl_kundur/env/andes/model_first_env.py",
+      "sha256": "79ab10b21b87a6eb73a76f862164e3d73861eac52879c95d49f17d8b16123209"
+    },
+    "evaluator": {
+      "path": "src/andes_rl_kundur/evaluation/model_first_tds_canary.py",
+      "sha256": "fa27515bf87b9b43c05e66a729f81b1606ec0b2f35f037729ed344dc0480a207"
+    },
+    "evaluator_tests": {
+      "path": "tests/test_model_first_tds_canary.py",
+      "sha256": "744f9c7cb6ab1aef583b16b80b009ab03c1cfc46c6a1944286995a6c2ee46ee3"
+    },
+    "plan": {
+      "path": "memory/rounds/R308/plan.md",
+      "sha256": "734c7ff8ea56e95d47dcb7bc0ddf46cc603cdd4eea099ea0dc2305260e33ab28"
+    },
+    "question": {
+      "path": "memory/questions/Q-0064.md",
+      "sha256": "723b8251c96654ce28d80187a2492be9bdc42c366294e9fabc2bf5917d1c90eb"
+    }
+  }
+}

@@ -1,0 +1,263 @@
+{
+  "schema_version": 1,
+  "round": "R317",
+  "question": "Q-0072",
+  "created_utc": "2026-08-03T11:50:19.657513+00:00",
+  "contract": {
+    "round": "R317",
+    "question": "Q-0072",
+    "stage": "model-only-delayed-cross-feedback-synthesis",
+    "parent_round": "R316",
+    "parent_claim": "CLM-0790",
+    "sample_period_seconds": 0.2,
+    "horizon_steps": 50,
+    "coordinates": [
+      "common",
+      "edge_0",
+      "edge_1",
+      "edge_2"
+    ],
+    "points": [
+      {
+        "name": "HS0",
+        "initial_soc": 0.41
+      },
+      {
+        "name": "HS1",
+        "initial_soc": 0.51
+      }
+    ],
+    "law": "u[k]=-alpha*K*y[k-1]",
+    "first_command": "zero",
+    "retained_base_gain": "inverse-of-equally-weighted-average-DC-gain",
+    "matched_baseline": "same-base-gain-with-common-differential-feedback-blocks-zeroed",
+    "maximum_dc_gain_condition_number": 1000000.0,
+    "scalar_candidates": [
+      0.01,
+      0.02,
+      0.03,
+      0.04,
+      0.05,
+      0.06,
+      0.07,
+      0.08,
+      0.09,
+      0.1,
+      0.11,
+      0.12,
+      0.13,
+      0.14,
+      0.15,
+      0.16,
+      0.17,
+      0.18,
+      0.19,
+      0.2,
+      0.21,
+      0.22,
+      0.23,
+      0.24,
+      0.25,
+      0.26,
+      0.27,
+      0.28,
+      0.29,
+      0.3,
+      0.31,
+      0.32,
+      0.33,
+      0.34,
+      0.35,
+      0.36,
+      0.37,
+      0.38,
+      0.39,
+      0.4,
+      0.41,
+      0.42,
+      0.43,
+      0.44,
+      0.45,
+      0.46,
+      0.47,
+      0.48,
+      0.49,
+      0.5,
+      0.51,
+      0.52,
+      0.53,
+      0.54,
+      0.55,
+      0.56,
+      0.57,
+      0.58,
+      0.59,
+      0.6,
+      0.61,
+      0.62,
+      0.63,
+      0.64,
+      0.65,
+      0.66,
+      0.67,
+      0.68,
+      0.69,
+      0.7,
+      0.71,
+      0.72,
+      0.73,
+      0.74,
+      0.75,
+      0.76,
+      0.77,
+      0.78,
+      0.79,
+      0.8,
+      0.81,
+      0.82,
+      0.83,
+      0.84,
+      0.85,
+      0.86,
+      0.87,
+      0.88,
+      0.89,
+      0.9,
+      0.91,
+      0.92,
+      0.93,
+      0.94,
+      0.95,
+      0.96,
+      0.97,
+      0.98,
+      0.99,
+      1.0
+    ],
+    "selection_order": [
+      "minimum-worst-normalized-output-energy",
+      "minimum-mean-normalized-output-energy",
+      "minimum-alpha"
+    ],
+    "development_shapes": {
+      "impulse": [
+        0.05
+      ],
+      "triangle": [
+        0.02,
+        0.04,
+        0.05,
+        0.04,
+        0.02
+      ]
+    },
+    "examination_shapes": {
+      "bipolar": [
+        0.05,
+        0.05,
+        0.0,
+        -0.05,
+        -0.05
+      ]
+    },
+    "development_case_count": 32,
+    "examination_base_case_count": 16,
+    "mismatch_mode_count": 5,
+    "examination_case_count": 80,
+    "mismatch_scale": 0.15,
+    "mismatch_pointwise_ceiling": 0.2,
+    "limits": {
+      "sample_period_seconds": 0.2,
+      "node_power": 0.36,
+      "node_ramp": 0.072,
+      "system_mva": 100.0,
+      "energy_mwh": 28.0,
+      "charge_efficiency": 0.9848857802,
+      "discharge_efficiency": 0.9848857802,
+      "minimum_soc": 0.2,
+      "maximum_soc": 0.8
+    },
+    "maximum_pole_radius": 0.995,
+    "minimum_improvement": 0.02,
+    "comparison_identifiability": {
+      "decision": "ALLOW",
+      "single_factor": "retain-versus-delete-common-differential-feedback-blocks",
+      "matched": [
+        "full-retained-cross-plant-models",
+        "delivered-information",
+        "four-coordinate-action",
+        "node-basis-and-governor",
+        "sample-timing-and-horizon",
+        "scalar-candidate-count",
+        "disturbances-and-mismatch-transforms",
+        "objective-and-metrics"
+      ]
+    },
+    "classification": [
+      "INVALID-OFFLINE-CONTROLLER",
+      "OFFLINE-CONTROLLER-NO-GO",
+      "OFFLINE-CONTROLLER-PASS"
+    ],
+    "eval": "NOT-APPLICABLE-MODEL-ONLY",
+    "physical_execution_authorized": false,
+    "distributed_agent_implementation_authorized": false,
+    "training_authorized": false
+  },
+  "contract_payload_sha256": "8b6ec7e21e5bc209d7705511c84e5f634165a82fbbafd4a76542149efd01a864",
+  "parent": {
+    "dynamic_model": {
+      "path": "results/r316_dynamic_reduction/dynamic_model.json",
+      "sha256": "da0eef3efca6bba1f176156445c355b260f9d21fe48e223191d507bb62a6c6bc"
+    },
+    "analysis": {
+      "path": "results/r316_dynamic_reduction/analysis.json",
+      "sha256": "a8c0f1ec0ce03a9a08da4f47cd661e921bebf7461154bf1ebece175a68368b7c"
+    }
+  },
+  "sources": {
+    "plan": {
+      "path": "memory/rounds/R317/plan.md",
+      "sha256": "0a59337ad48e7ba419aeb7420b27ee309652016f1c80e6518efc7272a400177f"
+    },
+    "question": {
+      "path": "memory/questions/Q-0072.md",
+      "sha256": "60d079b701016cda2e513baabc1333a0f8b4fa7199aa181f1a04b74e55d98dc0"
+    },
+    "parent_claim": {
+      "path": "memory/claims/CLM-0790.md",
+      "sha256": "56efe680429ddb157da2cecba6b5e8c78c4779a132676cb131cc62cebfa2b0fb"
+    },
+    "parent_model": {
+      "path": "results/r316_dynamic_reduction/dynamic_model.json",
+      "sha256": "da0eef3efca6bba1f176156445c355b260f9d21fe48e223191d507bb62a6c6bc"
+    },
+    "parent_analysis": {
+      "path": "results/r316_dynamic_reduction/analysis.json",
+      "sha256": "a8c0f1ec0ce03a9a08da4f47cd661e921bebf7461154bf1ebece175a68368b7c"
+    },
+    "controller_module": {
+      "path": "src/andes_rl_kundur/control/model_first_offline_feedback.py",
+      "sha256": "c154e73c4e6f642029284bdeb3f7acb087378c2a46bc0c8e90c8c4cf4c5e573e"
+    },
+    "validation_probe": {
+      "path": "probes/r317_offline_controller_validation.py",
+      "sha256": "2ba6495a0bd9396c20cf25f5a4b425e9c96a744a611fffb468cef9b8d6f0c044"
+    },
+    "adapter": {
+      "path": "scripts/run_r317_offline_controller.py",
+      "sha256": "9e667a0ba520caca99206a35c40d05fa2425de1917980a39a666a3a4a03976f5"
+    },
+    "controller_tests": {
+      "path": "tests/test_model_first_offline_feedback.py",
+      "sha256": "75a146996ffdf267fd46b384b965924765c1ed093540dd4e55ebaf12017b98d1"
+    },
+    "validation_tests": {
+      "path": "tests/test_r317_offline_controller_validation.py",
+      "sha256": "711bda369430582293c7a44ca12d6148c8e0ad871eb248f1e91898abdf033e38"
+    },
+    "adapter_tests": {
+      "path": "tests/test_r317_offline_controller.py",
+      "sha256": "6674e4fa93f16b0c41a4bbe9bee027b5367058c9943ae2e6273d648507d496e0"
+    }
+  }
+}

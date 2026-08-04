@@ -69,8 +69,8 @@ status: ingested
 ## Key facts (claim candidates)
 - <bullet>
 
-## Open threads
-- <bullet>
+## Related pointers
+- <Pointers only; not task state. Put active work in Q-NNNN or the selected LINE.md.>
 """
     with target.open("x", encoding="utf-8") as f:
         f.write(body)

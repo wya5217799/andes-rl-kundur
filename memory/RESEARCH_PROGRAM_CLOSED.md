@@ -662,3 +662,474 @@
       - One sealed weak-grid evaluation has a SURVIVES, DEGRADED, COLLAPSES, or INVALID verdict.
       - The per-location grouped endpoint read has measured evidence at every k level actually run.
       - The round has a current claim, question update, validation, rendering, and a PI briefing.
+
+  # Archived 2026-07-30: Q-0046 closed-positive @ R287 by CLM-0650
+  # (SURVIVES).
+  - id: Q-0046
+    rank: 160
+    phase: P1_residual_mechanism
+    objective: >-
+      Stress-test the sealed CLM-0645 weak-corridor survival boundary without
+      retraining -- rerun the frozen q0 and centralized s17/s53/s89 arms on the
+      same sealed 24-scenario bank with the same Line_4/5/6 corridor scaling
+      extended only to k in {2.5, 3.0}, preserve the R286 endpoints, guards,
+      and SURVIVES / DEGRADED / COLLAPSES / INVALID decision tree, and stop at
+      sealed evidence plus the project feed.
+    required_reading:
+      - memory/STATE.md
+      - memory/questions/Q-0046.md
+      - memory/claims/CLM-0645.md
+      - memory/rounds/R286/plan.md
+      - results/r286_weak_grid_td/weak_tie_summary.json
+      - paper/sci_upgrade_survey/LINE.md
+    verification:
+      - python memory/tools/round_preflight.py --latest
+      - python -m pytest tests -q
+      - /home/wya/andes_venv/bin/python for every ANDES time-domain run
+      - python memory/tools/validate.py
+      - python memory/tools/render.py
+    scope_limits:
+      - Zero-training boundary extension only -- no training, controller change, reward change, seed selection, or new architecture.
+      - Reuse the hash-verified R279 24-scenario bank, q0 plus centralized s17/s53/s89, and the R286 weak-tie environment definition without modification.
+      - Change only the declared Line_4/5/6 corridor r and x multiplier to k in {2.5, 3.0}; do not add a second corridor definition or convert the proxy to SCR units.
+      - Preserve the R286 physical endpoints, statistics, action and storage guards, injection audit, failure retention, and immutable artifact rules.
+      - Disturbance-location output is descriptive only; no significance claim and no new scenarios.
+      - Do not write or modify LaTeX, manuscript prose, polished figures, venue files, or any other manuscript asset.
+    stop_when:
+      - One seal-first 192-trajectory matrix has a SURVIVES, DEGRADED, COLLAPSES, or INVALID decision, with every failed trajectory retained.
+      - The strongest bounded result and its prohibited stronger forms are recorded in at most the existing project feed plus required round ledger cards.
+      - No training or manuscript-writing branch is opened automatically.
+
+  # Archived 2026-07-30: Q-0047 closed-partial @ R290 by CLM-0665
+  # (ROOT-CAUSE-BOUNDED-NO-VALID-PATH).
+  - id: Q-0047
+    rank: 170
+    phase: P1_residual_mechanism
+    objective: >-
+      Diagnose the R289 validity failure before any new topology-value matrix.
+      Build a fast WSL q0-only feedback loop for nominal and the sealed Line_2
+      outage; distinguish order-serialization drift, incorrect post-setup line
+      status application, failed DAE/EIG initialization, and a genuine
+      positive-real mode. Make the seal action order an explicit list, make
+      initialization success and residuals hard guards, add regression tests,
+      and stop with a bounded diagnostic feed. Do not repeat or reinterpret
+      the R289 4x7 matrix.
+    required_reading:
+      - memory/questions/Q-0047.md
+    verification:
+      - python memory/tools/round_preflight.py --latest
+      - python -m pytest tests -q
+      - /home/wya/andes_venv/bin/python for every ANDES PFlow and EIG run
+      - python memory/tools/validate.py
+      - python memory/tools/render.py
+    scope_limits:
+      - No training, GNN, reward/controller change, checkpoint selection, or algorithm sweep.
+      - Preserve every R288/R289 plan, seal, artifact, claim, feed, and verdict; no formal retry, deletion, overwrite, or post-hoc reclassification.
+      - Use q0 only and the already sealed Line_2 diagnostic target. TDS initialization may be invoked as an initialization check, but no time integration, 4x7 matrix, alternative circuit, action comparison, training, or controller evaluation is allowed.
+      - The diagnostic may compare topology-application/setup mechanisms one variable at a time. It must record initialization return state, residual evidence, line status, PFlow, and eigenvalue real parts.
+      - No damping, headroom, stability, topology-value, topology-generalization, safety, or deployability claim may be produced.
+      - Do not write or modify LaTeX, manuscript prose, polished figures, or venue files.
+    stop_when:
+      - A deterministic minimal reproducer identifies or sharply bounds the R289 initialization and positive-real failure mechanism.
+      - Explicit action-order serialization and the valid topology-initialization path have red-then-green regression coverage, or the absence of a safe path is formally recorded.
+      - The round has a pointer-first diagnostic feed, current claim, question update, validation, rendering, and verbatim PI briefing; no value-matrix, learning, or time-domain follow-up is opened automatically.
+
+  # Archived 2026-07-30: Q-0048 closed-negative @ R291 by CLM-0670
+  # (NO-HANDOFF-VALUE).
+  - id: Q-0048
+    rank: 10
+    phase: P1_residual_mechanism
+    objective: >-
+      Determine whether a prospectively frozen deterministic state-aware,
+      hysteretic, slew-limited handoff of the validated fast common-inertia
+      support to the frozen slow droop-PI BESS layer provides timing-specific
+      value beyond fixed 3 s and fixed 5 s schedules on a fresh sealed bank.
+    required_reading:
+      - memory/questions/Q-0048.md
+      - memory/rounds/R291/plan.md
+      - memory/claims/CLM-0590.md
+      - src/andes_rl_kundur/evaluation/fast_md_authority.py
+      - paper/icems2026/LINE.md
+    verification:
+      - python memory/tools/round_preflight.py R291
+      - python -m pytest tests/test_state_aware_handoff.py -q
+      - python -m pytest tests -q
+      - python memory/tools/feed_check.py paper/icems2026/reports/R291.md
+      - python memory/tools/validate.py
+      - python memory/tools/render.py
+    scope_limits:
+      - No RL training, learned switching, GNN, MARL redesign, or horizon extrapolation.
+      - Keep V4, storage plant, slow controller, fast amplitude, solver, and physical endpoints frozen.
+      - Use five matched arms so state information is separable from longer support duration.
+      - Freeze thresholds, bank, statistics, action budgets, and kill gates before any formal trace.
+      - Retain every generated scenario and every failed or forced-release trajectory.
+    stop_when:
+      - Q-0048 has a positive, negative, partial, or invalid verdict from the sealed five-arm bank.
+      - Timing value is separated from duration value using fixed 3 s and fixed 5 s comparators.
+      - The result has measured provenance, paired uncertainty, tail and physical guards, a feed, claim, and PI briefing.
+
+  # Archived 2026-08-01: Q-0049 closed-partial @ R292 by CLM-0675
+  # (INVALID).
+  - id: Q-0049
+    rank: 10
+    phase: P1_residual_mechanism
+    objective: >-
+      Determine whether a prospectively frozen neighbour-only distributed
+      edge policy with decentralized execution retains reproducible
+      differential-allocation value against q0 and a matched joint-observation
+      centralized vector actor when both learned controllers share the same
+      three-coordinate zero-sum action space, training budget, physical
+      constraints, seeds, and fresh evaluation bank.
+    required_reading:
+      - memory/questions/Q-0049.md
+      - memory/rounds/R292/plan.md
+      - memory/claims/CLM-0610.md
+      - src/andes_rl_kundur/agents/shared_area_td3.py
+      - src/andes_rl_kundur/env/andes/icems_residual_env.py
+      - src/andes_rl_kundur/control/area_inertia_residual.py
+    verification:
+      - python memory/tools/round_preflight.py R292
+      - python -m pytest tests/test_vector_residual_control.py tests/test_vector_residual_td3.py -q
+      - python -m pytest tests -q
+      - /home/wya/andes_venv/bin/python for every real-ANDES trajectory
+      - python memory/tools/validate.py
+      - python memory/tools/render.py
+    scope_limits:
+      - Freeze the path communication graph, local observation, edge-flow action contract, reward, seeds, budgets, endpoints, guards, and decision tree before any real-ANDES controller trace.
+      - Distributed execution may use endpoint-neighbour messages only; a centralized critic is training-only and no centrally aggregated action is allowed.
+      - Compare q0, centralized-vector TD3, and distributed-edge TD3 only; no algorithm, reward, hidden-size, seed, or communication-graph sweep.
+      - Generate and seal a fresh signed multi-location 24-case bank only after all six checkpoints are frozen; retain every failure and exclusion.
+      - Keep V4, the validated slow storage layer, the fixed common pulse, and physical 60-Hz reporting unchanged.
+      - Do not edit either manuscript line or claim topology, communication robustness, stability, EMT/HIL, or deployment transfer.
+    stop_when:
+      - Engineering stability fails before formal execution and the exact contract is closed without performance rescue.
+      - Or three fixed seeds per architecture complete one fresh sealed seven-arm comparison with a bounded positive, inferior, unresolved, no-value, or invalid verdict.
+      - The result reports hierarchical uncertainty, per-seed directions, all physical/action/storage/completion/tail guards, immutable provenance, and the verbatim PI briefing.
+
+  # Archived 2026-08-02: Q-0051 closed-partial @ R294 by CLM-0680
+  # (MODEL-FIRST-DISTRIBUTED-BASELINE-VALIDATED-PARTIAL).
+  - id: Q-0051
+    rank: 10
+    phase: P1_residual_mechanism
+    objective: >-
+      Determine which control-oriented reduction of the full ANDES DAE can
+      preserve common-frequency, RoCoF, inter-area, storage, constraint, and
+      cross-coupling behavior across declared operating points, and use it to
+      identify a constrained neighbour-distributed controller before any new
+      neural policy is trained.
+    required_reading:
+      - memory/questions/Q-0051.md
+      - memory/claims/CLM-0565.md
+      - memory/claims/CLM-0580.md
+      - memory/claims/CLM-0585.md
+      - memory/claims/CLM-0615.md
+      - src/andes_rl_kundur/env/andes/andes_vsg_storage_env.py
+      - src/andes_rl_kundur/control/active_power.py
+    verification:
+      - python memory/tools/round_preflight.py R294
+      - primary-source model and controller memo with equation-to-source bindings
+      - registered non-learning model-validation protocol before any ANDES probe
+      - python memory/tools/validate.py
+      - python memory/tools/render.py
+    scope_limits:
+      - Treat full ANDES as the truth model and every LTI, LPV, modal, nonlinear, or graph model as a hypothesis requiring validation.
+      - Do not assume exact common--differential decoupling or a fixed fast--slow handoff; quantify cross-coupling and time-scale separation.
+      - Compare active-power, inertia, and damping authority before freezing the action set.
+      - Require local physical states, local actions, explicit neighbour messages, and decentralized execution for any multi-agent formulation.
+      - No neural training, architecture comparison, manuscript claim, topology-generalization, stability, EMT-HIL, or deployment claim in this modeling gate.
+    stop_when:
+      - One model family is selected or rejected by explicit structural and simulation-validation criteria.
+      - The allowed multi-agent scientific object, controller synthesis problem, residual coupling measure, actuator set, and neural-entry gate are written explicitly.
+      - The next experiment, if any, is a non-learning model-validation probe frozen before execution.
+
+  # Archived 2026-08-02: Q-0052 closed-negative @ R295 by CLM-0685
+  # (CONSENSUS-TIMESCALE-NO-GO).
+  - id: Q-0052
+    rank: 1
+    phase: P1_residual_mechanism
+    objective: >-
+      Determine whether graph-spectral tuning of the explicit neighbour-only
+      DAPI consensus time scale reduces its residual fast inter-area penalty
+      without erasing synchronization benefit or harming common-frequency and
+      storage-constraint guards.
+    required_reading:
+      - memory/questions/Q-0052.md
+      - memory/claims/CLM-0680.md
+      - memory/rounds/R294/verdict.md
+      - results/r294_model_validation/round_summary.json
+      - src/andes_rl_kundur/control/decentralized_dapi.py
+    verification:
+      - Seal one development-only matched bank before simulation.
+      - Execute consensus gains 1, 2, and 4 per second with explicit local agents.
+      - Require all completion, physical, action, and storage guards.
+      - Select only a candidate meeting the frozen fast, synchronization, and common gates.
+    scope_limits:
+      - Development-only fixed-modified-Kundur mechanism diagnosis.
+      - No neural, manuscript, topology, safety, stability, deployment, MARL,
+        or architecture-superiority claim.
+    stop_when:
+      - A candidate passes and becomes eligible for separate held-out confirmation.
+      - Both candidates fail and consensus-gain tuning stops.
+
+  # Archived 2026-08-02: Q-0053 closed-negative @ R296 by CLM-0690
+  # (RELATIVE-ROCOF-NO-GO).
+  - id: Q-0053
+    rank: 1
+    phase: P1_residual_mechanism
+    objective: >-
+      Determine whether a strictly neighbour-local, zero-sum filtered
+      relative-RoCoF residual directly changes the dominant differential
+      active-power path and materially improves fast inter-area IAE without
+      synchronization, common-frequency, or physical-constraint harm.
+    required_reading:
+      - memory/questions/Q-0053.md
+      - memory/claims/CLM-0685.md
+      - results/r295_consensus_timescale_probe/development_summary.json
+      - src/andes_rl_kundur/control/decentralized_dapi.py
+    verification:
+      - Derive and seal two residual amplitudes before simulation.
+      - Keep all non-treatment information, action, plant, and budget fields matched.
+      - Require exact residual zero-sum and every completion/physical guard.
+      - Use one 12-trajectory development screen only.
+    scope_limits:
+      - Fixed modified Kundur outcome-aware development cases only.
+      - No full evaluation unless a candidate passes.
+      - No neural, manuscript, architecture, topology, robustness, stability,
+        safety, or deployment claim.
+    stop_when:
+      - A candidate passes and becomes eligible for disjoint held-out evaluation.
+      - Both candidates fail and the structure closes negative.
+
+  # Archived 2026-08-02: Q-0054 closed-positive @ R297 by CLM-0695
+  # (RELATIVE-ROCOF-FULL-AMPLITUDE-CANDIDATE-IDENTIFIED).
+  - id: Q-0054
+    rank: 1
+    phase: P1_residual_mechanism
+    objective: >-
+      Determine whether one full anchor-magnitude zero-sum relative-RoCoF
+      residual passes the frozen development materiality and no-harm gates,
+      ending gain revision regardless of direction.
+    required_reading:
+      - memory/questions/Q-0054.md
+      - memory/claims/CLM-0690.md
+      - results/r296_relative_rocof_probe/development_summary.json
+      - src/andes_rl_kundur/control/relative_rocof_residual.py
+    verification:
+      - Freeze exactly baseline and one full-anchor arm.
+      - Run eight matched development trajectories.
+      - Retain all zero-sum, completion, common, synchronization, and physical guards.
+      - Predeclare the separate held-out bank before outcomes.
+    scope_limits:
+      - Final development gain revision only.
+      - No full evaluation unless the candidate passes.
+      - No neural, manuscript, topology, architecture, stability, safety,
+        robustness, or deployment claim.
+    stop_when:
+      - The candidate passes and a new round freezes the predeclared full bank.
+      - The candidate fails and gain revision stops.
+
+  # Archived 2026-08-02: Q-0055 closed-positive @ R298 by CLM-0700
+  # (VALID-RELATIVE-ROCOF-PASS).
+  - id: Q-0055
+    rank: 1
+    phase: P1_residual_mechanism
+    objective: >-
+      Determine whether the R297-selected explicit local zero-sum
+      relative-RoCoF residual retains material fast inter-area improvement
+      over fresh DAPI on the predeclared disjoint operating bank, and bound its
+      executed-formulation relation to centralized vector PI.
+    required_reading:
+      - memory/questions/Q-0055.md
+      - memory/claims/CLM-0695.md
+      - results/r297_relative_rocof_amplitude/development_summary.json
+      - src/andes_rl_kundur/control/relative_rocof_residual.py
+    verification:
+      - Use exactly the 12-case bank embedded in the R297 seal.
+      - Freshly run baseline DAPI, selected residual DAPI, and centralized vector PI.
+      - Require 36/36 valid records and exact zero-sum residual execution.
+      - Report paired intervals, registered endpoints, failures, and physical guards.
+    scope_limits:
+      - Held-out operating conditions within one modified Kundur plant only.
+      - Central comparisons remain executed-formulation contrasts.
+      - No neural, MARL, topology, robustness, stability, safety, EMT-HIL, or deployment claim.
+    stop_when:
+      - The formal bank yields a valid bounded classification and publication gate.
+
+  # Archived 2026-08-03: Q-0056 closed-negative @ R299 by CLM-0705
+  # (CLASSICAL-RETUNE; adaptive edge allocation no-go).
+  - id: Q-0056
+    rank: 1
+    phase: P1_residual_mechanism
+    objective: >-
+      Determine whether the R298 explicit local zero-sum residual-DAPI
+      baseline leaves material state-dependent edge-allocation headroom beyond
+      the best fixed edge-gain arm, and whether causal pairwise local signals
+      contain enough information to justify a deployable distributed residual.
+    required_reading:
+      - memory/questions/Q-0056.md
+      - memory/claims/CLM-0700.md
+      - results/r298_relative_rocof_formal/formal_summary.json
+      - src/andes_rl_kundur/control/relative_rocof_residual.py
+    verification:
+      - Use a prospectively sealed four-case sentinel before any larger probe.
+      - Match plant, base controller, action coordinates, constraints, timing, and endpoint definitions across arms.
+      - Separate best-fixed gain value, outcome-oracle allocation headroom, and causal local-information signal.
+      - Require exact pre-projection zero sum, complete traces, and all registered physical guards before reading performance.
+    scope_limits:
+      - Development information-value diagnosis on one modified Kundur plant only.
+      - Outcome oracle is non-deployable and cannot support controller efficacy.
+      - No MARL, neural, pure-architecture, topology, stability, safety, robustness, EMT-HIL, or deployment claim.
+    stop_when:
+      - The sentinel classifies no gap, classical retuning, outcome-only gap, or locally signalled adaptive headroom.
+      - No neural training or formal performance claim occurs inside R299.
+
+  # Archived 2026-08-03: Q-0057 closed-positive @ R300 by CLM-0710
+  # (VALID-2KV-PASS).
+  - id: Q-0057
+    rank: 1
+    phase: P1_residual_mechanism
+    objective: >-
+      Determine whether the R299-selected fixed doubled relative-RoCoF gain
+      retains material differential-frequency value over the fresh CLM-0700
+      baseline on the prospectively frozen disjoint bank, and bound its named
+      executed-formulation relation to centralized vector PI.
+    required_reading:
+      - memory/questions/Q-0057.md
+      - memory/claims/CLM-0705.md
+      - results/r299_edge_information_probe/development_summary.json
+      - memory/rounds/R299/edge_information_seal_v2.json
+      - src/andes_rl_kundur/control/edge_relative_rocof_residual.py
+    verification:
+      - Use exactly the 12-case bank embedded in the effective R299 seal.
+      - Freshly run base Kv, selected fixed 2Kv, and centralized vector PI.
+      - Require 36/36 valid records, paired intervals, exact zero sum, and all physical guards.
+      - Preserve the executed-formulation ceiling for centralized comparisons.
+    scope_limits:
+      - Held-out operating conditions within one modified Kundur plant only.
+      - Central comparisons do not identify architecture value.
+      - No neural, MARL, topology, robustness, stability, safety, EMT-HIL, or deployment claim.
+    stop_when:
+      - The formal bank yields a valid bounded classification and publication gate.
+      - Invalidity or a failed registered gate prevents all efficacy interpretation.
+
+  # Archived 2026-08-03: Q-0058 closed-negative @ R301 by CLM-0715
+  # (2KV-SUFFICIENT-NO-BLIND-ESCALATION).
+  - id: Q-0058
+    rank: 1
+    phase: P1_residual_mechanism
+    objective: >-
+      Determine whether the implemented sampled neighbour relative-RoCoF
+      residual admits a controller-level common/differential separation and a
+      prospective gain-sufficiency or stability-margin rule beyond CLM-0710,
+      without outcome-driven gain sweeps.
+    required_reading:
+      - memory/questions/Q-0058.md
+      - memory/claims/CLM-0710.md
+      - results/r300_fixed_2kv_formal/formal_summary.json
+      - memory/rounds/R300/fixed_2kv_formal_seal.json
+      - src/andes_rl_kundur/control/relative_rocof_residual.py
+      - src/andes_rl_kundur/control/edge_relative_rocof_residual.py
+      - src/andes_rl_kundur/control/decentralized_dapi.py
+      - results/r294_model_validation/stage_a/records/16__fixed_lti_anchor.json
+    verification:
+      - Derive the exact graph common-mode kernel and differential-mode gains.
+      - Derive the implemented discrete RoCoF filter transfer and test its dissipativity band.
+      - Test a sampled augmented fixed-anchor model only as a small-signal diagnostic.
+      - Run EVAL-v2 on the completed R300 records as diagnostic only, never as formal authority.
+      - Authorize a new nonlinear probe only if the prospective model yields one identifiable candidate.
+    scope_limits:
+      - Controller-level separation is not nonlinear plant decoupling.
+      - The R294 fixed-anchor matrix is local and its coarse LPV extension was rejected.
+      - No MARL, neural, topology, delay, robustness, certified stability, safety, EMT-HIL, or deployment claim.
+    stop_when:
+      - The model yields either one prospective candidate and explicit nonlinear test gate or a justified no-further-gain decision.
+      - No training or outcome-driven 3Kv/4Kv sweep occurs in R301.
+
+  # Archived 2026-08-03: Q-0059 closed-partial @ R302 by CLM-0720
+  # (EVAL-READY-TRAINING-BLOCKED).
+  - id: Q-0059
+    rank: 1
+    phase: P1_residual_mechanism
+    objective: >-
+      Make EVAL-v2 architecture-aware for genuine vector distributed traces,
+      then decide from R294--R301 evidence whether a named residual mechanism
+      justifies neural distributed-agent training beyond fixed 2Kv.
+    required_reading:
+      - memory/questions/Q-0059.md
+      - memory/claims/CLM-0710.md
+      - memory/claims/CLM-0715.md
+      - results/r300_fixed_2kv_formal/formal_summary.json
+      - results/r301_relative_rocof_margin/analysis_summary.json
+    verification:
+      - Legacy scalar EVAL-v2 behavior remains unchanged.
+      - Vector EVAL requires paired physical records, hashes, completion, storage and zero-sum action validity.
+      - R300 replay is diagnostic only and does not replace its formal summary.
+      - Training requires a named 2Kv failure mechanism and prospective comparator/action/information gate.
+    scope_limits:
+      - No ANDES simulation or neural training in R302.
+      - No manuscript edit or architecture-wide efficacy claim.
+      - No weakening of EVAL-v2 evidence-status or integrity guards.
+    stop_when:
+      - The vector profile passes positive records and rejects frozen negative fixtures.
+      - R300 has a read-only EVAL-v2 scorecard with EXTERNAL_AUTHORITY_REQUIRED.
+      - Training receives an explicit authorize-or-block verdict tied to current evidence.
+
+  # Archived 2026-08-03: Q-0060 closed-positive @ R303 by CLM-0725
+  # (COUPLING-CLASSICALLY-CLOSED).
+  - id: Q-0060
+    rank: 1
+    phase: P1_residual_mechanism
+    objective: >-
+      Determine whether heterogeneous device power, ramp, and SOC headroom
+      makes independent projection leak a pre-projection zero-sum differential
+      residual into executed common power, and whether a deterministic
+      headroom-aware edge allocator closes that failure before any learning.
+    required_reading:
+      - memory/questions/Q-0060.md
+      - memory/claims/CLM-0710.md
+      - memory/claims/CLM-0715.md
+      - memory/claims/CLM-0720.md
+      - results/r300_fixed_2kv_formal/formal_summary.json
+      - results/r302_vector_eval_training_gate/analysis_summary.json
+    verification:
+      - Derive requested common and differential coordinates before projection.
+      - Sweep only predeclared heterogeneous headroom patterns and verify power, ramp and SOC feasibility.
+      - Measure executed common leakage and retained differential authority under fixed 2Kv.
+      - Test one deterministic headroom-aware allocator before any neural method.
+      - Use architecture-aware EVAL for any compatible completed trace replay while preserving external authority.
+    scope_limits:
+      - Start with algebraic and unit-level probes; run ANDES only if the mechanism survives them.
+      - No neural training, manuscript edit, or architecture-wide efficacy claim.
+      - Controller-interface zero sum is not hard nonlinear plant decoupling.
+    stop_when:
+      - Projection leakage is either rejected as negligible or reproduced against a prospective threshold.
+      - The deterministic allocator either closes the failure or leaves a named local-information residual.
+      - Any later training proposal has frozen observation, action, comparator and kill-gate contracts.
+  # Archived 2026-08-03: Q-0063 closed-negative @ R307 by CLM-0745
+  # (INVALID-STAGE1-EXECUTION).
+  - id: Q-0063
+    rank: 1
+    phase: P1_residual_mechanism
+    objective: >-
+      Determine whether the physical-60-Hz model-first plant executes the
+      frozen common and three-edge signed active-power probes across OP0--OP2
+      with correct command, achieved-power, SOC, local-linearity, and measured
+      common/differential coupling semantics.
+    required_reading:
+      - memory/questions/Q-0063.md
+      - memory/claims/CLM-0740.md
+      - paper/decoupling_marl_model_first/working/model_contract.md
+      - src/andes_rl_kundur/env/andes/model_first_contract.py
+      - src/andes_rl_kundur/env/andes/model_first_env.py
+    verification:
+      - Seal OP0--OP2 and exactly one zero plus paired common and edge pulse bank.
+      - Require all Stage-0 execution guards, exact M/D readback, signed power and SOC, no limiter activation, and frozen local-linearity ceilings.
+      - Report both common-to-differential and differential-to-common gains without a pass-by-smallness threshold.
+      - Run EVAL-v2 on compatible edge traces as diagnostic only and retain EXTERNAL_AUTHORITY_REQUIRED.
+    scope_limits:
+      - One modified Kundur phasor-domain plant and development operating points only.
+      - No predictor fitting, controller efficacy, MARL value, topology generalization, stability, safety, or deployment claim.
+      - No optimization sweep or neural training in R307.
+    stop_when:
+      - Stage 1 yields PASS, authority/modeling NO-GO, or invalid execution with immutable provenance.
+      - The working conference title receives only an evidence-coverage checkpoint.

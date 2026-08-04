@@ -1,0 +1,199 @@
+{
+  "contract": {
+    "active_steps": 5,
+    "classification": [
+      "INVALID-PREDICTOR-VALIDATION",
+      "PREDICTOR-NO-GO",
+      "PREDICTOR-PASS"
+    ],
+    "comparison_identifiability": {
+      "decision": "ALLOW",
+      "estimand": "heldout-cross-output-prediction-error-in-this-template",
+      "matched": [
+        "R312-training-records",
+        "holdout-bank",
+        "input-output-coordinates",
+        "barycentric-weights",
+        "amplitude-scaling",
+        "estimator-budget",
+        "metrics"
+      ],
+      "single_factor": "retain-versus-zero-common-differential-cross-output",
+      "stay_out": [
+        "predictor-class-superiority",
+        "controller-efficacy",
+        "stability-guarantee",
+        "distributed-execution-value",
+        "multi-agent-or-MARL-value",
+        "topology-or-deployment-generalization"
+      ]
+    },
+    "controller_development_authorized": false,
+    "distributed_agent_implementation_authorized": false,
+    "eval": {
+      "bootstrap_resamples": 10000,
+      "bootstrap_seed": 2026080313,
+      "effect_optimization_authorized": false,
+      "evidence_status": "EXTERNAL_AUTHORITY_REQUIRED",
+      "execution_profile": "vector_power",
+      "guard_synthesis": {
+        "fail_closed": true,
+        "mapping": {
+          "completed": true,
+          "finite_telemetry": true,
+          "system_exit_code": 0,
+          "tds_test_ok": true
+        },
+        "source": "authoritative R313 physical record fields"
+      },
+      "required_active_window_seconds": 1.0,
+      "source_bound_view": true,
+      "trigger": {
+        "run_manifest_trace_count": 34,
+        "source_sidecars_required": true,
+        "verified_edge_record_count": 24
+      }
+    },
+    "fresh_holdout_required": true,
+    "holdout_amplitudes_system_pu": [
+      0.025,
+      0.065
+    ],
+    "holdout_fitting_forbidden": true,
+    "holdout_operating_points": [
+      {
+        "initial_soc": 0.5,
+        "name": "HP0",
+        "tie_rx_scale": 1.25,
+        "training_weights": {
+          "OP0": 0.5,
+          "OP1": 0.25,
+          "OP2": 0.25
+        },
+        "vsg_d_device": 100.0,
+        "vsg_m_device": 200.0
+      },
+      {
+        "initial_soc": 0.42,
+        "name": "HP1",
+        "tie_rx_scale": 1.2,
+        "training_weights": {
+          "OP0": 0.2,
+          "OP1": 0.6,
+          "OP2": 0.2
+        },
+        "vsg_d_device": 90.0,
+        "vsg_m_device": 180.0
+      }
+    ],
+    "holdout_trace_count": 34,
+    "optimization_rules": {
+      "INVALID-PREDICTOR-VALIDATION": "new-cause-specific-canary-only",
+      "PREDICTOR-NO-GO": "one-pre-registered-single-factor-diagnosis-or-stop",
+      "PREDICTOR-PASS": "dynamic-reduction-and-mismatch-gate-separate-round"
+    },
+    "predictor": {
+      "amplitude_scaling": "linear-from-0.05-system-pu",
+      "kind": "central-difference-25-step-trajectory-template",
+      "operating_point_interpolation": "frozen-barycentric-convex",
+      "output_coordinates": "exact-weighted-common-plus-three-differential",
+      "validation_zero_usage": "actual-response-reference-only"
+    },
+    "question": "Q-0069",
+    "recovery_steps": 20,
+    "round": "R313",
+    "sample_period_seconds": 0.2,
+    "stage": "sealed-coupling-retaining-predictor-holdout",
+    "thresholds": {
+      "aggregate_cross_squared_error_reduction_min": 0.2,
+      "cross_record_win_fraction_min": 0.75,
+      "peak_magnitude_relative_error_max": 0.1,
+      "peak_timing_error_seconds_max": 0.2,
+      "total_nrmse_max": 0.15
+    },
+    "training_authorized": false,
+    "training_source": {
+      "question": "Q-0068",
+      "required_classification": "STAGE1-PASS",
+      "round": "R312",
+      "trace_count": 27
+    }
+  },
+  "contract_payload_sha256": "122b54dabf53ef643fef24428bb74d3a29f84c73f1fb2eeafe6f446a252eda95",
+  "created_utc": "2026-08-03T09:22:34.979297+00:00",
+  "question": "Q-0069",
+  "round": "R313",
+  "schema_version": 1,
+  "sources": {
+    "adapter": {
+      "path": "scripts/run_r313_model_first_predictor.py",
+      "sha256": "c32427aeb4f3c169b69285969a45101fe48016778de11c1767396719399cb55c"
+    },
+    "adapter_tests": {
+      "path": "tests/test_r313_model_first_predictor.py",
+      "sha256": "67521343cc91c623d115246bf44683c92f38703a488773e14626cd49996ea3d0"
+    },
+    "environment": {
+      "path": "src/andes_rl_kundur/env/andes/model_first_env.py",
+      "sha256": "8b8aa445aafe4b40182cfe60b2dad3cf639dca98ff695d176b01bb5784965f13"
+    },
+    "eval_guards": {
+      "path": "src/andes_rl_kundur/evaluation/model_first_stage1_eval_guards.py",
+      "sha256": "046608a72b463695062d6a54288c6a32fb481ed959b0b2a8c90fed86bc6a45bb"
+    },
+    "eval_v2": {
+      "path": "src/andes_rl_kundur/evaluation/eval_v2.py",
+      "sha256": "f9a36ee8c2f393299e550ca57fe28ab15d01447415649ec102d8e2e6f2546e13"
+    },
+    "eval_view": {
+      "path": "src/andes_rl_kundur/evaluation/model_first_stage1_eval_view.py",
+      "sha256": "c546b2185db1b31a9242621a9e8ed4d5c3ff868bc5a397a75e04db4e10d50c7d"
+    },
+    "execution_core": {
+      "path": "scripts/run_r310_model_first_stage1.py",
+      "sha256": "729cce9be0506ed404b3b9ad4d2aef8a5d4d35bf0c7b1b5196724d8c607d3257"
+    },
+    "model_contract": {
+      "path": "src/andes_rl_kundur/env/andes/model_first_contract.py",
+      "sha256": "1fd3dd02c363185c27a8af6f006853f82bf258676ef1ab3c7928c6db4d93cbf6"
+    },
+    "plan": {
+      "path": "memory/rounds/R313/plan.md",
+      "sha256": "9855a10bb803bb6aa27d858fbb7f1bf6731edb0bc57330ca9e51cf239b02e06c"
+    },
+    "predictor": {
+      "path": "src/andes_rl_kundur/evaluation/model_first_predictor.py",
+      "sha256": "e951f5e31debcaddca35c31591116aa39f9f01a1d60787b58438214d0aa6eb2d"
+    },
+    "predictor_tests": {
+      "path": "tests/test_model_first_predictor.py",
+      "sha256": "276b0ae0a84d10c16a60f2a11da69bef22df95e7ceedb06b739380b391dde2c2"
+    },
+    "question": {
+      "path": "memory/questions/Q-0069.md",
+      "sha256": "e7e892334871d4f64f414549414dea7d5407263bdf494f2e55729eb496c9a933"
+    },
+    "validation_probe": {
+      "path": "probes/r313_predictor_validation.py",
+      "sha256": "9b28f71311d9f070cd92ad86a6c4b63c412ea3996c01a8460f7a5e84d88b2531"
+    },
+    "validation_tests": {
+      "path": "tests/test_r313_predictor_validation.py",
+      "sha256": "3057620f6ecaa892d706dc9d07798b9f5c6aaf3303894189595e84da8e513c1f"
+    }
+  },
+  "training_artifacts": {
+    "analysis": {
+      "path": "results/r312_model_first_stage1/analysis.json",
+      "sha256": "75804e5fb3f704a3d0b878db20819f997c15aaa46ae6d6dcc886879eea361c02"
+    },
+    "provenance": {
+      "path": "results/r312_model_first_stage1/provenance.json",
+      "sha256": "84a016e6d6a29156770eef097882f9da5fdf20b8abbef564b9a0aa3654cdeafa"
+    },
+    "run_manifest": {
+      "path": "results/r312_model_first_stage1/run_manifest.json",
+      "sha256": "194f38791edbd1d43c7942774b4f1a553ec741b257da15156d64dd597dd344e4"
+    }
+  }
+}

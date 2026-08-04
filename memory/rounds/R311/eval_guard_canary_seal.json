@@ -1,0 +1,92 @@
+{
+  "contract": {
+    "classification": [
+      "EVAL-GUARD-ADAPTER-CANARY-PASS",
+      "INVALID-EVAL-GUARD-ADAPTER-CANARY"
+    ],
+    "controller_development_authorized": false,
+    "effect_interpretation_authorized": false,
+    "eval": {
+      "baseline": "positive",
+      "bootstrap_resamples": 1000,
+      "bootstrap_seed": 2026080311,
+      "evidence_status": "EXTERNAL_AUTHORITY_REQUIRED",
+      "execution_profile": "vector_power",
+      "required_active_window_seconds": 1.0
+    },
+    "physical_trace_rerun": false,
+    "predictor_fitting_authorized": false,
+    "question": "Q-0067",
+    "r310_amendment_authorized": false,
+    "round": "R311",
+    "source_pair": {
+      "negative": {
+        "path": "results/r310_model_first_stage1/records/edge_source/op0_edge_0__negative.json",
+        "sha256": "eae0611606d0bc543c7d038f0a91d589f9d0822cf119e1d2be4d42f3a061c7a1"
+      },
+      "positive": {
+        "path": "results/r310_model_first_stage1/records/edge_source/op0_edge_0__positive.json",
+        "sha256": "db59415d00238cbd58339c52671e67a8926d517ca0a464a89f49fdffb3bba17d"
+      }
+    },
+    "stage": "non-claim-bearing-eval-adapter-canary",
+    "synthesized_guards": {
+      "completed": true,
+      "finite_telemetry": true,
+      "system_exit_code": 0,
+      "tds_test_ok": true
+    },
+    "training_authorized": false
+  },
+  "contract_payload_sha256": "fcbe267015ac8552de87c8c7f675b0aa94d7b9f8788acae817c787f56f47e8bd",
+  "created_utc": "2026-08-03T08:38:30.709694+00:00",
+  "question": "Q-0067",
+  "round": "R311",
+  "schema_version": 1,
+  "sources": {
+    "adapter": {
+      "path": "scripts/run_r311_model_first_eval_guard_canary.py",
+      "sha256": "2e512e3898dcb14bb8b131dd854e7ddea6cc1935316112df6edc3db482f324e4"
+    },
+    "adapter_tests": {
+      "path": "tests/test_r311_model_first_eval_guard_canary.py",
+      "sha256": "8f612b9c503033108f00e36fede75a1c5e344a32554ae72e35a3180f38a68ef5"
+    },
+    "eval_v2": {
+      "path": "src/andes_rl_kundur/evaluation/eval_v2.py",
+      "sha256": "f9a36ee8c2f393299e550ca57fe28ab15d01447415649ec102d8e2e6f2546e13"
+    },
+    "guard_synthesis": {
+      "path": "src/andes_rl_kundur/evaluation/model_first_stage1_eval_guards.py",
+      "sha256": "1c719dda737447764d4fb591896c1b43beee05fe38353f6790672e3f9a4b66d1"
+    },
+    "guard_tests": {
+      "path": "tests/test_model_first_stage1_eval_guards.py",
+      "sha256": "8ce7de3f5f15d4cf492051932cf86f83ca50b2279b565519d08cc9d9866bdd42"
+    },
+    "paired_view": {
+      "path": "src/andes_rl_kundur/evaluation/model_first_stage1_eval_view.py",
+      "sha256": "8487aad83cdf58ebc7a919cd4b59759a90f028ae003fbd329c9fadab67382924"
+    },
+    "parent_claim": {
+      "path": "memory/claims/CLM-0760.md",
+      "sha256": "eba32ed8d2f7a775f2c51bb6260bfa471781cd0dde421cbaf2a5421587c4618a"
+    },
+    "plan": {
+      "path": "memory/rounds/R311/plan.md",
+      "sha256": "260f7df3cab08ca9d44f58e5cd920a0fa35a2f9938f8d81ff4057d2ed9f6a58b"
+    },
+    "question": {
+      "path": "memory/questions/Q-0067.md",
+      "sha256": "5b50de8b3379af12ec885861bcc82d02ed3ccb86de208e2ce448c7f6ea82d570"
+    },
+    "r310_analysis": {
+      "path": "results/r310_model_first_stage1/analysis.json",
+      "sha256": "261a50b93300a7e628a4cd9b3eb71f1fa20a23a82a07e2e0c859781c77606d65"
+    },
+    "r310_verdict": {
+      "path": "memory/rounds/R310/verdict.md",
+      "sha256": "ca0cdacbf9a67763de57030709254f1b908f6b3c55bbf16a922a6ccd6973e386"
+    }
+  }
+}

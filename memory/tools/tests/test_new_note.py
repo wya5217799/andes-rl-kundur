@@ -46,3 +46,6 @@ def test_scaffold_note_writes_valid_frontmatter(tmp_path):
     assert "source: handoff" in text
     assert "training-infra" in text
     assert "One line summary." in text
+    assert "## Related pointers" in text
+    assert "not task state" in text
+    assert "## Open threads" not in text

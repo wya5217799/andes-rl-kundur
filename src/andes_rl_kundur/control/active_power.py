@@ -111,6 +111,50 @@ class EnergyFeasibleBESSContract:
     def initial_charge_headroom_mwh(self) -> float:
         return self.device_energy_mwh * (self.soc_max - self.soc_initial)
 
+    def feasible_power_bounds(
+        self,
+        *,
+        previous_power_system_pu: list[float] | np.ndarray,
+        soc: list[float] | np.ndarray,
+        voltage_pu: list[float] | np.ndarray,
+        dt_seconds: float,
+    ) -> tuple[np.ndarray, np.ndarray]:
+        """Return the componentwise command box enforced by ``project_power``.
+
+        The R272 projection is separable across devices for a fixed previous
+        command, SOC, voltage, and time step.  Projecting sufficiently large
+        signed requests therefore exposes its exact lower and upper command
+        bounds without duplicating the ramp, capability, SOC, and energy rules.
+        """
+
+        previous = np.asarray(previous_power_system_pu, dtype=float)
+        if previous.shape != (self.device_count,) or not np.all(np.isfinite(previous)):
+            raise ValueError("previous power must be a finite device vector")
+        probe_magnitude = float(
+            4.0
+            * (
+                1.0
+                + np.max(np.abs(previous))
+                + self.device_power_limit_system_pu
+                + self.device_ramp_limit_system_pu_per_s * dt_seconds
+            )
+        )
+        common = {
+            "previous_power_system_pu": previous,
+            "soc": soc,
+            "voltage_pu": voltage_pu,
+            "dt_seconds": dt_seconds,
+        }
+        lower = self.project_power(
+            requested_power_system_pu=np.full(self.device_count, -probe_magnitude),
+            **common,
+        ).commanded_power_system_pu
+        upper = self.project_power(
+            requested_power_system_pu=np.full(self.device_count, probe_magnitude),
+            **common,
+        ).commanded_power_system_pu
+        return lower.copy(), upper.copy()
+
     @property
     def round_trip_efficiency(self) -> float:
         return self.charge_efficiency * self.discharge_efficiency

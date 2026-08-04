@@ -1,7 +1,7 @@
 # ADR-0003: PI Briefing Layer in verdict.md + STATE.md
 
 **Date**: 2026-05-17
-**Status**: Accepted
+**Status**: Superseded in part by ADR-0011 for R317+ briefings
 **Related**: ADR-0001 (src layout), R39 (memory system origin), R59 (impl)
 
 ## Context

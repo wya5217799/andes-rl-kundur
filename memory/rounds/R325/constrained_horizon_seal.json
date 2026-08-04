@@ -1,0 +1,270 @@
+{
+  "schema_version": 1,
+  "round": "R325",
+  "question": "Q-0078",
+  "created_utc": "2026-08-03T15:21:42.510053+00:00",
+  "contract": {
+    "round": "R325",
+    "question": "Q-0078",
+    "stage": "model-only-actuator-constrained-finite-horizon-output-feedback",
+    "parent_round": "R316",
+    "r321_analysis_access": "HASH-ONLY-NO-PARSE",
+    "sample_period_seconds": 0.2,
+    "simulation_steps": 50,
+    "coordinates": [
+      "common",
+      "edge_0",
+      "edge_1",
+      "edge_2"
+    ],
+    "points": [
+      {
+        "name": "HS0",
+        "initial_soc": 0.41
+      },
+      {
+        "name": "HS1",
+        "initial_soc": 0.51
+      }
+    ],
+    "delay_augmentation": {
+      "state": "z[k]=[x[k],y[k-1]]",
+      "first_measurement": "zero",
+      "initial_estimate": "zero",
+      "first_command": "zero",
+      "disturbance_preview": false
+    },
+    "observer": {
+      "kind": "corrected-state-fixed-pole-placement",
+      "target_poles": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.8,
+        0.8155555555555556,
+        0.8311111111111111,
+        0.8466666666666667,
+        0.8622222222222222,
+        0.8777777777777778,
+        0.8933333333333333,
+        0.9088888888888889,
+        0.9244444444444444,
+        0.94
+      ],
+      "method": "YT",
+      "relative_tolerance": 1e-06,
+      "maximum_iterations": 100,
+      "target_absolute_tolerance": 1e-08
+    },
+    "controller": {
+      "kind": "receding-finite-horizon-output-feedback",
+      "horizon_steps": 25,
+      "horizon_source": "sealed-R319-Markov-horizon",
+      "output_scales": {
+        "HS0": [
+          0.0002668112041645563,
+          0.00015882926554077416,
+          0.00019288206508276265,
+          0.0002124274132893341
+        ],
+        "HS1": [
+          0.00025989821599602683,
+          0.00014880082973969276,
+          0.00018244950507686816,
+          0.00020106658488483798
+        ]
+      },
+      "action_scales": [
+        0.36,
+        0.36,
+        0.36,
+        0.36
+      ],
+      "stage_objective": "unit-normalized-output-plus-coordinate-action-energy",
+      "terminal_multiplier": 0.0,
+      "disturbance_forecast": "zero",
+      "weight_candidate_count": 0,
+      "horizon_candidate_count": 0
+    },
+    "solver": {
+      "name": "scipy-SLSQP",
+      "maximum_iterations": 200,
+      "function_tolerance": 1e-09,
+      "feasibility_tolerance": 1e-08,
+      "objective_gradient": "analytic",
+      "initialization": "deterministic-ramp-to-zero",
+      "cross_arm_warm_start": false
+    },
+    "limits": {
+      "sample_period_seconds": 0.2,
+      "node_power": 0.36,
+      "node_ramp": 0.072,
+      "system_mva": 100.0,
+      "energy_mwh": 28.0,
+      "charge_efficiency": 0.9848857802,
+      "discharge_efficiency": 0.9848857802,
+      "minimum_soc": 0.2,
+      "maximum_soc": 0.8
+    },
+    "synthesis_count_per_point_and_arm": 1,
+    "tuning_candidate_count": 0,
+    "retained_arm": "unchanged-R316-order-10-realizations",
+    "matched_baseline": {
+      "single_factor": "delete-common-differential-transfer-blocks",
+      "markov_horizon_steps": 25,
+      "era_order": 10,
+      "block_rows": 8,
+      "block_columns": 8,
+      "maximum_model_spectral_radius": 0.995,
+      "executed_plant": "unchanged-full-retained-cross-R316-realization"
+    },
+    "development_shapes": {
+      "impulse": [
+        0.05
+      ],
+      "triangle": [
+        0.02,
+        0.04,
+        0.05,
+        0.04,
+        0.02
+      ]
+    },
+    "development_case_count": 32,
+    "holdout_shapes": {
+      "separated_doublet": [
+        0.05,
+        0.0,
+        0.0,
+        0.05
+      ]
+    },
+    "holdout_base_case_count": 16,
+    "holdout_mismatch_mode_count": 5,
+    "holdout_case_count": 80,
+    "gates": {
+      "development_mean_output_energy_ratio_maximum": 0.98,
+      "development_worst_output_energy_ratio_maximum": 1.0,
+      "holdout_mean_output_energy_ratio_maximum": 0.98,
+      "holdout_worst_output_energy_ratio_maximum": 1.0,
+      "retained_to_deleted_mean_ratio_maximum": 0.98,
+      "retained_worst_not_larger": true
+    },
+    "comparison_identifiability": {
+      "decision": "ALLOW",
+      "identified_estimand": "value-of-retaining-named-cross-blocks-in-this-fixed-controller",
+      "single_factor": "retain-versus-delete-named-transfer-blocks",
+      "matched": [
+        "full-retained-cross-executed-plants",
+        "delivered-four-coordinate-information-and-known-point",
+        "four-coordinate-action-node-map-and-hard-limits",
+        "observer-template-normalization-horizon-objective-and-solver",
+        "development-holdout-mismatch-and-metrics",
+        "zero-search-zero-tuning-and-zero-seed-selection"
+      ]
+    },
+    "classification": [
+      "INVALID-CONSTRAINED-HORIZON",
+      "FORMULATION-INFEASIBLE",
+      "DEVELOPMENT-NO-GO",
+      "FRESH-HOLDOUT-NO-GO",
+      "RETAINED-BLOCK-NO-VALUE",
+      "CONSTRAINED-HORIZON-PASS"
+    ],
+    "eval": "NOT-APPLICABLE-MODEL-ONLY",
+    "physical_execution_authorized": false,
+    "distributed_agent_implementation_authorized": false,
+    "training_authorized": false
+  },
+  "contract_payload_sha256": "c332016e81692cb2ba9eb87ac61b24edef2c42aa921bdb0a80937bf95833a983",
+  "parent": {
+    "dynamic_model": {
+      "path": "results/r316_dynamic_reduction/dynamic_model.json",
+      "sha256": "da0eef3efca6bba1f176156445c355b260f9d21fe48e223191d507bb62a6c6bc"
+    },
+    "analysis": {
+      "path": "results/r316_dynamic_reduction/analysis.json",
+      "sha256": "a8c0f1ec0ce03a9a08da4f47cd661e921bebf7461154bf1ebece175a68368b7c"
+    },
+    "r321_analysis_hash_only": {
+      "path": "results/r321_pole_target_examination/analysis.json",
+      "sha256": "03c0f7ea7d5e530b4a947b768aaab0162d88ae3c06e8629815cb6149640e0ea6",
+      "access": "HASH-ONLY-NO-PARSE"
+    }
+  },
+  "sources": {
+    "plan": {
+      "path": "memory/rounds/R325/plan.md",
+      "sha256": "7680c565bf274c7657e7721fe094973723f884d9c0c241083a85002c27148f7b"
+    },
+    "question": {
+      "path": "memory/questions/Q-0078.md",
+      "sha256": "e87d60472d6711368268458a8beb9a5f66029649e284bbae831c0a047db193b5"
+    },
+    "parent_model": {
+      "path": "results/r316_dynamic_reduction/dynamic_model.json",
+      "sha256": "da0eef3efca6bba1f176156445c355b260f9d21fe48e223191d507bb62a6c6bc"
+    },
+    "parent_analysis": {
+      "path": "results/r316_dynamic_reduction/analysis.json",
+      "sha256": "a8c0f1ec0ce03a9a08da4f47cd661e921bebf7461154bf1ebece175a68368b7c"
+    },
+    "observer_cause_claim": {
+      "path": "memory/claims/CLM-0810.md",
+      "sha256": "f626d4233a88497b19f11b5870e72066d7200aa0920e0541c3fe45656293b1aa"
+    },
+    "diagnosis_claim": {
+      "path": "memory/claims/CLM-0820.md",
+      "sha256": "bd00eecca2c9c1339cff1f1c4268e4c67d883d6fd8d220d427e6ebaf65c21a64"
+    },
+    "fidelity_claim": {
+      "path": "memory/claims/CLM-0830.md",
+      "sha256": "9ea10a07a76a7d35f4584929d8d7f1aa42981048cc96b8f5ccb453ab5281eeac"
+    },
+    "artifact_io": {
+      "path": "memory/tools/artifact_io.py",
+      "sha256": "03c42cddde3cd4281aeca341c74114c8ad6a10bd52546ed3f3cceefe74aeb6c8"
+    },
+    "artifact_io_tests": {
+      "path": "memory/tools/tests/test_artifact_io.py",
+      "sha256": "f5c67b8c3ce6101df3852815770f70ab316f403f3ef167585c8e816a26afd0c0"
+    },
+    "controller_module": {
+      "path": "src/andes_rl_kundur/control/model_first_constrained_horizon.py",
+      "sha256": "a2fd06bcb3a8c128653c7c49c041383cbcf4492b87a9c091b8dfb5e5a048f42b"
+    },
+    "observer_module": {
+      "path": "src/andes_rl_kundur/control/model_first_observer_lqr.py",
+      "sha256": "339bb96e7987e1a69f40db2361241e41c96093dd1d258d3c04cedc640abcd792"
+    },
+    "offline_feedback_module": {
+      "path": "src/andes_rl_kundur/control/model_first_offline_feedback.py",
+      "sha256": "c154e73c4e6f642029284bdeb3f7acb087378c2a46bc0c8e90c8c4cf4c5e573e"
+    },
+    "dynamic_reduction_module": {
+      "path": "src/andes_rl_kundur/evaluation/model_first_dynamic_reduction.py",
+      "sha256": "4cc9a99b6a3a558ae24f621605e41684ccfe10a9abcc3cb84156d0bdea3128f7"
+    },
+    "validation_probe": {
+      "path": "probes/r325_constrained_horizon_validation.py",
+      "sha256": "f9884b08dac7a1e15d0f02868b590c1af3c02cfc54ec7af2f5c96c57015844a8"
+    },
+    "adapter": {
+      "path": "scripts/run_r325_constrained_horizon.py",
+      "sha256": "86f952a61e156f82e660fc355f9d7855d09830ab8135fa6f336de544834689d8"
+    },
+    "controller_tests": {
+      "path": "tests/test_model_first_constrained_horizon.py",
+      "sha256": "09f50ece1fd484be84e808e706a6bc7d68e0b0e2bfd17738bb9cda40a0103277"
+    },
+    "validation_tests": {
+      "path": "tests/test_r325_constrained_horizon_validation.py",
+      "sha256": "fcfd07b685a7ce4811be0bc56b011396bf518a68f67101c2e8753a04d88847c2"
+    },
+    "adapter_tests": {
+      "path": "tests/test_r325_constrained_horizon.py",
+      "sha256": "dcaa7d8e7414cb2fb911c074b8b989bb7aa982c4b980a8088892c3602e070d21"
+    }
+  }
+}

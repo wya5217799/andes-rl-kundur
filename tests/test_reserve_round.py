@@ -191,6 +191,19 @@ def test_active_rounds_skips_stale_active_with_verdict(tmp_path: Path) -> None:
     assert result == []
 
 
+def test_active_rounds_reports_modern_stale_active_with_verdict(
+    tmp_path: Path,
+) -> None:
+    """Feed-era rounds must close their lifecycle state explicitly."""
+    (tmp_path / "R281").mkdir()
+    _write_plan(tmp_path / "R281" / "plan.md", "active")
+    (tmp_path / "R281" / "verdict.md").write_text("done", encoding="utf-8")
+
+    result = reserve_round._active_rounds_in_progress(tmp_path)
+
+    assert [n for n, _, _ in result] == [281]
+
+
 def test_active_rounds_include_stale_flag(tmp_path: Path) -> None:
     """include_stale=True returns the legacy stale-active case for
     ledger-hygiene audits."""
@@ -240,6 +253,18 @@ def test_cli_basic_reserve(tmp_path: Path) -> None:
     assert r.returncode == 0
     assert r.stdout.strip() == "1"
     assert (mem / "rounds" / "R1").is_dir()
+
+
+def test_plan_stub_uses_only_frontmatter_for_lifecycle_state(tmp_path: Path) -> None:
+    """New round stubs must pass the canonical lifecycle-state rule."""
+    round_dir = tmp_path / "R338"
+    round_dir.mkdir()
+
+    reserve_round._write_plan_stub(round_dir, 338, "")
+
+    plan = (round_dir / "plan.md").read_text(encoding="utf-8")
+    assert "state: active" in plan
+    assert "**Status**:" not in plan
 
 
 def test_cli_list_active_empty(tmp_path: Path) -> None:

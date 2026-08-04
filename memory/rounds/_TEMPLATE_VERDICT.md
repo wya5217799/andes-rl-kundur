@@ -16,20 +16,10 @@
 <≤3 sentences. The first sentence is auto-extracted by `render.py` into
 STATE.md's "Latest Round" line, so make it self-contained.>
 
-<!-- ============================================================
-     Free-form body sections below (Methodology / Verification /
-     Cross-references / What changed / Negative findings / etc.) —
-     optional, no enforcement. Add what serves the round.
-     ============================================================ -->
-
-## Methodology
-<optional>
-
-## Results
-<optional>
-
-## Verification
-<optional>
+<!-- R291+: keep the entire verdict at <=80 nonblank lines. Method, results,
+     guards, and interpretation live in the Feed or machine JSON; verdict.md
+     only carries lifecycle state, question transitions, PI briefing, and the
+     final Feed pointer. -->
 
 <!-- ============================================================
      The 3 Q-sections below are MANDATORY. validate.py enforces
@@ -45,29 +35,30 @@ STATE.md's "Latest Round" line, so make it self-contained.>
 ## Questions advanced (this round, status unchanged)
 - (none)
 
-<!-- ============================================================
-     `## 给 PI 的话` is the 4th MANDATORY section for R≥59
-     (ADR-0003). Validator enforces presence; soft-warns if the
-     body exceeds 30 lines. Five fixed sub-segments below — keep
-     all five, even if a segment is "无" (none). Write in 人类
-     语言 (not jargon-heavy); render.py auto-annotates first-use
-     of any term in `memory/glossary.yml`.
+Feed: `<paper/<line>/reports/RNN.md or results/<run>/FEED.md>`
 
-     After writing this verdict, the agent MUST also paste the
-     body of `## 给 PI 的话` verbatim in the active chat as its
-     closing turn — see CLAUDE.md "Agent chat-delivery contract".
+<!-- ============================================================
+     `## 给 PI 的话` is mandatory from R59 onward (ADR-0003).
+     ADR-0011 tightens the forward contract from R317 onward:
+
+     1. Answer only three reader questions: 发生了什么、这说明什么、
+        下一步做什么. Each label appears exactly once.
+     2. Write complete natural Chinese first. No English, abbreviations,
+        repository IDs, filenames, code names, or obvious specialist terms.
+     3. Keep a number only when it directly tells the reader how much better,
+        how much worse, or whether the result passed. Counts and identifiers
+        stay in the Feed/results evidence layer.
+     4. The Feed, claim, result JSON, and technical verdict skeleton retain
+        professional names, metrics, IDs, and exact data for audit.
+
+     Paste only the body below verbatim as the user-facing closing report.
+     Do not prepend or append a technical recap unless the user asks for it.
      ============================================================ -->
 
 ## 给 PI 的话
 
-**这周干了啥**：<1-2 句上下文，说清楚我们在折腾什么>
+**发生了什么**：<用完整人话交代这次遇到的问题、做了什么改变>
 
-**结果（一句话）**：<头条数字 / 一句话结论>
+**这说明什么**：<说明有没有达到事先要求、能说明什么、还不能说明什么>
 
-**意外**：<让人意外的发现 / 风险 / pivot —— 这一段是 PI 的"参与钩子"，
-不要写成"一切顺利"；如果真的没意外，写"无"即可>
-
-**我默认下一步做**：<agent 打算默认怎么走 —— 不需要 PI 拍板>
-
-**你想插一脚就说**：<明确给 PI 留一个 redirect 口子；沉默 = 按上面默认走>
-
+**下一步做什么**：<说明默认继续做什么，以及什么情况下立即停止>

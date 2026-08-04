@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
+import json
 import re
 import sys
 from datetime import date, datetime
@@ -49,6 +51,22 @@ PI_BRIEFING_SECTION = "## 给 PI 的话"
 # R112/R121/R142/R150/R153) sit at 31-38 lines with substantive content;
 # 30 was aspirational, 40 is realistic. Briefings >40 still warn.
 PI_BRIEFING_LINE_CAP = 40
+# ADR-0011: from R317 onward, the user-facing briefing is a three-question
+# plain-language layer. Older verdicts retain ADR-0003's five labels.
+PI_PLAIN_LANGUAGE_CUTOFF = 317
+PI_PLAIN_LANGUAGE_LABELS = ("发生了什么", "这说明什么", "下一步做什么")
+PI_RESULT_NUMBER_CUES = (
+    "通过", "未通过", "及格", "不及格", "达到", "超过", "低于", "高于",
+    "减少", "增加", "降低", "提高", "下降", "提升", "缩小", "扩大",
+    "改善", "恶化", "少了", "多了", "快了", "慢了", "更好", "更坏",
+    "相差", "持平", "上限", "下限", "范围", "至少", "至多", "倍", "百分",
+)
+PI_PROJECT_JARGON_TERMS = (
+    "归一化", "谱半径", "特征值", "状态空间", "马尔可夫", "李雅普诺夫",
+    "雅可比", "共模", "差模", "耦合", "解耦", "消融", "持出", "残差",
+    "模态", "超参数", "损失函数", "观测空间", "动作空间", "执行器",
+    "置信区间", "标准差", "代理模型", "智能体",
+)
 
 # R176 G7: TL;DR recommended-section cutoff parallel to PI_BRIEFING_CUTOFF.
 # Pre-R59 verdicts (R01..R58) pre-date the TL;DR convention; warning on
@@ -65,11 +83,23 @@ PI_BRIEFING_BLOCK_RE = re.compile(
 # See ADR-0003 + R166 plan.md.
 ROUND_STATE_ENUM = {"active", "queued", "completed", "superseded", "aborted"}
 ROUND_STATE_TERMINAL = {"completed", "superseded", "aborted"}
+# R281 introduced the paper-facing Feed contract. From this point onward,
+# verdict.md plus state=active is never a compatibility case: it is an
+# unclosed lifecycle that must block validation and cold-start continuation.
+EXPLICIT_LIFECYCLE_ROUND = 281
 # R176 G9: tightened thresholds. Project velocity is ~30 rounds/day,
 # so 14 days = ~400 rounds before stale fires (useless). 3-day active
 # / 2-day queued matches actual research cadence.
 ROUND_STALE_ACTIVE_DAYS = 3
 ROUND_STALE_QUEUED_DAYS = 2
+
+# Forward-only fact-layer budget. A claim is a compact registration card;
+# detailed rows, guard outcomes, and mechanism analysis belong in the Feed
+# and machine JSON reached through evidence_refs.
+CLAIM_FACT_BUDGET_ROUND = 291
+CLAIM_STATEMENT_MAX_BYTES = 1800
+VERDICT_POINTER_BUDGET_ROUND = 291
+VERDICT_NONBLANK_LINE_MAX = 80
 
 
 def _load_entities(
@@ -134,6 +164,135 @@ def load_claims(claims_dir: Path) -> dict[str, dict[str, Any]]:
         glob_pattern="CLM-*.md",
         extras={"superseded_by": [], "supersedes": []},
     )
+
+
+def _resolve_json_pointer(document: Any, pointer: str) -> Any:
+    """Resolve an RFC 6901 JSON Pointer or raise ``ValueError``."""
+    if pointer == "":
+        return document
+    if not pointer.startswith("/"):
+        raise ValueError("locator must be an RFC 6901 JSON Pointer")
+    current = document
+    for raw_token in pointer[1:].split("/"):
+        token = raw_token.replace("~1", "/").replace("~0", "~")
+        if isinstance(current, dict):
+            if token not in current:
+                raise ValueError(f"locator token does not exist: {token}")
+            current = current[token]
+        elif isinstance(current, list):
+            try:
+                index = int(token)
+                current = current[index]
+            except (ValueError, IndexError) as exc:
+                raise ValueError(f"invalid list locator token: {token}") from exc
+        else:
+            raise ValueError(f"locator descends through scalar at: {token}")
+    return current
+
+
+def validate_claim_fact_budgets(
+    claims: dict[str, dict[str, Any]],
+) -> list[str]:
+    """Keep forward claim cards pointer-sized instead of duplicating Feeds."""
+    errors: list[str] = []
+    for claim in claims.values():
+        round_num = _claim_round_num(claim)
+        statement = claim.get("statement")
+        if (
+            round_num is not None
+            and round_num >= CLAIM_FACT_BUDGET_ROUND
+            and isinstance(statement, str)
+            and len(statement.encode("utf-8")) > CLAIM_STATEMENT_MAX_BYTES
+        ):
+            errors.append(
+                f"{claim['id']}: statement budget exceeded "
+                f"({len(statement.encode('utf-8'))} > "
+                f"{CLAIM_STATEMENT_MAX_BYTES} UTF-8 bytes); keep the claim "
+                "to classification, headline result, scope, and evidence_refs"
+            )
+    return errors
+
+
+def validate_claim_evidence_refs(
+    claims: dict[str, dict[str, Any]],
+    *,
+    repo_root: Path,
+) -> list[str]:
+    """Validate stable claim-to-machine-evidence bindings.
+
+    Verified feed-era findings (R281+) must bind their headline to a
+    repository-relative JSON path, an exact JSON Pointer, the whole-file
+    SHA-256, and a short role.  This is metadata over the existing claim
+    ledger, not a second evidence registry.
+    """
+    errors: list[str] = []
+    repo_root = repo_root.resolve()
+    for claim in claims.values():
+        round_num = _claim_round_num(claim)
+        refs = claim.get("evidence_refs")
+        required = (
+            round_num is not None
+            and round_num >= 281
+            and claim.get("trust") == "V"
+            and claim.get("type") in {"finding", "correction"}
+        )
+        if refs is None:
+            if required:
+                errors.append(
+                    f"{claim['id']}: verified R281+ claim requires evidence_refs"
+                )
+            continue
+        if not isinstance(refs, list) or not refs:
+            errors.append(f"{claim['id']}: evidence_refs must be a non-empty list")
+            continue
+
+        for index, ref in enumerate(refs):
+            label = f"{claim['id']}.evidence_refs[{index}]"
+            if not isinstance(ref, dict):
+                errors.append(f"{label}: entry must be a mapping")
+                continue
+            path_value = ref.get("path")
+            locator = ref.get("locator")
+            expected_hash = ref.get("sha256")
+            role = ref.get("role")
+            if not isinstance(path_value, str) or not path_value:
+                errors.append(f"{label}: path must be a non-empty string")
+                continue
+            relative = Path(path_value)
+            if relative.is_absolute() or ".." in relative.parts:
+                errors.append(f"{label}: path must be repository-relative")
+                continue
+            evidence_path = (repo_root / relative).resolve()
+            if not evidence_path.is_relative_to(repo_root):
+                errors.append(f"{label}: path escapes repository")
+                continue
+            if not evidence_path.is_file():
+                errors.append(f"{label}: path missing on disk: {path_value}")
+                continue
+            if not isinstance(locator, str):
+                errors.append(f"{label}: locator must be a JSON Pointer string")
+            if (
+                not isinstance(expected_hash, str)
+                or re.fullmatch(r"[0-9a-f]{64}", expected_hash) is None
+            ):
+                errors.append(f"{label}: sha256 must be 64 lowercase hex characters")
+            else:
+                actual_hash = hashlib.sha256(evidence_path.read_bytes()).hexdigest()
+                if actual_hash != expected_hash:
+                    errors.append(
+                        f"{label}: sha256 mismatch for {path_value}: "
+                        f"expected {expected_hash}, got {actual_hash}"
+                    )
+            if not isinstance(role, str) or not role.strip():
+                errors.append(f"{label}: role must be a non-empty string")
+
+            if isinstance(locator, str):
+                try:
+                    document = json.loads(evidence_path.read_text(encoding="utf-8"))
+                    _resolve_json_pointer(document, locator)
+                except (OSError, json.JSONDecodeError, ValueError) as exc:
+                    errors.append(f"{label}: invalid locator {locator!r}: {exc}")
+    return errors
 
 
 def load_questions(questions_dir: Path) -> dict[str, dict[str, Any]]:
@@ -277,18 +436,14 @@ def warn_cross_entity_adr_coverage(
     *,
     adr_dir: Path,
 ) -> list[str]:
-    """X1: every ``docs/adr/*.md`` should have at least one note with
-    ``source: adr-rationale`` pointing at it. Soft warning."""
-    if not adr_dir.exists():
-        return []
-    warnings: list[str] = []
-    for adr in sorted(adr_dir.glob("*.md")):
-        if not _notes_referencing(notes, adr):
-            warnings.append(
-                f"ADR {adr.name} has no Note pointing to it "
-                f"(X1: consider adding one with source: adr-rationale)"
-            )
-    return warnings
+    """Compatibility shim: internal ADRs are canonical and need no Note.
+
+    Historical callers may still import this helper. Returning no findings
+    prevents one internal governance decision from spawning a duplicate
+    index document.
+    """
+    _ = notes, adr_dir
+    return []
 
 
 def warn_cross_entity_handoff_coverage(
@@ -381,7 +536,8 @@ def _round_num_from_verdict_path(verdict_path: Path) -> int | None:
 
 def validate_verdict_structure(verdict_path: Path) -> list[str]:
     """Round verdict must have the 3 mandatory Q-section H2s, plus — for
-    R≥59 (ADR-0003) — the `## 给 PI 的话` PI briefing section.
+    R≥59 (ADR-0003) — the `## 给 PI 的话` briefing section. From R317,
+    ADR-0011 also enforces the separate three-part plain-language layer.
 
     Historical verdicts (R01..R38) use varied Status header text and not all
     have explicit TL;DR — those checks live in the warnings path, not here.
@@ -400,6 +556,53 @@ def validate_verdict_structure(verdict_path: Path) -> list[str]:
             errors.append(
                 f"{verdict_path}: missing section '{PI_BRIEFING_SECTION}' "
                 f"(mandatory from R{PI_BRIEFING_CUTOFF} onward — see ADR-0003)"
+            )
+    if round_num is not None and round_num >= PI_PLAIN_LANGUAGE_CUTOFF:
+        match = PI_BRIEFING_BLOCK_RE.search(text)
+        if match:
+            body = match.group(1)
+            labelled_parts = tuple(re.findall(
+                r"^\*\*([^*\n]+)\*\*[：:]", body, re.MULTILINE
+            ))
+            if labelled_parts != PI_PLAIN_LANGUAGE_LABELS:
+                errors.append(
+                    f"{verdict_path}: 给 PI 的话只能按顺序包含三个标签："
+                    "**发生了什么**、**这说明什么**、**下一步做什么** "
+                    f"(R{PI_PLAIN_LANGUAGE_CUTOFF}+; ADR-0011)"
+                )
+            if re.search(r"[A-Za-z`]", body):
+                errors.append(
+                    f"{verdict_path}: 给 PI 的话包含英文或代码名；"
+                    "人话正文只能用自然中文，专业名称、编号、文件名和缩写放入"
+                    "技术证据文件 (ADR-0011)"
+                )
+            jargon_hits = sorted({
+                term for term in PI_PROJECT_JARGON_TERMS if term in body
+            })
+            if jargon_hits:
+                errors.append(
+                    f"{verdict_path}: 给 PI 的话包含专业词（"
+                    f"{'、'.join(jargon_hits)}）；先改写成普通中文，专业名称只留在"
+                    "技术证据文件 (ADR-0011)"
+                )
+            for sentence in re.split(r"[。！？\n]+", body):
+                if re.search(r"\d", sentence) and not any(
+                    cue in sentence for cue in PI_RESULT_NUMBER_CUES
+                ):
+                    errors.append(
+                        f"{verdict_path}: 给 PI 的话中的数字必须直接说明"
+                        "好多少、坏多少或有没有及格；过程数量、编号和样本数放入"
+                        "技术证据文件 (ADR-0011)"
+                    )
+                    break
+    if round_num is not None and round_num >= VERDICT_POINTER_BUDGET_ROUND:
+        nonblank_lines = sum(bool(line.strip()) for line in text.splitlines())
+        if nonblank_lines > VERDICT_NONBLANK_LINE_MAX:
+            errors.append(
+                f"{verdict_path}: verdict budget exceeded "
+                f"({nonblank_lines} > {VERDICT_NONBLANK_LINE_MAX} nonblank "
+                "lines); keep verdict.md to status, question transitions, "
+                "PI briefing, and Feed pointer"
             )
     return errors
 
@@ -536,6 +739,33 @@ def validate_round_state(
 
     round_dir = plan_path.parent
     parent_dir = rounds_dir if rounds_dir is not None else round_dir.parent
+    round_match = ROUND_DIR_RE.match(round_dir.name)
+    round_number = int(round_match.group(1)) if round_match else None
+
+    if (
+        round_number is not None
+        and round_number >= CLAIM_FACT_BUDGET_ROUND
+        and re.search(
+            r"(?m)^\*\*Status\*\*:",
+            plan_path.read_text(encoding="utf-8"),
+        )
+    ):
+        errors.append(
+            f"{plan_path}: body duplicates canonical frontmatter `state` "
+            "(R-plan-state-duplicate); remove the body Status line"
+        )
+
+    if (
+        state == "active"
+        and round_number is not None
+        and round_number >= EXPLICIT_LIFECYCLE_ROUND
+        and (round_dir / "verdict.md").is_file()
+    ):
+        errors.append(
+            f"{plan_path}: {round_dir.name} has verdict.md but remains "
+            "state=active (R-lifecycle-unclosed); close it through "
+            "memory/tools/close_round.py"
+        )
 
     if state == "completed":
         verdict = round_dir / "verdict.md"
@@ -1330,13 +1560,13 @@ def main() -> int:
     errors.extend(q_errors)
 
     repo_root = Path(__file__).resolve().parents[2]
+    errors.extend(validate_claim_fact_budgets(claims))
+    errors.extend(validate_claim_evidence_refs(claims, repo_root=repo_root))
     notes = load_notes(args.notes_dir)
     n_errors = validate_note_rules(notes, claims, repo_root=repo_root)
     errors.extend(n_errors)
 
-    adr_dir = repo_root / "docs" / "adr"
     handoffs_dir = base / "handoffs"
-    warnings.extend(warn_cross_entity_adr_coverage(notes, adr_dir=adr_dir))
     warnings.extend(warn_cross_entity_handoff_coverage(notes, handoffs_dir=handoffs_dir))
 
     if not args.skip_verdicts:

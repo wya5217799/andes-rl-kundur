@@ -107,3 +107,7 @@ VSG 本地模态呈 1/√M 缩放 + 模态分裂 (识别失败 flag 已记).
 
 **你想插一脚就说**: 如果你觉得 U 型上翘可疑 (可能是模态 hybridize 的
 artifact), 我可以先在 q∈[+0.1875,+0.25] 加密 4 个点确认真伪再归档.
+
+---
+Feed: `paper/sci_upgrade_survey/reports/R281.md`; machine evidence:
+`results/r281_eig_mechanism/summary.json`; claim: CLM-0615.

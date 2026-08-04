@@ -1,0 +1,402 @@
+{
+  "schema_version": 1,
+  "round": "R332",
+  "question": "Q-0084",
+  "created_utc": "2026-08-03T20:51:51.259515+00:00",
+  "reconciliation": {
+    "schema_version": 1,
+    "round": "R332",
+    "question": "Q-0084",
+    "mapping_rows": [
+      {
+        "id": "action_mapping",
+        "reduced_model_meaning": "one common plus three source-positive coordinates mapped invertibly to four node requests; estimator return input must be the inverse transform of the externally projected command",
+        "implementation_locators": [
+          "src/andes_rl_kundur/env/andes/model_first_contract.py:16",
+          "src/andes_rl_kundur/control/model_first_constrained_horizon.py:108",
+          "src/andes_rl_kundur/control/model_first_constrained_qp.py:310",
+          "src/andes_rl_kundur/control/model_first_constrained_qp.py:311"
+        ],
+        "official_locators": [
+          "https://github.com/CURENT/andes/blob/v2.0.0/andes/models/distributed/esd1.py",
+          "https://github.com/CURENT/andes/blob/v2.0.0/andes/models/distributed/pvd1.py",
+          "https://docs.andes.app/en/v2.0.0/reference/models/DG.html",
+          "https://github.com/CURENT/andes/blob/v2.0.0/andes/models/group.py"
+        ],
+        "unit": "system p.u. active-power request",
+        "base": "100-MVA system base",
+        "sign": "edge source positive and target negative; positive node power discharges to grid",
+        "sample_time": "one held node vector per 0.2-s interval",
+        "disposition": "declared-assumption",
+        "claim_ceiling_consequence": "legacy inertia-action incidence is excluded; a later induced-projection test must reject planned request and achieved power as estimator input, and live M/D readback must remain unchanged"
+      },
+      {
+        "id": "bases_and_frequency",
+        "reduced_model_meaning": "four physical frequency deviations normalized by 60 Hz and transformed with system-base inertia",
+        "implementation_locators": [
+          "src/andes_rl_kundur/env/andes/model_first_contract.py:121",
+          "src/andes_rl_kundur/env/andes/model_first_env.py:48",
+          "probes/r315_dynamic_reduction_validation.py:340"
+        ],
+        "official_locators": [
+          "https://github.com/CURENT/andes/blob/v2.0.0/andes/models/synchronous/gencls.py",
+          "https://docs.andes.app/en/v2.0.0/reference/models/SynGen.html",
+          "https://docs.andes.app/en/v2.0.0/modeling/components/parameters.html"
+        ],
+        "unit": "Hz before normalization; dimensionless after division by 60",
+        "base": "100-MVA system base; GENCLS M and D converted from 200-MVA device base",
+        "sign": "positive deviation means rotor speed above nominal",
+        "sample_time": "0.2 s",
+        "disposition": "exact",
+        "claim_ceiling_consequence": "valid only for the declared 60-Hz model-first path"
+      },
+      {
+        "id": "delivered_outputs",
+        "reduced_model_meaning": "inertia-weighted common and three differential coordinates of physical frequency deviation; achieved grid injection is v * Ipout_y, not Pext0, Psum, or Ipcmd",
+        "implementation_locators": [
+          "scripts/run_r315_dynamic_reduction.py:555",
+          "probes/r315_dynamic_reduction_validation.py:340",
+          "probes/r315_dynamic_reduction_validation.py:345",
+          "src/andes_rl_kundur/env/andes/model_first_env.py:331",
+          "src/andes_rl_kundur/env/andes/model_first_env.py:373",
+          "src/andes_rl_kundur/env/andes/model_first_env.py:377",
+          "src/andes_rl_kundur/env/andes/model_first_env.py:378",
+          "src/andes_rl_kundur/env/andes/model_first_env.py:379"
+        ],
+        "official_locators": [
+          "https://github.com/CURENT/andes/blob/v2.0.0/andes/models/distributed/esd1.py",
+          "https://github.com/CURENT/andes/blob/v2.0.0/andes/models/distributed/pvd1.py",
+          "https://docs.andes.app/en/v2.0.0/reference/models/DG.html",
+          "https://github.com/CURENT/andes/blob/v2.0.0/andes/models/group.py"
+        ],
+        "unit": "dimensionless frequency coordinate; active-power telemetry in system p.u.",
+        "base": "60-Hz physical frequency and 100-MVA system power",
+        "sign": "positive frequency coordinate follows positive rotor-speed deviation",
+        "sample_time": "post-step readback at each 0.2-s boundary",
+        "disposition": "exact",
+        "claim_ceiling_consequence": "requested, projected, internal, and achieved power remain distinct telemetry"
+      },
+      {
+        "id": "device_identity",
+        "reduced_model_meaning": "four controlled GENCLS proxies paired one-to-one with four separate ESD1 devices",
+        "implementation_locators": [
+          "src/andes_rl_kundur/env/andes/model_first_env.py:200",
+          "src/andes_rl_kundur/env/andes/andes_vsg_storage_env.py:27",
+          "src/andes_rl_kundur/env/andes/andes_vsg_storage_env.py:38"
+        ],
+        "official_locators": [
+          "https://github.com/CURENT/andes/blob/v2.0.0/andes/models/synchronous/gencls.py",
+          "https://github.com/CURENT/andes/blob/v2.0.0/andes/models/distributed/esd1.py",
+          "https://docs.andes.app/en/v2.0.0/reference/models/SynGen.html",
+          "https://docs.andes.app/en/v2.0.0/reference/models/DG.html"
+        ],
+        "unit": "indexed devices and buses",
+        "base": "one GENCLS plus one 36-MVA ESD1 at each declared controlled bus",
+        "sign": "not applicable",
+        "sample_time": "fixed at setup and checked at reset/readback",
+        "disposition": "exact",
+        "claim_ceiling_consequence": "no claim that GENCLS plus ESD1 is an EMT-faithful VSG converter"
+      },
+      {
+        "id": "disturbance_and_initialization",
+        "reduced_model_meaning": "declared plant has a separate physical disturbance channel, but the frozen reduced package adds its test disturbance through the control-input channel",
+        "implementation_locators": [
+          "paper/decoupling_marl_model_first/working/model_contract.md:57",
+          "paper/decoupling_marl_model_first/working/model_contract.md:433",
+          "src/andes_rl_kundur/env/andes/model_first_env.py:123",
+          "src/andes_rl_kundur/env/andes/model_first_env.py:130",
+          "src/andes_rl_kundur/env/andes/model_first_env.py:210",
+          "scripts/run_r329_disturbance_estimator.py:427",
+          "scripts/run_r329_disturbance_estimator.py:428",
+          "scripts/run_r329_disturbance_estimator.py:429"
+        ],
+        "official_locators": [
+          "https://docs.andes.app/en/v2.0.0/tutorials/04-time-domain.html",
+          "https://docs.andes.app/en/v2.0.0/"
+        ],
+        "unit": "physical PQ/load or outage disturbance versus system-p.u. actuator coordinate",
+        "base": "separate physical device/event channel versus 100-MVA ESD1 command channel",
+        "sign": "physical load sign is not identified by the frozen control-input model",
+        "sample_time": "0.5-s unperturbed initialization; physical event after reset; one-sample observation delay",
+        "disposition": "unsupported",
+        "claim_ceiling_consequence": "R329 remains immutable evidence; a distinct physical disturbance channel requires prospective equivalence or a separately sealed successor package"
+      },
+      {
+        "id": "feasibility_limits",
+        "reduced_model_meaning": "node power, ramp, SOC and energy constraints plus external voltage-current projection and internal ESD1 limiters",
+        "implementation_locators": [
+          "src/andes_rl_kundur/control/active_power.py:99",
+          "src/andes_rl_kundur/control/active_power.py:186",
+          "src/andes_rl_kundur/control/active_power.py:266",
+          "src/andes_rl_kundur/control/model_first_constrained_qp.py:236",
+          "src/andes_rl_kundur/control/model_first_constrained_qp.py:279",
+          "src/andes_rl_kundur/env/andes/model_first_env.py:374",
+          "src/andes_rl_kundur/env/andes/model_first_env.py:382",
+          "src/andes_rl_kundur/env/andes/model_first_env.py:383"
+        ],
+        "official_locators": [
+          "https://github.com/CURENT/andes/blob/v2.0.0/andes/models/distributed/esd1.py",
+          "https://github.com/CURENT/andes/blob/v2.0.0/andes/models/distributed/pvd1.py",
+          "https://docs.andes.app/en/v2.0.0/reference/models/DG.html",
+          "https://github.com/CURENT/andes/blob/v2.0.0/andes/core/discrete.py"
+        ],
+        "unit": "system p.u., system p.u. per sample, SOC fraction, MWh, device p.u. current",
+        "base": "100-MVA system, 36-MVA and 28-MWh per ESD1",
+        "sign": "signed active-power request; internal system-base Psum must satisfy Psum > -pmx + epsilon or reproduce the installed zero-below-lower path",
+        "sample_time": "recomputed before every 0.2-s command and checked after the interval",
+        "disposition": "declared-assumption",
+        "claim_ceiling_consequence": "later seal must fail on external projection or internal limiter activation; freeze the internal Psum margin or exact installed behavior"
+      },
+      {
+        "id": "platform_scope",
+        "reduced_model_meaning": "sampled reduced realization of ANDES time-domain electromechanical response",
+        "implementation_locators": [
+          "paper/decoupling_marl_model_first/working/model_contract.md:26",
+          "results/r316_dynamic_reduction/dynamic_model.json#/realization_contract"
+        ],
+        "official_locators": [
+          "https://docs.andes.app/en/v2.0.0/tutorials/04-time-domain.html",
+          "https://docs.andes.app/en/v2.0.0/"
+        ],
+        "unit": "not applicable",
+        "base": "phasor-domain transmission-system electromechanical model",
+        "sign": "not applicable",
+        "sample_time": "continuous DAE integration observed every 0.2 s",
+        "disposition": "declared-omission",
+        "claim_ceiling_consequence": "no EMT switching, converter inner-loop, hardware, or field claim"
+      },
+      {
+        "id": "reduced_latent_state",
+        "reduced_model_meaning": "ten realization states plus four random-walk unknown-input states kept only in estimator memory",
+        "implementation_locators": [
+          "src/andes_rl_kundur/control/model_first_disturbance_estimator.py:196",
+          "src/andes_rl_kundur/control/model_first_disturbance_estimator.py:220",
+          "memory/rounds/R329/disturbance_estimator_seal.json#/contract/estimator",
+          "results/r316_dynamic_reduction/dynamic_model.json#/points"
+        ],
+        "official_locators": [
+          "https://docs.andes.app/en/v2.0.0/tutorials/04-time-domain.html",
+          "https://docs.andes.app/en/v2.0.0/"
+        ],
+        "unit": "realization coordinates without direct physical units",
+        "base": "input-output realization basis",
+        "sign": "basis-dependent; only delivered output and node action have physical sign",
+        "sample_time": "updated once per 0.2-s sample",
+        "disposition": "derived",
+        "claim_ceiling_consequence": "latent coordinates are never described as direct ANDES state readbacks"
+      },
+      {
+        "id": "sample_timing",
+        "reduced_model_meaning": "previous delivered output and previous executed coordinate action update a causal estimator before the next held command",
+        "implementation_locators": [
+          "src/andes_rl_kundur/control/model_first_disturbance_estimator.py:196",
+          "src/andes_rl_kundur/control/model_first_disturbance_estimator.py:220",
+          "src/andes_rl_kundur/env/andes/model_first_env.py:267",
+          "paper/decoupling_marl_model_first/working/model_contract.md:421"
+        ],
+        "official_locators": [
+          "https://docs.andes.app/en/v2.0.0/tutorials/04-time-domain.html",
+          "https://github.com/CURENT/andes/blob/v2.0.0/andes/models/distributed/pvd1.py",
+          "https://docs.andes.app/en/v2.0.0/reference/models/DG.html",
+          "https://github.com/CURENT/andes/blob/v2.0.0/andes/routines/tds.py"
+        ],
+        "unit": "seconds and discrete samples",
+        "base": "0.2-s controller hold with TDS substeps",
+        "sign": "not applicable",
+        "sample_time": "one-sample causal delay; first command uses pre-disturbance observation",
+        "disposition": "declared-assumption",
+        "claim_ceiling_consequence": "the wrapper owns one-sample delay and must use the stored pre-switch exact-event row or an explicit pre-callback sample; reject N_SUBSTEPS drift"
+      },
+      {
+        "id": "storage_dynamics",
+        "reduced_model_meaning": "ESD1 active-current lag and continuous SOC integration driven by achieved grid injection v * Ipout_y, not Pext0, Psum, or Ipcmd",
+        "implementation_locators": [
+          "src/andes_rl_kundur/env/andes/andes_vsg_storage_env.py:75",
+          "src/andes_rl_kundur/env/andes/andes_vsg_storage_env.py:120",
+          "src/andes_rl_kundur/env/andes/andes_vsg_storage_env.py:123",
+          "src/andes_rl_kundur/control/active_power.py:162",
+          "src/andes_rl_kundur/env/andes/model_first_env.py:295"
+        ],
+        "official_locators": [
+          "https://github.com/CURENT/andes/blob/v2.0.0/andes/models/distributed/esd1.py",
+          "https://github.com/CURENT/andes/blob/v2.0.0/andes/models/distributed/pvd1.py",
+          "https://docs.andes.app/en/v2.0.0/reference/models/DG.html",
+          "https://github.com/CURENT/andes/blob/v2.0.0/andes/core/discrete.py"
+        ],
+        "unit": "seconds, SOC fraction, MWh, system p.u. power",
+        "base": "0.02-s active-current lag and 28-MWh device energy",
+        "sign": "positive grid injection discharges SOC; negative injection charges SOC",
+        "sample_time": "continuous plant state with 0.2-s controller readback",
+        "disposition": "declared-assumption",
+        "claim_ceiling_consequence": "ESD1 supplies lagged achieved power and directional SOC blocking, not an internal ramp, one-step-energy projector, or hard SOC clamp"
+      }
+    ],
+    "source_identity": {
+      "repository_sources_match": true,
+      "installed_andes_version": "2.0.0",
+      "installed_sources_match": true,
+      "installed_semantics_match": true,
+      "official_sources_primary": true
+    },
+    "semantic_guards": {
+      "no_hidden_md_write": true,
+      "requested_projected_internal_achieved_distinguished": true,
+      "active_power_incidence_sign_correct": true,
+      "physical_frequency_base_60_hz": true,
+      "sample_order_and_delay_explicit": true,
+      "disturbance_and_initialization_explicit": true,
+      "all_feasibility_limits_explicit": true,
+      "reduced_latent_state_not_claimed_as_physical_readback": true,
+      "platform_claim_ceiling_respected": true
+    },
+    "scope_guards": {
+      "physical_execution_performed": false,
+      "controller_executed": false,
+      "distributed_runtime_executed": false,
+      "training_executed": false,
+      "eval_executed": false
+    },
+    "deterministic_replay": true
+  },
+  "reconciliation_payload_sha256": "aee4654527693399220514df5a4ce44863226cc77d3d94b5b39e3df4837cf736",
+  "repository_sources": {
+    "plan": {
+      "path": "memory/rounds/R332/plan.md",
+      "sha256": "2416abd3e0b1579161b8f1deae517b2e2c448b00d061b4457f8a1ed073a0949c"
+    },
+    "question": {
+      "path": "memory/questions/Q-0084.md",
+      "sha256": "5ce7c329f4a4108b355b855fafebad8ff8931521dd85d6278c1500d419d0ca6b"
+    },
+    "model_contract": {
+      "path": "paper/decoupling_marl_model_first/working/model_contract.md",
+      "sha256": "f10cf28f39e702966481d007bf0157fd43804873558afe71fe07ca8d4a055caa"
+    },
+    "r329_seal": {
+      "path": "memory/rounds/R329/disturbance_estimator_seal.json",
+      "sha256": "a36340c17ca5738946d2bc42f7ddb54a17af1a3211d98f58bec0c7fcebd405aa"
+    },
+    "r316_dynamic_model": {
+      "path": "results/r316_dynamic_reduction/dynamic_model.json",
+      "sha256": "da0eef3efca6bba1f176156445c355b260f9d21fe48e223191d507bb62a6c6bc"
+    },
+    "model_first_contract": {
+      "path": "src/andes_rl_kundur/env/andes/model_first_contract.py",
+      "sha256": "1fd3dd02c363185c27a8af6f006853f82bf258676ef1ab3c7928c6db4d93cbf6"
+    },
+    "model_first_environment": {
+      "path": "src/andes_rl_kundur/env/andes/model_first_env.py",
+      "sha256": "8b8aa445aafe4b40182cfe60b2dad3cf639dca98ff695d176b01bb5784965f13"
+    },
+    "base_environment": {
+      "path": "src/andes_rl_kundur/env/andes/base_env.py",
+      "sha256": "8b440dc995fe72063fd2a76e8cc36ebc3b109cd148b287e95ee0218603a31ef3"
+    },
+    "storage_environment": {
+      "path": "src/andes_rl_kundur/env/andes/andes_vsg_storage_env.py",
+      "sha256": "544e63fc4d16de43197c1d5ffaca8351f32faec160cce2803053074826eceabf"
+    },
+    "active_power_contract": {
+      "path": "src/andes_rl_kundur/control/active_power.py",
+      "sha256": "fa5d978fbc51115e33af01279189aad41ccaf2fb8a23e403091c29fd0960d0c5"
+    },
+    "constrained_horizon": {
+      "path": "src/andes_rl_kundur/control/model_first_constrained_horizon.py",
+      "sha256": "a2fd06bcb3a8c128653c7c49c041383cbcf4492b87a9c091b8dfb5e5a048f42b"
+    },
+    "sparse_controller": {
+      "path": "src/andes_rl_kundur/control/model_first_constrained_qp.py",
+      "sha256": "191d06e7fcf11779ba7493959c4c73001e76367e611b1b11a2f792f51d4d849a"
+    },
+    "estimator": {
+      "path": "src/andes_rl_kundur/control/model_first_disturbance_estimator.py",
+      "sha256": "cfbc5cf9bdb91a58beddaf337c541c43f6d2567b0371bd8c25b22b101d3a0058"
+    },
+    "r315_execution_adapter": {
+      "path": "scripts/run_r315_dynamic_reduction.py",
+      "sha256": "2152ad7e142dc2bc03379cfb9fb86f50c7e241d9ee94d68efe589a7e2d9d5574"
+    },
+    "r315_validation": {
+      "path": "probes/r315_dynamic_reduction_validation.py",
+      "sha256": "805b03ece98501a7b43a48aaa83b0a68e125160b3d51a0b269f7b29d5ed007bd"
+    },
+    "r329_execution_adapter": {
+      "path": "scripts/run_r329_disturbance_estimator.py",
+      "sha256": "7624cb8d7f0c51b37ee59f7b6aef1515410a588a87235d1497948aaa36bd1082"
+    },
+    "r331_installed_source_reader": {
+      "path": "scripts/run_r331_andes_bridge_reconciliation.py",
+      "sha256": "fd264709416cd58cdc7580db3cd5028434eabc1f9e5a5353be2cae45d526dc90"
+    },
+    "validator": {
+      "path": "probes/r332_andes_bridge_reconciliation.py",
+      "sha256": "12e4478bf0c50416b8f3987079bdc342c096e8312b159129288d97a5b04b68c4"
+    },
+    "adapter": {
+      "path": "scripts/run_r332_andes_bridge_reconciliation.py",
+      "sha256": "401fd5314d6dd7c8c5ca702961ac3687b16f9d7c749f32996b21315f83994d4b"
+    },
+    "validator_tests": {
+      "path": "tests/test_r332_andes_bridge_reconciliation.py",
+      "sha256": "542a58621c7e0c382e32d2174e1c8df9f479b74455cdae798b459ad9bcfe7d6f"
+    },
+    "adapter_tests": {
+      "path": "tests/test_r332_andes_bridge_adapter.py",
+      "sha256": "c9d046d31b5a169ee15106fb34a82918e113b3c165fd472a633fc60c9c1d5562"
+    },
+    "artifact_io": {
+      "path": "memory/tools/artifact_io.py",
+      "sha256": "03c42cddde3cd4281aeca341c74114c8ad6a10bd52546ed3f3cceefe74aeb6c8"
+    }
+  },
+  "installed_andes": {
+    "semantic_facts": {
+      "achieved_power_is_voltage_times_ipout": true,
+      "esd1_lower_bound_is_minus_pmx": true,
+      "ipul_has_no_lower_saturation_term": true,
+      "limiter_lower_flag_excludes_inside_flag": true,
+      "set_paux_writes_pext0_absolute_system_base": true,
+      "tds_store_precedes_switch": true
+    },
+    "sources": {
+      "discrete": {
+        "path": "/home/wya/andes_venv/lib/python3.12/site-packages/andes/core/discrete.py",
+        "sha256": "93bc2c82379fef80f157e5916b20437d82afb2381bba5b5730c2d4a1877c73fc"
+      },
+      "esd1": {
+        "path": "/home/wya/andes_venv/lib/python3.12/site-packages/andes/models/distributed/esd1.py",
+        "sha256": "8049088d711d47c3799826c8977fb86e6b0af822b579bc04625d26b584e419cb"
+      },
+      "gencls": {
+        "path": "/home/wya/andes_venv/lib/python3.12/site-packages/andes/models/synchronous/gencls.py",
+        "sha256": "b9b84d57434b989e7923a2eba197d5ce7122fd7b51c30e4d6ff547ed33797168"
+      },
+      "group": {
+        "path": "/home/wya/andes_venv/lib/python3.12/site-packages/andes/models/group.py",
+        "sha256": "139e172b31e96fa7e92ee8909feca704253702a3e9b5ea6c3df12b54d46b9697"
+      },
+      "pvd1": {
+        "path": "/home/wya/andes_venv/lib/python3.12/site-packages/andes/models/distributed/pvd1.py",
+        "sha256": "56fb6012016b821104df0f38efed0ca2a048635e95872439efadf39534600c95"
+      },
+      "tds": {
+        "path": "/home/wya/andes_venv/lib/python3.12/site-packages/andes/routines/tds.py",
+        "sha256": "224ff43d78de8e6808efa0a6b858d8dbe2ca511128a90a8260009c8146d6e8ba"
+      }
+    },
+    "version": "2.0.0"
+  },
+  "official_sources": [
+    "https://docs.andes.app/en/v2.0.0/",
+    "https://docs.andes.app/en/v2.0.0/tutorials/04-time-domain.html",
+    "https://docs.andes.app/en/v2.0.0/reference/models/SynGen.html",
+    "https://docs.andes.app/en/v2.0.0/reference/models/DG.html",
+    "https://docs.andes.app/en/v2.0.0/modeling/components/parameters.html",
+    "https://github.com/CURENT/andes/blob/v2.0.0/andes/models/synchronous/gencls.py",
+    "https://github.com/CURENT/andes/blob/v2.0.0/andes/models/distributed/esd1.py",
+    "https://github.com/CURENT/andes/blob/v2.0.0/andes/models/distributed/pvd1.py",
+    "https://github.com/CURENT/andes/blob/v2.0.0/andes/routines/tds.py",
+    "https://github.com/CURENT/andes/blob/v2.0.0/andes/core/discrete.py",
+    "https://github.com/CURENT/andes/blob/v2.0.0/andes/models/group.py"
+  ]
+}

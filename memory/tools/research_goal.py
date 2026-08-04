@@ -45,11 +45,12 @@ from typing import Any
 
 import yaml
 
+from reserve_round import _active_rounds_in_progress
+
 ROOT = Path(__file__).resolve().parents[2]
 PROGRAMME_PATH = Path("memory/RESEARCH_PROGRAM.md")
 OPEN_QUESTION_STATES = {"open", "in-flight"}
 _FRONTMATTER_RE = re.compile(r"^---\r?\n(.*?)\r?\n---\r?\n", re.DOTALL)
-_ROUND_RE = re.compile(r"^R(\d+)$")
 
 
 class ProgrammeError(ValueError):
@@ -112,30 +113,10 @@ def _string_list(value: Any, *, key: str, source: Path) -> tuple[str, ...]:
 
 
 def _active_rounds(repo_root: Path) -> tuple[str, ...]:
-    """Return genuinely active rounds; existing verdicts make stale plans closed."""
+    """Return rounds whose lifecycle frontmatter still requires closure."""
     rounds_dir = repo_root / "memory" / "rounds"
-    if not rounds_dir.is_dir():
-        return ()
-    active: list[tuple[int, str]] = []
-    for round_dir in rounds_dir.iterdir():
-        if not round_dir.is_dir():
-            continue
-        match = _ROUND_RE.match(round_dir.name)
-        if not match:
-            continue
-        plan = round_dir / "plan.md"
-        if not plan.is_file():
-            continue
-        try:
-            meta = _frontmatter(plan)
-        except ProgrammeError:
-            continue
-        if meta.get("state") != "active":
-            continue
-        if any(round_dir.glob("*verdict*.md")):
-            continue
-        active.append((int(match.group(1)), round_dir.name))
-    return tuple(name for _, name in sorted(active))
+    active = _active_rounds_in_progress(rounds_dir)
+    return tuple(name for _, _, name in active)
 
 
 def _question_index(repo_root: Path) -> dict[str, tuple[dict[str, Any], Path]]:

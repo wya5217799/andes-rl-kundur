@@ -5,6 +5,11 @@ generated current state, `memory/RESEARCH_PROGRAM.md` for programme gates and
 authorized questions, and `skills/kundur-round/SKILL.md` for the canonical
 round process.
 
+For a new conversation, do not read those stores wholesale. Run
+`python memory/tools/session_context.py --json` and read only its bounded
+`required_reading` list. The tool projects the current research goal or active
+manuscript line without creating another memory layer.
+
 ## Layout
 
 ```text
@@ -35,6 +40,8 @@ memory/
 
 ```bash
 python memory/tools/research_goal.py --json
+python memory/tools/session_context.py --json
+python memory/tools/feed_check.py <feed-path>
 python memory/tools/validate.py
 python memory/tools/render.py
 python memory/tools/status.py

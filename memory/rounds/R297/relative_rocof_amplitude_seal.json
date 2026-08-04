@@ -1,0 +1,322 @@
+{
+  "arms": [
+    {
+      "architecture": "distributed_dapi",
+      "consensus_gain": 1.0,
+      "execution": "explicit_local_agents",
+      "name": "relative_rocof_local__kv0",
+      "relative_rocof_gain": 0.0,
+      "sync_gain": 1.0,
+      "target_static_sync_fraction": 0.0
+    },
+    {
+      "architecture": "distributed_dapi",
+      "consensus_gain": 1.0,
+      "execution": "explicit_local_agents",
+      "name": "relative_rocof_local__kv100pct",
+      "relative_rocof_gain": 0.24424071249620005,
+      "sync_gain": 1.0,
+      "target_static_sync_fraction": 1.0
+    }
+  ],
+  "claim_boundary": "final fixed-plant development revision only; pass authorizes a new held-out evaluation but is not itself efficacy evidence",
+  "development_only": true,
+  "dt_seconds": 0.2,
+  "estimand": "development-only matched-case effect of the final full-anchor relative-RoCoF residual versus fresh zero-residual DAPI",
+  "filter_magnitude_per_s": 4.094321498573086,
+  "filter_time_constant_s": 0.2,
+  "final_gain_revision": true,
+  "full_anchor_gain_system_pu_s_per_hz": 0.24424071249620005,
+  "jobs": [
+    {
+      "arm": {
+        "architecture": "distributed_dapi",
+        "consensus_gain": 1.0,
+        "execution": "explicit_local_agents",
+        "name": "relative_rocof_local__kv0",
+        "relative_rocof_gain": 0.0,
+        "sync_gain": 1.0,
+        "target_static_sync_fraction": 0.0
+      },
+      "name": "k1__pq_0__pos__relative_rocof_local__kv0",
+      "order": 0,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_0",
+        "name": "k1__pq_0__pos",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "architecture": "distributed_dapi",
+        "consensus_gain": 1.0,
+        "execution": "explicit_local_agents",
+        "name": "relative_rocof_local__kv100pct",
+        "relative_rocof_gain": 0.24424071249620005,
+        "sync_gain": 1.0,
+        "target_static_sync_fraction": 1.0
+      },
+      "name": "k1__pq_0__pos__relative_rocof_local__kv100pct",
+      "order": 1,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_0",
+        "name": "k1__pq_0__pos",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "architecture": "distributed_dapi",
+        "consensus_gain": 1.0,
+        "execution": "explicit_local_agents",
+        "name": "relative_rocof_local__kv0",
+        "relative_rocof_gain": 0.0,
+        "sync_gain": 1.0,
+        "target_static_sync_fraction": 0.0
+      },
+      "name": "k1__pq_bus15__neg__relative_rocof_local__kv0",
+      "order": 2,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_Bus15",
+        "name": "k1__pq_bus15__neg",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "architecture": "distributed_dapi",
+        "consensus_gain": 1.0,
+        "execution": "explicit_local_agents",
+        "name": "relative_rocof_local__kv100pct",
+        "relative_rocof_gain": 0.24424071249620005,
+        "sync_gain": 1.0,
+        "target_static_sync_fraction": 1.0
+      },
+      "name": "k1__pq_bus15__neg__relative_rocof_local__kv100pct",
+      "order": 3,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_Bus15",
+        "name": "k1__pq_bus15__neg",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "architecture": "distributed_dapi",
+        "consensus_gain": 1.0,
+        "execution": "explicit_local_agents",
+        "name": "relative_rocof_local__kv0",
+        "relative_rocof_gain": 0.0,
+        "sync_gain": 1.0,
+        "target_static_sync_fraction": 0.0
+      },
+      "name": "k2__pq_1__pos__relative_rocof_local__kv0",
+      "order": 4,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_1",
+        "name": "k2__pq_1__pos",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "architecture": "distributed_dapi",
+        "consensus_gain": 1.0,
+        "execution": "explicit_local_agents",
+        "name": "relative_rocof_local__kv100pct",
+        "relative_rocof_gain": 0.24424071249620005,
+        "sync_gain": 1.0,
+        "target_static_sync_fraction": 1.0
+      },
+      "name": "k2__pq_1__pos__relative_rocof_local__kv100pct",
+      "order": 5,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_1",
+        "name": "k2__pq_1__pos",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "architecture": "distributed_dapi",
+        "consensus_gain": 1.0,
+        "execution": "explicit_local_agents",
+        "name": "relative_rocof_local__kv0",
+        "relative_rocof_gain": 0.0,
+        "sync_gain": 1.0,
+        "target_static_sync_fraction": 0.0
+      },
+      "name": "k2__pq_bus14__neg__relative_rocof_local__kv0",
+      "order": 6,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_Bus14",
+        "name": "k2__pq_bus14__neg",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "architecture": "distributed_dapi",
+        "consensus_gain": 1.0,
+        "execution": "explicit_local_agents",
+        "name": "relative_rocof_local__kv100pct",
+        "relative_rocof_gain": 0.24424071249620005,
+        "sync_gain": 1.0,
+        "target_static_sync_fraction": 1.0
+      },
+      "name": "k2__pq_bus14__neg__relative_rocof_local__kv100pct",
+      "order": 7,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_Bus14",
+        "name": "k2__pq_bus14__neg",
+        "tie_k": 2.0
+      }
+    }
+  ],
+  "predeclared_formal_return_bank": [
+    {
+      "delta_u": -1.0,
+      "location": "PQ_0",
+      "name": "k1.25__pq_0__neg",
+      "tie_k": 1.25
+    },
+    {
+      "delta_u": 1.0,
+      "location": "PQ_0",
+      "name": "k1.25__pq_0__pos",
+      "tie_k": 1.25
+    },
+    {
+      "delta_u": -1.0,
+      "location": "PQ_1",
+      "name": "k1.25__pq_1__neg",
+      "tie_k": 1.25
+    },
+    {
+      "delta_u": 1.0,
+      "location": "PQ_1",
+      "name": "k1.25__pq_1__pos",
+      "tie_k": 1.25
+    },
+    {
+      "delta_u": -1.0,
+      "location": "PQ_Bus15",
+      "name": "k1.25__pq_bus15__neg",
+      "tie_k": 1.25
+    },
+    {
+      "delta_u": 1.0,
+      "location": "PQ_Bus15",
+      "name": "k1.25__pq_bus15__pos",
+      "tie_k": 1.25
+    },
+    {
+      "delta_u": -1.0,
+      "location": "PQ_0",
+      "name": "k1.75__pq_0__neg",
+      "tie_k": 1.75
+    },
+    {
+      "delta_u": 1.0,
+      "location": "PQ_0",
+      "name": "k1.75__pq_0__pos",
+      "tie_k": 1.75
+    },
+    {
+      "delta_u": -1.0,
+      "location": "PQ_1",
+      "name": "k1.75__pq_1__neg",
+      "tie_k": 1.75
+    },
+    {
+      "delta_u": 1.0,
+      "location": "PQ_1",
+      "name": "k1.75__pq_1__pos",
+      "tie_k": 1.75
+    },
+    {
+      "delta_u": -1.0,
+      "location": "PQ_Bus15",
+      "name": "k1.75__pq_bus15__neg",
+      "tie_k": 1.75
+    },
+    {
+      "delta_u": 1.0,
+      "location": "PQ_Bus15",
+      "name": "k1.75__pq_bus15__pos",
+      "tie_k": 1.75
+    }
+  ],
+  "prior_evidence": {
+    "r296_summary": {
+      "path": "results/r296_relative_rocof_probe/development_summary.json",
+      "sha256": "be6a58a301db57349e1a1328c5e3e14ba0f26c5ee1546e5f0f918ef2a4ef3cb1"
+    }
+  },
+  "question": "Q-0054",
+  "round": "R297",
+  "scenarios": [
+    {
+      "delta_u": 1.0,
+      "location": "PQ_0",
+      "name": "k1__pq_0__pos",
+      "tie_k": 1.0
+    },
+    {
+      "delta_u": -1.0,
+      "location": "PQ_Bus15",
+      "name": "k1__pq_bus15__neg",
+      "tie_k": 1.0
+    },
+    {
+      "delta_u": 1.0,
+      "location": "PQ_1",
+      "name": "k2__pq_1__pos",
+      "tie_k": 2.0
+    },
+    {
+      "delta_u": -1.0,
+      "location": "PQ_Bus14",
+      "name": "k2__pq_bus14__neg",
+      "tie_k": 2.0
+    }
+  ],
+  "schema_version": 1,
+  "shard_count": 3,
+  "sources": {
+    "controller": {
+      "path": "src/andes_rl_kundur/control/relative_rocof_residual.py",
+      "sha256": "c0964eca29a207e315ee044c16cfcdda77db18be54a20da1584305e0c11294a9"
+    },
+    "fast_endpoints": {
+      "path": "src/andes_rl_kundur/evaluation/fast_md_authority.py",
+      "sha256": "1ace62f74d2357d5fcbf8664099d026074201617b6c5d505b89255e6e03669aa"
+    },
+    "r296_runner": {
+      "path": "scripts/run_r296_relative_rocof_probe.py",
+      "sha256": "c217215313e94cb8f49950e19cc2d4196553379cc9bf348d6f43de18cbaa5e08"
+    },
+    "runner": {
+      "path": "scripts/run_r297_relative_rocof_amplitude.py",
+      "sha256": "91cbb9c9bf3dc750b8aafdd176d702674b41330ed9a31b26c88724c31a0ce400"
+    }
+  },
+  "stage": "relative_rocof_full_amplitude",
+  "steps": 100,
+  "thresholds": {
+    "common_mean_ratio_max": 1.05,
+    "common_worst_individual_ratio_max": 1.1,
+    "fast_inter_area_iae_ratio_max": 0.99,
+    "normalized_sync_loss_ratio_max": 1.01,
+    "residual_rms_nonzero_min_system_pu": 1e-12,
+    "residual_sum_abs_max_system_pu": 1e-12
+  }
+}

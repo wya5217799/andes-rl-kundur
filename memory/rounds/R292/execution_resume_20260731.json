@@ -1,0 +1,41 @@
+{
+  "round_id": "R292",
+  "record_type": "execution_resume",
+  "recorded_on": "2026-07-31",
+  "trigger": "Host reboot interrupted the persistent WSL coordinator during the sealed v3 formal matrix.",
+  "observed_state": {
+    "phase": "FORMAL_V3_RUNNING_THREE_SHARDS",
+    "coordinator_count": 0,
+    "wsl_worker_count": 0,
+    "failed_marker": false,
+    "complete_marker": false,
+    "formal_trace_count": 33
+  },
+  "pre_resume_audit": {
+    "classification": "RESUME_SAFE",
+    "validated_completed_traces": 33,
+    "remaining_traces": 135,
+    "completed_by_shard": [11, 11, 11],
+    "remaining_by_shard": [45, 45, 45],
+    "formal_seal_sha256": "fff68e0032f504da3f083f3fb201e908b6a8cb183044636cf976225894c46949",
+    "performance_endpoints_inspected": false
+  },
+  "authority": {
+    "plan_contract": "Completed artifacts may be resumed only after hash validation; retained failures forbid retry or overwrite.",
+    "formal_manifest_resume_completed": true,
+    "formal_manifest_overwrite": false,
+    "formal_manifest_retry_failed_trajectory": false
+  },
+  "authorized_action": "Validate all existing trace JSON and sidecars against the existing v3 formal seal, then launch the same three shards. Each shard skips only completed provenance-matching artifacts and computes missing tasks. Do not rerun screen or formal prepare.",
+  "unchanged": [
+    "formal seal",
+    "formal bank",
+    "seven arms",
+    "six frozen checkpoints",
+    "environment seed",
+    "168-trajectory budget",
+    "20,000-resample statistical contract",
+    "thresholds and guards"
+  ],
+  "wall_clock_effect": "The reboot delays completion time only; it does not change the scientific design or discard the 33 validated completed trajectories."
+}

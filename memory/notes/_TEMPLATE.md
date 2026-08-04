@@ -21,5 +21,6 @@ decide from this paragraph alone whether to open source_path.>
 - <Bullet 1 — if later promoted to claim, append `→ CLM-NNNN`>
 - <Bullet 2>
 
-## Open threads
-- <Things the source flagged as TODO/unknown but did not become a Q-NNNN>
+## Related pointers
+- <Pointers only; this section is not task state. Promote unresolved work to
+  Q-NNNN or the selected manuscript LINE.md.>

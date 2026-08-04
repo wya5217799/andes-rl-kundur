@@ -1,8 +1,8 @@
 ---
 round: R281
-state: active
+state: completed
 opened: '2026-07-29'
-closed: null
+closed: '2026-07-30'
 supersedes_rounds: []
 superseded_by_round: null
 abort_reason: null

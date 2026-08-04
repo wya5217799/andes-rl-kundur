@@ -1,0 +1,347 @@
+{
+  "area_1_keys": [
+    "genrou1",
+    "genrou2",
+    "vsg12",
+    "vsg16"
+  ],
+  "area_2_keys": [
+    "genrou3",
+    "genrou4",
+    "vsg14",
+    "vsg15"
+  ],
+  "axis_order": [
+    "m_scale",
+    "d_scale",
+    "tie_k",
+    "soc"
+  ],
+  "bounds": {
+    "d_scale": [
+      0.75,
+      1.25
+    ],
+    "m_scale": [
+      0.75,
+      1.25
+    ],
+    "soc": [
+      0.3,
+      0.7
+    ],
+    "tie_k": [
+      1.0,
+      2.0
+    ]
+  },
+  "claim_boundary": "Stage A tests local equilibrium/modal/coupling fidelity only; it does not validate nonlinear prediction, actuator authority, a controller, MARL, or deployment.",
+  "decision_tree": [
+    "any execution guard failure -> INVALID-STAGE-A-EXECUTION",
+    "all LPV holdouts pass -> STAGE-A-DESCRIPTOR-LPV-ELIGIBLE",
+    "otherwise -> STAGE-A-NONLINEAR-OR-NARROWER-DOMAIN-REQUIRED",
+    "truth max cross/self > 0.20 -> DECOUPLING-NO-GO",
+    "truth max cross/self in (0.05,0.20] -> RETAIN-CROSS-BLOCKS",
+    "truth max cross/self <= 0.05 -> APPROXIMATE-DECOUPLING-ELIGIBLE"
+  ],
+  "frequency_band_hz": [
+    0.2,
+    1.5
+  ],
+  "models": {
+    "descriptor_lpv": "four-axis multilinear interpolation of the 16 corner state matrices",
+    "fixed_lti": "state matrix at fixed_lti_anchor"
+  },
+  "operating_bank": [
+    {
+      "d_scale": 0.75,
+      "m_scale": 0.75,
+      "name": "corner__m_scale_0.75__d_scale_0.75__tie_k_1__soc_0.3",
+      "order": 0,
+      "role": "lpv_corner",
+      "soc": 0.3,
+      "tie_k": 1.0
+    },
+    {
+      "d_scale": 0.75,
+      "m_scale": 0.75,
+      "name": "corner__m_scale_0.75__d_scale_0.75__tie_k_1__soc_0.7",
+      "order": 1,
+      "role": "lpv_corner",
+      "soc": 0.7,
+      "tie_k": 1.0
+    },
+    {
+      "d_scale": 0.75,
+      "m_scale": 0.75,
+      "name": "corner__m_scale_0.75__d_scale_0.75__tie_k_2__soc_0.3",
+      "order": 2,
+      "role": "lpv_corner",
+      "soc": 0.3,
+      "tie_k": 2.0
+    },
+    {
+      "d_scale": 0.75,
+      "m_scale": 0.75,
+      "name": "corner__m_scale_0.75__d_scale_0.75__tie_k_2__soc_0.7",
+      "order": 3,
+      "role": "lpv_corner",
+      "soc": 0.7,
+      "tie_k": 2.0
+    },
+    {
+      "d_scale": 1.25,
+      "m_scale": 0.75,
+      "name": "corner__m_scale_0.75__d_scale_1.25__tie_k_1__soc_0.3",
+      "order": 4,
+      "role": "lpv_corner",
+      "soc": 0.3,
+      "tie_k": 1.0
+    },
+    {
+      "d_scale": 1.25,
+      "m_scale": 0.75,
+      "name": "corner__m_scale_0.75__d_scale_1.25__tie_k_1__soc_0.7",
+      "order": 5,
+      "role": "lpv_corner",
+      "soc": 0.7,
+      "tie_k": 1.0
+    },
+    {
+      "d_scale": 1.25,
+      "m_scale": 0.75,
+      "name": "corner__m_scale_0.75__d_scale_1.25__tie_k_2__soc_0.3",
+      "order": 6,
+      "role": "lpv_corner",
+      "soc": 0.3,
+      "tie_k": 2.0
+    },
+    {
+      "d_scale": 1.25,
+      "m_scale": 0.75,
+      "name": "corner__m_scale_0.75__d_scale_1.25__tie_k_2__soc_0.7",
+      "order": 7,
+      "role": "lpv_corner",
+      "soc": 0.7,
+      "tie_k": 2.0
+    },
+    {
+      "d_scale": 0.75,
+      "m_scale": 1.25,
+      "name": "corner__m_scale_1.25__d_scale_0.75__tie_k_1__soc_0.3",
+      "order": 8,
+      "role": "lpv_corner",
+      "soc": 0.3,
+      "tie_k": 1.0
+    },
+    {
+      "d_scale": 0.75,
+      "m_scale": 1.25,
+      "name": "corner__m_scale_1.25__d_scale_0.75__tie_k_1__soc_0.7",
+      "order": 9,
+      "role": "lpv_corner",
+      "soc": 0.7,
+      "tie_k": 1.0
+    },
+    {
+      "d_scale": 0.75,
+      "m_scale": 1.25,
+      "name": "corner__m_scale_1.25__d_scale_0.75__tie_k_2__soc_0.3",
+      "order": 10,
+      "role": "lpv_corner",
+      "soc": 0.3,
+      "tie_k": 2.0
+    },
+    {
+      "d_scale": 0.75,
+      "m_scale": 1.25,
+      "name": "corner__m_scale_1.25__d_scale_0.75__tie_k_2__soc_0.7",
+      "order": 11,
+      "role": "lpv_corner",
+      "soc": 0.7,
+      "tie_k": 2.0
+    },
+    {
+      "d_scale": 1.25,
+      "m_scale": 1.25,
+      "name": "corner__m_scale_1.25__d_scale_1.25__tie_k_1__soc_0.3",
+      "order": 12,
+      "role": "lpv_corner",
+      "soc": 0.3,
+      "tie_k": 1.0
+    },
+    {
+      "d_scale": 1.25,
+      "m_scale": 1.25,
+      "name": "corner__m_scale_1.25__d_scale_1.25__tie_k_1__soc_0.7",
+      "order": 13,
+      "role": "lpv_corner",
+      "soc": 0.7,
+      "tie_k": 1.0
+    },
+    {
+      "d_scale": 1.25,
+      "m_scale": 1.25,
+      "name": "corner__m_scale_1.25__d_scale_1.25__tie_k_2__soc_0.3",
+      "order": 14,
+      "role": "lpv_corner",
+      "soc": 0.3,
+      "tie_k": 2.0
+    },
+    {
+      "d_scale": 1.25,
+      "m_scale": 1.25,
+      "name": "corner__m_scale_1.25__d_scale_1.25__tie_k_2__soc_0.7",
+      "order": 15,
+      "role": "lpv_corner",
+      "soc": 0.7,
+      "tie_k": 2.0
+    },
+    {
+      "d_scale": 1.0,
+      "m_scale": 1.0,
+      "name": "fixed_lti_anchor",
+      "order": 16,
+      "role": "fixed_anchor",
+      "soc": 0.5,
+      "tie_k": 1.0
+    },
+    {
+      "d_scale": 1.0,
+      "m_scale": 1.0,
+      "name": "centre",
+      "order": 17,
+      "role": "holdout",
+      "soc": 0.5,
+      "tie_k": 1.5
+    },
+    {
+      "d_scale": 0.875,
+      "m_scale": 0.875,
+      "name": "low_interior",
+      "order": 18,
+      "role": "holdout",
+      "soc": 0.4,
+      "tie_k": 1.25
+    },
+    {
+      "d_scale": 1.125,
+      "m_scale": 1.125,
+      "name": "high_interior",
+      "order": 19,
+      "role": "holdout",
+      "soc": 0.6,
+      "tie_k": 1.75
+    },
+    {
+      "d_scale": 1.125,
+      "m_scale": 0.875,
+      "name": "cross_low_m_high_d",
+      "order": 20,
+      "role": "holdout",
+      "soc": 0.4,
+      "tie_k": 1.75
+    },
+    {
+      "d_scale": 0.875,
+      "m_scale": 1.125,
+      "name": "cross_high_m_low_d",
+      "order": 21,
+      "role": "holdout",
+      "soc": 0.6,
+      "tie_k": 1.25
+    },
+    {
+      "d_scale": 1.0,
+      "m_scale": 0.75,
+      "name": "m_lower_face",
+      "order": 22,
+      "role": "holdout",
+      "soc": 0.5,
+      "tie_k": 1.5
+    },
+    {
+      "d_scale": 1.25,
+      "m_scale": 1.0,
+      "name": "d_upper_face",
+      "order": 23,
+      "role": "holdout",
+      "soc": 0.5,
+      "tie_k": 1.5
+    },
+    {
+      "d_scale": 1.0,
+      "m_scale": 1.0,
+      "name": "soc_lower_face",
+      "order": 24,
+      "role": "holdout",
+      "soc": 0.3,
+      "tie_k": 1.5
+    }
+  ],
+  "plant": {
+    "bess_soc_schedule": "all four ESD1 SOCinit parameters",
+    "class": "AndesMultiVSGEnvV4Storage",
+    "tie_schedule": "Line_4/5/6 r and x multiplied by tie_k via Model.set",
+    "toggler": "disabled by environment variable before plant build",
+    "truth": "full nonlinear ANDES DAE linearized at each operating point",
+    "vsg_d_base": [
+      100.0,
+      100.0,
+      100.0,
+      100.0
+    ],
+    "vsg_m_base": [
+      200.0,
+      200.0,
+      200.0,
+      200.0
+    ]
+  },
+  "question": "Q-0051",
+  "response": {
+    "horizon_seconds": 10.0,
+    "sample_count": 201
+  },
+  "round": "R294",
+  "schema_version": 1,
+  "shard_count": 3,
+  "sources": {
+    "active_power_contract": {
+      "path": "src/andes_rl_kundur/control/active_power.py",
+      "sha256": "a8eb07f803d5d17823afb7e87ac0cb2475b6590da1d120fa0ba22740fb15dd0c"
+    },
+    "environment": {
+      "path": "src/andes_rl_kundur/env/andes/andes_vsg_env_v4.py",
+      "sha256": "b4069d4702a334526df994132ed3413c391fd412438929e0078220bbecb144d5"
+    },
+    "plan": {
+      "path": "memory/rounds/R294/plan.md",
+      "sha256": "fc915f7ce651d8f3a9d44dcdc462beff256fdf45cbb7ce8fcd99db021bfa3779"
+    },
+    "pure_module": {
+      "path": "src/andes_rl_kundur/evaluation/model_validation.py",
+      "sha256": "54dc13c76dd7a3023efc93eab2a2d214edae0a9b0fb5c67b8365141d13dfe150"
+    },
+    "runner": {
+      "path": "scripts/run_r294_model_validation.py",
+      "sha256": "499bd57c84d62debbaaf15ea7369f9468860599a35a863a3a2b2da102dc5438b"
+    },
+    "storage_environment": {
+      "path": "src/andes_rl_kundur/env/andes/andes_vsg_storage_env.py",
+      "sha256": "544e63fc4d16de43197c1d5ffaca8351f32faec160cce2803053074826eceabf"
+    }
+  },
+  "stage": "stage_a_equilibrium_modal_coupling",
+  "thresholds": {
+    "approximately_decoupled_cross_self_ratio_max": 0.05,
+    "coordinate_response_nrmse_max": 0.15,
+    "coupling_ratio_absolute_error_max": 0.05,
+    "eigenvector_condition_number_max": 1000000000000.0,
+    "hard_decoupling_cross_self_ratio_max": 0.2,
+    "mode_damping_absolute_error_max": 0.01,
+    "mode_frequency_relative_error_max": 0.05,
+    "participation_cosine_min": 0.9,
+    "positive_real_tolerance": 1e-07
+  }
+}

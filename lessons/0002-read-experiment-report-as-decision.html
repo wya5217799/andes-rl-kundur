@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>为什么实验汇报看懂了，却又没真正懂？</title>
+  <link rel="stylesheet" href="../assets/teaching.css">
+</head>
+<body>
+  <h1>为什么实验汇报看懂了，却又没真正懂？</h1>
+  <p class="lede">目标：不追每个指标，先学会把一份实验汇报读成一个研究决策。</p>
+
+  <p class="answer"><strong>直接答案：</strong>你不缺“再看一遍结果”，而是缺一张<strong>研究决策地图</strong>。你已经能认出实验做了什么、数值好不好；尚未完全掌握的是：这轮在验证哪个前提，它的判决改变了什么权限，以及它仍然不能证明什么。</p>
+
+  <h2>汇报真正传递的是一次权限变化</h2>
+  <div class="stack">
+    <section class="card fast">
+      <span class="status">实验前</span>
+      <h3>先卡一道门</h3>
+      <p>把一个不确定前提写成可失败的问题，并提前冻结通过条件。</p>
+      <p><strong>例如：</strong>局部 predictor 在新工况上能否把最大 NRMSE 压到 0.15 以内？</p>
+    </section>
+    <section class="card slow">
+      <span class="status">实验后</span>
+      <h3>只给一个判决</h3>
+      <p>数据不是终点。数据通过预设门槛后，才形成 PASS、NO-GO 或 INVALID。</p>
+      <p><strong>例如：</strong>R314 的 0.09061 ≤ 0.15，因此是 LOCAL-PREDICTOR-PASS。</p>
+    </section>
+    <section class="card future">
+      <span class="status">下一步</span>
+      <h3>改变研究权限</h3>
+      <p>判决只解锁紧邻的下一道门，不会自动证明整篇论文。</p>
+      <p><strong>例如：</strong>可以继续验证动态 mismatch；仍不能开始控制器或 MARL 结论。</p>
+    </section>
+  </div>
+
+  <p class="answer"><strong>最重要的内在关系：</strong>实验成果不是“发现了一堆数值”，而是<strong>一个前提经过检验后，研究路线获得或失去了一小步继续前进的资格</strong>。</p>
+
+  <h2>Codex 为什么一定给你“给 PI 的话”</h2>
+  <p>因为这个仓库的研究规则明确要求：每个面向论文的实验结束时，必须生成固定的 PI 汇报。它不是要求你审核每条技术细节，而是把复杂执行压缩成五个决策问题。</p>
+
+  <table>
+    <thead>
+      <tr><th>汇报栏目</th><th>它在替你回答什么</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>这周干了啥</td><td>这轮实际测试了哪一道门？</td></tr>
+      <tr><td>结果一句话</td><td>预先冻结的门槛到底过没过？</td></tr>
+      <tr><td>意外</td><td>原来的因果猜想哪里需要修正？</td></tr>
+      <tr><td>默认下一步</td><td>这个判决只解锁了哪一个相邻动作？</td></tr>
+      <tr><td>你想插一脚</td><td>现在是否出现了需要 PI 改方向的决策点？</td></tr>
+    </tbody>
+  </table>
+
+  <h2>用 R314 读一遍</h2>
+  <table>
+    <tbody>
+      <tr><th>门</th><td>局部/simplex predictor 能否在两个新工况上通过预测误差门槛？</td></tr>
+      <tr><th>证据</th><td>最大 NRMSE 为 0.09061，没有超过冻结上限 0.15；保留 cross 输出也显著优于硬删 cross。</td></tr>
+      <tr><th>判决</th><td><code>LOCAL-PREDICTOR-PASS</code>。</td></tr>
+      <tr><th>新权限</th><td>可以另开一轮验证低阶动态/模态 reduction 与 mismatch。</td></tr>
+      <tr><th>仍然禁止</th><td>不能据此声称控制器有效、分布式智能体有效或 MARL 有优势。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>“知道”与“真正懂”的分界</h2>
+  <p>看到 <code>0.09061</code>、<code>PASS</code>，知道结果不错，这是<strong>识别</strong>。不看汇报也能说出“下一步只能测动态 mismatch，还不能做 MARL”，这是<strong>结构性理解</strong>。</p>
+
+  <p class="answer"><strong>以后只问四句：</strong>这轮卡哪道门？判决是什么？它解锁什么？它仍不能证明什么？四句能答出来，就不需要先懂完所有公式。</p>
+
+  <h2>一分钟自测</h2>
+  <p>先不看答案：R314 通过后，为什么不能马上开始训练 MARL？请用“通过了……但还没通过……”说一句。</p>
+  <details>
+    <summary>查看参考答案</summary>
+    <p>R314 通过了局部静态 predictor 的新工况误差门，但还没通过动态 mismatch、控制器有效性和学习比较这些后续门，所以不能直接开始训练或形成 MARL 结论。</p>
+  </details>
+
+  <p class="caption">主要依据：仓库研究规则中的 PI 汇报要求，以及 <a href="../memory/rounds/R312/verdict.md">R312</a>、<a href="../memory/rounds/R313/verdict.md">R313</a>、<a href="../memory/rounds/R314/verdict.md">R314</a>。上一课：<a href="0001-what-controls-the-vsg-now.html">现在到底是谁在控制 VSG？</a>。有任何一句不顺，直接继续问我。</p>
+</body>
+</html>

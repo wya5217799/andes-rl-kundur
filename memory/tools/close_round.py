@@ -11,7 +11,7 @@ script (`_r166_sweep.py`, `_r171_sweep.py`). Now there's a stable CLI:
     python memory/tools/close_round.py R119 aborted \
         --reason "wider action bound replaced by R132 α-sweep"
 
-    # Mark completed (requires verdict.md already present in dir)
+    # Mark completed (R281+ also requires a publication-gated Feed pointer)
     python memory/tools/close_round.py R143 completed
 
 Operates only on plan.md frontmatter; preserves body verbatim. Atomic
@@ -31,13 +31,15 @@ import yaml
 FRONTMATTER_RE = re.compile(r"^---\n(.*?)\n---\n(.*)$", re.DOTALL)
 VALID_TERMINAL = {"completed", "superseded", "aborted"}
 ROUND_DIR_RE = re.compile(r"^R\d+$")
+FEED_CLOSE_CONTRACT_ROUND = 281
+FEED_POINTER_RE = re.compile(r"(?m)^Feed:\s*`([^`\r\n]+)`")
 
 
 def _atomic_write(path: Path, content: str) -> None:
-    """Write via tempfile + rename so a crash mid-write cannot corrupt."""
+    """Atomically write UTF-8 with repository-stable LF line endings."""
     with tempfile.NamedTemporaryFile(
         mode="w", encoding="utf-8", delete=False,
-        dir=path.parent, suffix=".tmp",
+        dir=path.parent, suffix=".tmp", newline="\n",
     ) as fh:
         fh.write(content)
         tmp_name = fh.name
@@ -59,6 +61,53 @@ def _dump(fm: dict, body: str) -> str:
     if not out.endswith("\n"):
         out += "\n"
     return out
+
+
+def _validate_completed_feed(
+    round_name: str,
+    *,
+    round_dir: Path,
+    rounds_dir: Path,
+) -> None:
+    """Require a resolved, publication-gated feed for feed-era rounds."""
+    round_number = int(round_name[1:])
+    if round_number < FEED_CLOSE_CONTRACT_ROUND:
+        return
+
+    verdict_path = round_dir / "verdict.md"
+    verdict = verdict_path.read_text(encoding="utf-8")
+    match = FEED_POINTER_RE.search(verdict)
+    if match is None:
+        raise ValueError(
+            f"state=completed for {round_name} requires a "
+            "`Feed: <repo-relative-path>` pointer in verdict.md"
+        )
+
+    feed_relative = Path(match.group(1))
+    if feed_relative.is_absolute() or ".." in feed_relative.parts:
+        raise ValueError(
+            f"{round_name} feed pointer must be repository-relative: "
+            f"{feed_relative}"
+        )
+    repo_root = rounds_dir.resolve().parent.parent
+    feed_path = (repo_root / feed_relative).resolve()
+    if not feed_path.is_relative_to(repo_root):
+        raise ValueError(
+            f"{round_name} feed pointer escapes the repository: {feed_relative}"
+        )
+    if not feed_path.is_file():
+        raise FileNotFoundError(
+            f"state=completed requires feed to exist: {feed_relative}"
+        )
+
+    from feed_check import check_feed
+
+    findings = check_feed(feed_path, repo_root=repo_root)
+    if findings:
+        detail = "; ".join(
+            f"{finding.code}: {finding.message}" for finding in findings
+        )
+        raise ValueError(f"{round_name} feed publication gate failed: {detail}")
 
 
 def close_round(
@@ -140,6 +189,11 @@ def close_round(
                 f"state=completed requires {round_dir}/verdict.md; "
                 f"either write one first or pick a different state"
             )
+        _validate_completed_feed(
+            round_name,
+            round_dir=round_dir,
+            rounds_dir=rounds_dir,
+        )
 
     # Apply state + audit fields
     fm["state"] = new_state

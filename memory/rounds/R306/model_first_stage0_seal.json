@@ -1,0 +1,268 @@
+{
+  "contract": {
+    "config": {
+      "comm_fail_probability": 0.0,
+      "control_period_seconds": 0.2,
+      "device_count": 4,
+      "disable_default_toggler": true,
+      "initialization_seconds": 0.5,
+      "physical_nominal_frequency_hz": 60.0,
+      "random_disturbance": false,
+      "stage0_steps": 5,
+      "system_mva": 100.0,
+      "vsg_d_device": [
+        100.0,
+        100.0,
+        100.0,
+        100.0
+      ],
+      "vsg_device_mva": 200.0,
+      "vsg_m_device": [
+        200.0,
+        200.0,
+        200.0,
+        200.0
+      ],
+      "zero_g4_inertia": false
+    },
+    "expected_d_system": [
+      200.0,
+      200.0,
+      200.0,
+      200.0
+    ],
+    "expected_m_system": [
+      400.0,
+      400.0,
+      400.0,
+      400.0
+    ],
+    "inputs": {
+      "bess_power_request_system_pu": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "md_increment": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "pq_edit": null
+    },
+    "limits": {
+      "dae_residual_max": 1e-08,
+      "md_tolerance": 1e-10,
+      "power_zero_tolerance": 1e-08,
+      "soc_drift_max": 1e-08,
+      "time_increment_seconds": 0.2,
+      "time_tolerance_seconds": 1e-09
+    },
+    "question": "Q-0062",
+    "required_esd1_internal_fields": [
+      "Pext0",
+      "Pext",
+      "Pref",
+      "Psum",
+      "Ipul",
+      "Ipcmd_y",
+      "Ipout_y",
+      "Ipmin",
+      "Ipmax",
+      "Fvl",
+      "Fvh",
+      "Ffl",
+      "Ffh",
+      "v",
+      "SOC"
+    ],
+    "required_guards": [
+      "identity_and_sample_count",
+      "pflow_tds_exit",
+      "finite_state_algebraic",
+      "physical_frequency",
+      "time_increment",
+      "dae_residual",
+      "md_readback",
+      "no_md_writes",
+      "power_layers",
+      "soc",
+      "esd1_internal_telemetry",
+      "line_8_in_service",
+      "g4_retained",
+      "graph_and_index_identity"
+    ],
+    "round": "R306",
+    "stage": "non-learning-stage0",
+    "stage1_authorized": false,
+    "structural": {
+      "action_edges": [
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          3
+        ]
+      ],
+      "action_incidence": [
+        [
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          -1.0,
+          1.0,
+          0.0
+        ],
+        [
+          0.0,
+          -1.0,
+          1.0
+        ],
+        [
+          0.0,
+          0.0,
+          -1.0
+        ]
+      ],
+      "action_rank": 3,
+      "communication_edges": [
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          3
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          3
+        ]
+      ],
+      "disturbance_graph": {
+        "edited_devices": [],
+        "kind": "none"
+      },
+      "node_device_rows": [
+        [
+          0,
+          "VSG_1",
+          "R272_BESS_1",
+          12,
+          7,
+          1
+        ],
+        [
+          1,
+          "VSG_2",
+          "R272_BESS_2",
+          16,
+          8,
+          1
+        ],
+        [
+          2,
+          "VSG_3",
+          "R272_BESS_3",
+          14,
+          10,
+          2
+        ],
+        [
+          3,
+          "VSG_4",
+          "R272_BESS_4",
+          15,
+          9,
+          2
+        ]
+      ]
+    },
+    "training_authorized": false
+  },
+  "contract_payload_sha256": "e11a67ab0070518c53d0920a7afe46ee0ed5a6c36e82d2ad28b8cb54012a1b10",
+  "created_utc": "2026-08-03T05:31:28.860683+00:00",
+  "question": "Q-0062",
+  "round": "R306",
+  "schema_version": 1,
+  "sources": {
+    "active_power_contract": {
+      "path": "src/andes_rl_kundur/control/active_power.py",
+      "sha256": "fa5d978fbc51115e33af01279189aad41ccaf2fb8a23e403091c29fd0960d0c5"
+    },
+    "adapter": {
+      "path": "scripts/run_r306_model_first_stage0.py",
+      "sha256": "211848de3485d5b9b8123ef399f1b335a53452cdc37746496f8c86c95856ea50"
+    },
+    "adapter_tests": {
+      "path": "tests/test_r306_model_first_stage0.py",
+      "sha256": "bb70c2f470882f0c0c5f20ee1bc6652f03edd8301ccda0badbb71e60ef590193"
+    },
+    "base_environment": {
+      "path": "src/andes_rl_kundur/env/andes/base_env.py",
+      "sha256": "8b440dc995fe72063fd2a76e8cc36ebc3b109cd148b287e95ee0218603a31ef3"
+    },
+    "model_contract": {
+      "path": "paper/decoupling_marl_model_first/working/model_contract.md",
+      "sha256": "f10cf28f39e702966481d007bf0157fd43804873558afe71fe07ca8d4a055caa"
+    },
+    "model_first_environment": {
+      "path": "src/andes_rl_kundur/env/andes/model_first_env.py",
+      "sha256": "222de08606049358745cc3c19d2bcf97547c7d9da84d9b70d54c79ff7fe24be1"
+    },
+    "plan": {
+      "path": "memory/rounds/R306/plan.md",
+      "sha256": "e446d5ec54137bf0924798aa1b0c7bdcc266917ea72ae8c939db4919cf949b42"
+    },
+    "pure_contract": {
+      "path": "src/andes_rl_kundur/env/andes/model_first_contract.py",
+      "sha256": "14e55eda7357feab52bacf32ec1e65d240ec0a79d1f73779008ef83bade44f73"
+    },
+    "pure_tests": {
+      "path": "tests/test_model_first_contract.py",
+      "sha256": "014410a42a018c929cf39050459edf8a231477ee3a957155b96405b1264471c2"
+    },
+    "question": {
+      "path": "memory/questions/Q-0062.md",
+      "sha256": "ae3bef6771ae87b283187a5ab3554ae341b63ceae891b04d0bdc493ae3381263"
+    },
+    "scratch_launcher": {
+      "path": "scripts/andes_scratch.py",
+      "sha256": "616e7b43fca41c7931a0fef7dc6285591f3a7c53a99345efbe852fcb1271513d"
+    },
+    "storage_environment": {
+      "path": "src/andes_rl_kundur/env/andes/andes_vsg_storage_env.py",
+      "sha256": "544e63fc4d16de43197c1d5ffaca8351f32faec160cce2803053074826eceabf"
+    },
+    "v4_environment": {
+      "path": "src/andes_rl_kundur/env/andes/andes_vsg_env_v4.py",
+      "sha256": "b4069d4702a334526df994132ed3413c391fd412438929e0078220bbecb144d5"
+    }
+  }
+}

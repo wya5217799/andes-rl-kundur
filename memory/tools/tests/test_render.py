@@ -531,6 +531,45 @@ def test_pi_briefing_historical_section_lists_past_rounds(tmp_path):
     assert 0 <= pos_r60 < pos_r59, "newer historical briefings must come first"
 
 
+def test_plain_briefing_what_it_means_becomes_historical_headline(tmp_path):
+    """ADR-0011 replaces the legacy result label from R317 onward; the new
+    reader-facing meaning sentence must still populate history."""
+    claims_dir, rounds_dir, questions_dir = _build_briefing_fixture(
+        tmp_path,
+        rounds=[
+            ("R317", "**这说明什么**：新的办法达到了事先要求。"),
+            ("R318", "**这说明什么**：最新一次也达到了要求。"),
+        ],
+    )
+    out = tmp_path / "STATE.md"
+    render_state(claims_dir, rounds_dir, questions_dir, out)
+    text = out.read_text(encoding="utf-8")
+
+    historical = text.split("## 历史简报")[1]
+    assert "R317" in historical
+    assert "新的办法达到了事先要求" in historical
+
+
+def test_plain_briefing_header_hides_repository_round_name(tmp_path):
+    """The R317+ reader-facing section itself must not expose a repository
+    identifier even though technical sections below may still do so."""
+    body = "\n".join([
+        "**发生了什么**：我们重新检查了旧办法。",
+        "**这说明什么**：新的办法达到了事先要求。",
+        "**下一步做什么**：继续检查下一种办法。",
+    ])
+    claims_dir, rounds_dir, questions_dir = _build_briefing_fixture(
+        tmp_path, rounds=[("R317", body)],
+    )
+    out = tmp_path / "STATE.md"
+    render_state(claims_dir, rounds_dir, questions_dir, out)
+    text = out.read_text(encoding="utf-8")
+
+    first_section = text.split("## Headline Numbers")[0]
+    assert "## 给你的研究汇报" in first_section
+    assert "R317" not in first_section
+
+
 def test_pi_briefing_glossary_annotates_first_use_only(tmp_path):
     """Glossary auto-annotation appends `(definition)` to the FIRST
     occurrence of each term in the briefing; subsequent occurrences in

@@ -1,0 +1,190 @@
+{
+  "schema_version": 1,
+  "round": "R333",
+  "question": "Q-0085",
+  "created_utc": "2026-08-03T22:00:35.471782+00:00",
+  "contract": {
+    "round": "R333",
+    "question": "Q-0085",
+    "stage": "minimal-physical-pq-disturbance-identification",
+    "operating_points": [
+      "HS0",
+      "HS1"
+    ],
+    "operating_point_records": [
+      {
+        "name": "HS0",
+        "vsg_m_device": 177.5,
+        "vsg_d_device": 88.75,
+        "tie_rx_scale": 1.1,
+        "initial_soc": 0.41
+      },
+      {
+        "name": "HS1",
+        "vsg_m_device": 202.5,
+        "vsg_d_device": 101.25,
+        "tie_rx_scale": 1.35,
+        "initial_soc": 0.51
+      }
+    ],
+    "signs": [
+      "zero",
+      "positive",
+      "negative"
+    ],
+    "record_count": 6,
+    "device_idx": "PQ_Bus14",
+    "bus_idx": 14,
+    "controlled_bus_order": [
+      12,
+      16,
+      14,
+      15
+    ],
+    "nominal_tie_lines": {
+      "Line_4": {
+        "r": 0.02201,
+        "x": 0.22001
+      },
+      "Line_5": {
+        "r": 0.02202,
+        "x": 0.22002
+      },
+      "Line_6": {
+        "r": 0.022,
+        "x": 0.22
+      }
+    },
+    "pre_event_active_load_system_pu": 2.48,
+    "pre_event_reactive_load_system_pu": 0.0,
+    "amplitude_system_pu": 0.05,
+    "system_base_mva": 100.0,
+    "vsg_device_base_mva": 200.0,
+    "active_steps": 5,
+    "recovery_steps": 20,
+    "steps": 25,
+    "control_period_seconds": 0.2,
+    "tds_substeps": 5,
+    "tds_max_segment_seconds": 0.04,
+    "event_times_seconds": {
+      "apply": 0.5,
+      "restore": 1.5
+    },
+    "event_row_semantics": "exact-event row is pre-event",
+    "event_mechanism": "pre-setup absolute Alter assignments to PQ.Ppf and PQ.Qpf",
+    "node_disturbance_map": [
+      0.0,
+      0.0,
+      -1.0,
+      0.0
+    ],
+    "frozen_input_coordinates": [
+      "common",
+      "edge_0",
+      "edge_1",
+      "edge_2"
+    ],
+    "parent_model": "immutable R316 retained order-10 realization",
+    "thresholds": {
+      "pq_readback_absolute_tolerance_system_pu": 1e-12,
+      "zero_actuator_power_absolute_maximum_system_pu": 1e-06,
+      "algebraic_residual_absolute_maximum": 1e-06,
+      "signal_to_baseline_drift_energy_ratio_minimum": 10.0,
+      "pair_midpoint_nonlinearity_ratio_maximum": 0.1,
+      "reduced_physical_total_nrmse_maximum": 0.15,
+      "reduced_physical_peak_vector_residual_maximum": 0.2
+    },
+    "classification": [
+      "INVALID-PHYSICAL-DISTURBANCE-IDENTIFICATION",
+      "BLOCK",
+      "QUALIFY"
+    ],
+    "allow_is_reachable": false,
+    "physical_execution_planned": true,
+    "physical_execution_performed": false,
+    "controller_executed": false,
+    "closed_loop_executed": false,
+    "distributed_runtime_executed": false,
+    "training_executed": false,
+    "eval_executed": false,
+    "successor_package_required": true
+  },
+  "contract_payload_sha256": "5a5627ea87c5cdcdab874205dc0c2c70c5e0b2ac309166448317cf0cb8c7f22a",
+  "parents": {
+    "r316_dynamic_model": {
+      "path": "results/r316_dynamic_reduction/dynamic_model.json",
+      "sha256": "da0eef3efca6bba1f176156445c355b260f9d21fe48e223191d507bb62a6c6bc"
+    },
+    "r329_seal": {
+      "path": "memory/rounds/R329/disturbance_estimator_seal.json",
+      "sha256": "a36340c17ca5738946d2bc42f7ddb54a17af1a3211d98f58bec0c7fcebd405aa"
+    },
+    "r332_analysis": {
+      "path": "results/r332_andes_bridge_reconciliation/analysis.json",
+      "sha256": "dd763fad864e82fceaff5af83168d9d4a379408c2367f7b61a1729bd092dc928"
+    }
+  },
+  "sources": {
+    "plan": {
+      "path": "memory/rounds/R333/plan.md",
+      "sha256": "030a69f41a2a4acb37b59361cded6bf708a2aea7b349bc031d7a45192e1ab498"
+    },
+    "question": {
+      "path": "memory/questions/Q-0085.md",
+      "sha256": "ef9b4790e77009d4b54292b6aac51de88ab6ae577d6f5654ecc853f773798e1b"
+    },
+    "helper": {
+      "path": "src/andes_rl_kundur/env/andes/model_first_pq_disturbance.py",
+      "sha256": "2a731ec3b8d2379134baea8bccff339d5b4b464ce31f303e833847defd7f9d11"
+    },
+    "probe": {
+      "path": "probes/r333_pq_disturbance_identification.py",
+      "sha256": "b2734f0ec225befc41a91da535443bf18a8a32048590b4f5e1f19459ec51e76f"
+    },
+    "adapter": {
+      "path": "scripts/run_r333_pq_disturbance_identification.py",
+      "sha256": "1beb58fce1bd09982db45a77a515fa81207ef495e3cb0c29edf7209a9fef6a70"
+    },
+    "helper_tests": {
+      "path": "tests/test_model_first_pq_disturbance.py",
+      "sha256": "cfb43e25669288997422d0e3f367e341bafc7facfe2bbc11928e7bfe6424ef22"
+    },
+    "probe_tests": {
+      "path": "tests/test_r333_pq_disturbance_identification.py",
+      "sha256": "cf37d59dab9aaaaca0a5f77d56bf17fa0e4214d0f4a792dc0a15f5ab88fc0144"
+    },
+    "adapter_tests": {
+      "path": "tests/test_r333_pq_disturbance_adapter.py",
+      "sha256": "bddef58ec2e4e904529c11bf9f66773801a9d647f1c745f7b8c703446e4e1a96"
+    }
+  },
+  "installed_andes": {
+    "version": "2.0.0",
+    "official_tag_commit": "eda5163c9ee8d19945a1dd5d1771fec5da608c27",
+    "sources": {
+      "andes/models/static/pq.py": "958db0ff11cc5d3108bc084579090c43d33b5bbb37c0f8c3ea209b1af9bd0ae3",
+      "andes/models/timer.py": "3bb4eac11e38691a6e4a3f9f5a92601d4fa851bf29c28e2568586580eba654b6",
+      "andes/core/model/model.py": "fd5502a78fa43e84132d089152f8806fb5facf35b939e0be4eced1db870ebe96",
+      "andes/core/param.py": "5dd76b168ab16eefcb2f54cbdda64e7a725bb5360e615afbb16c297b44757b89",
+      "andes/routines/tds.py": "224ff43d78de8e6808efa0a6b858d8dbe2ca511128a90a8260009c8146d6e8ba",
+      "andes/system/facade.py": "b6aa12d10811a5b35e0d5939c309d3414713daff4f5d30f2b9063e0d518080c9",
+      "andes/models/timeseries.py": "57b4949ccbdca488e23180879c2eee6d949f96ad86c8ec21b5650e079ef1da46",
+      "andes/system/dae_compactor.py": "121d779bbf9c5aca097d362a92500383f9518dab0f4ab4d21c13ea0463df95f9",
+      "andes/models/dynload/fload.py": "0f0df94d8a678da4830b663113e4154d6ac7f9787c2adfb3d50107b4de380876",
+      "andes/models/dynload/zip.py": "869d8f640c9dea22a0c5e28045c507d7e297124cadd1b9d14e1a61b10afc02e6"
+    }
+  },
+  "official_sources": [
+    "https://docs.andes.app/en/v2.0.0/reference/models/StaticLoad.html#pq",
+    "https://docs.andes.app/en/v2.0.0/reference/models/TimedEvent.html#alter",
+    "https://docs.andes.app/en/v2.0.0/tutorials/04-time-domain.html#adding-disturbances",
+    "https://docs.andes.app/en/v2.0.0/tutorials/04-time-domain.html#altering-dynamic-vs-static-models",
+    "https://docs.andes.app/en/v2.0.0/tutorials/11-frequency-response.html#implementing-load-shedding",
+    "https://github.com/CURENT/andes/blob/v2.0.0/andes/models/static/pq.py",
+    "https://github.com/CURENT/andes/blob/v2.0.0/andes/models/timer.py",
+    "https://github.com/CURENT/andes/blob/v2.0.0/andes/routines/tds.py",
+    "https://github.com/CURENT/andes/blob/v2.0.0/andes/system/dae_compactor.py",
+    "https://github.com/CURENT/andes/blob/v2.0.0/andes/models/dynload/fload.py",
+    "https://github.com/CURENT/andes/blob/v2.0.0/andes/models/dynload/zip.py"
+  ]
+}

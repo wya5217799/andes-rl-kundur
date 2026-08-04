@@ -1,8 +1,11 @@
 from __future__ import annotations
 
+import hashlib
 import importlib.util
 import json
 from pathlib import Path
+
+import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
 MODULE_PATH = ROOT / "scripts/export_icems_evidence_pack.py"
@@ -80,3 +83,37 @@ def test_evidence_pack_write_and_check_are_deterministic(tmp_path: Path) -> None
     payload = json.loads(output.read_text(encoding="utf-8"))
     assert payload["schema_version"] == 1
     assert output.with_name(output.name + ".sha256").is_file()
+
+
+def test_verified_json_accepts_only_git_crlf_materialization(tmp_path: Path) -> None:
+    module = _load_module()
+    module.ROOT = tmp_path
+    path = tmp_path / "evidence.json"
+    canonical = b'{\n  "classification": "VALID"\n}\n'
+    path.write_bytes(canonical.replace(b"\n", b"\r\n"))
+    digest = hashlib.sha256(canonical).hexdigest()
+    path.with_name(path.name + ".sha256").write_text(
+        f"{digest}  {path.name}\n",
+        encoding="utf-8",
+    )
+
+    payload, verified_digest = module._verified_json(path)
+
+    assert payload == {"classification": "VALID"}
+    assert verified_digest == digest
+
+
+def test_verified_json_rejects_non_eol_content_change(tmp_path: Path) -> None:
+    module = _load_module()
+    module.ROOT = tmp_path
+    path = tmp_path / "evidence.json"
+    canonical = b'{\n  "classification": "VALID"\n}\n'
+    path.write_bytes(canonical.replace(b"VALID", b"INVALID"))
+    digest = hashlib.sha256(canonical).hexdigest()
+    path.with_name(path.name + ".sha256").write_text(
+        f"{digest}  {path.name}\n",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="hash mismatch"):
+        module._verified_json(path)

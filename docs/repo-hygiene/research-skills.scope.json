@@ -1,0 +1,121 @@
+{
+  "version": 1,
+  "project_adapter": "skills/kundur-round/references/research-skill-adapter.md",
+  "project_local_skills": [
+    {
+      "name": "kundur-round",
+      "path": "skills/kundur-round",
+      "role": "Own the ANDES research lifecycle, ledger, feed, and manuscript-line contract."
+    }
+  ],
+  "forbidden_global_markers": [
+    "andes-rl-kundur",
+    "skills/kundur-round",
+    "memory/tools/session_context.py",
+    "paper/sci_upgrade_survey"
+  ],
+  "global_skills": [
+    {
+      "name": "ask-research-supervisor",
+      "role": "Project-neutral academic navigator that chooses focused research, deep research, and downstream paper gates without nesting an engineering router.",
+      "allow_implicit_invocation": false,
+      "project_write_authority": []
+    },
+    {
+      "name": "academic-research-suite",
+      "role": "Academic control library for argument recovery, integrity, patch revision, rebuttal, and multi-role re-review; not the default prose generator or project state machine.",
+      "allow_implicit_invocation": false,
+      "project_write_authority": []
+    },
+    {
+      "name": "research",
+      "role": "Focused primary-source investigation for one bounded question or evidence gap.",
+      "allow_implicit_invocation": true,
+      "project_write_authority": []
+    },
+    {
+      "name": "deep-research",
+      "role": "Bounded survey-grade literature investigation.",
+      "allow_implicit_invocation": false,
+      "project_write_authority": []
+    },
+    {
+      "name": "idea-evaluator",
+      "role": "Fatal-flaw and research-idea evaluation.",
+      "allow_implicit_invocation": false,
+      "project_write_authority": []
+    },
+    {
+      "name": "tech-paper-template",
+      "role": "Default technical-paper argument-chain designer.",
+      "allow_implicit_invocation": false,
+      "project_write_authority": []
+    },
+    {
+      "name": "benchmark-paper-template",
+      "role": "Benchmark-paper logical skeleton.",
+      "allow_implicit_invocation": true,
+      "project_write_authority": []
+    },
+    {
+      "name": "paper-writer",
+      "role": "Default evidence-bounded body-prose generator.",
+      "allow_implicit_invocation": false,
+      "project_write_authority": []
+    },
+    {
+      "name": "intro-drafter",
+      "role": "Default technical Introduction generator after body commitments stabilize.",
+      "allow_implicit_invocation": false,
+      "project_write_authority": []
+    },
+    {
+      "name": "figure-designer",
+      "role": "Paper-figure design.",
+      "allow_implicit_invocation": true,
+      "project_write_authority": []
+    },
+    {
+      "name": "drawio-reconstruction",
+      "role": "Editable figure reconstruction.",
+      "allow_implicit_invocation": true,
+      "project_write_authority": []
+    },
+    {
+      "name": "paper-polish",
+      "role": "Faithful academic prose polishing.",
+      "allow_implicit_invocation": true,
+      "project_write_authority": []
+    },
+    {
+      "name": "pre-submission-reviewer",
+      "role": "Focused broad manuscript review after evidence and domain gates.",
+      "allow_implicit_invocation": false,
+      "project_write_authority": []
+    },
+    {
+      "name": "vibe-research-workflow",
+      "role": "Human-in-control coding, writing, and figure workflow guidance.",
+      "allow_implicit_invocation": false,
+      "project_write_authority": []
+    },
+    {
+      "name": "audit-manuscript-evidence",
+      "role": "Claim-to-evidence audit.",
+      "allow_implicit_invocation": true,
+      "project_write_authority": []
+    },
+    {
+      "name": "review-power-systems-manuscript",
+      "role": "Power-system physical and experimental audit.",
+      "allow_implicit_invocation": true,
+      "project_write_authority": []
+    },
+    {
+      "name": "audit-journal-submission",
+      "role": "Current journal-policy and package audit.",
+      "allow_implicit_invocation": true,
+      "project_write_authority": []
+    }
+  ]
+}

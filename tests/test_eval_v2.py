@@ -15,6 +15,9 @@ from andes_rl_kundur.evaluation.eval_v2 import (
     main,
     render_markdown,
 )
+from andes_rl_kundur.evaluation.vector_residual import (
+    attach_vector_inertia_execution_contract,
+)
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -141,6 +144,748 @@ def _write_paired_fixture(root: Path) -> None:
         )
 
 
+def _write_vector_power_trace(
+    root: Path,
+    *,
+    scenario: str,
+    controller: str,
+    architecture: str,
+    distributed: bool,
+) -> None:
+    traces = []
+    mechanism_trace = []
+    previous_command = np.zeros(4, dtype=float)
+    for step in range(20):
+        amplitude = 0.02 * np.exp(-0.2 * step)
+        requested = np.asarray(
+            [-0.02 - 0.001 * step, -0.01, -0.005, 0.002],
+            dtype=float,
+        )
+        command = np.clip(requested, previous_command - 0.072, previous_command + 0.072)
+        previous_command = command
+        traces.append(
+            {
+                "step": step,
+                "t": 0.2 * step,
+                "delta_f_physical_hz": [amplitude, amplitude, -amplitude, -amplitude],
+                "freq_hz_physical": [
+                    60.0 + amplitude,
+                    60.0 + amplitude,
+                    60.0 - amplitude,
+                    60.0 - amplitude,
+                ],
+                "action_norm": [[0.0, 0.0] for _ in range(4)],
+                "bess_actual_power_system_pu": command.tolist(),
+                "bess_commanded_power_system_pu": command.tolist(),
+                "bess_requested_power_system_pu": requested.tolist(),
+                "bess_soc": [0.5, 0.5, 0.5, 0.5],
+                "bess_charge_energy_mwh_total": [0.0, 0.0, 0.0, 0.0],
+                "bess_discharge_energy_mwh_total": [0.0, 0.0, 0.0, 0.0],
+                "bess_constraint_violations": [],
+                "bess_saturation_reasons": [[], [], [], []],
+            }
+        )
+        if distributed:
+            mechanism_trace.append(
+                {
+                    "total_residual_sum_system_pu": 0.0,
+                    "total_residual_rms_system_pu": 0.01,
+                }
+            )
+    payload = {
+        "schema_version": 1,
+        "scenario": scenario,
+        "controller": controller,
+        "completed": True,
+        "tds_failed": False,
+        "n_steps": len(traces),
+        "requested_steps": len(traces),
+        "metric_frequency_basis": "andes_physical_hz",
+        "andes_nominal_frequency_hz": 60.0,
+        "seal_sha256": "vector-seal-hash",
+        "guards": {
+            "completed": True,
+            "tds_test_ok": True,
+            "system_exit_code": 0,
+            "finite_telemetry": True,
+        },
+        "job": {
+            "scenario": {
+                "location": "PQ_0",
+                "delta_u": -1.0,
+                "tie_k": 1.375,
+            }
+        },
+        "controller_config": {"architecture": architecture},
+        "mechanism_trace": mechanism_trace,
+        "traces": traces,
+    }
+    path = root / f"{scenario}__{controller}.json"
+    data = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()
+    path.write_bytes(data)
+    path.with_suffix(".json.sha256").write_text(
+        f"{hashlib.sha256(data).hexdigest()}  {path.name}\n",
+        encoding="utf-8",
+    )
+
+
+def _write_vector_inertia_trace(
+    root: Path,
+    *,
+    scenario: str,
+    controller: str,
+    architecture: str,
+    topology: str = "nominal",
+    opened_line: str = "none",
+) -> None:
+    traces = []
+    edge = (
+        np.zeros(3, dtype=np.float32)
+        if controller == "q0"
+        else np.asarray([0.05, -0.025, 0.04], dtype=np.float32)
+    )
+    incidence = np.asarray(
+        [
+            [-1.0, 0.0, 0.0],
+            [1.0, -1.0, 0.0],
+            [0.0, 1.0, -1.0],
+            [0.0, 0.0, 1.0],
+        ],
+        dtype=np.float32,
+    )
+    for step in range(20):
+        amplitude = 0.02 * np.exp(-0.2 * step)
+        active = step < 15
+        edge_step = edge if active else np.zeros(3, dtype=np.float32)
+        node = np.asarray(incidence @ edge_step, dtype=np.float32)
+        common_m = np.full(4, 350.0 if active else 200.0, dtype=np.float32)
+        requested_m = common_m + np.float32(600.0) * node
+        commanded_m = requested_m.copy()
+        traces.append(
+            {
+                "step": step,
+                "t": 0.2 * step,
+                "delta_f_physical_hz": [
+                    amplitude,
+                    amplitude,
+                    -amplitude,
+                    -amplitude,
+                ],
+                "freq_hz_physical": [
+                    60.0 + amplitude,
+                    60.0 + amplitude,
+                    60.0 - amplitude,
+                    60.0 - amplitude,
+                ],
+                "action_norm": np.stack(
+                    [
+                        (common_m - 200.0) / 600.0 + node,
+                        np.zeros(4, dtype=np.float32),
+                    ],
+                    axis=-1,
+                ).tolist(),
+                "r292_raw_edge_action": (
+                    edge_step / np.float32(0.125)
+                ).tolist(),
+                "r292_edge_flow_norm": edge_step.tolist(),
+                "r292_node_residual_norm": node.tolist(),
+                "vsg_common_m_model_units": common_m.tolist(),
+                "vsg_requested_m_model_units": requested_m.tolist(),
+                "vsg_commanded_m_model_units": commanded_m.tolist(),
+                "vsg_actual_m_model_units": commanded_m.tolist(),
+                "vsg_actual_d_model_units": [100.0, 100.0, 100.0, 100.0],
+                "bess_actual_power_system_pu": [0.0, 0.0, 0.0, 0.0],
+                "bess_commanded_power_system_pu": [0.0, 0.0, 0.0, 0.0],
+                "bess_requested_power_system_pu": [0.0, 0.0, 0.0, 0.0],
+                "bess_soc": [0.5, 0.5, 0.5, 0.5],
+                "bess_charge_energy_mwh_total": [0.0, 0.0, 0.0, 0.0],
+                "bess_discharge_energy_mwh_total": [0.0, 0.0, 0.0, 0.0],
+                "bess_constraint_violations": [],
+                "bess_saturation_reasons": [[], [], [], []],
+            }
+        )
+    payload = {
+        "schema_version": 1,
+        "scenario": scenario,
+        "controller": controller,
+        "completed": True,
+        "tds_failed": False,
+        "n_steps": len(traces),
+        "requested_steps": len(traces),
+        "metric_frequency_basis": "andes_physical_hz",
+        "andes_nominal_frequency_hz": 60.0,
+        "job": {
+            "scenario": {
+                "location": "PQ_0",
+                "delta_u": -1.0,
+                "tie_k": 1.375,
+            }
+        },
+        "controller_config": {"architecture": architecture},
+        "traces": traces,
+    }
+    payload = attach_vector_inertia_execution_contract(
+        payload,
+        execution_metadata={
+            "round": "R304",
+            "question": "Q-0061",
+            "experiment": "r304_vector_inertia_eval_fixture",
+            "seal_sha256": "vector-inertia-seal-hash",
+            "topology_inventory_sha256": "topology-inventory-hash",
+            "topology": topology,
+            "opened_line": opened_line,
+            "location": "PQ_0",
+            "sign": "negative",
+            "severity": "tie_k=1.375",
+            "topology_status": {
+                "topology": topology,
+                "opened_line": opened_line,
+                "opened_line_pass": True,
+                "initialization_pass": True,
+                "tds_test_ok": True,
+                "system_exit_code": 0,
+                "residual_pass": True,
+                "spectrum_finite": True,
+                "spectrum_pass": True,
+                "default_toggler_disabled": True,
+                "runtime_line_status": {
+                    "Line_0": 0.0 if opened_line == "Line_0" else 1.0,
+                    "Line_9": 0.0 if opened_line == "Line_9" else 1.0,
+                },
+                "passed": True,
+            },
+        },
+        guards={
+            "completed": True,
+            "tds_test_ok": True,
+            "system_exit_code": 0,
+            "finite_telemetry": True,
+        },
+    )
+    path = root / f"{scenario}__{controller}.json"
+    data = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()
+    path.write_bytes(data)
+    path.with_suffix(".json.sha256").write_text(
+        f"{hashlib.sha256(data).hexdigest()}  {path.name}\n",
+        encoding="utf-8",
+    )
+
+
+def test_eval_v2_accepts_a_prospectively_declared_one_second_active_window(
+    tmp_path: Path,
+) -> None:
+    traces = tmp_path / "traces"
+    traces.mkdir()
+    for controller in ("positive", "negative"):
+        _write_vector_power_trace(
+            traces,
+            scenario="op0_edge0",
+            controller=controller,
+            architecture="four_local_dapi_agents_with_neighbour_edge_channels",
+            distributed=True,
+        )
+        _rewrite_trace(
+            traces / f"op0_edge0__{controller}.json",
+            lambda payload: payload["controller_config"].update(
+                area_residual={"active_steps": 5}
+            ),
+        )
+
+    with pytest.raises(EvaluationContractError, match="exactly 3 seconds"):
+        evaluate_trace_directory(
+            traces,
+            baseline="positive",
+            execution_profile="vector_power",
+            bootstrap_resamples=100,
+        )
+
+    scorecard = evaluate_trace_directory(
+        traces,
+        baseline="positive",
+        execution_profile="vector_power",
+        required_active_window_seconds=1.0,
+        bootstrap_resamples=100,
+    )
+
+    assert scorecard["validity"]["diagnostic_pass"] is True
+    assert scorecard["contract"]["required_active_window_seconds"] == 1.0
+    assert scorecard["evidence_status"]["status"] == "EXTERNAL_AUTHORITY_REQUIRED"
+
+
+def test_eval_v2_vector_inertia_profile_accepts_auditable_topology_records(
+    tmp_path: Path,
+) -> None:
+    traces = tmp_path / "traces"
+    traces.mkdir()
+    for controller, architecture in (
+        ("q0", "zero_vector_baseline"),
+        ("local_classical", "distributed_edge"),
+        ("central_oracle", "central_vector"),
+    ):
+        _write_vector_inertia_trace(
+            traces,
+            scenario="line_9_case",
+            controller=controller,
+            architecture=architecture,
+            topology="line_9_out",
+            opened_line="Line_9",
+        )
+
+    scorecard = evaluate_trace_directory(
+        traces,
+        baseline="q0",
+        execution_profile="vector_inertia",
+        bootstrap_resamples=100,
+    )
+
+    assert scorecard["validity"]["diagnostic_pass"] is True
+    assert scorecard["contract"]["execution_profile"] == "vector_inertia"
+    assert scorecard["source"]["scenario_metadata"]["line_9_case"]["topology"] == (
+        "line_9_out"
+    )
+    action = scorecard["controllers"]["local_classical"]["action_diagnostics"]
+    assert action["max_abs_commanded_m_residual_model_units"]["maximum"] == (
+        pytest.approx(45.0)
+    )
+    assert action["max_abs_commanded_m_residual_sum_model_units"]["maximum"] <= 1e-4
+    assert scorecard["evidence_status"]["status"] == "EXTERNAL_AUTHORITY_REQUIRED"
+    report = render_markdown(scorecard)
+    assert "Execution profile: `vector_inertia`" in report
+    assert "Max commanded delta-M" in report
+
+
+@pytest.mark.parametrize(
+    ("failure", "expected_check"),
+    [
+        (
+            "missing_requested",
+            "missing_or_invalid_vsg_requested_m_model_units",
+        ),
+        ("requested_zero_sum", "requested_m_residual_zero_sum"),
+        ("commanded_zero_sum", "commanded_m_residual_zero_sum"),
+        ("actual_zero_sum", "actual_m_residual_zero_sum"),
+        ("magnitude", "commanded_m_residual_magnitude"),
+        ("slew", "commanded_m_residual_slew"),
+        ("post_window", "post_window_commanded_m_residual_nonzero"),
+        ("tracking", "commanded_actual_m_tracking"),
+        ("d_drift", "actual_d_not_frozen"),
+        ("common_schedule", "common_m_schedule"),
+        ("missing_raw_edge", "missing_or_invalid_r292_raw_edge_action"),
+        ("requested_mapping", "requested_m_raw_edge_mismatch"),
+        ("edge_node_mapping", "edge_node_incidence_mismatch"),
+        ("edge_projection", "edge_projection_mismatch"),
+        ("action_mapping", "commanded_m_action_norm_mismatch"),
+        ("topology_guard", "topology_status_passed"),
+        ("architecture", "unsupported_vector_inertia_architecture"),
+    ],
+)
+def test_eval_v2_vector_inertia_profile_rejects_execution_failures(
+    tmp_path: Path,
+    failure: str,
+    expected_check: str,
+) -> None:
+    traces = tmp_path / "traces"
+    traces.mkdir()
+    for controller, architecture in (
+        ("q0", "zero_vector_baseline"),
+        ("local_classical", "distributed_edge"),
+    ):
+        _write_vector_inertia_trace(
+            traces,
+            scenario="line_9_case",
+            controller=controller,
+            architecture=architecture,
+            topology="line_9_out",
+            opened_line="Line_9",
+        )
+    path = traces / "line_9_case__local_classical.json"
+
+    def corrupt(payload: dict[str, object]) -> None:
+        rows = payload["traces"]  # type: ignore[index]
+        if failure == "missing_requested":
+            del rows[0]["vsg_requested_m_model_units"]
+        elif failure == "requested_zero_sum":
+            rows[0]["vsg_requested_m_model_units"][0] += 1.0
+        elif failure == "commanded_zero_sum":
+            rows[0]["vsg_commanded_m_model_units"][0] += 1.0
+        elif failure == "actual_zero_sum":
+            rows[0]["vsg_actual_m_model_units"][0] += 1.0
+        elif failure == "magnitude":
+            rows[0]["vsg_commanded_m_model_units"] = [501.0, 300.0, 300.0, 299.0]
+        elif failure == "slew":
+            rows[1]["vsg_commanded_m_model_units"] = [500.0, 200.0, 350.0, 350.0]
+        elif failure == "post_window":
+            rows[15]["vsg_commanded_m_model_units"] = [201.0, 199.0, 200.0, 200.0]
+            rows[15]["vsg_actual_m_model_units"] = [201.0, 199.0, 200.0, 200.0]
+        elif failure == "tracking":
+            rows[0]["vsg_actual_m_model_units"][0] += 1.0
+            rows[0]["vsg_actual_m_model_units"][1] -= 1.0
+        elif failure == "d_drift":
+            rows[0]["vsg_actual_d_model_units"][0] = 101.0
+        elif failure == "common_schedule":
+            rows[0]["vsg_common_m_model_units"] = [351.0] * 4
+        elif failure == "missing_raw_edge":
+            del rows[0]["r292_raw_edge_action"]
+        elif failure == "requested_mapping":
+            rows[0]["vsg_requested_m_model_units"][0] -= 1.0
+            rows[0]["vsg_requested_m_model_units"][1] += 1.0
+        elif failure == "edge_node_mapping":
+            rows[0]["r292_node_residual_norm"][0] -= 0.01
+            rows[0]["r292_node_residual_norm"][1] += 0.01
+        elif failure == "edge_projection":
+            rows[0]["r292_edge_flow_norm"] = [0.04, -0.025, 0.04]
+        elif failure == "action_mapping":
+            rows[0]["action_norm"][0][0] += 0.01
+        elif failure == "topology_guard":
+            payload["topology_status"]["passed"] = False  # type: ignore[index]
+        else:
+            payload["controller_config"]["architecture"] = "shared_scalar"  # type: ignore[index]
+
+    _rewrite_trace(path, corrupt)
+    scorecard = evaluate_trace_directory(
+        traces,
+        baseline="q0",
+        execution_profile="vector_inertia",
+        bootstrap_resamples=100,
+    )
+
+    assert scorecard["validity"]["diagnostic_pass"] is False
+    assert scorecard["validity"]["execution_contract"]["failed_check_counts"][
+        expected_check
+    ] == 1
+
+
+def test_eval_v2_vector_inertia_profile_rejects_paired_topology_mismatch(
+    tmp_path: Path,
+) -> None:
+    traces = tmp_path / "traces"
+    traces.mkdir()
+    _write_vector_inertia_trace(
+        traces,
+        scenario="paired_case",
+        controller="q0",
+        architecture="zero_vector_baseline",
+        topology="nominal",
+    )
+    _write_vector_inertia_trace(
+        traces,
+        scenario="paired_case",
+        controller="local_classical",
+        architecture="distributed_edge",
+        topology="line_9_out",
+        opened_line="Line_9",
+    )
+
+    with pytest.raises(
+        EvaluationContractError,
+        match="paired traces disagree on scenario metadata topology",
+    ):
+        evaluate_trace_directory(
+            traces,
+            baseline="q0",
+            execution_profile="vector_inertia",
+            bootstrap_resamples=100,
+        )
+
+
+def test_eval_v2_vector_inertia_profile_rejects_paired_opened_line_mismatch(
+    tmp_path: Path,
+) -> None:
+    traces = tmp_path / "traces"
+    traces.mkdir()
+    _write_vector_inertia_trace(
+        traces,
+        scenario="paired_case",
+        controller="q0",
+        architecture="zero_vector_baseline",
+        topology="line_0_out",
+        opened_line="Line_0",
+    )
+    _write_vector_inertia_trace(
+        traces,
+        scenario="paired_case",
+        controller="local_classical",
+        architecture="distributed_edge",
+        topology="line_0_out",
+        opened_line="Line_0",
+    )
+    path = traces / "paired_case__local_classical.json"
+
+    def relabel_opened_line(payload: dict[str, object]) -> None:
+        payload["opened_line"] = "Line_9"
+        payload["topology_status"]["opened_line"] = "Line_9"  # type: ignore[index]
+        payload["topology_status"]["runtime_line_status"] = {  # type: ignore[index]
+            "Line_0": 1.0,
+            "Line_9": 0.0,
+        }
+
+    _rewrite_trace(path, relabel_opened_line)
+
+    with pytest.raises(
+        EvaluationContractError,
+        match="paired traces disagree on scenario metadata opened_line",
+    ):
+        evaluate_trace_directory(
+            traces,
+            baseline="q0",
+            execution_profile="vector_inertia",
+            bootstrap_resamples=100,
+        )
+
+
+def test_eval_v2_vector_inertia_profile_rejects_topology_label_semantic_drift(
+    tmp_path: Path,
+) -> None:
+    traces = tmp_path / "traces"
+    traces.mkdir()
+    _write_vector_inertia_trace(
+        traces,
+        scenario="mislabelled_case",
+        controller="q0",
+        architecture="zero_vector_baseline",
+        topology="line_9_out",
+        opened_line="Line_9",
+    )
+    path = traces / "mislabelled_case__q0.json"
+
+    def relabel_topology(payload: dict[str, object]) -> None:
+        payload["topology"] = "nominal"
+        payload["topology_status"]["topology"] = "nominal"  # type: ignore[index]
+
+    _rewrite_trace(path, relabel_topology)
+    scorecard = evaluate_trace_directory(
+        traces,
+        baseline="q0",
+        execution_profile="vector_inertia",
+        bootstrap_resamples=100,
+    )
+
+    assert scorecard["validity"]["diagnostic_pass"] is False
+    assert scorecard["validity"]["execution_contract"]["failed_check_counts"][
+        "topology_opened_line_mapping"
+    ] == 1
+
+
+def test_eval_v2_vector_power_profile_accepts_architecture_correct_records(
+    tmp_path: Path,
+) -> None:
+    traces = tmp_path / "traces"
+    traces.mkdir()
+    _write_vector_power_trace(
+        traces,
+        scenario="weak_case",
+        controller="central_vector__ks1",
+        architecture="joint_observation_centralized",
+        distributed=False,
+    )
+    _write_vector_power_trace(
+        traces,
+        scenario="weak_case",
+        controller="distributed_edge__2kv",
+        architecture="four_local_dapi_agents_with_neighbour_edge_channels",
+        distributed=True,
+    )
+
+    scorecard = evaluate_trace_directory(
+        traces,
+        baseline="central_vector__ks1",
+        execution_profile="vector_power",
+        bootstrap_resamples=100,
+    )
+
+    assert scorecard["validity"]["diagnostic_pass"] is True
+    assert scorecard["contract"]["execution_profile"] == "vector_power"
+    assert scorecard["contract"]["projection_diagnostic_policy"] == {
+        "status": "not_applicable",
+        "reason": "vector power execution has no R278 scalar raw-vote projection",
+    }
+    assert scorecard["source"]["scenario_metadata"]["weak_case"] == {
+        "location": "PQ_0",
+        "sign": "negative",
+        "severity": "tie_k=1.375",
+    }
+    distributed = scorecard["controllers"]["distributed_edge__2kv"]
+    assert distributed["action_diagnostics"]["max_abs_residual_sum_system_pu"][
+        "maximum"
+    ] == pytest.approx(0.0)
+    assert scorecard["evidence_status"]["status"] == "EXTERNAL_AUTHORITY_REQUIRED"
+    report = render_markdown(scorecard)
+    assert "Execution profile: `vector_power`" in report
+    assert "Max commanded P" in report
+    assert "Stratified vector-power mechanisms" in report
+    assert "Mean normalized executed q" not in report
+
+
+@pytest.mark.parametrize(
+    ("failure", "expected_check"),
+    [
+        ("residual_zero_sum", "residual_zero_sum"),
+        ("power_nameplate", "power_nameplate"),
+        ("actual_power_nameplate", "actual_power_nameplate"),
+        ("power_ramp", "power_ramp"),
+        ("soc", "soc_out_of_bounds"),
+        ("md_action", "md_action_nonzero"),
+    ],
+)
+def test_eval_v2_vector_power_profile_rejects_execution_contract_failures(
+    tmp_path: Path,
+    failure: str,
+    expected_check: str,
+) -> None:
+    traces = tmp_path / "traces"
+    traces.mkdir()
+    _write_vector_power_trace(
+        traces,
+        scenario="weak_case",
+        controller="central_vector__ks1",
+        architecture="joint_observation_centralized",
+        distributed=False,
+    )
+    _write_vector_power_trace(
+        traces,
+        scenario="weak_case",
+        controller="distributed_edge__2kv",
+        architecture="four_local_dapi_agents_with_neighbour_edge_channels",
+        distributed=True,
+    )
+    path = traces / "weak_case__distributed_edge__2kv.json"
+
+    def corrupt(payload: dict[str, object]) -> None:
+        if failure == "residual_zero_sum":
+            payload["mechanism_trace"][0]["total_residual_sum_system_pu"] = 1e-4  # type: ignore[index]
+        elif failure == "power_nameplate":
+            payload["traces"][0]["bess_commanded_power_system_pu"][0] = 0.4  # type: ignore[index]
+        elif failure == "power_ramp":
+            payload["traces"][1]["bess_commanded_power_system_pu"][0] = 0.2  # type: ignore[index]
+        elif failure == "actual_power_nameplate":
+            payload["traces"][0]["bess_actual_power_system_pu"][0] = 0.4  # type: ignore[index]
+        elif failure == "soc":
+            payload["traces"][0]["bess_soc"][0] = 0.19  # type: ignore[index]
+        else:
+            payload["traces"][0]["action_norm"][0][0] = 0.1  # type: ignore[index]
+
+    _rewrite_trace(path, corrupt)
+    scorecard = evaluate_trace_directory(
+        traces,
+        baseline="central_vector__ks1",
+        execution_profile="vector_power",
+        bootstrap_resamples=100,
+    )
+
+    assert scorecard["validity"]["diagnostic_pass"] is False
+    assert scorecard["validity"]["execution_contract"]["failed_check_counts"][
+        expected_check
+    ] == 1
+
+
+def test_eval_v2_vector_power_profile_keeps_safe_projection_events_diagnostic(
+    tmp_path: Path,
+) -> None:
+    traces = tmp_path / "traces"
+    traces.mkdir()
+    _write_vector_power_trace(
+        traces,
+        scenario="weak_case",
+        controller="central_vector__ks1",
+        architecture="joint_observation_centralized",
+        distributed=False,
+    )
+    _write_vector_power_trace(
+        traces,
+        scenario="weak_case",
+        controller="distributed_edge__2kv",
+        architecture="four_local_dapi_agents_with_neighbour_edge_channels",
+        distributed=True,
+    )
+    path = traces / "weak_case__distributed_edge__2kv.json"
+
+    def add_safe_projection_event(payload: dict[str, object]) -> None:
+        payload["traces"][0]["bess_saturation_reasons"][0] = ["power_ramp"]  # type: ignore[index]
+
+    _rewrite_trace(path, add_safe_projection_event)
+    scorecard = evaluate_trace_directory(
+        traces,
+        baseline="central_vector__ks1",
+        execution_profile="vector_power",
+        bootstrap_resamples=100,
+    )
+
+    assert scorecard["validity"]["diagnostic_pass"] is True
+    assert scorecard["controllers"]["distributed_edge__2kv"]["storage_diagnostics"][
+        "saturation_reason_count"
+    ] == 1
+
+
+def test_eval_v2_vector_power_profile_requires_all_input_sidecars(tmp_path: Path) -> None:
+    traces = tmp_path / "traces"
+    traces.mkdir()
+    _write_vector_power_trace(
+        traces,
+        scenario="weak_case",
+        controller="central_vector__ks1",
+        architecture="joint_observation_centralized",
+        distributed=False,
+    )
+    _write_vector_power_trace(
+        traces,
+        scenario="weak_case",
+        controller="distributed_edge__2kv",
+        architecture="four_local_dapi_agents_with_neighbour_edge_channels",
+        distributed=True,
+    )
+    (traces / "weak_case__distributed_edge__2kv.json.sha256").unlink()
+
+    scorecard = evaluate_trace_directory(
+        traces,
+        baseline="central_vector__ks1",
+        execution_profile="vector_power",
+        bootstrap_resamples=100,
+    )
+
+    assert scorecard["validity"]["diagnostic_pass"] is False
+    assert scorecard["validity"]["input_integrity"]["sidecar_sha256"]["pass"] is False
+
+
+def test_eval_v2_cli_exposes_vector_power_profile(tmp_path: Path) -> None:
+    traces = tmp_path / "traces"
+    output = tmp_path / "out"
+    traces.mkdir()
+    _write_vector_power_trace(
+        traces,
+        scenario="weak_case",
+        controller="central_vector__ks1",
+        architecture="joint_observation_centralized",
+        distributed=False,
+    )
+    _write_vector_power_trace(
+        traces,
+        scenario="weak_case",
+        controller="distributed_edge__2kv",
+        architecture="four_local_dapi_agents_with_neighbour_edge_channels",
+        distributed=True,
+    )
+
+    exit_code = main(
+        [
+            "--trace-dir",
+            str(traces),
+            "--output-dir",
+            str(output),
+            "--baseline",
+            "central_vector__ks1",
+            "--execution-profile",
+            "vector_power",
+            "--bootstrap-resamples",
+            "100",
+        ]
+    )
+
+    assert exit_code == 0
+    persisted = json.loads((output / "scorecard.json").read_text(encoding="utf-8"))
+    assert persisted["contract"]["execution_profile"] == "vector_power"
+    assert persisted["validity"]["diagnostic_pass"] is True
+
+
 def test_eval_v2_rejects_incomplete_traces_before_statistics(tmp_path: Path) -> None:
     traces = tmp_path / "traces"
     traces.mkdir()
@@ -263,6 +1008,7 @@ def test_eval_v2_uses_the_fixed_float32_representation_rule_without_claiming_evi
     )
 
     assert scorecard["schema_version"] == 2
+    assert "execution_profile" not in scorecard["contract"]
     assert scorecard["validity"]["diagnostic_pass"] is True
     assert scorecard["validity"]["input_integrity"]["pass"] is True
     assert scorecard["validity"]["execution_contract"]["pass"] is True
@@ -277,6 +1023,7 @@ def test_eval_v2_uses_the_fixed_float32_representation_rule_without_claiming_evi
         "q_limit_tolerance_rule": "spacing(float32(abs(limit)))",
         "override_allowed": False,
     }
+    assert "Execution profile:" not in render_markdown(scorecard)
 
 
 def test_eval_v2_exposes_projection_nullspace_and_cancellation_diagnostics(

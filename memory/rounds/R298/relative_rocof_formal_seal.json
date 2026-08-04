@@ -1,0 +1,827 @@
+{
+  "arms": [
+    {
+      "architecture": "distributed_dapi",
+      "consensus_gain": 1.0,
+      "execution": "explicit_local_agents",
+      "name": "distributed_dapi_local__kv0",
+      "relative_rocof_gain": 0.0,
+      "sync_gain": 1.0
+    },
+    {
+      "architecture": "distributed_dapi",
+      "consensus_gain": 1.0,
+      "execution": "explicit_local_agents",
+      "name": "distributed_dapi_local__kv100pct",
+      "relative_rocof_gain": 0.24424071249620005,
+      "sync_gain": 1.0
+    },
+    {
+      "architecture": "central_vector",
+      "consensus_gain": null,
+      "execution": "joint_observation_centralized",
+      "name": "central_vector__ks1",
+      "relative_rocof_gain": null,
+      "sync_gain": 1.0
+    }
+  ],
+  "bootstrap": {
+    "interval_percent": [
+      2.5,
+      97.5
+    ],
+    "resamples": 20000,
+    "seed": 298004,
+    "unit": "matched scenario"
+  },
+  "claim_boundary": "held-out operating conditions within one modified Kundur plant; no pure architecture, MARL, neural, topology-generalization, robustness, stability, safety, EMT-HIL, or deployment claim",
+  "controller_gains": {
+    "distributed_consensus_gain_per_s": 1.0,
+    "ki": 0.2,
+    "kp": 2.0,
+    "rocof_filter_time_constant_s": 0.2,
+    "selected_relative_rocof_gain_system_pu_s_per_hz": 0.24424071249620005,
+    "sync_gain": 1.0
+  },
+  "dt_seconds": 0.2,
+  "formal": true,
+  "jobs": [
+    {
+      "arm": {
+        "architecture": "distributed_dapi",
+        "consensus_gain": 1.0,
+        "execution": "explicit_local_agents",
+        "name": "distributed_dapi_local__kv0",
+        "relative_rocof_gain": 0.0,
+        "sync_gain": 1.0
+      },
+      "name": "k1.25__pq_0__neg__distributed_dapi_local__kv0",
+      "order": 0,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_0",
+        "name": "k1.25__pq_0__neg",
+        "tie_k": 1.25
+      }
+    },
+    {
+      "arm": {
+        "architecture": "distributed_dapi",
+        "consensus_gain": 1.0,
+        "execution": "explicit_local_agents",
+        "name": "distributed_dapi_local__kv100pct",
+        "relative_rocof_gain": 0.24424071249620005,
+        "sync_gain": 1.0
+      },
+      "name": "k1.25__pq_0__neg__distributed_dapi_local__kv100pct",
+      "order": 1,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_0",
+        "name": "k1.25__pq_0__neg",
+        "tie_k": 1.25
+      }
+    },
+    {
+      "arm": {
+        "architecture": "central_vector",
+        "consensus_gain": null,
+        "execution": "joint_observation_centralized",
+        "name": "central_vector__ks1",
+        "relative_rocof_gain": null,
+        "sync_gain": 1.0
+      },
+      "name": "k1.25__pq_0__neg__central_vector__ks1",
+      "order": 2,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_0",
+        "name": "k1.25__pq_0__neg",
+        "tie_k": 1.25
+      }
+    },
+    {
+      "arm": {
+        "architecture": "distributed_dapi",
+        "consensus_gain": 1.0,
+        "execution": "explicit_local_agents",
+        "name": "distributed_dapi_local__kv0",
+        "relative_rocof_gain": 0.0,
+        "sync_gain": 1.0
+      },
+      "name": "k1.25__pq_0__pos__distributed_dapi_local__kv0",
+      "order": 3,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_0",
+        "name": "k1.25__pq_0__pos",
+        "tie_k": 1.25
+      }
+    },
+    {
+      "arm": {
+        "architecture": "distributed_dapi",
+        "consensus_gain": 1.0,
+        "execution": "explicit_local_agents",
+        "name": "distributed_dapi_local__kv100pct",
+        "relative_rocof_gain": 0.24424071249620005,
+        "sync_gain": 1.0
+      },
+      "name": "k1.25__pq_0__pos__distributed_dapi_local__kv100pct",
+      "order": 4,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_0",
+        "name": "k1.25__pq_0__pos",
+        "tie_k": 1.25
+      }
+    },
+    {
+      "arm": {
+        "architecture": "central_vector",
+        "consensus_gain": null,
+        "execution": "joint_observation_centralized",
+        "name": "central_vector__ks1",
+        "relative_rocof_gain": null,
+        "sync_gain": 1.0
+      },
+      "name": "k1.25__pq_0__pos__central_vector__ks1",
+      "order": 5,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_0",
+        "name": "k1.25__pq_0__pos",
+        "tie_k": 1.25
+      }
+    },
+    {
+      "arm": {
+        "architecture": "distributed_dapi",
+        "consensus_gain": 1.0,
+        "execution": "explicit_local_agents",
+        "name": "distributed_dapi_local__kv0",
+        "relative_rocof_gain": 0.0,
+        "sync_gain": 1.0
+      },
+      "name": "k1.25__pq_1__neg__distributed_dapi_local__kv0",
+      "order": 6,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_1",
+        "name": "k1.25__pq_1__neg",
+        "tie_k": 1.25
+      }
+    },
+    {
+      "arm": {
+        "architecture": "distributed_dapi",
+        "consensus_gain": 1.0,
+        "execution": "explicit_local_agents",
+        "name": "distributed_dapi_local__kv100pct",
+        "relative_rocof_gain": 0.24424071249620005,
+        "sync_gain": 1.0
+      },
+      "name": "k1.25__pq_1__neg__distributed_dapi_local__kv100pct",
+      "order": 7,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_1",
+        "name": "k1.25__pq_1__neg",
+        "tie_k": 1.25
+      }
+    },
+    {
+      "arm": {
+        "architecture": "central_vector",
+        "consensus_gain": null,
+        "execution": "joint_observation_centralized",
+        "name": "central_vector__ks1",
+        "relative_rocof_gain": null,
+        "sync_gain": 1.0
+      },
+      "name": "k1.25__pq_1__neg__central_vector__ks1",
+      "order": 8,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_1",
+        "name": "k1.25__pq_1__neg",
+        "tie_k": 1.25
+      }
+    },
+    {
+      "arm": {
+        "architecture": "distributed_dapi",
+        "consensus_gain": 1.0,
+        "execution": "explicit_local_agents",
+        "name": "distributed_dapi_local__kv0",
+        "relative_rocof_gain": 0.0,
+        "sync_gain": 1.0
+      },
+      "name": "k1.25__pq_1__pos__distributed_dapi_local__kv0",
+      "order": 9,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_1",
+        "name": "k1.25__pq_1__pos",
+        "tie_k": 1.25
+      }
+    },
+    {
+      "arm": {
+        "architecture": "distributed_dapi",
+        "consensus_gain": 1.0,
+        "execution": "explicit_local_agents",
+        "name": "distributed_dapi_local__kv100pct",
+        "relative_rocof_gain": 0.24424071249620005,
+        "sync_gain": 1.0
+      },
+      "name": "k1.25__pq_1__pos__distributed_dapi_local__kv100pct",
+      "order": 10,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_1",
+        "name": "k1.25__pq_1__pos",
+        "tie_k": 1.25
+      }
+    },
+    {
+      "arm": {
+        "architecture": "central_vector",
+        "consensus_gain": null,
+        "execution": "joint_observation_centralized",
+        "name": "central_vector__ks1",
+        "relative_rocof_gain": null,
+        "sync_gain": 1.0
+      },
+      "name": "k1.25__pq_1__pos__central_vector__ks1",
+      "order": 11,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_1",
+        "name": "k1.25__pq_1__pos",
+        "tie_k": 1.25
+      }
+    },
+    {
+      "arm": {
+        "architecture": "distributed_dapi",
+        "consensus_gain": 1.0,
+        "execution": "explicit_local_agents",
+        "name": "distributed_dapi_local__kv0",
+        "relative_rocof_gain": 0.0,
+        "sync_gain": 1.0
+      },
+      "name": "k1.25__pq_bus15__neg__distributed_dapi_local__kv0",
+      "order": 12,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_Bus15",
+        "name": "k1.25__pq_bus15__neg",
+        "tie_k": 1.25
+      }
+    },
+    {
+      "arm": {
+        "architecture": "distributed_dapi",
+        "consensus_gain": 1.0,
+        "execution": "explicit_local_agents",
+        "name": "distributed_dapi_local__kv100pct",
+        "relative_rocof_gain": 0.24424071249620005,
+        "sync_gain": 1.0
+      },
+      "name": "k1.25__pq_bus15__neg__distributed_dapi_local__kv100pct",
+      "order": 13,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_Bus15",
+        "name": "k1.25__pq_bus15__neg",
+        "tie_k": 1.25
+      }
+    },
+    {
+      "arm": {
+        "architecture": "central_vector",
+        "consensus_gain": null,
+        "execution": "joint_observation_centralized",
+        "name": "central_vector__ks1",
+        "relative_rocof_gain": null,
+        "sync_gain": 1.0
+      },
+      "name": "k1.25__pq_bus15__neg__central_vector__ks1",
+      "order": 14,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_Bus15",
+        "name": "k1.25__pq_bus15__neg",
+        "tie_k": 1.25
+      }
+    },
+    {
+      "arm": {
+        "architecture": "distributed_dapi",
+        "consensus_gain": 1.0,
+        "execution": "explicit_local_agents",
+        "name": "distributed_dapi_local__kv0",
+        "relative_rocof_gain": 0.0,
+        "sync_gain": 1.0
+      },
+      "name": "k1.25__pq_bus15__pos__distributed_dapi_local__kv0",
+      "order": 15,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_Bus15",
+        "name": "k1.25__pq_bus15__pos",
+        "tie_k": 1.25
+      }
+    },
+    {
+      "arm": {
+        "architecture": "distributed_dapi",
+        "consensus_gain": 1.0,
+        "execution": "explicit_local_agents",
+        "name": "distributed_dapi_local__kv100pct",
+        "relative_rocof_gain": 0.24424071249620005,
+        "sync_gain": 1.0
+      },
+      "name": "k1.25__pq_bus15__pos__distributed_dapi_local__kv100pct",
+      "order": 16,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_Bus15",
+        "name": "k1.25__pq_bus15__pos",
+        "tie_k": 1.25
+      }
+    },
+    {
+      "arm": {
+        "architecture": "central_vector",
+        "consensus_gain": null,
+        "execution": "joint_observation_centralized",
+        "name": "central_vector__ks1",
+        "relative_rocof_gain": null,
+        "sync_gain": 1.0
+      },
+      "name": "k1.25__pq_bus15__pos__central_vector__ks1",
+      "order": 17,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_Bus15",
+        "name": "k1.25__pq_bus15__pos",
+        "tie_k": 1.25
+      }
+    },
+    {
+      "arm": {
+        "architecture": "distributed_dapi",
+        "consensus_gain": 1.0,
+        "execution": "explicit_local_agents",
+        "name": "distributed_dapi_local__kv0",
+        "relative_rocof_gain": 0.0,
+        "sync_gain": 1.0
+      },
+      "name": "k1.75__pq_0__neg__distributed_dapi_local__kv0",
+      "order": 18,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_0",
+        "name": "k1.75__pq_0__neg",
+        "tie_k": 1.75
+      }
+    },
+    {
+      "arm": {
+        "architecture": "distributed_dapi",
+        "consensus_gain": 1.0,
+        "execution": "explicit_local_agents",
+        "name": "distributed_dapi_local__kv100pct",
+        "relative_rocof_gain": 0.24424071249620005,
+        "sync_gain": 1.0
+      },
+      "name": "k1.75__pq_0__neg__distributed_dapi_local__kv100pct",
+      "order": 19,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_0",
+        "name": "k1.75__pq_0__neg",
+        "tie_k": 1.75
+      }
+    },
+    {
+      "arm": {
+        "architecture": "central_vector",
+        "consensus_gain": null,
+        "execution": "joint_observation_centralized",
+        "name": "central_vector__ks1",
+        "relative_rocof_gain": null,
+        "sync_gain": 1.0
+      },
+      "name": "k1.75__pq_0__neg__central_vector__ks1",
+      "order": 20,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_0",
+        "name": "k1.75__pq_0__neg",
+        "tie_k": 1.75
+      }
+    },
+    {
+      "arm": {
+        "architecture": "distributed_dapi",
+        "consensus_gain": 1.0,
+        "execution": "explicit_local_agents",
+        "name": "distributed_dapi_local__kv0",
+        "relative_rocof_gain": 0.0,
+        "sync_gain": 1.0
+      },
+      "name": "k1.75__pq_0__pos__distributed_dapi_local__kv0",
+      "order": 21,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_0",
+        "name": "k1.75__pq_0__pos",
+        "tie_k": 1.75
+      }
+    },
+    {
+      "arm": {
+        "architecture": "distributed_dapi",
+        "consensus_gain": 1.0,
+        "execution": "explicit_local_agents",
+        "name": "distributed_dapi_local__kv100pct",
+        "relative_rocof_gain": 0.24424071249620005,
+        "sync_gain": 1.0
+      },
+      "name": "k1.75__pq_0__pos__distributed_dapi_local__kv100pct",
+      "order": 22,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_0",
+        "name": "k1.75__pq_0__pos",
+        "tie_k": 1.75
+      }
+    },
+    {
+      "arm": {
+        "architecture": "central_vector",
+        "consensus_gain": null,
+        "execution": "joint_observation_centralized",
+        "name": "central_vector__ks1",
+        "relative_rocof_gain": null,
+        "sync_gain": 1.0
+      },
+      "name": "k1.75__pq_0__pos__central_vector__ks1",
+      "order": 23,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_0",
+        "name": "k1.75__pq_0__pos",
+        "tie_k": 1.75
+      }
+    },
+    {
+      "arm": {
+        "architecture": "distributed_dapi",
+        "consensus_gain": 1.0,
+        "execution": "explicit_local_agents",
+        "name": "distributed_dapi_local__kv0",
+        "relative_rocof_gain": 0.0,
+        "sync_gain": 1.0
+      },
+      "name": "k1.75__pq_1__neg__distributed_dapi_local__kv0",
+      "order": 24,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_1",
+        "name": "k1.75__pq_1__neg",
+        "tie_k": 1.75
+      }
+    },
+    {
+      "arm": {
+        "architecture": "distributed_dapi",
+        "consensus_gain": 1.0,
+        "execution": "explicit_local_agents",
+        "name": "distributed_dapi_local__kv100pct",
+        "relative_rocof_gain": 0.24424071249620005,
+        "sync_gain": 1.0
+      },
+      "name": "k1.75__pq_1__neg__distributed_dapi_local__kv100pct",
+      "order": 25,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_1",
+        "name": "k1.75__pq_1__neg",
+        "tie_k": 1.75
+      }
+    },
+    {
+      "arm": {
+        "architecture": "central_vector",
+        "consensus_gain": null,
+        "execution": "joint_observation_centralized",
+        "name": "central_vector__ks1",
+        "relative_rocof_gain": null,
+        "sync_gain": 1.0
+      },
+      "name": "k1.75__pq_1__neg__central_vector__ks1",
+      "order": 26,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_1",
+        "name": "k1.75__pq_1__neg",
+        "tie_k": 1.75
+      }
+    },
+    {
+      "arm": {
+        "architecture": "distributed_dapi",
+        "consensus_gain": 1.0,
+        "execution": "explicit_local_agents",
+        "name": "distributed_dapi_local__kv0",
+        "relative_rocof_gain": 0.0,
+        "sync_gain": 1.0
+      },
+      "name": "k1.75__pq_1__pos__distributed_dapi_local__kv0",
+      "order": 27,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_1",
+        "name": "k1.75__pq_1__pos",
+        "tie_k": 1.75
+      }
+    },
+    {
+      "arm": {
+        "architecture": "distributed_dapi",
+        "consensus_gain": 1.0,
+        "execution": "explicit_local_agents",
+        "name": "distributed_dapi_local__kv100pct",
+        "relative_rocof_gain": 0.24424071249620005,
+        "sync_gain": 1.0
+      },
+      "name": "k1.75__pq_1__pos__distributed_dapi_local__kv100pct",
+      "order": 28,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_1",
+        "name": "k1.75__pq_1__pos",
+        "tie_k": 1.75
+      }
+    },
+    {
+      "arm": {
+        "architecture": "central_vector",
+        "consensus_gain": null,
+        "execution": "joint_observation_centralized",
+        "name": "central_vector__ks1",
+        "relative_rocof_gain": null,
+        "sync_gain": 1.0
+      },
+      "name": "k1.75__pq_1__pos__central_vector__ks1",
+      "order": 29,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_1",
+        "name": "k1.75__pq_1__pos",
+        "tie_k": 1.75
+      }
+    },
+    {
+      "arm": {
+        "architecture": "distributed_dapi",
+        "consensus_gain": 1.0,
+        "execution": "explicit_local_agents",
+        "name": "distributed_dapi_local__kv0",
+        "relative_rocof_gain": 0.0,
+        "sync_gain": 1.0
+      },
+      "name": "k1.75__pq_bus15__neg__distributed_dapi_local__kv0",
+      "order": 30,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_Bus15",
+        "name": "k1.75__pq_bus15__neg",
+        "tie_k": 1.75
+      }
+    },
+    {
+      "arm": {
+        "architecture": "distributed_dapi",
+        "consensus_gain": 1.0,
+        "execution": "explicit_local_agents",
+        "name": "distributed_dapi_local__kv100pct",
+        "relative_rocof_gain": 0.24424071249620005,
+        "sync_gain": 1.0
+      },
+      "name": "k1.75__pq_bus15__neg__distributed_dapi_local__kv100pct",
+      "order": 31,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_Bus15",
+        "name": "k1.75__pq_bus15__neg",
+        "tie_k": 1.75
+      }
+    },
+    {
+      "arm": {
+        "architecture": "central_vector",
+        "consensus_gain": null,
+        "execution": "joint_observation_centralized",
+        "name": "central_vector__ks1",
+        "relative_rocof_gain": null,
+        "sync_gain": 1.0
+      },
+      "name": "k1.75__pq_bus15__neg__central_vector__ks1",
+      "order": 32,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_Bus15",
+        "name": "k1.75__pq_bus15__neg",
+        "tie_k": 1.75
+      }
+    },
+    {
+      "arm": {
+        "architecture": "distributed_dapi",
+        "consensus_gain": 1.0,
+        "execution": "explicit_local_agents",
+        "name": "distributed_dapi_local__kv0",
+        "relative_rocof_gain": 0.0,
+        "sync_gain": 1.0
+      },
+      "name": "k1.75__pq_bus15__pos__distributed_dapi_local__kv0",
+      "order": 33,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_Bus15",
+        "name": "k1.75__pq_bus15__pos",
+        "tie_k": 1.75
+      }
+    },
+    {
+      "arm": {
+        "architecture": "distributed_dapi",
+        "consensus_gain": 1.0,
+        "execution": "explicit_local_agents",
+        "name": "distributed_dapi_local__kv100pct",
+        "relative_rocof_gain": 0.24424071249620005,
+        "sync_gain": 1.0
+      },
+      "name": "k1.75__pq_bus15__pos__distributed_dapi_local__kv100pct",
+      "order": 34,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_Bus15",
+        "name": "k1.75__pq_bus15__pos",
+        "tie_k": 1.75
+      }
+    },
+    {
+      "arm": {
+        "architecture": "central_vector",
+        "consensus_gain": null,
+        "execution": "joint_observation_centralized",
+        "name": "central_vector__ks1",
+        "relative_rocof_gain": null,
+        "sync_gain": 1.0
+      },
+      "name": "k1.75__pq_bus15__pos__central_vector__ks1",
+      "order": 35,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_Bus15",
+        "name": "k1.75__pq_bus15__pos",
+        "tie_k": 1.75
+      }
+    }
+  ],
+  "plant": "AndesMultiVSGEnvV4Storage full nonlinear DAE",
+  "primary_estimand": "paired held-out incremental effect of selected explicit local relative-RoCoF DAPI versus fresh explicit local DAPI",
+  "prior_evidence": {
+    "r297_seal": {
+      "path": "memory/rounds/R297/relative_rocof_amplitude_seal.json",
+      "sha256": "af5e386b608461c2dfdb107c5cafcf4ca2ec2927e5e7a6455aa5223cc3b61e76"
+    },
+    "r297_summary": {
+      "path": "results/r297_relative_rocof_amplitude/development_summary.json",
+      "sha256": "2e1f5307ec79cf6fb32e06f043fd630f4608275ec600ad045d8780b1814bf07d"
+    }
+  },
+  "question": "Q-0055",
+  "round": "R298",
+  "scenarios": [
+    {
+      "delta_u": -1.0,
+      "location": "PQ_0",
+      "name": "k1.25__pq_0__neg",
+      "tie_k": 1.25
+    },
+    {
+      "delta_u": 1.0,
+      "location": "PQ_0",
+      "name": "k1.25__pq_0__pos",
+      "tie_k": 1.25
+    },
+    {
+      "delta_u": -1.0,
+      "location": "PQ_1",
+      "name": "k1.25__pq_1__neg",
+      "tie_k": 1.25
+    },
+    {
+      "delta_u": 1.0,
+      "location": "PQ_1",
+      "name": "k1.25__pq_1__pos",
+      "tie_k": 1.25
+    },
+    {
+      "delta_u": -1.0,
+      "location": "PQ_Bus15",
+      "name": "k1.25__pq_bus15__neg",
+      "tie_k": 1.25
+    },
+    {
+      "delta_u": 1.0,
+      "location": "PQ_Bus15",
+      "name": "k1.25__pq_bus15__pos",
+      "tie_k": 1.25
+    },
+    {
+      "delta_u": -1.0,
+      "location": "PQ_0",
+      "name": "k1.75__pq_0__neg",
+      "tie_k": 1.75
+    },
+    {
+      "delta_u": 1.0,
+      "location": "PQ_0",
+      "name": "k1.75__pq_0__pos",
+      "tie_k": 1.75
+    },
+    {
+      "delta_u": -1.0,
+      "location": "PQ_1",
+      "name": "k1.75__pq_1__neg",
+      "tie_k": 1.75
+    },
+    {
+      "delta_u": 1.0,
+      "location": "PQ_1",
+      "name": "k1.75__pq_1__pos",
+      "tie_k": 1.75
+    },
+    {
+      "delta_u": -1.0,
+      "location": "PQ_Bus15",
+      "name": "k1.75__pq_bus15__neg",
+      "tie_k": 1.75
+    },
+    {
+      "delta_u": 1.0,
+      "location": "PQ_Bus15",
+      "name": "k1.75__pq_bus15__pos",
+      "tie_k": 1.75
+    }
+  ],
+  "schema_version": 1,
+  "secondary_estimand": "executed-formulation contrasts to centralized vector PI under matched physical actions but different information and controller laws",
+  "selection_contract": {
+    "r297_seal_sha256": "af5e386b608461c2dfdb107c5cafcf4ca2ec2927e5e7a6455aa5223cc3b61e76",
+    "r297_summary_sha256": "2e1f5307ec79cf6fb32e06f043fd630f4608275ec600ad045d8780b1814bf07d",
+    "selected_gain_system_pu_s_per_hz": 0.24424071249620005
+  },
+  "shard_count": 3,
+  "sources": {
+    "controller": {
+      "path": "src/andes_rl_kundur/control/relative_rocof_residual.py",
+      "sha256": "c0964eca29a207e315ee044c16cfcdda77db18be54a20da1584305e0c11294a9"
+    },
+    "development_runner": {
+      "path": "scripts/run_r294_fast_controller_development.py",
+      "sha256": "20be7bd30982d58ad4ea49192abf20117aa7c9be76f52f81ac0b698fb41ffb6b"
+    },
+    "fast_endpoints": {
+      "path": "src/andes_rl_kundur/evaluation/fast_md_authority.py",
+      "sha256": "1ace62f74d2357d5fcbf8664099d026074201617b6c5d505b89255e6e03669aa"
+    },
+    "formal_statistics": {
+      "path": "scripts/run_r294_compact_controller_validation.py",
+      "sha256": "b623a86a448f5a6c0d2e1250776d281c679b4af082a5d04589e3d72399fe1869"
+    },
+    "runner": {
+      "path": "scripts/run_r298_relative_rocof_formal.py",
+      "sha256": "eab1b0ff222784a6d664772c65642e9fbc09618540d0dddc7698a17ab3d45f53"
+    }
+  },
+  "stage": "relative_rocof_heldout_formal",
+  "steps": 100,
+  "thresholds": {
+    "common_interval_upper_max": 1.05,
+    "common_worst_individual_ratio_max": 1.1,
+    "fast_interval_upper_exclusive": 1.0,
+    "fast_point_ratio_max": 0.99,
+    "residual_sum_abs_max_system_pu": 1e-12,
+    "sync_interval_upper_max": 1.01,
+    "sync_point_ratio_max": 1.0
+  }
+}

@@ -1,6 +1,6 @@
 """Round-launch preflight checklist — read the plan, warn before running.
 
-Codifies the three plan-time failures the 2026-05-20 session exposed:
+Codifies plan-time failures exposed by completed repository work:
 
 1. **Unread prior CLM** — autonomous loop launched R244 SAC without
    reading CLM-0101 (which already says SAC default fails on this env).
@@ -12,6 +12,11 @@ Codifies the three plan-time failures the 2026-05-20 session exposed:
 3. **Single-metric plan** — six verdicts shipped citing only ``geo``
    without ``cum_rf``; CLM-0430 audit caught it after the fact and
    forced a session-wide qualification (~30 min of edits).
+4. **Canary/entry mismatch** — R335's scientific canary passed, but the
+   sealed formal entry failed before its first trajectory because the canary
+   had not exercised the formal pre-attempt runtime verifier.
+5. **Uncounted child workers** — a plan declared four concurrent WSL workers
+   despite the repository-wide three-process ceiling.
 
 This tool runs each of these checks against a candidate ``plan.md``
 **before** the training launches. Output is a go / no-go report with
@@ -351,6 +356,169 @@ def check_plan_structure(report: PreflightReport, plan_text: str) -> None:
                    "ad-hoc post-hoc interpretation.")
 
 
+# ── Check 6: formal ANDES launch contract ────────────────────────────
+
+_FORMAL_LAUNCH_FIELDS = (
+    "formal_entry",
+    "rehearsal_command",
+    "rehearsal_scope",
+    "rehearsal_checks",
+    "wsl_python_processes",
+    "native_threads_per_process",
+)
+_REHEARSAL_CHECKS = {
+    "source_hash",
+    "parent_hash",
+    "installed_package",
+    "installed_case",
+    "output_absence",
+}
+
+
+def _formal_launch_section(plan_text: str) -> str | None:
+    match = re.search(
+        r"(?ms)^##\s+Formal launch contract\s*$\n(.*?)(?=^##\s|\Z)",
+        plan_text,
+    )
+    return match.group(1) if match else None
+
+
+def _contract_field(section: str, name: str) -> str | None:
+    match = re.search(
+        rf"(?mi)^\s*[-*]\s*{re.escape(name)}\s*:\s*(.*?)\s*$",
+        section,
+    )
+    if not match:
+        return None
+    value = match.group(1).strip()
+    if not value or re.fullmatch(
+        r"(?i)(?:todo|tbd|none|n/a|\(?fill(?:\s+in)?\)?)", value
+    ):
+        return None
+    return value
+
+
+def repository_wsl_process_cap(claude_path: Path | None = None) -> int | None:
+    """Read the single-host WSL process ceiling from repository governance."""
+    path = claude_path or (_ROOT / "CLAUDE.md")
+    if not path.is_file():
+        return None
+    text = path.read_text(encoding="utf-8")
+    match = re.search(
+        r"并行上限[^\n]*?最多\s*(\d+)\s*个\s*WSL\s+python",
+        text,
+        re.IGNORECASE,
+    )
+    return int(match.group(1)) if match else None
+
+
+def check_formal_launch_contract(
+    report: PreflightReport,
+    plan_text: str,
+    *,
+    max_wsl_python_processes: int | None,
+) -> None:
+    """Fail closed for formal ANDES/WSL evidence plans without a rehearsed entry.
+
+    This validates the prospective declaration only. The round-specific runner
+    must still execute ``rehearsal_command`` before sealing and bind its output
+    into the seal.
+    """
+    is_evidence = bool(
+        re.search(r"(?i)(?:workload|workflow load)\s*:\s*`?evidence`?", plan_text)
+    )
+    uses_andes = bool(re.search(r"(?i)\b(?:ANDES|WSL)\b|andes_scratch\.py", plan_text))
+    if not (is_evidence and uses_andes):
+        return
+
+    section = _formal_launch_section(plan_text)
+    if section is None:
+        report.add(
+            "BLOCK",
+            "formal-launch-contract",
+            "formal ANDES/WSL evidence plan has no '## Formal launch contract'",
+            "declare the formal entry, a no-output rehearsal through the same "
+            "pre-attempt path, runtime/source checks, total WSL process count, "
+            "and native threads before sealing",
+        )
+        return
+
+    fields = {name: _contract_field(section, name) for name in _FORMAL_LAUNCH_FIELDS}
+    missing = [name for name, value in fields.items() if value is None]
+    if missing:
+        report.add(
+            "BLOCK",
+            "formal-launch-contract",
+            f"formal launch contract is missing: {', '.join(missing)}",
+            "fill every launch-contract field before implementation or sealing",
+        )
+        return
+
+    if "same-pre-attempt-path" not in fields["rehearsal_scope"].casefold():
+        report.add(
+            "BLOCK",
+            "formal-launch-rehearsal",
+            "rehearsal_scope does not bind the same pre-attempt verification path",
+            "set rehearsal_scope to same-pre-attempt-path and expose that path "
+            "through the formal runner",
+        )
+
+    declared_checks = {
+        token.strip().casefold().replace("-", "_")
+        for token in fields["rehearsal_checks"].split(",")
+        if token.strip()
+    }
+    missing_checks = sorted(_REHEARSAL_CHECKS - declared_checks)
+    if missing_checks:
+        report.add(
+            "BLOCK",
+            "formal-launch-rehearsal",
+            f"rehearsal_checks is missing: {', '.join(missing_checks)}",
+            "exercise every installed-runtime, source-closure, and output-absence "
+            "guard used before a formal attempt",
+        )
+
+    try:
+        process_count = int(fields["wsl_python_processes"])
+    except (TypeError, ValueError):
+        process_count = -1
+    if process_count < 1:
+        report.add(
+            "BLOCK",
+            "wsl-process-cap",
+            "wsl_python_processes must be a positive integer total",
+            "count the launcher plus every child and process-pool worker",
+        )
+    elif max_wsl_python_processes is None:
+        report.add(
+            "BLOCK",
+            "wsl-process-cap",
+            "repository WSL process ceiling could not be read from CLAUDE.md",
+            "restore the single source of truth before launching",
+        )
+    elif process_count > max_wsl_python_processes:
+        report.add(
+            "BLOCK",
+            "wsl-process-cap",
+            f"plan declares {process_count} WSL Python processes; repository cap "
+            f"is {max_wsl_python_processes}",
+            "reduce total concurrent launcher/child workers; serial split "
+            "boundaries remain unchanged",
+        )
+
+    try:
+        native_threads = int(fields["native_threads_per_process"])
+    except (TypeError, ValueError):
+        native_threads = -1
+    if native_threads != 1:
+        report.add(
+            "BLOCK",
+            "native-thread-cap",
+            "native_threads_per_process must equal 1 for formal parallel runs",
+            "pin numerical-library threads to one in every worker",
+        )
+
+
 # ── Orchestration ─────────────────────────────────────────────────────
 
 def preflight_check(plan_path: Path, *,
@@ -379,6 +547,11 @@ def preflight_check(plan_path: Path, *,
     current_round_num = int(round_num_match.group(1)) if round_num_match else None
 
     check_plan_structure(report, text)
+    check_formal_launch_contract(
+        report,
+        text,
+        max_wsl_python_processes=repository_wsl_process_cap(),
+    )
     check_superseded_citations(report, text, claims)
     check_baselines_measured(report, text, results_dir,
                              current_round_num=current_round_num)

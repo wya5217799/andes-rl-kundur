@@ -37,8 +37,8 @@ gain can instead come from extra aggregate support or a favorable seed. We
 separate sustained common-frequency restoration, a \SI{3}{s} common-inertia
 pulse, and differential inertia redistribution. The first two layers are fixed;
 a parameter-shared multi-agent policy is restricted to a bounded, slew-limited,
-hard-zero-sum two-area residual. A size-matched centralized actor tests whether
-the multi-agent architecture adds value beyond learning itself. Both
+hard-zero-sum two-area residual. A size-matched centralized actor benchmarks
+this specific shared scalar factorization. Both
 architectures use three predefined training seeds and are fixed before an
 independent 24-disturbance evaluation bank is generated.
 Across 192 matched \SI{60}{s} trajectories, the centralized actor reduces
@@ -50,7 +50,7 @@ However, the shared policy is worse than the centralized actor by
 \SI{9.98}{\percent} and \SI{9.04}{\percent}, respectively, with all three seeds
 agreeing. All action and storage constraints are satisfied. Thus, constrained
 learned differential allocation transfers to the independent evaluation bank,
-but the multi-agent architecture adds no incremental value on this benchmark.
+but the tested shared scalar factorization remains inferior to centralized TD3.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -108,8 +108,9 @@ settings~\cite{agarwal2021statistical}.
 
 This paper asks two questions: after sustained restoration
 and aggregate transient support are fixed, does learned differential allocation
-transfer to unseen disturbances, and does a multi-agent factorization add value
-beyond a size-matched centralized actor? The controller is divided by both
+transfer to unseen disturbances, and how does the tested shared scalar
+factorization compare with a size-matched centralized actor? The controller is
+divided by both
 timescale and coordinate. A slow droop--PI storage layer restores common
 frequency, a short common-inertia pulse supplies aggregate fast support, and
 learning can change only one two-area residual. A deterministic projection
@@ -118,15 +119,13 @@ across the four VSGs.
 
 The study makes three contributions. First, a common/differential and fast/slow
 decomposition isolates the value of differential learning. Second, a
-hard-zero-sum shared policy is compared with a size-matched centralized actor,
-separating the effect of learning from that of multi-agent factorization.
+hard-zero-sum shared policy is benchmarked against a size-matched centralized
+actor under the same scalar action space.
 Third, both architectures are fixed before evaluation on 24 new disturbances
 with three predefined training seeds and full \SI{60}{s} trajectories; the
 reported intervals account for both seed and disturbance variability.
-Accordingly, the contribution is not a claim that multi-agent reinforcement
-learning (MARL) is superior; it is a controlled test that separates gains from
-learned differential allocation from gains attributable specifically to the
-multi-agent architecture.
+Accordingly, this is a controlled test of one shared scalar factorization, not
+a claim for or against multi-agent reinforcement learning (MARL) as a class.
 
 \section{Decoupled Control Problem}
 
@@ -395,6 +394,15 @@ interval below zero; the interaction estimates range from
 layers are worth retaining, but their joint value is not evidence of a special
 coordination synergy.
 
+A separate fresh-bank handoff gate challenged the fixed \SI{3}{s} timing.
+Neither a \SI{5}{s} pulse nor either of two causal state-aware smooth handoffs
+cleared the preregistered joint post-handoff gate relative to the fixed
+\SI{3}{s} benchmark. The common-state rule traded lower post-window frequency
+error for a higher secondary peak, while the added differential and
+slow-layer-gap conditions had no material incremental value. Thus the fixed
+timing is retained as a bounded benchmark, not as a solution of fast--slow
+coupling.
+
 The outcome-seeing oracle then tested whether any differential action could
 still help. It chose a non-reference differential pulse in 18 of 24
 cases and reduced synchronization loss by \SI{25.64}{\percent} and early
@@ -446,8 +454,9 @@ than the centralized actor by \SI{9.98}{\percent} in synchronization loss and
 \SI{9.04}{\percent} in area IAE. The intervals lie entirely above zero, and
 each of the three paired seeds favors centralized TD3 on both endpoints. The
 learned differential action is therefore directionally consistent across the
-three predefined seeds, but the multi-agent factorization is not needed to
-explain the improvement on this bank.
+three predefined seeds. Thus, the tested shared scalar factorization improved
+on \(q=0\) but was inferior to centralized TD3; broader multi-agent designs
+were not tested.
 
 All 192 trajectories completed 300 samples. Maximum commanded storage power was
 \(\FormalMaxCommand\) pu, SOC remained in
@@ -478,8 +487,12 @@ Because the shared execution layer aggregates four local votes,
 the result also does not support fully decentralized deployment. Zero-sum
 projection guarantees fleet-budget neutrality at the input, not modal or
 dynamic decoupling of the nonlinear plant. The phasor-domain hybrid actuator
-does not provide electromagnetic-transient validation, a unified grid-forming
-battery implementation, a stability certificate, or hardware validation.
+does not establish electromagnetic-transient, unified-GFM-BESS,
+motor-dominated-load, stability, or hardware transfer; the missing coupled
+converter--energy and voltage--frequency dynamics require separate validation.
+The handoff gate covers only one fresh bank and two deterministic state-aware
+rules; it neither establishes that \SI{3}{s} is optimal nor that event-triggered
+handoff is generally ineffective.
 
 The initial numerical check rejected five of 192 rows because single-precision
 slew values exceeded 0.25 by at most \(\num{\AuditMaxExcess}\), less than one
@@ -500,10 +513,13 @@ centralized TD3 and shared MARL improved synchronization and early inter-area
 error across three predefined seeds while satisfying every evaluated physical
 limit.
 However, the size-matched centralized actor was consistently stronger. The
-evidence therefore supports constrained learned differential allocation, not
-the necessity of MARL or closed-loop modal decoupling. This prevents the
-learning gain from being misattributed to an architecture or physical
-mechanism.
+evidence therefore supports constrained learned differential allocation. In
+this scalar formulation, parameter-sharing MARL provides meaningful but
+inferior performance relative to centralized TD3. This does not establish
+that MARL lacks value generally or that the nonlinear plant is modally
+decoupled. The tested deterministic handoffs also failed their joint gate, so
+the fixed \SI{3}{s} pulse remains a bounded benchmark rather than a general
+solution of fast--slow coupling.
 
 \IEEEtriggeratref{12}
 \bibliographystyle{IEEEtran}

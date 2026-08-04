@@ -1,0 +1,208 @@
+{
+  "schema_version": 1,
+  "round": "R318",
+  "question": "Q-0073",
+  "created_utc": "2026-08-03T12:01:30.294134+00:00",
+  "contract": {
+    "round": "R318",
+    "question": "Q-0073",
+    "parent_round": "R317",
+    "parent_claim": "CLM-0795",
+    "scalar_candidates": [
+      0.01,
+      0.02,
+      0.03,
+      0.04,
+      0.05,
+      0.06,
+      0.07,
+      0.08,
+      0.09,
+      0.1,
+      0.11,
+      0.12,
+      0.13,
+      0.14,
+      0.15,
+      0.16,
+      0.17,
+      0.18,
+      0.19,
+      0.2,
+      0.21,
+      0.22,
+      0.23,
+      0.24,
+      0.25,
+      0.26,
+      0.27,
+      0.28,
+      0.29,
+      0.3,
+      0.31,
+      0.32,
+      0.33,
+      0.34,
+      0.35,
+      0.36,
+      0.37,
+      0.38,
+      0.39,
+      0.4,
+      0.41,
+      0.42,
+      0.43,
+      0.44,
+      0.45,
+      0.46,
+      0.47,
+      0.48,
+      0.49,
+      0.5,
+      0.51,
+      0.52,
+      0.53,
+      0.54,
+      0.55,
+      0.56,
+      0.57,
+      0.58,
+      0.59,
+      0.6,
+      0.61,
+      0.62,
+      0.63,
+      0.64,
+      0.65,
+      0.66,
+      0.67,
+      0.68,
+      0.69,
+      0.7,
+      0.71,
+      0.72,
+      0.73,
+      0.74,
+      0.75,
+      0.76,
+      0.77,
+      0.78,
+      0.79,
+      0.8,
+      0.81,
+      0.82,
+      0.83,
+      0.84,
+      0.85,
+      0.86,
+      0.87,
+      0.88,
+      0.89,
+      0.9,
+      0.91,
+      0.92,
+      0.93,
+      0.94,
+      0.95,
+      0.96,
+      0.97,
+      0.98,
+      0.99,
+      1.0
+    ],
+    "maximum_pole_radius": 0.995,
+    "development_case_count": 32,
+    "limits": {
+      "sample_period_seconds": 0.2,
+      "node_power": 0.36,
+      "node_ramp": 0.072,
+      "system_mva": 100.0,
+      "energy_mwh": 28.0,
+      "charge_efficiency": 0.9848857802,
+      "discharge_efficiency": 0.9848857802,
+      "minimum_soc": 0.2,
+      "maximum_soc": 0.8
+    },
+    "sample_period_seconds": 0.2,
+    "horizon_steps": 50,
+    "first_command": "zero",
+    "diagnostics": [
+      "per-point-and-maximum-augmented-pole-radius",
+      "pole-pass",
+      "governor-evaluated",
+      "finite-development-output",
+      "node-power-ramp-soc-extrema",
+      "constraint-violation-types",
+      "fully-feasible"
+    ],
+    "repair_mapping": {
+      "POLE-ONLY-REJECTION": "augmented-observer-quadratic-regulator",
+      "GOVERNOR-ONLY-REJECTION": "constrained-receding-horizon",
+      "MIXED-REJECTION": "augmented-observer-quadratic-regulator",
+      "DIAGNOSTIC-CONFLICT": "repair-r317-selection-implementation"
+    },
+    "performance_selection_authorized": false,
+    "r317_examination_accessed": false,
+    "eval": "NOT-APPLICABLE-MODEL-ONLY",
+    "physical_execution_authorized": false,
+    "distributed_agent_implementation_authorized": false,
+    "training_authorized": false
+  },
+  "contract_payload_sha256": "fb27d37dd6023b155860cd02a743d73624f22f3e7d997aab35968b387a6392cd",
+  "parent": {
+    "seal": {
+      "path": "memory/rounds/R317/offline_controller_seal.json",
+      "sha256": "e91590cc970843c966a5649416d8046f59b8bcd060faccd4109986664d68429f"
+    },
+    "controller_result": {
+      "path": "results/r317_offline_controller/controller_result.json",
+      "sha256": "63579c7011e2a848753c126c78149e52a08cb1113ec495e8bf6432de58760c4a"
+    },
+    "analysis": {
+      "path": "results/r317_offline_controller/analysis.json",
+      "sha256": "fbb85b20f97fbb1e8ff4d3d03325c1fa84192cd1adf9e4e75707d755b9d19318"
+    },
+    "provenance": {
+      "path": "results/r317_offline_controller/provenance.json",
+      "sha256": "ddf561eaca9d4ee795b38c0db024b78cbcd12ec0b8a1f223f62e57517730c5bd"
+    }
+  },
+  "sources": {
+    "plan": {
+      "path": "memory/rounds/R318/plan.md",
+      "sha256": "e5c8dccda64cedb9d9902691ec91a09e8a5f2d14e98435680e4c68840af4af0f"
+    },
+    "question": {
+      "path": "memory/questions/Q-0073.md",
+      "sha256": "532a216c531b10359068dc39f8ecc21e1045c91d41af0e696c874828d2514b4f"
+    },
+    "parent_claim": {
+      "path": "memory/claims/CLM-0795.md",
+      "sha256": "5a38fd8321f2b2979b9881bbd88fd58392892420ae6e263fba34fcd9af449f47"
+    },
+    "parent_R317_adapter": {
+      "path": "scripts/run_r317_offline_controller.py",
+      "sha256": "9e667a0ba520caca99206a35c40d05fa2425de1917980a39a666a3a4a03976f5"
+    },
+    "controller_module": {
+      "path": "src/andes_rl_kundur/control/model_first_offline_feedback.py",
+      "sha256": "c154e73c4e6f642029284bdeb3f7acb087378c2a46bc0c8e90c8c4cf4c5e573e"
+    },
+    "diagnostic_probe": {
+      "path": "probes/r318_rejection_diagnosis.py",
+      "sha256": "71aa9812316b6c647f19e116b466dcf138fd8e183b61b3ce1460ad47925997fe"
+    },
+    "adapter": {
+      "path": "scripts/run_r318_rejection_diagnosis.py",
+      "sha256": "a379adacee2746d79949035ba19b5f1dcc5c0b2ac616b7fbb03361f42e9faf8e"
+    },
+    "diagnostic_tests": {
+      "path": "tests/test_r318_rejection_diagnosis.py",
+      "sha256": "0612ee454e16140f47fc02357b1d09aaac3efb27dbce480358b40a415691fee7"
+    },
+    "adapter_tests": {
+      "path": "tests/test_r318_rejection_diagnosis_adapter.py",
+      "sha256": "850d0f8aac2456d991b6a7933319fbaf22bf0fe012bac6d1ac31db99612a8ebb"
+    }
+  }
+}

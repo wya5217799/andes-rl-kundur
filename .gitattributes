@@ -1,0 +1,6 @@
+# Byte-stable research seals and checksum sidecars must not follow a
+# developer's core.autocrlf setting.
+memory/rounds/**/*.json text eol=lf
+memory/rounds/**/*.sha256 text eol=lf
+results/**/*.json text eol=lf
+results/**/*.sha256 text eol=lf

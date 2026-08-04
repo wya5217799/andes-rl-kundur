@@ -1,0 +1,817 @@
+{
+  "arms": [
+    {
+      "architecture": "explicit_local_edge_residual",
+      "execution": "four_local_dapi_agents_with_neighbour_edge_channels",
+      "extra_edges": [],
+      "name": "edge_gain__base_kv",
+      "relative_rocof_gain": 0.24424071249620005
+    },
+    {
+      "architecture": "explicit_local_edge_residual",
+      "execution": "four_local_dapi_agents_with_neighbour_edge_channels",
+      "extra_edges": [
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          0,
+          3
+        ]
+      ],
+      "name": "edge_gain__all_extra_kv",
+      "relative_rocof_gain": 0.24424071249620005
+    },
+    {
+      "architecture": "explicit_local_edge_residual",
+      "execution": "four_local_dapi_agents_with_neighbour_edge_channels",
+      "extra_edges": [
+        [
+          0,
+          1
+        ]
+      ],
+      "name": "edge_gain__e01_extra_kv",
+      "relative_rocof_gain": 0.24424071249620005
+    },
+    {
+      "architecture": "explicit_local_edge_residual",
+      "execution": "four_local_dapi_agents_with_neighbour_edge_channels",
+      "extra_edges": [
+        [
+          1,
+          2
+        ]
+      ],
+      "name": "edge_gain__e12_extra_kv",
+      "relative_rocof_gain": 0.24424071249620005
+    },
+    {
+      "architecture": "explicit_local_edge_residual",
+      "execution": "four_local_dapi_agents_with_neighbour_edge_channels",
+      "extra_edges": [
+        [
+          2,
+          3
+        ]
+      ],
+      "name": "edge_gain__e23_extra_kv",
+      "relative_rocof_gain": 0.24424071249620005
+    },
+    {
+      "architecture": "explicit_local_edge_residual",
+      "execution": "four_local_dapi_agents_with_neighbour_edge_channels",
+      "extra_edges": [
+        [
+          0,
+          3
+        ]
+      ],
+      "name": "edge_gain__e03_extra_kv",
+      "relative_rocof_gain": 0.24424071249620005
+    }
+  ],
+  "base_relative_rocof_gain_system_pu_s_per_hz": 0.24424071249620005,
+  "claim_boundary": "fixed-topology development diagnosis only; no deployable efficacy, MARL, neural, pure-architecture, topology, stability, safety, robustness, EMT-HIL, or deployment claim",
+  "comparison_identifiability": {
+    "architecture_or_neural": "BLOCK",
+    "fixed_arms": "ALLOW; edge-gain placement is the sole treatment",
+    "outcome_oracle": "QUALIFY; future-outcome upper bound only"
+  },
+  "development_only": true,
+  "dt_seconds": 0.2,
+  "edges": [
+    [
+      0,
+      1
+    ],
+    [
+      1,
+      2
+    ],
+    [
+      2,
+      3
+    ],
+    [
+      0,
+      3
+    ]
+  ],
+  "estimand": "development-only optimistic edge-allocation headroom over the best fixed arm, plus association between causal edge-local features and counterfactual single-edge benefit",
+  "extra_edge_gain_system_pu_s_per_hz": 0.24424071249620005,
+  "jobs": [
+    {
+      "arm": {
+        "architecture": "explicit_local_edge_residual",
+        "execution": "four_local_dapi_agents_with_neighbour_edge_channels",
+        "extra_edges": [],
+        "name": "edge_gain__base_kv",
+        "relative_rocof_gain": 0.24424071249620005
+      },
+      "name": "k1.25__pq_0__neg__edge_gain__base_kv",
+      "order": 0,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_0",
+        "name": "k1.25__pq_0__neg",
+        "tie_k": 1.25
+      }
+    },
+    {
+      "arm": {
+        "architecture": "explicit_local_edge_residual",
+        "execution": "four_local_dapi_agents_with_neighbour_edge_channels",
+        "extra_edges": [
+          [
+            0,
+            1
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            2,
+            3
+          ],
+          [
+            0,
+            3
+          ]
+        ],
+        "name": "edge_gain__all_extra_kv",
+        "relative_rocof_gain": 0.24424071249620005
+      },
+      "name": "k1.25__pq_0__neg__edge_gain__all_extra_kv",
+      "order": 1,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_0",
+        "name": "k1.25__pq_0__neg",
+        "tie_k": 1.25
+      }
+    },
+    {
+      "arm": {
+        "architecture": "explicit_local_edge_residual",
+        "execution": "four_local_dapi_agents_with_neighbour_edge_channels",
+        "extra_edges": [
+          [
+            0,
+            1
+          ]
+        ],
+        "name": "edge_gain__e01_extra_kv",
+        "relative_rocof_gain": 0.24424071249620005
+      },
+      "name": "k1.25__pq_0__neg__edge_gain__e01_extra_kv",
+      "order": 2,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_0",
+        "name": "k1.25__pq_0__neg",
+        "tie_k": 1.25
+      }
+    },
+    {
+      "arm": {
+        "architecture": "explicit_local_edge_residual",
+        "execution": "four_local_dapi_agents_with_neighbour_edge_channels",
+        "extra_edges": [
+          [
+            1,
+            2
+          ]
+        ],
+        "name": "edge_gain__e12_extra_kv",
+        "relative_rocof_gain": 0.24424071249620005
+      },
+      "name": "k1.25__pq_0__neg__edge_gain__e12_extra_kv",
+      "order": 3,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_0",
+        "name": "k1.25__pq_0__neg",
+        "tie_k": 1.25
+      }
+    },
+    {
+      "arm": {
+        "architecture": "explicit_local_edge_residual",
+        "execution": "four_local_dapi_agents_with_neighbour_edge_channels",
+        "extra_edges": [
+          [
+            2,
+            3
+          ]
+        ],
+        "name": "edge_gain__e23_extra_kv",
+        "relative_rocof_gain": 0.24424071249620005
+      },
+      "name": "k1.25__pq_0__neg__edge_gain__e23_extra_kv",
+      "order": 4,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_0",
+        "name": "k1.25__pq_0__neg",
+        "tie_k": 1.25
+      }
+    },
+    {
+      "arm": {
+        "architecture": "explicit_local_edge_residual",
+        "execution": "four_local_dapi_agents_with_neighbour_edge_channels",
+        "extra_edges": [
+          [
+            0,
+            3
+          ]
+        ],
+        "name": "edge_gain__e03_extra_kv",
+        "relative_rocof_gain": 0.24424071249620005
+      },
+      "name": "k1.25__pq_0__neg__edge_gain__e03_extra_kv",
+      "order": 5,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_0",
+        "name": "k1.25__pq_0__neg",
+        "tie_k": 1.25
+      }
+    },
+    {
+      "arm": {
+        "architecture": "explicit_local_edge_residual",
+        "execution": "four_local_dapi_agents_with_neighbour_edge_channels",
+        "extra_edges": [],
+        "name": "edge_gain__base_kv",
+        "relative_rocof_gain": 0.24424071249620005
+      },
+      "name": "k1.25__pq_1__pos__edge_gain__base_kv",
+      "order": 6,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_1",
+        "name": "k1.25__pq_1__pos",
+        "tie_k": 1.25
+      }
+    },
+    {
+      "arm": {
+        "architecture": "explicit_local_edge_residual",
+        "execution": "four_local_dapi_agents_with_neighbour_edge_channels",
+        "extra_edges": [
+          [
+            0,
+            1
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            2,
+            3
+          ],
+          [
+            0,
+            3
+          ]
+        ],
+        "name": "edge_gain__all_extra_kv",
+        "relative_rocof_gain": 0.24424071249620005
+      },
+      "name": "k1.25__pq_1__pos__edge_gain__all_extra_kv",
+      "order": 7,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_1",
+        "name": "k1.25__pq_1__pos",
+        "tie_k": 1.25
+      }
+    },
+    {
+      "arm": {
+        "architecture": "explicit_local_edge_residual",
+        "execution": "four_local_dapi_agents_with_neighbour_edge_channels",
+        "extra_edges": [
+          [
+            0,
+            1
+          ]
+        ],
+        "name": "edge_gain__e01_extra_kv",
+        "relative_rocof_gain": 0.24424071249620005
+      },
+      "name": "k1.25__pq_1__pos__edge_gain__e01_extra_kv",
+      "order": 8,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_1",
+        "name": "k1.25__pq_1__pos",
+        "tie_k": 1.25
+      }
+    },
+    {
+      "arm": {
+        "architecture": "explicit_local_edge_residual",
+        "execution": "four_local_dapi_agents_with_neighbour_edge_channels",
+        "extra_edges": [
+          [
+            1,
+            2
+          ]
+        ],
+        "name": "edge_gain__e12_extra_kv",
+        "relative_rocof_gain": 0.24424071249620005
+      },
+      "name": "k1.25__pq_1__pos__edge_gain__e12_extra_kv",
+      "order": 9,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_1",
+        "name": "k1.25__pq_1__pos",
+        "tie_k": 1.25
+      }
+    },
+    {
+      "arm": {
+        "architecture": "explicit_local_edge_residual",
+        "execution": "four_local_dapi_agents_with_neighbour_edge_channels",
+        "extra_edges": [
+          [
+            2,
+            3
+          ]
+        ],
+        "name": "edge_gain__e23_extra_kv",
+        "relative_rocof_gain": 0.24424071249620005
+      },
+      "name": "k1.25__pq_1__pos__edge_gain__e23_extra_kv",
+      "order": 10,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_1",
+        "name": "k1.25__pq_1__pos",
+        "tie_k": 1.25
+      }
+    },
+    {
+      "arm": {
+        "architecture": "explicit_local_edge_residual",
+        "execution": "four_local_dapi_agents_with_neighbour_edge_channels",
+        "extra_edges": [
+          [
+            0,
+            3
+          ]
+        ],
+        "name": "edge_gain__e03_extra_kv",
+        "relative_rocof_gain": 0.24424071249620005
+      },
+      "name": "k1.25__pq_1__pos__edge_gain__e03_extra_kv",
+      "order": 11,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_1",
+        "name": "k1.25__pq_1__pos",
+        "tie_k": 1.25
+      }
+    },
+    {
+      "arm": {
+        "architecture": "explicit_local_edge_residual",
+        "execution": "four_local_dapi_agents_with_neighbour_edge_channels",
+        "extra_edges": [],
+        "name": "edge_gain__base_kv",
+        "relative_rocof_gain": 0.24424071249620005
+      },
+      "name": "k1.75__pq_bus15__neg__edge_gain__base_kv",
+      "order": 12,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_Bus15",
+        "name": "k1.75__pq_bus15__neg",
+        "tie_k": 1.75
+      }
+    },
+    {
+      "arm": {
+        "architecture": "explicit_local_edge_residual",
+        "execution": "four_local_dapi_agents_with_neighbour_edge_channels",
+        "extra_edges": [
+          [
+            0,
+            1
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            2,
+            3
+          ],
+          [
+            0,
+            3
+          ]
+        ],
+        "name": "edge_gain__all_extra_kv",
+        "relative_rocof_gain": 0.24424071249620005
+      },
+      "name": "k1.75__pq_bus15__neg__edge_gain__all_extra_kv",
+      "order": 13,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_Bus15",
+        "name": "k1.75__pq_bus15__neg",
+        "tie_k": 1.75
+      }
+    },
+    {
+      "arm": {
+        "architecture": "explicit_local_edge_residual",
+        "execution": "four_local_dapi_agents_with_neighbour_edge_channels",
+        "extra_edges": [
+          [
+            0,
+            1
+          ]
+        ],
+        "name": "edge_gain__e01_extra_kv",
+        "relative_rocof_gain": 0.24424071249620005
+      },
+      "name": "k1.75__pq_bus15__neg__edge_gain__e01_extra_kv",
+      "order": 14,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_Bus15",
+        "name": "k1.75__pq_bus15__neg",
+        "tie_k": 1.75
+      }
+    },
+    {
+      "arm": {
+        "architecture": "explicit_local_edge_residual",
+        "execution": "four_local_dapi_agents_with_neighbour_edge_channels",
+        "extra_edges": [
+          [
+            1,
+            2
+          ]
+        ],
+        "name": "edge_gain__e12_extra_kv",
+        "relative_rocof_gain": 0.24424071249620005
+      },
+      "name": "k1.75__pq_bus15__neg__edge_gain__e12_extra_kv",
+      "order": 15,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_Bus15",
+        "name": "k1.75__pq_bus15__neg",
+        "tie_k": 1.75
+      }
+    },
+    {
+      "arm": {
+        "architecture": "explicit_local_edge_residual",
+        "execution": "four_local_dapi_agents_with_neighbour_edge_channels",
+        "extra_edges": [
+          [
+            2,
+            3
+          ]
+        ],
+        "name": "edge_gain__e23_extra_kv",
+        "relative_rocof_gain": 0.24424071249620005
+      },
+      "name": "k1.75__pq_bus15__neg__edge_gain__e23_extra_kv",
+      "order": 16,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_Bus15",
+        "name": "k1.75__pq_bus15__neg",
+        "tie_k": 1.75
+      }
+    },
+    {
+      "arm": {
+        "architecture": "explicit_local_edge_residual",
+        "execution": "four_local_dapi_agents_with_neighbour_edge_channels",
+        "extra_edges": [
+          [
+            0,
+            3
+          ]
+        ],
+        "name": "edge_gain__e03_extra_kv",
+        "relative_rocof_gain": 0.24424071249620005
+      },
+      "name": "k1.75__pq_bus15__neg__edge_gain__e03_extra_kv",
+      "order": 17,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_Bus15",
+        "name": "k1.75__pq_bus15__neg",
+        "tie_k": 1.75
+      }
+    },
+    {
+      "arm": {
+        "architecture": "explicit_local_edge_residual",
+        "execution": "four_local_dapi_agents_with_neighbour_edge_channels",
+        "extra_edges": [],
+        "name": "edge_gain__base_kv",
+        "relative_rocof_gain": 0.24424071249620005
+      },
+      "name": "k1.75__pq_0__pos__edge_gain__base_kv",
+      "order": 18,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_0",
+        "name": "k1.75__pq_0__pos",
+        "tie_k": 1.75
+      }
+    },
+    {
+      "arm": {
+        "architecture": "explicit_local_edge_residual",
+        "execution": "four_local_dapi_agents_with_neighbour_edge_channels",
+        "extra_edges": [
+          [
+            0,
+            1
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            2,
+            3
+          ],
+          [
+            0,
+            3
+          ]
+        ],
+        "name": "edge_gain__all_extra_kv",
+        "relative_rocof_gain": 0.24424071249620005
+      },
+      "name": "k1.75__pq_0__pos__edge_gain__all_extra_kv",
+      "order": 19,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_0",
+        "name": "k1.75__pq_0__pos",
+        "tie_k": 1.75
+      }
+    },
+    {
+      "arm": {
+        "architecture": "explicit_local_edge_residual",
+        "execution": "four_local_dapi_agents_with_neighbour_edge_channels",
+        "extra_edges": [
+          [
+            0,
+            1
+          ]
+        ],
+        "name": "edge_gain__e01_extra_kv",
+        "relative_rocof_gain": 0.24424071249620005
+      },
+      "name": "k1.75__pq_0__pos__edge_gain__e01_extra_kv",
+      "order": 20,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_0",
+        "name": "k1.75__pq_0__pos",
+        "tie_k": 1.75
+      }
+    },
+    {
+      "arm": {
+        "architecture": "explicit_local_edge_residual",
+        "execution": "four_local_dapi_agents_with_neighbour_edge_channels",
+        "extra_edges": [
+          [
+            1,
+            2
+          ]
+        ],
+        "name": "edge_gain__e12_extra_kv",
+        "relative_rocof_gain": 0.24424071249620005
+      },
+      "name": "k1.75__pq_0__pos__edge_gain__e12_extra_kv",
+      "order": 21,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_0",
+        "name": "k1.75__pq_0__pos",
+        "tie_k": 1.75
+      }
+    },
+    {
+      "arm": {
+        "architecture": "explicit_local_edge_residual",
+        "execution": "four_local_dapi_agents_with_neighbour_edge_channels",
+        "extra_edges": [
+          [
+            2,
+            3
+          ]
+        ],
+        "name": "edge_gain__e23_extra_kv",
+        "relative_rocof_gain": 0.24424071249620005
+      },
+      "name": "k1.75__pq_0__pos__edge_gain__e23_extra_kv",
+      "order": 22,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_0",
+        "name": "k1.75__pq_0__pos",
+        "tie_k": 1.75
+      }
+    },
+    {
+      "arm": {
+        "architecture": "explicit_local_edge_residual",
+        "execution": "four_local_dapi_agents_with_neighbour_edge_channels",
+        "extra_edges": [
+          [
+            0,
+            3
+          ]
+        ],
+        "name": "edge_gain__e03_extra_kv",
+        "relative_rocof_gain": 0.24424071249620005
+      },
+      "name": "k1.75__pq_0__pos__edge_gain__e03_extra_kv",
+      "order": 23,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_0",
+        "name": "k1.75__pq_0__pos",
+        "tie_k": 1.75
+      }
+    }
+  ],
+  "outcome_oracle_non_deployable": true,
+  "predeclared_disjoint_formal_eval_bank": [
+    {
+      "delta_u": -1.0,
+      "location": "PQ_0",
+      "name": "k1.375__pq_0__neg",
+      "tie_k": 1.375
+    },
+    {
+      "delta_u": 1.0,
+      "location": "PQ_0",
+      "name": "k1.375__pq_0__pos",
+      "tie_k": 1.375
+    },
+    {
+      "delta_u": -1.0,
+      "location": "PQ_Bus14",
+      "name": "k1.375__pq_bus14__neg",
+      "tie_k": 1.375
+    },
+    {
+      "delta_u": 1.0,
+      "location": "PQ_Bus14",
+      "name": "k1.375__pq_bus14__pos",
+      "tie_k": 1.375
+    },
+    {
+      "delta_u": -1.0,
+      "location": "PQ_Bus15",
+      "name": "k1.375__pq_bus15__neg",
+      "tie_k": 1.375
+    },
+    {
+      "delta_u": 1.0,
+      "location": "PQ_Bus15",
+      "name": "k1.375__pq_bus15__pos",
+      "tie_k": 1.375
+    },
+    {
+      "delta_u": -1.0,
+      "location": "PQ_0",
+      "name": "k1.625__pq_0__neg",
+      "tie_k": 1.625
+    },
+    {
+      "delta_u": 1.0,
+      "location": "PQ_0",
+      "name": "k1.625__pq_0__pos",
+      "tie_k": 1.625
+    },
+    {
+      "delta_u": -1.0,
+      "location": "PQ_Bus14",
+      "name": "k1.625__pq_bus14__neg",
+      "tie_k": 1.625
+    },
+    {
+      "delta_u": 1.0,
+      "location": "PQ_Bus14",
+      "name": "k1.625__pq_bus14__pos",
+      "tie_k": 1.625
+    },
+    {
+      "delta_u": -1.0,
+      "location": "PQ_Bus15",
+      "name": "k1.625__pq_bus15__neg",
+      "tie_k": 1.625
+    },
+    {
+      "delta_u": 1.0,
+      "location": "PQ_Bus15",
+      "name": "k1.625__pq_bus15__pos",
+      "tie_k": 1.625
+    }
+  ],
+  "prior_evidence": {
+    "r298_formal_summary": {
+      "path": "results/r298_relative_rocof_formal/formal_summary.json",
+      "sha256": "df56c1a72e292191c3c769950aa876b58fce3f73de83edb44ae7a7e3a51f8728"
+    }
+  },
+  "question": "Q-0056",
+  "round": "R299",
+  "scenarios": [
+    {
+      "delta_u": -1.0,
+      "location": "PQ_0",
+      "name": "k1.25__pq_0__neg",
+      "tie_k": 1.25
+    },
+    {
+      "delta_u": 1.0,
+      "location": "PQ_1",
+      "name": "k1.25__pq_1__pos",
+      "tie_k": 1.25
+    },
+    {
+      "delta_u": -1.0,
+      "location": "PQ_Bus15",
+      "name": "k1.75__pq_bus15__neg",
+      "tie_k": 1.75
+    },
+    {
+      "delta_u": 1.0,
+      "location": "PQ_0",
+      "name": "k1.75__pq_0__pos",
+      "tie_k": 1.75
+    }
+  ],
+  "schema_version": 1,
+  "shard_count": 3,
+  "sources": {
+    "base_controller": {
+      "path": "src/andes_rl_kundur/control/relative_rocof_residual.py",
+      "sha256": "c0964eca29a207e315ee044c16cfcdda77db18be54a20da1584305e0c11294a9"
+    },
+    "controller": {
+      "path": "src/andes_rl_kundur/control/edge_relative_rocof_residual.py",
+      "sha256": "330cc809deb5c0c4e7425669c079b992c16e5d63ab567709e82f09bf14c83845"
+    },
+    "execution_runner": {
+      "path": "scripts/run_r294_fast_controller_development.py",
+      "sha256": "20be7bd30982d58ad4ea49192abf20117aa7c9be76f52f81ac0b698fb41ffb6b"
+    },
+    "fast_endpoints": {
+      "path": "src/andes_rl_kundur/evaluation/fast_md_authority.py",
+      "sha256": "1ace62f74d2357d5fcbf8664099d026074201617b6c5d505b89255e6e03669aa"
+    },
+    "runner": {
+      "path": "scripts/run_r299_edge_information_probe.py",
+      "sha256": "ffb4fafb708009c8c07d846a6e87e2ab2bda96760d2450ecea6b04cea4c5353b"
+    }
+  },
+  "stage": "edge_local_information_value_sentinel",
+  "steps": 100,
+  "thresholds": {
+    "adaptive_fast_ratio_max": 0.99,
+    "adaptive_sync_ratio_max": 0.99,
+    "causal_feature_steps": 5,
+    "common_individual_ratio_max": 1.05,
+    "fixed_fast_material_ratio_max": 0.99,
+    "fixed_sync_no_harm_ratio_max": 1.0,
+    "local_best_edge_match_min": 3,
+    "local_spearman_min": 0.5,
+    "minimum_distinct_nonbaseline_oracle_arms": 2,
+    "residual_sum_abs_max_system_pu": 1e-12
+  }
+}

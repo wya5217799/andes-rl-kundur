@@ -1,0 +1,180 @@
+{
+  "version": 1,
+  "line_id": "icems2026",
+  "artifacts": [
+    {
+      "id": "line-state",
+      "purpose": "line-state",
+      "path": "paper/icems2026/LINE.md",
+      "status": "active",
+      "canonical": true,
+      "authoritative": true,
+      "producer": "project-governance",
+      "inputs": [
+        "paper/icems2026/reports"
+      ],
+      "input_hashes": {
+        "paper/icems2026/reports": "2d71a5c81b1820c28fe806454bf414bfa4fc99a4c1088eb755f0a5c458dbf986"
+      },
+      "supersedes": [],
+      "review_after": null
+    },
+    {
+      "id": "manuscript-source",
+      "purpose": "manuscript-source",
+      "path": "paper/icems2026/main.tex",
+      "status": "active",
+      "canonical": true,
+      "authoritative": false,
+      "producer": "paper-drafting",
+      "inputs": [],
+      "supersedes": [],
+      "review_after": null
+    },
+    {
+      "id": "bibliography",
+      "purpose": "bibliography",
+      "path": "paper/icems2026/references.bib",
+      "status": "active",
+      "canonical": true,
+      "authoritative": false,
+      "producer": "paper-drafting",
+      "inputs": [],
+      "supersedes": [],
+      "review_after": null
+    },
+    {
+      "id": "generated-results",
+      "purpose": "generated-results",
+      "path": "paper/icems2026/generated_results.tex",
+      "status": "active",
+      "canonical": true,
+      "authoritative": false,
+      "producer": "build_figures.py",
+      "inputs": [],
+      "supersedes": [],
+      "review_after": null
+    },
+    {
+      "id": "figure-builder",
+      "purpose": "figure-builder",
+      "path": "paper/icems2026/build_figures.py",
+      "status": "active",
+      "canonical": true,
+      "authoritative": false,
+      "producer": "project-engineering",
+      "inputs": [],
+      "supersedes": [],
+      "review_after": null
+    },
+    {
+      "id": "figures",
+      "purpose": "figures",
+      "path": "paper/icems2026/figures",
+      "status": "active",
+      "canonical": true,
+      "authoritative": false,
+      "producer": "build_figures.py",
+      "inputs": [],
+      "supersedes": [],
+      "review_after": null
+    },
+    {
+      "id": "chapter-blueprint",
+      "purpose": "argument-contract",
+      "path": "paper/icems2026/working/chapter_blueprint.md",
+      "status": "active",
+      "canonical": true,
+      "authoritative": false,
+      "producer": "paper-revision",
+      "inputs": [],
+      "supersedes": [],
+      "review_after": null
+    },
+    {
+      "id": "eval-v2-diagnostic-analysis",
+      "purpose": "diagnostic-review",
+      "path": "paper/icems2026/working/eval_v2_diagnostic_analysis.md",
+      "status": "active",
+      "canonical": false,
+      "authoritative": false,
+      "producer": "research-supervisor",
+      "inputs": [
+        "paper/icems2026/reports/R280.md",
+        "paper/icems2026/reports/R291.md",
+        "memory/claims/CLM-0610.md",
+        "memory/rounds/R270/verdict.md",
+        "memory/RESEARCH_PROGRAM.md",
+        "src/andes_rl_kundur/evaluation/eval_v2.py",
+        "src/andes_rl_kundur/evaluation/paper_grade_axes.py",
+        "tmp/icems2026/eval_v2_schema2/scorecard.json"
+      ],
+      "supersedes": [],
+      "review_after": null
+    },
+    {
+      "id": "dynamic-response-selection",
+      "purpose": "figure-selection",
+      "path": "paper/icems2026/working/dynamic_response_selection.json",
+      "status": "active",
+      "canonical": true,
+      "authoritative": false,
+      "producer": "build_figures.py",
+      "inputs": [],
+      "supersedes": [],
+      "review_after": null
+    },
+    {
+      "id": "experiment-feeds",
+      "purpose": "experiment-feeds",
+      "path": "paper/icems2026/reports",
+      "status": "active",
+      "canonical": true,
+      "authoritative": true,
+      "producer": "kundur-round-feed",
+      "inputs": [
+        "memory/claims",
+        "memory/rounds",
+        "results"
+      ],
+      "supersedes": [],
+      "review_after": null
+    },
+    {
+      "id": "line-guide",
+      "purpose": "line-guide",
+      "path": "paper/icems2026/README.md",
+      "status": "active",
+      "canonical": true,
+      "authoritative": false,
+      "producer": "project-governance",
+      "inputs": [],
+      "supersedes": [],
+      "review_after": null
+    },
+    {
+      "id": "line-ignore",
+      "purpose": "line-config",
+      "path": "paper/icems2026/.gitignore",
+      "status": "active",
+      "canonical": true,
+      "authoritative": false,
+      "producer": "project-governance",
+      "inputs": [],
+      "supersedes": [],
+      "review_after": null
+    },
+    {
+      "id": "compiled-pdf",
+      "purpose": "compiled-pdf",
+      "path": "paper/icems2026/main.pdf",
+      "status": "active",
+      "canonical": false,
+      "authoritative": false,
+      "producer": "latex-build",
+      "inputs": [],
+      "supersedes": [],
+      "review_after": null
+    }
+  ]
+}

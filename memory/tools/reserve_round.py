@@ -149,7 +149,7 @@ def _write_plan_stub(round_dir: Path, n: int, oracle_snapshot: str) -> None:
     )
     plan_path.write_text(
         # R166: machine-readable lifecycle state in YAML frontmatter.
-        # Body markdown keeps the human-readable Status/Opened lines.
+        # R291+: do not duplicate canonical state in a body Status line.
         f"---\n"
         f"round: R{n}\n"
         f"state: active\n"
@@ -161,7 +161,6 @@ def _write_plan_stub(round_dir: Path, n: int, oracle_snapshot: str) -> None:
         f"superseded_note: null\n"
         f"---\n"
         f"# R{n} plan — (rename me)\n\n"
-        f"**Status**: ACTIVE\n"
         f"**Opened**: {now}\n"
         f"**Driver**: (one-sentence motivation)\n"
         f"**Parent**: (CLM-NNNN refs)\n\n"
@@ -272,6 +271,10 @@ def gc_empty_rounds(
 
 
 _FRONTMATTER_RE = re.compile(r"^---\n(.*?)\n---", re.DOTALL)
+# R281 introduced the current feed-era close contract.  Earlier rounds contain
+# many retrofit ``state: active`` values despite durable verdicts; from R281
+# onward the lifecycle frontmatter must itself reach a terminal state.
+EXPLICIT_LIFECYCLE_ROUND = 281
 
 
 def _parse_plan_frontmatter(plan_path: Path) -> dict[str, str]:
@@ -314,16 +317,13 @@ def _active_rounds_in_progress(
     ascending. ``dir_name`` preserves the on-disk spelling
     (``R01`` vs ``R1``) so callers can re-construct the path.
 
-    A round is genuinely in-flight iff:
-    1. ``plan.md`` exists and its frontmatter declares ``state: active``
-    2. AND no ``verdict.md`` (or any ``*verdict*.md``) exists in the dir
+    A feed-era round is in-flight whenever ``plan.md`` declares
+    ``state: active``.  A verdict does not silently close R281+ because the
+    canonical lifecycle requires ``close_round.py`` to make that transition.
 
-    Without rule 2, the project's legacy R01-R49 rounds --- which have
-    stale ``state: active`` frontmatter from the R166 retrofit but real
-    verdict.md files --- would flood the active list with ~120 false
-    positives. The verdict.md gate is the operational truth: if a
-    verdict exists, the round is closed regardless of what the
-    frontmatter says.
+    Before R281, many historical rounds retain retrofit ``state: active``
+    frontmatter despite durable verdicts.  Those legacy inconsistencies remain
+    hidden by default so they do not flood every cold start.
 
     Pass ``include_stale=True`` to disable the verdict.md gate (useful
     for ledger-hygiene audits that want to see frontmatter-vs-verdict
@@ -347,11 +347,16 @@ def _active_rounds_in_progress(
         fm = _parse_plan_frontmatter(plan)
         if fm.get("state") != "active":
             continue
-        if not include_stale and any(entry.glob("*verdict*.md")):
-            # Legacy stale-active: verdict exists despite frontmatter
-            # saying active. The verdict is the operational truth.
+        round_number = int(m.group(1))
+        if (
+            not include_stale
+            and round_number < EXPLICIT_LIFECYCLE_ROUND
+            and any(entry.glob("*verdict*.md"))
+        ):
+            # Historical compatibility only. Feed-era rounds must transition
+            # their lifecycle state explicitly even when a verdict exists.
             continue
-        out.append((int(m.group(1)), fm, entry.name))
+        out.append((round_number, fm, entry.name))
     # Sort numerically (so R10 > R3, not the str-order opposite).
     out.sort(key=lambda t: t[0])
     return out
@@ -362,7 +367,7 @@ def _format_active_list(active: list[tuple[int, dict[str, str], str]],
     """Pretty-print active rounds for CLI output."""
     if not active:
         return ""
-    lines = ["Active rounds (state=active in plan.md, no verdict.md yet):"]
+    lines = ["Active rounds (state=active in plan.md; explicit close required):"]
     for n, fm, dir_name in active:
         opened = fm.get("opened", "?")
         # Extract Driver line from plan body if present

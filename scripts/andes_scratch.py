@@ -12,7 +12,10 @@ Usage:
     python scripts/andes_scratch.py --scratch-root D:\\scratch scripts/eval_ddic.py
 
 Failure modes:
-    A missing script exits 2. The child process exit status is propagated.
+    A missing script exits 2. On WSL/POSIX the launcher replaces itself with
+    the target, so the target exit status is the launcher exit status and one
+    shard uses exactly one Python process. Windows preserves the subprocess
+    fallback used by local launcher tests and non-ANDES utilities.
     Scratch directories are retained for inspection and are never deleted.
     Known repository input/output path flags keep repository-root-relative
     semantics even though the child working directory changes.
@@ -121,15 +124,16 @@ def main(argv: list[str] | None = None) -> int:
     run_dir = _run_directory(scratch_root, script)
     print(f"SCRATCH_DIR={run_dir}", flush=True)
     child_args = _add_repository_path_defaults(script, args.args)
-    completed = subprocess.run(
-        [
-            sys.executable,
-            str(script),
-            *_anchor_repository_path_arguments(child_args),
-        ],
-        cwd=run_dir,
-        check=False,
-    )
+    command = [
+        sys.executable,
+        str(script),
+        *_anchor_repository_path_arguments(child_args),
+    ]
+    if os.name == "posix":
+        os.chdir(run_dir)
+        os.execv(sys.executable, command)
+        raise RuntimeError("os.execv returned unexpectedly")
+    completed = subprocess.run(command, cwd=run_dir, check=False)
     return completed.returncode
 
 

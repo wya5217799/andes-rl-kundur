@@ -1,0 +1,251 @@
+{
+  "contract": {
+    "classification": [
+      "INVALID-DYNAMIC-REDUCTION-VALIDATION",
+      "DYNAMIC-REDUCTION-NO-GO",
+      "DYNAMIC-REDUCTION-PASS"
+    ],
+    "comparison_identifiability": {
+      "R314_vs_R315": "QUALIFY",
+      "estimand": "heldout-cross-output-prediction-error-in-frozen-reduction",
+      "parent_fir_vs_reduced_era": "ALLOW-REDUCTION-FIDELITY-ONLY",
+      "reduced_full_vs_block": "ALLOW",
+      "single_factor": "retain-versus-zero-common-differential-cross-output",
+      "stay_out": [
+        "predictor-class-superiority",
+        "controller-efficacy",
+        "distributed-execution-value",
+        "multi-agent-or-MARL-value",
+        "topology-generalization",
+        "stability-guarantee",
+        "deployment"
+      ]
+    },
+    "controller_development_authorized": false,
+    "development_authority": {
+      "R313_HP0_fitting_forbidden": true,
+      "R314_holdout_fitting_forbidden": true,
+      "carrier_holdout_accessed": false,
+      "carrier_round": "R314",
+      "training_questions": [
+        "Q-0068",
+        "Q-0069"
+      ],
+      "training_rounds": [
+        "R312",
+        "R313"
+      ],
+      "training_trace_count": 44
+    },
+    "distributed_agent_implementation_authorized": false,
+    "eval": {
+      "bootstrap_resamples": 10000,
+      "bootstrap_seed": 2026080315,
+      "effect_optimization_authorized": false,
+      "evidence_status": "EXTERNAL_AUTHORITY_REQUIRED",
+      "execution_profile": "vector_power",
+      "guard_synthesis": {
+        "fail_closed": true,
+        "mapping": {
+          "completed": true,
+          "finite_telemetry": true,
+          "system_exit_code": 0,
+          "tds_test_ok": true
+        },
+        "source": "authoritative R315 physical record fields"
+      },
+      "required_active_window_seconds": 1.0,
+      "source_bound_view": true,
+      "trigger": {
+        "run_manifest_trace_count": 50,
+        "source_sidecars_required": true,
+        "verified_edge_record_count": 36
+      }
+    },
+    "excitation_shapes": {
+      "bipolar": [
+        0.05,
+        0.05,
+        0.0,
+        -0.05,
+        -0.05
+      ],
+      "impulse": [
+        0.05
+      ],
+      "triangle": [
+        0.02,
+        0.04,
+        0.05,
+        0.04,
+        0.02
+      ]
+    },
+    "fresh_holdout_required": true,
+    "holdout_fitting_forbidden": true,
+    "holdout_operating_points": [
+      {
+        "initial_soc": 0.43,
+        "name": "HR0",
+        "simplex": [
+          "OP0",
+          "OP1",
+          "HP1"
+        ],
+        "tie_rx_scale": 1.1,
+        "training_weights": {
+          "HP1": 0.5,
+          "OP0": 0.35,
+          "OP1": 0.15,
+          "OP2": 0.0
+        },
+        "vsg_d_device": 91.25,
+        "vsg_m_device": 182.5
+      },
+      {
+        "initial_soc": 0.49,
+        "name": "HR1",
+        "simplex": [
+          "OP0",
+          "OP2",
+          "HP1"
+        ],
+        "tie_rx_scale": 1.25,
+        "training_weights": {
+          "HP1": 0.5,
+          "OP0": 0.35,
+          "OP1": 0.0,
+          "OP2": 0.15
+        },
+        "vsg_d_device": 98.75,
+        "vsg_m_device": 197.5
+      }
+    ],
+    "holdout_trace_count": 50,
+    "horizon_steps": 25,
+    "input_window_steps": 5,
+    "markov_recovery": {
+      "late_horizon_truncation": "none",
+      "pulse_amplitude_system_pu": 0.05,
+      "pulse_width_steps": 5,
+      "smoothing": "none",
+      "source": "five-step-rectangular-central-difference-templates"
+    },
+    "optimization_rules": {
+      "DYNAMIC-REDUCTION-NO-GO": "registered-failure-mode-branch-only",
+      "DYNAMIC-REDUCTION-PASS": "separate-deterministic-controller-question-may-be-opened",
+      "INVALID-DYNAMIC-REDUCTION-VALIDATION": "new-cause-specific-canary-only"
+    },
+    "question": "Q-0071",
+    "realization": {
+      "block_columns": 8,
+      "block_rows": 8,
+      "kind": "era",
+      "markov_horizon_steps": 25,
+      "maximum_spectral_radius": 0.995,
+      "order": 10,
+      "pole_projection": "clip-magnitude-only-before-holdout",
+      "sample_period_seconds": 0.2,
+      "state_initialization": "zero"
+    },
+    "round": "R315",
+    "stage": "sealed-low-order-dynamic-reduction-holdout",
+    "thresholds": {
+      "aggregate_cross_squared_error_reduction_min": 0.2,
+      "cross_record_win_fraction_min": 0.75,
+      "maximum_normalized_absolute_residual_max": 0.2,
+      "maximum_spectral_radius": 0.995,
+      "parent_physical_total_nrmse_max": 0.15,
+      "peak_magnitude_relative_error_max": 0.1,
+      "peak_timing_error_seconds_max": 0.2,
+      "reduced_parent_total_nrmse_max": 0.1,
+      "reduced_physical_total_nrmse_max": 0.15
+    },
+    "training_authorized": false
+  },
+  "contract_payload_sha256": "59c6955b53385b10acbb9e0ee93dc90817936f8c47c3b290f6dc1839103d9c8c",
+  "created_utc": "2026-08-03T10:52:56.477153+00:00",
+  "development_artifacts": {
+    "analysis": {
+      "path": "results/r314_local_predictor/analysis.json",
+      "sha256": "bfe177502d3dddf4b2bb1d2d8532f45ea14f2e7471601623a26de9108e865ead"
+    },
+    "predictor_model": {
+      "path": "results/r314_local_predictor/predictor_model.json",
+      "sha256": "726cbaf2ba6e8aef9fb95ee6ed6bceb476f35911cf5e85e9fd8de05d3b4c1c38"
+    },
+    "provenance": {
+      "path": "results/r314_local_predictor/provenance.json",
+      "sha256": "f7b5263b0a7b73886ac134c2680c96ac142b06d4b4324f689b2858957eac5503"
+    },
+    "run_manifest": {
+      "path": "results/r314_local_predictor/run_manifest.json",
+      "sha256": "ae3c29243a323924a8aca1ea0b044d719bcf7a96815d1247511e8cc6b871ee9b"
+    }
+  },
+  "question": "Q-0071",
+  "round": "R315",
+  "schema_version": 1,
+  "sources": {
+    "adapter": {
+      "path": "scripts/run_r315_dynamic_reduction.py",
+      "sha256": "2152ad7e142dc2bc03379cfb9fb86f50c7e241d9ee94d68efe589a7e2d9d5574"
+    },
+    "adapter_tests": {
+      "path": "tests/test_r315_dynamic_reduction.py",
+      "sha256": "b9c16c0ba7409805bbd10d87c50951f119fe39b482262fe7395b316e11e358f7"
+    },
+    "dynamic_reduction": {
+      "path": "src/andes_rl_kundur/evaluation/model_first_dynamic_reduction.py",
+      "sha256": "4cc9a99b6a3a558ae24f621605e41684ccfe10a9abcc3cb84156d0bdea3128f7"
+    },
+    "dynamic_tests": {
+      "path": "tests/test_model_first_dynamic_reduction.py",
+      "sha256": "a74b4c74dd235e2a115fe8a829006c9a2ce605104eef109a4345ba9ba4435cee"
+    },
+    "environment": {
+      "path": "src/andes_rl_kundur/env/andes/model_first_env.py",
+      "sha256": "8b8aa445aafe4b40182cfe60b2dad3cf639dca98ff695d176b01bb5784965f13"
+    },
+    "eval_guards": {
+      "path": "src/andes_rl_kundur/evaluation/model_first_stage1_eval_guards.py",
+      "sha256": "046608a72b463695062d6a54288c6a32fb481ed959b0b2a8c90fed86bc6a45bb"
+    },
+    "eval_v2": {
+      "path": "src/andes_rl_kundur/evaluation/eval_v2.py",
+      "sha256": "f9a36ee8c2f393299e550ca57fe28ab15d01447415649ec102d8e2e6f2546e13"
+    },
+    "eval_view": {
+      "path": "src/andes_rl_kundur/evaluation/model_first_stage1_eval_view.py",
+      "sha256": "c546b2185db1b31a9242621a9e8ed4d5c3ff868bc5a397a75e04db4e10d50c7d"
+    },
+    "execution_core": {
+      "path": "scripts/run_r310_model_first_stage1.py",
+      "sha256": "729cce9be0506ed404b3b9ad4d2aef8a5d4d35bf0c7b1b5196724d8c607d3257"
+    },
+    "lifecycle_core": {
+      "path": "scripts/run_r314_local_predictor.py",
+      "sha256": "11441bbc938d678ad1394d1f0a1f656299d12b92867fa589faa69de8ed6bc50d"
+    },
+    "model_contract": {
+      "path": "src/andes_rl_kundur/env/andes/model_first_contract.py",
+      "sha256": "1fd3dd02c363185c27a8af6f006853f82bf258676ef1ab3c7928c6db4d93cbf6"
+    },
+    "plan": {
+      "path": "memory/rounds/R315/plan.md",
+      "sha256": "08bfeeeaf4cd7649fc2bfb7e40e6399e6637a94c53a0093a129a52abf52b21a5"
+    },
+    "question": {
+      "path": "memory/questions/Q-0071.md",
+      "sha256": "5d7217430a6af268715ba3f2fe22b998088c8f0c751646bf82f488538386e71f"
+    },
+    "validation_probe": {
+      "path": "probes/r315_dynamic_reduction_validation.py",
+      "sha256": "805b03ece98501a7b43a48aaa83b0a68e125160b3d51a0b269f7b29d5ed007bd"
+    },
+    "validation_tests": {
+      "path": "tests/test_r315_dynamic_reduction_validation.py",
+      "sha256": "82f0e69ee736ede9c5ca08b91338278058498b93b149dd4060ffbca6bcb16c1e"
+    }
+  }
+}

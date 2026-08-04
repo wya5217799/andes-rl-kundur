@@ -1,0 +1,239 @@
+{
+  "claim_boundary": "implementation equivalence in one deterministic single-process ANDES simulation only; no performance selection, communication robustness, hardware decentralization, MARL, or deployment claim",
+  "dt_seconds": 0.2,
+  "endpoint_atol": 1e-12,
+  "endpoints": [
+    "vsg_mean_iae_hz_s",
+    "worst_bus_peak_abs_hz",
+    "max_abs_rocof_hz_s",
+    "normalized_sync_loss_hz2",
+    "fast_inter_area_iae_hz_s"
+  ],
+  "formal_summary_sha256": "11e9dbcd3265ca6f2c7781723ab6285ce7cc682c871a3c5ce28c8f60a06f7388",
+  "jobs": [
+    {
+      "arm": {
+        "architecture": "distributed_dapi_local_agents",
+        "name": "distributed_dapi_local_agents__ks1",
+        "sync_gain": 1.0
+      },
+      "name": "k1__pq_0__neg__distributed_dapi_local_agents__ks1",
+      "order": 0,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_0",
+        "name": "k1__pq_0__neg",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "architecture": "distributed_dapi_local_agents",
+        "name": "distributed_dapi_local_agents__ks1",
+        "sync_gain": 1.0
+      },
+      "name": "k1__pq_1__neg__distributed_dapi_local_agents__ks1",
+      "order": 1,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_1",
+        "name": "k1__pq_1__neg",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "architecture": "distributed_dapi_local_agents",
+        "name": "distributed_dapi_local_agents__ks1",
+        "sync_gain": 1.0
+      },
+      "name": "k1__pq_1__pos__distributed_dapi_local_agents__ks1",
+      "order": 2,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_1",
+        "name": "k1__pq_1__pos",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "architecture": "distributed_dapi_local_agents",
+        "name": "distributed_dapi_local_agents__ks1",
+        "sync_gain": 1.0
+      },
+      "name": "k1__pq_bus14__neg__distributed_dapi_local_agents__ks1",
+      "order": 3,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_Bus14",
+        "name": "k1__pq_bus14__neg",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "architecture": "distributed_dapi_local_agents",
+        "name": "distributed_dapi_local_agents__ks1",
+        "sync_gain": 1.0
+      },
+      "name": "k1__pq_bus14__pos__distributed_dapi_local_agents__ks1",
+      "order": 4,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_Bus14",
+        "name": "k1__pq_bus14__pos",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "architecture": "distributed_dapi_local_agents",
+        "name": "distributed_dapi_local_agents__ks1",
+        "sync_gain": 1.0
+      },
+      "name": "k1__pq_bus15__pos__distributed_dapi_local_agents__ks1",
+      "order": 5,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_Bus15",
+        "name": "k1__pq_bus15__pos",
+        "tie_k": 1.0
+      }
+    },
+    {
+      "arm": {
+        "architecture": "distributed_dapi_local_agents",
+        "name": "distributed_dapi_local_agents__ks1",
+        "sync_gain": 1.0
+      },
+      "name": "k2__pq_0__neg__distributed_dapi_local_agents__ks1",
+      "order": 6,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_0",
+        "name": "k2__pq_0__neg",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "architecture": "distributed_dapi_local_agents",
+        "name": "distributed_dapi_local_agents__ks1",
+        "sync_gain": 1.0
+      },
+      "name": "k2__pq_0__pos__distributed_dapi_local_agents__ks1",
+      "order": 7,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_0",
+        "name": "k2__pq_0__pos",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "architecture": "distributed_dapi_local_agents",
+        "name": "distributed_dapi_local_agents__ks1",
+        "sync_gain": 1.0
+      },
+      "name": "k2__pq_1__neg__distributed_dapi_local_agents__ks1",
+      "order": 8,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_1",
+        "name": "k2__pq_1__neg",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "architecture": "distributed_dapi_local_agents",
+        "name": "distributed_dapi_local_agents__ks1",
+        "sync_gain": 1.0
+      },
+      "name": "k2__pq_bus14__pos__distributed_dapi_local_agents__ks1",
+      "order": 9,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_Bus14",
+        "name": "k2__pq_bus14__pos",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "architecture": "distributed_dapi_local_agents",
+        "name": "distributed_dapi_local_agents__ks1",
+        "sync_gain": 1.0
+      },
+      "name": "k2__pq_bus15__neg__distributed_dapi_local_agents__ks1",
+      "order": 10,
+      "scenario": {
+        "delta_u": -1.0,
+        "location": "PQ_Bus15",
+        "name": "k2__pq_bus15__neg",
+        "tie_k": 2.0
+      }
+    },
+    {
+      "arm": {
+        "architecture": "distributed_dapi_local_agents",
+        "name": "distributed_dapi_local_agents__ks1",
+        "sync_gain": 1.0
+      },
+      "name": "k2__pq_bus15__pos__distributed_dapi_local_agents__ks1",
+      "order": 11,
+      "scenario": {
+        "delta_u": 1.0,
+        "location": "PQ_Bus15",
+        "name": "k2__pq_bus15__pos",
+        "tie_k": 2.0
+      }
+    }
+  ],
+  "purpose": "post-formal explicit local-agent execution equivalence",
+  "question": "Q-0051",
+  "round": "R294",
+  "schema_version": 1,
+  "shard_count": 3,
+  "sources": {
+    "development_runner": {
+      "path": "scripts/run_r294_fast_controller_development.py",
+      "sha256": "20be7bd30982d58ad4ea49192abf20117aa7c9be76f52f81ac0b698fb41ffb6b"
+    },
+    "formal_seal": {
+      "path": "memory/rounds/R294/stage_d_compact_controller_validation_seal.json",
+      "sha256": "e74094a53df829c69a2d234a792a37050fa83ad256bf5dcc0004a9a11c44d781"
+    },
+    "formal_summary": {
+      "path": "results/r294_model_validation/stage_d_compact_controller_validation/formal_summary.json",
+      "sha256": "11e9dbcd3265ca6f2c7781723ab6285ce7cc682c871a3c5ce28c8f60a06f7388"
+    },
+    "local_controller": {
+      "path": "src/andes_rl_kundur/control/decentralized_dapi.py",
+      "sha256": "e47ace81360fecf0ee2115503f69aaff8e3419b5a33d08bab1c491821a923ca5"
+    },
+    "protocol": {
+      "path": "memory/rounds/R294/stage_e_decentralized_execution_protocol.md",
+      "sha256": "463165ac1284be9f3774e3fada7e2d6e9249f44f2155603f8f21236040ddf66a"
+    },
+    "runner": {
+      "path": "scripts/run_r294_decentralized_execution_verification.py",
+      "sha256": "b0ac15e2d40f97bfda761f942263faafdd28a5258466c1a228448ce3c2bc1ae4"
+    },
+    "sparse_vector_controller": {
+      "path": "src/andes_rl_kundur/control/coupling_aware_power.py",
+      "sha256": "4eff7eb6a251a22f4bf8b11df78c3e3972e9bcb9c44a1a27e589233d6543a15f"
+    }
+  },
+  "stage": "stage_e_explicit_decentralized_execution",
+  "steps": 100,
+  "trace_atol": 1e-10,
+  "trace_fields": [
+    "bess_requested_power_system_pu",
+    "bess_commanded_power_system_pu",
+    "delta_f_physical_hz",
+    "bess_soc"
+  ]
+}

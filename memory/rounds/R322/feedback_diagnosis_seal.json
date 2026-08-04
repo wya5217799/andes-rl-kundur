@@ -1,0 +1,230 @@
+{
+  "schema_version": 1,
+  "round": "R322",
+  "question": "Q-0077",
+  "created_utc": "2026-08-03T13:19:51.370821+00:00",
+  "contract": {
+    "round": "R322",
+    "question": "Q-0077",
+    "stage": "development-only-feedback-authority-diagnosis",
+    "parent_round": "R321",
+    "parent_claim": "CLM-0815",
+    "r321_analysis_sha256": "03c0f7ea7d5e530b4a947b768aaab0162d88ae3c06e8629815cb6149640e0ea6",
+    "r321_analysis_access": "HASH-ONLY-NO-PARSE",
+    "sample_period_seconds": 0.2,
+    "horizon_steps": 50,
+    "coordinates": [
+      "common",
+      "edge_0",
+      "edge_1",
+      "edge_2"
+    ],
+    "points": [
+      {
+        "name": "HS0",
+        "initial_soc": 0.41
+      },
+      {
+        "name": "HS1",
+        "initial_soc": 0.51
+      }
+    ],
+    "controller_target_poles": [
+      0.9,
+      0.9061538461538462,
+      0.9123076923076924,
+      0.9184615384615384,
+      0.9246153846153846,
+      0.9307692307692308,
+      0.936923076923077,
+      0.943076923076923,
+      0.9492307692307692,
+      0.9553846153846154,
+      0.9615384615384616,
+      0.9676923076923076,
+      0.9738461538461538,
+      0.98
+    ],
+    "observer_target_poles": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.8,
+      0.8155555555555556,
+      0.8311111111111111,
+      0.8466666666666667,
+      0.8622222222222222,
+      0.8777777777777778,
+      0.8933333333333333,
+      0.9088888888888889,
+      0.9244444444444444,
+      0.94
+    ],
+    "placement_method": "YT",
+    "placement_relative_tolerance": 1e-06,
+    "placement_maximum_iterations": 100,
+    "placement_target_tolerance": 1e-08,
+    "output_scales": {
+      "HS0": [
+        0.0002668112041645563,
+        0.00015882926554077416,
+        0.00019288206508276265,
+        0.0002124274132893341
+      ],
+      "HS1": [
+        0.00025989821599602683,
+        0.00014880082973969276,
+        0.00018244950507686816,
+        0.00020106658488483798
+      ]
+    },
+    "action_scales": [
+      0.36,
+      0.36,
+      0.36,
+      0.36
+    ],
+    "development_shapes": {
+      "impulse": [
+        0.05
+      ],
+      "triangle": [
+        0.02,
+        0.04,
+        0.05,
+        0.04,
+        0.02
+      ]
+    },
+    "development_case_count": 32,
+    "decomposition_tolerance": 1e-10,
+    "observer_rescue_absolute_floor": 0.98,
+    "observer_rescue_fraction": 0.5,
+    "true_state_authority_overdrive": 2.0,
+    "maximum_error_command_fraction": 0.5,
+    "matched_minimum_improvement": 0.02,
+    "maximum_repair_pole_radius": 0.995,
+    "limits": {
+      "sample_period_seconds": 0.2,
+      "node_power": 0.36,
+      "node_ramp": 0.072,
+      "system_mva": 100.0,
+      "energy_mwh": 28.0,
+      "charge_efficiency": 0.9848857802,
+      "discharge_efficiency": 0.9848857802,
+      "minimum_soc": 0.2,
+      "maximum_soc": 0.8
+    },
+    "retained_arm": "unchanged-R316-order-10-realizations",
+    "matched_baseline": {
+      "single_factor": "delete-common-differential-transfer-blocks",
+      "era_order": 10,
+      "block_rows": 8,
+      "block_columns": 8,
+      "maximum_model_spectral_radius": 0.995,
+      "executed_plant": "unchanged-full-retained-cross-R316-realization"
+    },
+    "repair": {
+      "kind": "one-common-analytic-authority-scalar",
+      "formula": "min(1,1/worst_raw_power_ratio,1/worst_raw_ramp_ratio)",
+      "pool": "both-arms-all-development-cases",
+      "changed_field": "feedback-gain-only",
+      "observer_gain": "unchanged",
+      "tuning_candidate_count": 0
+    },
+    "comparison_identifiability": {
+      "decision": "QUALIFY-DEVELOPMENT-ONLY",
+      "single_factor": "retain-versus-delete-named-transfer-blocks",
+      "matched": [
+        "full-retained-executed-plants",
+        "delayed-four-coordinate-information-and-known-point",
+        "four-coordinate-action-node-governor-and-limits",
+        "placement-template-and-one-common-repair-scalar",
+        "development-cases-timing-and-metrics",
+        "zero-search-and-zero-tuning-candidates"
+      ]
+    },
+    "classification": [
+      "INVALID-DEVELOPMENT-DIAGNOSIS",
+      "MECHANISM-NOT-IDENTIFIED",
+      "ACTUATOR-NORMALIZED-REPAIR-NO-GO",
+      "ACTUATOR-NORMALIZED-REPAIR-ELIGIBLE"
+    ],
+    "fresh_holdout_access": "PROHIBITED",
+    "eval": "NOT-APPLICABLE-MODEL-ONLY",
+    "physical_execution_authorized": false,
+    "distributed_agent_implementation_authorized": false,
+    "training_authorized": false
+  },
+  "contract_payload_sha256": "d88a587eac3ede3ea31de3fee995782eb2b4803119dbcd6d708ca505179a78be",
+  "parent": {
+    "r316_model": {
+      "path": "results/r316_dynamic_reduction/dynamic_model.json",
+      "sha256": "da0eef3efca6bba1f176156445c355b260f9d21fe48e223191d507bb62a6c6bc"
+    },
+    "r321_seal": {
+      "path": "memory/rounds/R321/pole_target_examination_seal.json",
+      "sha256": "114e9134ab1166002b969612b782e843820522ebbaaa8930d7d51de69f8f5ee4"
+    },
+    "r321_analysis_hash_only": {
+      "path": "results/r321_pole_target_examination/analysis.json",
+      "sha256": "03c0f7ea7d5e530b4a947b768aaab0162d88ae3c06e8629815cb6149640e0ea6",
+      "access": "HASH-ONLY-NO-PARSE"
+    }
+  },
+  "sources": {
+    "plan": {
+      "path": "memory/rounds/R322/plan.md",
+      "sha256": "cb8143223521ecdb3e6df9ec5fdda409dc3a91aac9114d6563e08aceeba1c8b7"
+    },
+    "question": {
+      "path": "memory/questions/Q-0077.md",
+      "sha256": "cecdf54b7375667335b3b6a485d579d883705769ede6d7803cc6a30e8f7eb99a"
+    },
+    "r316_model": {
+      "path": "results/r316_dynamic_reduction/dynamic_model.json",
+      "sha256": "da0eef3efca6bba1f176156445c355b260f9d21fe48e223191d507bb62a6c6bc"
+    },
+    "r321_seal": {
+      "path": "memory/rounds/R321/pole_target_examination_seal.json",
+      "sha256": "114e9134ab1166002b969612b782e843820522ebbaaa8930d7d51de69f8f5ee4"
+    },
+    "r321_analysis_hash_only": {
+      "path": "results/r321_pole_target_examination/analysis.json",
+      "sha256": "03c0f7ea7d5e530b4a947b768aaab0162d88ae3c06e8629815cb6149640e0ea6"
+    },
+    "observer_feedback_module": {
+      "path": "src/andes_rl_kundur/control/model_first_observer_lqr.py",
+      "sha256": "339bb96e7987e1a69f40db2361241e41c96093dd1d258d3c04cedc640abcd792"
+    },
+    "pole_target_module": {
+      "path": "src/andes_rl_kundur/control/model_first_pole_target.py",
+      "sha256": "7dced433a4ccbfc94a6f4b75e3faf04f37986d69e22e909483ab3406d3acc52d"
+    },
+    "diagnosis_module": {
+      "path": "src/andes_rl_kundur/control/model_first_feedback_diagnosis.py",
+      "sha256": "d41ef38b8c966bdccf1b48ab2219e0b24d31055b6e3c1ac992e3464cd3154a11"
+    },
+    "validation_probe": {
+      "path": "probes/r322_feedback_diagnosis_validation.py",
+      "sha256": "5dabe7462d3c2d67d989b046bdd07189c4deafbca3714adcd0c2be312f48d672"
+    },
+    "adapter": {
+      "path": "scripts/run_r322_feedback_diagnosis.py",
+      "sha256": "03decf6ecd259364b83eafefcb27feaa30f814f249ed76d8148bb40b71606ce6"
+    },
+    "diagnosis_tests": {
+      "path": "tests/test_model_first_feedback_diagnosis.py",
+      "sha256": "3c47505ac69959debd0027469466e126829533aa2b4cd162bc9055d097b397f0"
+    },
+    "validation_tests": {
+      "path": "tests/test_r322_feedback_diagnosis_validation.py",
+      "sha256": "316c476d7a9480c48c39ed69be6ca7868f6124b931c0ba0ee9a33dae96231e26"
+    },
+    "adapter_tests": {
+      "path": "tests/test_r322_feedback_diagnosis.py",
+      "sha256": "2e1f62f26327cac982a0f3732ea16cbcea8695c059de5e6c8b09d0cf867260ef"
+    }
+  }
+}

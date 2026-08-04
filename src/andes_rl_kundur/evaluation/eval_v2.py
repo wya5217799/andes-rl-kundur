@@ -10,15 +10,25 @@ mixed together:
 The module never produces a composite score or winner rank.  Its output is a
 diagnostic scorecard, not a replacement for a prospectively sealed round.
 
+Execution telemetry is selected explicitly.  The default
+``r278_scalar_projection`` profile preserves the original scalar-q contract;
+``vector_power`` audits the four-ESD1 power-vector contract used by R294--R300
+without pretending that R278 raw-vote fields exist; ``vector_inertia`` audits
+the R292 edge-flow to four-VSG inertia contract with independent model
+readback and topology provenance.
+
 Library usage::
 
-    scorecard = evaluate_trace_directory("results/.../traces")
+    scorecard = evaluate_trace_directory(
+        "results/.../records",
+        execution_profile="vector_power",
+    )
     write_scorecard(scorecard, "tmp/eval-v2", overwrite=True)
 
 CLI usage::
 
-    python scripts/eval_v2.py --trace-dir results/.../traces \
-        --output-dir tmp/eval-v2 --overwrite
+    python scripts/eval_v2.py --trace-dir results/.../records \
+        --output-dir tmp/eval-v2 --execution-profile vector_power --overwrite
 
 Malformed or incomplete paired inputs raise :class:`EvaluationContractError`.
 Per-trace execution violations remain in the scorecard and set
@@ -41,6 +51,11 @@ from typing import Any
 
 import numpy as np
 
+from andes_rl_kundur.control.vector_inertia_residual import (
+    INCIDENCE,
+    execute_edge_residual_numpy,
+    r292_vector_residual_contract,
+)
 from andes_rl_kundur.evaluation.icems_residual import float32_limit_tolerance
 from andes_rl_kundur.evaluation.reviewer_identifiability import (
     hierarchical_seed_scenario_ratio_bootstrap,
@@ -49,15 +64,34 @@ from andes_rl_kundur.evaluation.sealed_bank import (
     empirical_upper_tail,
     paired_bootstrap_contrasts,
 )
+from andes_rl_kundur.evaluation.topology_status import (
+    r304_topology_label_matches_opened_line,
+)
 
 SCHEMA_VERSION = 2
 AGENT_COUNT = 4
+LEGACY_EXECUTION_PROFILE = "r278_scalar_projection"
+VECTOR_POWER_EXECUTION_PROFILE = "vector_power"
+VECTOR_INERTIA_EXECUTION_PROFILE = "vector_inertia"
 DEFAULT_ACTIVE_STEPS = 15
 DEFAULT_FINAL_WINDOW_STEPS = 50
 RAW_SATURATION_THRESHOLD = 0.9
 NEAR_ZERO_Q_FRACTION_OF_LIMIT = 0.1
 Q_BOUNDARY_FRACTION_OF_LIMIT = 0.9
 AREA_PATTERN = np.asarray([1.0, 1.0, -1.0, -1.0])
+VECTOR_POWER_LIMIT_SYSTEM_PU = 0.36
+VECTOR_POWER_RAMP_LIMIT_SYSTEM_PU = 0.072
+VECTOR_SOC_MIN = 0.2
+VECTOR_SOC_MAX = 0.8
+VECTOR_ZERO_TOLERANCE = 1e-12
+VECTOR_ACTION_OBSERVED_TOLERANCE = 1e-8
+LOCAL_VECTOR_ARCHITECTURE = "four_local_dapi_agents_with_neighbour_edge_channels"
+CENTRAL_VECTOR_ARCHITECTURE = "joint_observation_centralized"
+VECTOR_INERTIA_ARCHITECTURES = {
+    "zero_vector_baseline",
+    "distributed_edge",
+    "central_vector",
+}
 
 
 @dataclass(frozen=True)
@@ -66,6 +100,26 @@ class MetricSpec:
 
     name: str
     role: str
+
+
+@dataclass(frozen=True)
+class ExecutionProfileSpec:
+    """Architecture-specific telemetry, provenance, and rendering contract."""
+
+    name: str
+    provenance_fields: tuple[str, ...]
+    nested_scenario_metadata: bool
+    scenario_metadata_fields: tuple[str, ...]
+    action_audit_policy: Mapping[str, Any]
+    projection_diagnostic_policy: Mapping[str, Any]
+    execution_header: str
+    execution_action_keys: tuple[str, str]
+    worst_action_label: str
+    worst_action_key: str
+    stratified_title: str
+    stratified_header: str
+    stratified_keys: tuple[str, str, str, str]
+    show_projection_training: bool
 
 
 METRIC_SPECS = (
@@ -105,12 +159,159 @@ STRATIFIED_ACTION_METRICS = (
     "raw_same_sign_saturation_cancel_fraction",
     "projection_utilization_ratio_of_means",
     "raw_projection_max_abs_error",
+    "max_abs_commanded_power_system_pu",
+    "max_abs_command_slew_system_pu_per_step",
+    "max_abs_residual_sum_system_pu",
+    "max_abs_commanded_m_residual_model_units",
+    "max_abs_commanded_m_residual_slew_model_units_per_step",
+    "max_abs_commanded_m_residual_sum_model_units",
+    "vector_action_observed",
 )
+EXECUTION_PROFILE_SPECS = {
+    LEGACY_EXECUTION_PROFILE: ExecutionProfileSpec(
+        name=LEGACY_EXECUTION_PROFILE,
+        provenance_fields=("formal_bank_sha256", "formal_seal_sha256"),
+        nested_scenario_metadata=False,
+        scenario_metadata_fields=SCENARIO_METADATA_FIELDS,
+        action_audit_policy={
+            "representation": "float32",
+            "q_limit_tolerance_rule": "spacing(float32(abs(limit)))",
+            "override_allowed": False,
+        },
+        projection_diagnostic_policy={
+            "analysis_class": "exploratory_post_hoc",
+            "scope": "active_window",
+            "same_sign_saturation_abs_raw_threshold": RAW_SATURATION_THRESHOLD,
+            "near_zero_executed_q_fraction_of_limit": NEAR_ZERO_Q_FRACTION_OF_LIMIT,
+            "q_boundary_abs_fraction_of_limit": Q_BOUNDARY_FRACTION_OF_LIMIT,
+        },
+        execution_header=(
+            "| Controller | Sync-loss max / upper-tail CVaR | "
+            "Worst-bus peak max / upper-tail CVaR | Max abs(q) | Max q slew | "
+            "Constraint events |"
+        ),
+        execution_action_keys=("max_abs_q", "max_abs_q_slew_per_step"),
+        worst_action_label="Worst two same-sign cancellation scenarios / values",
+        worst_action_key="raw_same_sign_saturation_cancel_fraction",
+        stratified_title="### Stratified projection mechanisms",
+        stratified_header=(
+            "| Stratum | Family | Mean normalized executed q | "
+            "Mean raw-vote magnitude | Mean nullspace energy | "
+            "Mean same-sign cancellation |"
+        ),
+        stratified_keys=(
+            "executed_q_abs_mean_normalized",
+            "raw_vote_abs_mean",
+            "raw_nullspace_energy_fraction_mean",
+            "raw_same_sign_saturation_cancel_fraction",
+        ),
+        show_projection_training=True,
+    ),
+    VECTOR_POWER_EXECUTION_PROFILE: ExecutionProfileSpec(
+        name=VECTOR_POWER_EXECUTION_PROFILE,
+        provenance_fields=("seal_sha256",),
+        nested_scenario_metadata=True,
+        scenario_metadata_fields=SCENARIO_METADATA_FIELDS,
+        action_audit_policy={
+            "representation": "four_esd1_power_vectors",
+            "power_limit_system_pu": VECTOR_POWER_LIMIT_SYSTEM_PU,
+            "ramp_limit_system_pu_per_step": VECTOR_POWER_RAMP_LIMIT_SYSTEM_PU,
+            "soc_bounds": [VECTOR_SOC_MIN, VECTOR_SOC_MAX],
+            "local_residual_zero_sum_tolerance_system_pu": VECTOR_ZERO_TOLERANCE,
+            "common_dapi_power_zero_sum_required": False,
+            "md_action_must_remain_zero": True,
+            "override_allowed": False,
+        },
+        projection_diagnostic_policy={
+            "status": "not_applicable",
+            "reason": "vector power execution has no R278 scalar raw-vote projection",
+        },
+        execution_header=(
+            "| Controller | Sync-loss max / upper-tail CVaR | "
+            "Worst-bus peak max / upper-tail CVaR | Max commanded P | "
+            "Max P slew | Constraint events |"
+        ),
+        execution_action_keys=(
+            "max_abs_commanded_power_system_pu",
+            "max_abs_command_slew_system_pu_per_step",
+        ),
+        worst_action_label="Worst two residual-sum scenarios / values",
+        worst_action_key="max_abs_residual_sum_system_pu",
+        stratified_title="### Stratified vector-power mechanisms",
+        stratified_header=(
+            "| Stratum | Family | Mean max commanded P | Mean max P slew | "
+            "Mean residual-sum error | Vector action observed |"
+        ),
+        stratified_keys=(
+            "max_abs_commanded_power_system_pu",
+            "max_abs_command_slew_system_pu_per_step",
+            "max_abs_residual_sum_system_pu",
+            "vector_action_observed",
+        ),
+        show_projection_training=False,
+    ),
+    VECTOR_INERTIA_EXECUTION_PROFILE: ExecutionProfileSpec(
+        name=VECTOR_INERTIA_EXECUTION_PROFILE,
+        provenance_fields=("seal_sha256", "topology_inventory_sha256"),
+        nested_scenario_metadata=True,
+        scenario_metadata_fields=(
+            *SCENARIO_METADATA_FIELDS,
+            "topology",
+            "opened_line",
+        ),
+        action_audit_policy={
+            "representation": "r292_three_edge_to_four_vsg_inertia",
+            "requested_commanded_actual_readback_required": True,
+            "zero_sum_tolerance_rule": "4*spacing(float32(max_abs_model_value))",
+            "topology_status_required": True,
+            "d_action_must_remain_frozen": True,
+            "override_allowed": False,
+        },
+        projection_diagnostic_policy={
+            "status": "not_applicable",
+            "reason": "vector inertia execution has no R278 scalar raw-vote projection",
+        },
+        execution_header=(
+            "| Controller | Sync-loss max / upper-tail CVaR | "
+            "Worst-bus peak max / upper-tail CVaR | Max commanded delta-M | "
+            "Max delta-M slew | Constraint events |"
+        ),
+        execution_action_keys=(
+            "max_abs_commanded_m_residual_model_units",
+            "max_abs_commanded_m_residual_slew_model_units_per_step",
+        ),
+        worst_action_label="Worst two commanded delta-M sum errors / values",
+        worst_action_key="max_abs_commanded_m_residual_sum_model_units",
+        stratified_title="### Stratified vector-inertia mechanisms",
+        stratified_header=(
+            "| Stratum | Family | Mean max commanded delta-M | "
+            "Mean max delta-M slew | Mean delta-M sum error | "
+            "Vector action observed |"
+        ),
+        stratified_keys=(
+            "max_abs_commanded_m_residual_model_units",
+            "max_abs_commanded_m_residual_slew_model_units_per_step",
+            "max_abs_commanded_m_residual_sum_model_units",
+            "vector_action_observed",
+        ),
+        show_projection_training=False,
+    ),
+}
+EXECUTION_PROFILES = tuple(EXECUTION_PROFILE_SPECS)
 CONTROLLER_PATTERN = re.compile(r"^(centralized|shared)_s(\d+)$")
 
 
 class EvaluationContractError(ValueError):
     """Raised when inputs cannot support a complete paired evaluation."""
+
+
+def _profile_spec(name: str) -> ExecutionProfileSpec:
+    try:
+        return EXECUTION_PROFILE_SPECS[name]
+    except KeyError as exc:
+        raise EvaluationContractError(
+            f"execution_profile must be one of {', '.join(EXECUTION_PROFILES)}"
+        ) from exc
 
 
 def _sha256_bytes(data: bytes) -> str:
@@ -212,6 +413,11 @@ def _trace_arrays(record: Mapping[str, Any]) -> tuple[np.ndarray, np.ndarray, fl
 def _active_steps(record: Mapping[str, Any], row_count: int) -> int:
     config = record.get("controller_config", {})
     if isinstance(config, Mapping):
+        vector_inertia = config.get("vector_inertia", {})
+        if isinstance(vector_inertia, Mapping) and "active_steps" in vector_inertia:
+            value = int(vector_inertia["active_steps"])
+            if value > 0:
+                return min(value, row_count)
         area = config.get("area_residual", {})
         if isinstance(area, Mapping) and "active_steps" in area:
             value = int(area["active_steps"])
@@ -349,6 +555,66 @@ def _reconstruct_projected_q(
     return reconstructed
 
 
+def _storage_diagnostics(
+    rows: Sequence[Mapping[str, Any]],
+    *,
+    soc_min: float,
+    soc_max: float,
+    saturation_is_violation: bool,
+) -> tuple[dict[str, Any], list[str]]:
+    """Audit storage telemetry shared by every execution profile."""
+    violations: list[str] = []
+    constraint_count = sum(
+        len(row.get("bess_constraint_violations", []))
+        if isinstance(row.get("bess_constraint_violations", []), list)
+        else 1
+        for row in rows
+    )
+    saturation_count = sum(_nested_count(row.get("bess_saturation_reasons", [])) for row in rows)
+    storage: dict[str, Any] = {
+        "constraint_violation_count": int(constraint_count),
+        "saturation_reason_count": int(saturation_count),
+    }
+    for key in STORAGE_VECTOR_FIELDS:
+        if _as_array(rows, key, columns=AGENT_COUNT) is None:
+            violations.append(f"missing_or_invalid_{key}")
+    if not all(isinstance(row.get("bess_constraint_violations"), list) for row in rows):
+        violations.append("missing_or_invalid_bess_constraint_violations")
+    if not all(
+        isinstance(row.get("bess_saturation_reasons"), list)
+        and len(row["bess_saturation_reasons"]) == AGENT_COUNT
+        for row in rows
+    ):
+        violations.append("missing_or_invalid_bess_saturation_reasons")
+    for source_key, output_key, reducer in (
+        ("bess_actual_power_system_pu", "max_abs_actual_power_system_pu", "max_abs"),
+        ("bess_commanded_power_system_pu", "max_abs_commanded_power_system_pu", "max_abs"),
+        ("bess_requested_power_system_pu", "max_abs_requested_power_system_pu", "max_abs"),
+        ("bess_soc", "min_soc", "min"),
+        ("bess_soc", "max_soc", "max"),
+        ("bess_charge_energy_mwh_total", "max_charge_energy_mwh", "max"),
+        ("bess_discharge_energy_mwh_total", "max_discharge_energy_mwh", "max"),
+    ):
+        values = _as_array(rows, source_key, columns=AGENT_COUNT)
+        if values is None:
+            continue
+        if reducer == "max_abs":
+            storage[output_key] = float(np.max(np.abs(values)))
+        elif reducer == "min":
+            storage[output_key] = float(np.min(values))
+        else:
+            storage[output_key] = float(np.max(values))
+    if constraint_count:
+        violations.append("storage_constraint_violation")
+    if saturation_count and saturation_is_violation:
+        violations.append("storage_saturation")
+    if storage.get("min_soc", soc_min) < soc_min - 1e-9:
+        violations.append("soc_out_of_bounds")
+    if storage.get("max_soc", soc_max) > soc_max + 1e-9:
+        violations.append("soc_out_of_bounds")
+    return storage, violations
+
+
 def _action_and_storage(
     record: Mapping[str, Any],
 ) -> tuple[dict[str, float], dict[str, Any], list[str]]:
@@ -453,57 +719,511 @@ def _action_and_storage(
         except (TypeError, ValueError):
             violations.append("invalid_action_norm")
 
-    constraint_count = sum(
-        len(row.get("bess_constraint_violations", []))
-        if isinstance(row.get("bess_constraint_violations", []), list)
-        else 1
-        for row in rows
+    storage, storage_violations = _storage_diagnostics(
+        rows,
+        soc_min=0.0,
+        soc_max=1.0,
+        saturation_is_violation=True,
     )
-    saturation_count = sum(_nested_count(row.get("bess_saturation_reasons", [])) for row in rows)
-    storage: dict[str, Any] = {
-        "constraint_violation_count": int(constraint_count),
-        "saturation_reason_count": int(saturation_count),
-    }
-    for key in STORAGE_VECTOR_FIELDS:
-        if _as_array(rows, key, columns=AGENT_COUNT) is None:
-            violations.append(f"missing_or_invalid_{key}")
-    if not all(isinstance(row.get("bess_constraint_violations"), list) for row in rows):
-        violations.append("missing_or_invalid_bess_constraint_violations")
-    if not all(
-        isinstance(row.get("bess_saturation_reasons"), list)
-        and len(row["bess_saturation_reasons"]) == AGENT_COUNT
-        for row in rows
-    ):
-        violations.append("missing_or_invalid_bess_saturation_reasons")
-    for source_key, output_key, reducer in (
-        ("bess_actual_power_system_pu", "max_abs_actual_power_system_pu", "max_abs"),
-        (
-            "bess_commanded_power_system_pu",
-            "max_abs_commanded_power_system_pu",
-            "max_abs",
-        ),
-        ("bess_requested_power_system_pu", "max_abs_requested_power_system_pu", "max_abs"),
-        ("bess_soc", "min_soc", "min"),
-        ("bess_soc", "max_soc", "max"),
-        ("bess_charge_energy_mwh_total", "max_charge_energy_mwh", "max"),
-        ("bess_discharge_energy_mwh_total", "max_discharge_energy_mwh", "max"),
-    ):
-        values = _as_array(rows, source_key, columns=AGENT_COUNT)
-        if values is None:
-            continue
-        if reducer == "max_abs":
-            storage[output_key] = float(np.max(np.abs(values)))
-        elif reducer == "min":
-            storage[output_key] = float(np.min(values))
-        else:
-            storage[output_key] = float(np.max(values))
-    if constraint_count:
-        violations.append("storage_constraint_violation")
-    if saturation_count:
-        violations.append("storage_saturation")
-    if storage.get("min_soc", 0.0) < 0.0 or storage.get("max_soc", 1.0) > 1.0:
-        violations.append("soc_out_of_bounds")
+    violations.extend(storage_violations)
     return action, storage, sorted(set(violations))
+
+
+def _vector_power_action_and_storage(
+    record: Mapping[str, Any],
+) -> tuple[dict[str, float], dict[str, Any], list[str]]:
+    """Audit the four-ESD1 power-vector execution used by R294--R300."""
+    rows = record["traces"]
+    violations: list[str] = []
+    action: dict[str, float] = {}
+
+    requested = _as_array(rows, "bess_requested_power_system_pu", columns=AGENT_COUNT)
+    commanded = _as_array(rows, "bess_commanded_power_system_pu", columns=AGENT_COUNT)
+    actual = _as_array(rows, "bess_actual_power_system_pu", columns=AGENT_COUNT)
+    soc = _as_array(rows, "bess_soc", columns=AGENT_COUNT)
+    for name, values in (
+        ("bess_requested_power_system_pu", requested),
+        ("bess_commanded_power_system_pu", commanded),
+        ("bess_actual_power_system_pu", actual),
+        ("bess_soc", soc),
+    ):
+        if values is None:
+            violations.append(f"missing_or_invalid_{name}")
+
+    if requested is not None:
+        cross_agent_range = np.ptp(requested, axis=1)
+        action["max_abs_requested_power_system_pu"] = float(np.max(np.abs(requested)))
+        action["max_requested_cross_agent_range_system_pu"] = float(
+            np.max(cross_agent_range)
+        )
+        action["vector_action_observed"] = float(
+            np.max(cross_agent_range) > VECTOR_ACTION_OBSERVED_TOLERANCE
+        )
+        if not action["vector_action_observed"]:
+            violations.append("vector_action_not_observed")
+    if commanded is not None:
+        command_slew = np.diff(
+            np.concatenate([np.zeros((1, AGENT_COUNT)), commanded], axis=0),
+            axis=0,
+        )
+        action["max_abs_commanded_power_system_pu"] = float(np.max(np.abs(commanded)))
+        action["max_abs_command_slew_system_pu_per_step"] = float(
+            np.max(np.abs(command_slew))
+        )
+        if action["max_abs_commanded_power_system_pu"] > VECTOR_POWER_LIMIT_SYSTEM_PU + 1e-12:
+            violations.append("power_nameplate")
+        if (
+            action["max_abs_command_slew_system_pu_per_step"]
+            > VECTOR_POWER_RAMP_LIMIT_SYSTEM_PU + 1e-12
+        ):
+            violations.append("power_ramp")
+    if actual is not None:
+        action["max_abs_actual_power_system_pu"] = float(np.max(np.abs(actual)))
+        if action["max_abs_actual_power_system_pu"] > VECTOR_POWER_LIMIT_SYSTEM_PU + 1e-12:
+            violations.append("actual_power_nameplate")
+
+    try:
+        md_action = np.asarray([row["action_norm"] for row in rows], dtype=float)
+    except (KeyError, TypeError, ValueError):
+        md_action = np.empty((0,))
+    if md_action.shape != (len(rows), AGENT_COUNT, 2) or not np.all(np.isfinite(md_action)):
+        violations.append("missing_or_invalid_action_norm")
+    else:
+        action["max_abs_m_action_norm"] = float(np.max(np.abs(md_action[:, :, 0])))
+        action["max_abs_d_action_norm"] = float(np.max(np.abs(md_action[:, :, 1])))
+        if max(action["max_abs_m_action_norm"], action["max_abs_d_action_norm"]) > 1e-9:
+            violations.append("md_action_nonzero")
+
+    config = record.get("controller_config", {})
+    architecture = config.get("architecture") if isinstance(config, Mapping) else None
+    if architecture not in {LOCAL_VECTOR_ARCHITECTURE, CENTRAL_VECTOR_ARCHITECTURE}:
+        violations.append("unsupported_vector_power_architecture")
+    elif architecture == LOCAL_VECTOR_ARCHITECTURE:
+        mechanism = record.get("mechanism_trace")
+        if not isinstance(mechanism, list) or len(mechanism) != len(rows):
+            violations.append("missing_or_invalid_mechanism_trace")
+        else:
+            try:
+                residual_sum = np.asarray(
+                    [row["total_residual_sum_system_pu"] for row in mechanism],
+                    dtype=float,
+                )
+                residual_rms = np.asarray(
+                    [row["total_residual_rms_system_pu"] for row in mechanism],
+                    dtype=float,
+                )
+            except (KeyError, TypeError, ValueError):
+                residual_sum = np.empty((0,))
+                residual_rms = np.empty((0,))
+            if (
+                residual_sum.shape != (len(rows),)
+                or residual_rms.shape != (len(rows),)
+                or not np.all(np.isfinite(residual_sum))
+                or not np.all(np.isfinite(residual_rms))
+            ):
+                violations.append("missing_or_invalid_mechanism_trace")
+            else:
+                action["max_abs_residual_sum_system_pu"] = float(
+                    np.max(np.abs(residual_sum))
+                )
+                action["max_residual_rms_system_pu"] = float(np.max(residual_rms))
+                if action["max_abs_residual_sum_system_pu"] > VECTOR_ZERO_TOLERANCE:
+                    violations.append("residual_zero_sum")
+
+    storage, storage_violations = _storage_diagnostics(
+        rows,
+        soc_min=VECTOR_SOC_MIN,
+        soc_max=VECTOR_SOC_MAX,
+        saturation_is_violation=False,
+    )
+    violations.extend(storage_violations)
+
+    guards = record.get("guards")
+    if not isinstance(guards, Mapping):
+        violations.append("missing_or_invalid_run_guards")
+    else:
+        if guards.get("completed") is not True:
+            violations.append("run_guard_incomplete")
+        if guards.get("tds_test_ok") is not True:
+            violations.append("tds_test_not_ok")
+        if guards.get("system_exit_code") != 0:
+            violations.append("system_exit_nonzero")
+        if guards.get("finite_telemetry") is not True:
+            violations.append("run_guard_nonfinite")
+    return action, storage, sorted(set(violations))
+
+
+def _float32_vector_sum_tolerance(*arrays: np.ndarray) -> float:
+    finite_max = max(
+        (
+            float(np.max(np.abs(values)))
+            for values in arrays
+            if values.size
+        ),
+        default=1.0,
+    )
+    reference = np.float32(max(finite_max, 1.0))
+    return float(AGENT_COUNT * np.spacing(reference))
+
+
+def _vector_inertia_action_and_storage(
+    record: Mapping[str, Any],
+) -> tuple[dict[str, float], dict[str, Any], list[str]]:
+    """Audit R292 edge-flow execution and independent VSG M/D readback."""
+    rows = record["traces"]
+    violations: list[str] = []
+    action: dict[str, float] = {}
+    contract = r292_vector_residual_contract()
+
+    config = record.get("controller_config", {})
+    vector_config = config.get("vector_inertia") if isinstance(config, Mapping) else None
+    if not isinstance(vector_config, Mapping):
+        violations.append("missing_or_invalid_vector_inertia_config")
+    else:
+        frozen = {
+            "active_steps": contract.active_steps,
+            "edge_flow_max": contract.edge_flow_max,
+            "edge_slew_max": contract.edge_slew_max,
+            "node_residual_max": contract.node_residual_max,
+            "node_slew_max": contract.node_slew_max,
+            "baseline_m": contract.baseline_m,
+            "baseline_d": contract.baseline_d,
+            "dm_max": contract.dm_max,
+            "common_amplitude": contract.common_amplitude,
+        }
+        for key, expected in frozen.items():
+            try:
+                observed = float(vector_config[key])
+            except (KeyError, TypeError, ValueError):
+                violations.append(f"missing_or_invalid_vector_inertia_config_{key}")
+                continue
+            if not math.isfinite(observed) or not np.isclose(
+                observed,
+                float(expected),
+                rtol=0.0,
+                atol=float32_limit_tolerance(abs(float(expected))),
+            ):
+                violations.append(f"vector_inertia_config_mismatch_{key}")
+
+    architecture = config.get("architecture") if isinstance(config, Mapping) else None
+    if architecture not in VECTOR_INERTIA_ARCHITECTURES:
+        violations.append("unsupported_vector_inertia_architecture")
+
+    arrays = {
+        key: _as_array(rows, key, columns=AGENT_COUNT)
+        for key in (
+            "vsg_common_m_model_units",
+            "vsg_requested_m_model_units",
+            "vsg_commanded_m_model_units",
+            "vsg_actual_m_model_units",
+            "vsg_actual_d_model_units",
+        )
+    }
+    for key, values in arrays.items():
+        if values is None:
+            violations.append(f"missing_or_invalid_{key}")
+
+    common = arrays["vsg_common_m_model_units"]
+    requested = arrays["vsg_requested_m_model_units"]
+    commanded = arrays["vsg_commanded_m_model_units"]
+    actual = arrays["vsg_actual_m_model_units"]
+    actual_d = arrays["vsg_actual_d_model_units"]
+    active_steps = _active_steps(record, len(rows))
+    expected_common = np.full(
+        (len(rows), AGENT_COUNT),
+        contract.baseline_m,
+        dtype=float,
+    )
+    expected_common[:active_steps] += contract.dm_max * contract.common_amplitude
+
+    if common is not None:
+        common_tolerance = _float32_vector_sum_tolerance(common, expected_common)
+        action["max_abs_common_m_schedule_error_model_units"] = float(
+            np.max(np.abs(common - expected_common))
+        )
+        action["max_common_m_cross_agent_range_model_units"] = float(
+            np.max(np.ptp(common, axis=1))
+        )
+        if action["max_abs_common_m_schedule_error_model_units"] > common_tolerance:
+            violations.append("common_m_schedule")
+        if action["max_common_m_cross_agent_range_model_units"] > common_tolerance:
+            violations.append("common_m_not_common")
+
+    residuals: dict[str, np.ndarray] = {}
+    if common is not None:
+        for label, values in (
+            ("requested", requested),
+            ("commanded", commanded),
+            ("actual", actual),
+        ):
+            if values is None:
+                continue
+            residual = values - common
+            residuals[label] = residual
+            sum_error = np.sum(residual, axis=1)
+            action[f"max_abs_{label}_m_residual_model_units"] = float(
+                np.max(np.abs(residual))
+            )
+            action[f"max_abs_{label}_m_residual_sum_model_units"] = float(
+                np.max(np.abs(sum_error))
+            )
+            if action[f"max_abs_{label}_m_residual_sum_model_units"] > (
+                _float32_vector_sum_tolerance(values, common)
+            ):
+                violations.append(f"{label}_m_residual_zero_sum")
+
+    commanded_residual = residuals.get("commanded")
+    if commanded_residual is not None:
+        slew = np.diff(
+            np.concatenate(
+                [np.zeros((1, AGENT_COUNT), dtype=float), commanded_residual],
+                axis=0,
+            ),
+            axis=0,
+        )
+        action["max_abs_commanded_m_residual_slew_model_units_per_step"] = float(
+            np.max(np.abs(slew))
+        )
+        action["post_window_max_abs_commanded_m_residual_model_units"] = float(
+            np.max(np.abs(commanded_residual[active_steps:]))
+            if len(commanded_residual) > active_steps
+            else 0.0
+        )
+        magnitude_limit = contract.dm_max * contract.node_residual_max
+        slew_limit = contract.dm_max * contract.node_slew_max
+        if action["max_abs_commanded_m_residual_model_units"] > (
+            magnitude_limit + float32_limit_tolerance(magnitude_limit)
+        ):
+            violations.append("commanded_m_residual_magnitude")
+        if action["max_abs_commanded_m_residual_slew_model_units_per_step"] > (
+            slew_limit + float32_limit_tolerance(slew_limit)
+        ):
+            violations.append("commanded_m_residual_slew")
+        if action["post_window_max_abs_commanded_m_residual_model_units"] > (
+            _float32_vector_sum_tolerance(commanded_residual)
+        ):
+            violations.append("post_window_commanded_m_residual_nonzero")
+        action["vector_action_observed"] = float(
+            np.max(np.ptp(commanded_residual[:active_steps], axis=1))
+            > float32_limit_tolerance(contract.dm_max * contract.node_residual_max)
+        )
+
+    if commanded is not None and actual is not None:
+        action["max_abs_commanded_actual_m_tracking_error_model_units"] = float(
+            np.max(np.abs(commanded - actual))
+        )
+        if action["max_abs_commanded_actual_m_tracking_error_model_units"] > (
+            _float32_vector_sum_tolerance(commanded, actual)
+        ):
+            violations.append("commanded_actual_m_tracking")
+
+    if actual_d is not None:
+        action["max_abs_actual_d_error_model_units"] = float(
+            np.max(np.abs(actual_d - contract.baseline_d))
+        )
+        if action["max_abs_actual_d_error_model_units"] > float32_limit_tolerance(
+            contract.baseline_d
+        ):
+            violations.append("actual_d_not_frozen")
+
+    raw_edge = _as_array(
+        rows,
+        "r292_raw_edge_action",
+        columns=contract.edge_count,
+    )
+    edge = _as_array(rows, "r292_edge_flow_norm", columns=contract.edge_count)
+    node = _as_array(rows, "r292_node_residual_norm", columns=AGENT_COUNT)
+    if raw_edge is None:
+        violations.append("missing_or_invalid_r292_raw_edge_action")
+    else:
+        requested_node = (
+            INCIDENCE.astype(float)
+            @ (raw_edge * contract.edge_flow_max).T
+        ).T
+        if requested is not None and common is not None:
+            expected_requested_residual = contract.dm_max * requested_node
+            if np.max(
+                np.abs((requested - common) - expected_requested_residual)
+            ) > _float32_vector_sum_tolerance(
+                requested - common,
+                expected_requested_residual,
+            ):
+                violations.append("requested_m_raw_edge_mismatch")
+        expected_edges: list[np.ndarray] = []
+        previous_edge = np.zeros(contract.edge_count, dtype=np.float32)
+        for step, raw_value in enumerate(raw_edge):
+            expected_edge, _expected_node, _expected_action = (
+                execute_edge_residual_numpy(
+                    raw_value,
+                    previous_edge=previous_edge,
+                    step=step,
+                    contract=contract,
+                )
+            )
+            expected_edges.append(expected_edge)
+            previous_edge = expected_edge
+        expected_edge_array = np.asarray(expected_edges, dtype=float)
+        if edge is not None:
+            action["max_abs_edge_projection_error_norm"] = float(
+                np.max(np.abs(edge - expected_edge_array))
+            )
+            if action["max_abs_edge_projection_error_norm"] > (
+                _float32_vector_sum_tolerance(edge, expected_edge_array)
+            ):
+                violations.append("edge_projection_mismatch")
+    if edge is None:
+        violations.append("missing_or_invalid_r292_edge_flow_norm")
+    else:
+        edge_slew = np.diff(
+            np.concatenate([np.zeros((1, contract.edge_count)), edge], axis=0),
+            axis=0,
+        )
+        if np.max(np.abs(edge)) > contract.edge_flow_max + float32_limit_tolerance(
+            contract.edge_flow_max
+        ):
+            violations.append("edge_flow_magnitude")
+        if np.max(np.abs(edge_slew)) > contract.edge_slew_max + float32_limit_tolerance(
+            contract.edge_slew_max
+        ):
+            violations.append("edge_flow_slew")
+    if node is None:
+        violations.append("missing_or_invalid_r292_node_residual_norm")
+    else:
+        node_slew = np.diff(
+            np.concatenate([np.zeros((1, AGENT_COUNT)), node], axis=0),
+            axis=0,
+        )
+        expected_node = None if edge is None else (INCIDENCE.astype(float) @ edge.T).T
+        if expected_node is not None and np.max(np.abs(node - expected_node)) > (
+            _float32_vector_sum_tolerance(node, expected_node)
+        ):
+            violations.append("edge_node_incidence_mismatch")
+        if np.max(np.abs(node)) > contract.node_residual_max + float32_limit_tolerance(
+            contract.node_residual_max
+        ):
+            violations.append("node_residual_magnitude")
+        if np.max(np.abs(node_slew)) > contract.node_slew_max + float32_limit_tolerance(
+            contract.node_slew_max
+        ):
+            violations.append("node_residual_slew")
+        if commanded_residual is not None:
+            node_tracking = commanded_residual - contract.dm_max * node
+            if np.max(np.abs(node_tracking)) > _float32_vector_sum_tolerance(
+                commanded_residual,
+                contract.dm_max * node,
+            ):
+                violations.append("commanded_m_node_residual_mismatch")
+
+    try:
+        action_norm = np.asarray([row["action_norm"] for row in rows], dtype=float)
+    except (KeyError, TypeError, ValueError):
+        action_norm = np.empty((0,))
+    if (
+        action_norm.shape != (len(rows), AGENT_COUNT, 2)
+        or not np.all(np.isfinite(action_norm))
+    ):
+        violations.append("missing_or_invalid_action_norm")
+    else:
+        action["max_abs_m_action_norm"] = float(
+            np.max(np.abs(action_norm[:, :, 0]))
+        )
+        action["max_abs_d_action_norm"] = float(
+            np.max(np.abs(action_norm[:, :, 1]))
+        )
+        if action["max_abs_d_action_norm"] > float32_limit_tolerance(1.0):
+            violations.append("d_action_nonzero")
+        if commanded is not None:
+            action_commanded_m = (
+                contract.baseline_m + contract.dm_max * action_norm[:, :, 0]
+            )
+            if np.max(np.abs(commanded - action_commanded_m)) > (
+                _float32_vector_sum_tolerance(commanded, action_commanded_m)
+            ):
+                violations.append("commanded_m_action_norm_mismatch")
+
+    topology = record.get("topology")
+    opened_line = record.get("opened_line")
+    topology_status = record.get("topology_status")
+    if not isinstance(topology, str) or not topology.strip():
+        violations.append("missing_or_invalid_topology")
+    if not isinstance(opened_line, str) or not opened_line.strip():
+        violations.append("missing_or_invalid_opened_line")
+    if not r304_topology_label_matches_opened_line(topology, opened_line):
+        violations.append("topology_opened_line_mapping")
+    if not isinstance(topology_status, Mapping):
+        violations.append("missing_or_invalid_topology_status")
+    else:
+        required_true = (
+            "opened_line_pass",
+            "initialization_pass",
+            "tds_test_ok",
+            "residual_pass",
+            "spectrum_finite",
+            "spectrum_pass",
+            "default_toggler_disabled",
+            "passed",
+        )
+        for key in required_true:
+            if topology_status.get(key) is not True:
+                violations.append(f"topology_status_{key}")
+        if topology_status.get("system_exit_code") != 0:
+            violations.append("topology_status_system_exit_nonzero")
+        if topology_status.get("topology") != topology:
+            violations.append("topology_status_topology_mismatch")
+        if topology_status.get("opened_line") != opened_line:
+            violations.append("topology_status_opened_line_mismatch")
+        runtime_line_status = topology_status.get("runtime_line_status")
+        if not isinstance(runtime_line_status, Mapping):
+            violations.append("missing_or_invalid_runtime_line_status")
+        else:
+            expected_opened = set() if opened_line == "none" else {opened_line}
+            if opened_line != "none" and opened_line not in {"Line_0", "Line_9"}:
+                violations.append("unsupported_opened_line")
+            for line_idx in ("Line_0", "Line_9"):
+                expected_status = 0.0 if line_idx in expected_opened else 1.0
+                try:
+                    observed_status = float(runtime_line_status[line_idx])
+                except (KeyError, TypeError, ValueError):
+                    violations.append("missing_or_invalid_runtime_line_status")
+                    break
+                if observed_status != expected_status:
+                    violations.append("runtime_line_status_mismatch")
+                    break
+
+    guards = record.get("guards")
+    if not isinstance(guards, Mapping):
+        violations.append("missing_or_invalid_run_guards")
+    else:
+        if guards.get("completed") is not True:
+            violations.append("run_guard_incomplete")
+        if guards.get("tds_test_ok") is not True:
+            violations.append("tds_test_not_ok")
+        if guards.get("system_exit_code") != 0:
+            violations.append("system_exit_nonzero")
+        if guards.get("finite_telemetry") is not True:
+            violations.append("run_guard_nonfinite")
+
+    storage, storage_violations = _storage_diagnostics(
+        rows,
+        soc_min=VECTOR_SOC_MIN,
+        soc_max=VECTOR_SOC_MAX,
+        saturation_is_violation=False,
+    )
+    violations.extend(storage_violations)
+    return action, storage, sorted(set(violations))
+
+
+def _audit_execution(
+    record: Mapping[str, Any],
+    profile: ExecutionProfileSpec,
+) -> tuple[dict[str, float], dict[str, Any], list[str]]:
+    if profile.name == LEGACY_EXECUTION_PROFILE:
+        return _action_and_storage(record)
+    if profile.name == VECTOR_POWER_EXECUTION_PROFILE:
+        return _vector_power_action_and_storage(record)
+    if profile.name == VECTOR_INERTIA_EXECUTION_PROFILE:
+        return _vector_inertia_action_and_storage(record)
+    raise AssertionError(f"unhandled execution profile: {profile.name}")
 
 
 def _verify_sidecars(
@@ -687,16 +1407,56 @@ def _scenario_metadata(
     *,
     controllers: Sequence[str],
     scenarios: Sequence[str],
+    profile: ExecutionProfileSpec,
 ) -> dict[str, dict[str, str]]:
+    def value(record: Mapping[str, Any], field: str) -> str | None:
+        direct = record.get(field)
+        if isinstance(direct, str) and direct.strip():
+            return direct.strip()
+        if not profile.nested_scenario_metadata:
+            return None
+        job = record.get("job")
+        nested = job.get("scenario") if isinstance(job, Mapping) else None
+        if not isinstance(nested, Mapping):
+            return None
+        if field == "location":
+            candidate = nested.get("location")
+            if candidate is None:
+                return None
+            normalized = str(candidate).strip()
+            return normalized or None
+        if field == "sign":
+            try:
+                delta_u = float(nested["delta_u"])
+            except (KeyError, TypeError, ValueError):
+                return None
+            if delta_u > 0.0:
+                return "positive"
+            if delta_u < 0.0:
+                return "negative"
+            return "zero"
+        if field == "severity":
+            try:
+                tie_k = float(nested["tie_k"])
+            except (KeyError, TypeError, ValueError):
+                return None
+            if not math.isfinite(tie_k):
+                return None
+            return f"tie_k={tie_k:g}"
+        return None
+
     result: dict[str, dict[str, str]] = {}
     for scenario in scenarios:
         row: dict[str, str] = {}
-        for field in SCENARIO_METADATA_FIELDS:
+        for field in profile.scenario_metadata_fields:
             records = [keyed[(controller, scenario)][1] for controller in controllers]
             missing = [
                 controller
                 for controller, record in zip(controllers, records, strict=True)
-                if field not in record
+                if (
+                    field not in record
+                    and value(record, field) is None
+                )
             ]
             if missing:
                 raise EvaluationContractError(
@@ -706,14 +1466,16 @@ def _scenario_metadata(
             invalid = [
                 controller
                 for controller, record in zip(controllers, records, strict=True)
-                if not isinstance(record[field], str) or not record[field].strip()
+                if field in record and not (
+                    isinstance(record[field], str) and record[field].strip()
+                )
             ]
             if invalid:
                 raise EvaluationContractError(
                     f"{scenario}: paired traces contain invalid scenario metadata {field}: "
                     + ", ".join(invalid)
                 )
-            values = {str(record[field]).strip() for record in records}
+            values = {value(record, field) for record in records}
             if len(values) > 1:
                 raise EvaluationContractError(
                     f"{scenario}: paired traces disagree on scenario metadata {field}"
@@ -728,6 +1490,7 @@ def _stratified_family_effects(
     scenario_metadata: Mapping[str, Mapping[str, str]],
     *,
     baseline: str,
+    dimensions: Sequence[str] = SCENARIO_METADATA_FIELDS,
 ) -> dict[str, Any]:
     families: dict[str, dict[int, Mapping[str, Mapping[str, float]]]] = defaultdict(dict)
     for controller, scenario_rows in endpoints.items():
@@ -749,7 +1512,7 @@ def _stratified_family_effects(
     if "centralized" in families and "shared" in families:
         comparisons.append(("shared_minus_centralized", "shared", "centralized"))
 
-    for dimension in SCENARIO_METADATA_FIELDS:
+    for dimension in dimensions:
         groups: dict[str, list[str]] = defaultdict(list)
         for scenario, metadata in scenario_metadata.items():
             if dimension in metadata:
@@ -857,6 +1620,8 @@ def _stratified_family_effects(
 def _stratified_action_diagnostics(
     action_rows: Mapping[str, Mapping[str, Mapping[str, float]]],
     scenario_metadata: Mapping[str, Mapping[str, str]],
+    *,
+    dimensions: Sequence[str] = SCENARIO_METADATA_FIELDS,
 ) -> dict[str, Any]:
     families: dict[str, list[str]] = defaultdict(list)
     for controller in action_rows:
@@ -868,7 +1633,7 @@ def _stratified_action_diagnostics(
         "method": "descriptive mean across controller-seed by scenario traces",
         "dimensions": {},
     }
-    for dimension in SCENARIO_METADATA_FIELDS:
+    for dimension in dimensions:
         groups: dict[str, list[str]] = defaultdict(list)
         for scenario, metadata in scenario_metadata.items():
             if dimension in metadata:
@@ -912,6 +1677,8 @@ def evaluate_trace_directory(
     trace_dir: str | Path,
     *,
     baseline: str = "q0",
+    execution_profile: str = LEGACY_EXECUTION_PROFILE,
+    required_active_window_seconds: float = 3.0,
     bootstrap_resamples: int = 10_000,
     bootstrap_seed: int = 2026073101,
     tail_fraction: float = 0.10,
@@ -922,6 +1689,14 @@ def evaluate_trace_directory(
         raise EvaluationContractError(f"trace directory does not exist: {directory}")
     if bootstrap_resamples < 100:
         raise EvaluationContractError("bootstrap_resamples must be at least 100")
+    if (
+        not math.isfinite(required_active_window_seconds)
+        or required_active_window_seconds <= 0.0
+    ):
+        raise EvaluationContractError(
+            "required_active_window_seconds must be positive and finite"
+        )
+    profile = _profile_spec(execution_profile)
     if not 0.0 < tail_fraction <= 1.0:
         raise EvaluationContractError("tail_fraction must be in (0, 1]")
     trace_paths = sorted(directory.glob("*.json"))
@@ -954,6 +1729,7 @@ def evaluate_trace_directory(
         keyed,
         controllers=controllers,
         scenarios=scenarios,
+        profile=profile,
     )
     for scenario in scenarios:
         _, baseline_record = keyed[(baseline, scenario)]
@@ -964,12 +1740,13 @@ def evaluate_trace_directory(
         )
         if not np.isclose(
             baseline_active_steps * baseline_dt,
-            3.0,
+            required_active_window_seconds,
             rtol=0.0,
             atol=1e-9,
         ):
             raise EvaluationContractError(
-                f"{scenario}/{baseline}: active window must be exactly 3 seconds"
+                f"{scenario}/{baseline}: active window must be exactly "
+                f"{required_active_window_seconds:g} seconds"
             )
         for controller in controllers:
             _, candidate_record = keyed[(controller, scenario)]
@@ -1002,9 +1779,7 @@ def evaluate_trace_directory(
         for scenario in scenarios:
             _, record = keyed[(controller, scenario)]
             metrics, legacy = _trace_metrics(record)
-            action, storage, violations = _action_and_storage(
-                record,
-            )
+            action, storage, violations = _audit_execution(record, profile)
             metric_rows[controller][scenario] = metrics
             legacy_rows[controller][scenario] = legacy
             action_rows[controller][scenario] = action
@@ -1019,8 +1794,7 @@ def evaluate_trace_directory(
                 )
 
     provenance_values: dict[str, set[str]] = {
-        "formal_bank_sha256": set(),
-        "formal_seal_sha256": set(),
+        key: set() for key in profile.provenance_fields
     }
     for _, record in records:
         for key in provenance_values:
@@ -1109,41 +1883,35 @@ def evaluate_trace_directory(
         separators=(",", ":"),
     ).encode()
     failed_checks = Counter(check for row in action_violations for check in row["failed_checks"])
+    contract: dict[str, Any] = {
+        "name": "EVAL-v2-objective-controller-scorecard",
+        "status": "POST_HOC_DIAGNOSTIC",
+        "canonical_evidence": False,
+        "frequency_basis": "andes_physical_hz",
+        "baseline": baseline,
+        "all_performance_metrics_lower_is_better": True,
+        "performance_metrics": list(PERFORMANCE_METRICS),
+        "primary_metrics": list(PRIMARY_METRICS),
+        "metric_roles": {
+            role: [spec.name for spec in METRIC_SPECS if spec.role == role]
+            for role in ("registered_co_primary", "exploratory_physical")
+        }
+        | {
+            "legacy_compatibility": ["paper_cum_rf_sum_hz2"],
+        },
+        "tail_fraction": tail_fraction,
+        "bootstrap_resamples": bootstrap_resamples,
+        "bootstrap_seed": bootstrap_seed,
+        "required_active_window_seconds": required_active_window_seconds,
+        "action_audit_policy": dict(profile.action_audit_policy),
+        "projection_diagnostic_policy": dict(profile.projection_diagnostic_policy),
+        "no_composite_score_or_rank": True,
+    }
+    if profile.name != LEGACY_EXECUTION_PROFILE:
+        contract["execution_profile"] = profile.name
     scorecard = {
         "schema_version": SCHEMA_VERSION,
-        "contract": {
-            "name": "EVAL-v2-objective-controller-scorecard",
-            "status": "POST_HOC_DIAGNOSTIC",
-            "canonical_evidence": False,
-            "frequency_basis": "andes_physical_hz",
-            "baseline": baseline,
-            "all_performance_metrics_lower_is_better": True,
-            "performance_metrics": list(PERFORMANCE_METRICS),
-            "primary_metrics": list(PRIMARY_METRICS),
-            "metric_roles": {
-                role: [spec.name for spec in METRIC_SPECS if spec.role == role]
-                for role in ("registered_co_primary", "exploratory_physical")
-            }
-            | {
-                "legacy_compatibility": ["paper_cum_rf_sum_hz2"],
-            },
-            "tail_fraction": tail_fraction,
-            "bootstrap_resamples": bootstrap_resamples,
-            "bootstrap_seed": bootstrap_seed,
-            "action_audit_policy": {
-                "representation": "float32",
-                "q_limit_tolerance_rule": "spacing(float32(abs(limit)))",
-                "override_allowed": False,
-            },
-            "projection_diagnostic_policy": {
-                "analysis_class": "exploratory_post_hoc",
-                "scope": "active_window",
-                "same_sign_saturation_abs_raw_threshold": RAW_SATURATION_THRESHOLD,
-                "near_zero_executed_q_fraction_of_limit": (NEAR_ZERO_Q_FRACTION_OF_LIMIT),
-                "q_boundary_abs_fraction_of_limit": Q_BOUNDARY_FRACTION_OF_LIMIT,
-            },
-            "no_composite_score_or_rank": True,
-        },
+        "contract": contract,
         "source": {
             "trace_directory": str(directory.resolve()),
             "trace_count": len(trace_paths),
@@ -1194,10 +1962,12 @@ def evaluate_trace_directory(
             metric_rows,
             scenario_metadata,
             baseline=baseline,
+            dimensions=profile.scenario_metadata_fields,
         ),
         "stratified_action_diagnostics": _stratified_action_diagnostics(
             action_rows,
             scenario_metadata,
+            dimensions=profile.scenario_metadata_fields,
         ),
         "legacy_compatibility": {
             "paper_probe": "Yang2023 global cumulative frequency reward",
@@ -1250,7 +2020,16 @@ def render_markdown(scorecard: Mapping[str, Any]) -> str:
     input_integrity = scorecard["validity"]["input_integrity"]
     execution_contract = scorecard["validity"]["execution_contract"]
     baseline = str(contract["baseline"])
+    execution_profile = str(contract.get("execution_profile", LEGACY_EXECUTION_PROFILE))
+    profile = _profile_spec(execution_profile)
     controllers = list(source["controllers"])
+    input_summary = (
+        f"Input: {source['trace_count']} traces, {source['scenario_count']} paired "
+        f"scenarios, {source['controller_count']} controllers. "
+        f"Baseline: `{baseline}`. Frequency basis: `{contract['frequency_basis']}`."
+    )
+    if profile.name != LEGACY_EXECUTION_PROFILE:
+        input_summary += f" Execution profile: `{profile.name}`."
     lines = [
         "# EVAL-v2 objective scorecard",
         "",
@@ -1263,12 +2042,7 @@ def render_markdown(scorecard: Mapping[str, Any]) -> str:
             "the claim/feed/verdict ledger owns paper-evidence status."
         ),
         "",
-        (
-            f"Input: {source['trace_count']} traces, {source['scenario_count']} paired "
-            f"scenarios, {source['controller_count']} controllers. "
-            f"Baseline: `{baseline}`. Frequency basis: "
-            f"`{contract['frequency_basis']}`."
-        ),
+        input_summary,
         "",
         "No composite score or winner rank is produced.",
         "",
@@ -1362,11 +2136,7 @@ def render_markdown(scorecard: Mapping[str, Any]) -> str:
             "",
             "## Tail risk and execution",
             "",
-            (
-                "| Controller | Sync-loss max / upper-tail CVaR | "
-                "Worst-bus peak max / upper-tail CVaR | Max abs(q) | Max q slew | "
-                "Constraint events |"
-            ),
+            profile.execution_header,
             "|---|---:|---:|---:|---:|---:|",
         ]
     )
@@ -1389,8 +2159,12 @@ def render_markdown(scorecard: Mapping[str, Any]) -> str:
                         f"{_format_number(peak['maximum'])} / "
                         f"{_format_number(peak['cvar_upper_tail'])}"
                     ),
-                    _format_number(action.get("max_abs_q", {}).get("maximum")),
-                    _format_number(action.get("max_abs_q_slew_per_step", {}).get("maximum")),
+                    _format_number(
+                        action.get(profile.execution_action_keys[0], {}).get("maximum")
+                    ),
+                    _format_number(
+                        action.get(profile.execution_action_keys[1], {}).get("maximum")
+                    ),
                     str(storage.get("constraint_violation_count", 0)),
                 ]
             )
@@ -1405,7 +2179,7 @@ def render_markdown(scorecard: Mapping[str, Any]) -> str:
             (
                 "| Controller | Worst two sync-loss scenarios / values | "
                 "Worst two fast inter-area scenarios / values | "
-                "Worst two same-sign cancellation scenarios / values |"
+                f"{profile.worst_action_label} |"
             ),
             "|---|---|---|---|",
         ]
@@ -1414,10 +2188,10 @@ def render_markdown(scorecard: Mapping[str, Any]) -> str:
         row = scorecard["controllers"][controller]
         sync_worst = row["metrics"]["normalized_sync_loss_hz2"]["worst_2"]
         interarea_worst = row["metrics"]["fast_inter_area_iae_hz_s"]["worst_2"]
-        cancellation_worst = (
+        action_worst = (
             row["action_diagnostics"]
             .get(
-                "raw_same_sign_saturation_cancel_fraction",
+                profile.worst_action_key,
                 {},
             )
             .get("worst_2", [])
@@ -1425,7 +2199,7 @@ def render_markdown(scorecard: Mapping[str, Any]) -> str:
         lines.append(
             f"| `{controller}` | {_format_worst_two(sync_worst, value_key='value')} | "
             f"{_format_worst_two(interarea_worst, value_key='value')} | "
-            f"{_format_worst_two(cancellation_worst, value_key='value')} |"
+            f"{_format_worst_two(action_worst, value_key='value')} |"
         )
 
     learned_controllers = [
@@ -1433,7 +2207,7 @@ def render_markdown(scorecard: Mapping[str, Any]) -> str:
         for controller in controllers
         if scorecard["controllers"][controller]["identity"]["training_seed"] is not None
     ]
-    if learned_controllers:
+    if learned_controllers and profile.show_projection_training:
         lines.extend(
             [
                 "",
@@ -1562,13 +2336,9 @@ def render_markdown(scorecard: Mapping[str, Any]) -> str:
     lines.extend(
         [
             "",
-            "### Stratified projection mechanisms",
+            profile.stratified_title,
             "",
-            (
-                "| Stratum | Family | Mean normalized executed q | "
-                "Mean raw-vote magnitude | Mean nullspace energy | "
-                "Mean same-sign cancellation |"
-            ),
+            profile.stratified_header,
             "|---|---|---:|---:|---:|---:|",
         ]
     )
@@ -1585,23 +2355,16 @@ def render_markdown(scorecard: Mapping[str, Any]) -> str:
                             f"`{dimension}={group}`",
                             f"`{family_name}`",
                             _format_number(
-                                metrics.get(
-                                    "executed_q_abs_mean_normalized",
-                                    {},
-                                ).get("mean")
-                            ),
-                            _format_number(metrics.get("raw_vote_abs_mean", {}).get("mean")),
-                            _format_number(
-                                metrics.get(
-                                    "raw_nullspace_energy_fraction_mean",
-                                    {},
-                                ).get("mean")
+                                metrics.get(profile.stratified_keys[0], {}).get("mean")
                             ),
                             _format_number(
-                                metrics.get(
-                                    "raw_same_sign_saturation_cancel_fraction",
-                                    {},
-                                ).get("mean")
+                                metrics.get(profile.stratified_keys[1], {}).get("mean")
+                            ),
+                            _format_number(
+                                metrics.get(profile.stratified_keys[2], {}).get("mean")
+                            ),
+                            _format_number(
+                                metrics.get(profile.stratified_keys[3], {}).get("mean")
                             ),
                         ]
                     )
@@ -1671,7 +2434,19 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--trace-dir", required=True, type=Path)
     parser.add_argument("--output-dir", required=True, type=Path)
     parser.add_argument("--baseline", default="q0")
+    parser.add_argument(
+        "--execution-profile",
+        choices=EXECUTION_PROFILES,
+        default=LEGACY_EXECUTION_PROFILE,
+        help="Architecture-specific execution telemetry contract.",
+    )
     parser.add_argument("--bootstrap-resamples", type=int, default=10_000)
+    parser.add_argument(
+        "--required-active-window-seconds",
+        type=float,
+        default=3.0,
+        help="Prospectively declared active control window (default: 3 s).",
+    )
     parser.add_argument("--bootstrap-seed", type=int, default=2026073101)
     parser.add_argument("--tail-fraction", type=float, default=0.10)
     parser.add_argument("--overwrite", action="store_true")
@@ -1684,6 +2459,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     scorecard = evaluate_trace_directory(
         args.trace_dir,
         baseline=args.baseline,
+        execution_profile=args.execution_profile,
+        required_active_window_seconds=args.required_active_window_seconds,
         bootstrap_resamples=args.bootstrap_resamples,
         bootstrap_seed=args.bootstrap_seed,
         tail_fraction=args.tail_fraction,

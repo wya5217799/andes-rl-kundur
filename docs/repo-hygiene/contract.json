@@ -3,6 +3,7 @@
   "baseline": "docs/repo-hygiene/baseline.json",
   "root": {
     "allowed": [
+      ".gitattributes",
       ".gitignore",
       ".github",
       "AGENTS.md",
@@ -70,10 +71,12 @@
     {
       "id": "icems2026",
       "kind": "manuscript",
-      "status": "frozen",
+      "status": "active",
       "root": "paper/icems2026",
       "roles": {
         "canonical": [
+          "paper/icems2026/LINE.md",
+          "paper/icems2026/ARTIFACTS.json",
           "paper/icems2026/main.tex",
           "paper/icems2026/references.bib",
           "paper/icems2026/generated_results.tex",
@@ -88,9 +91,13 @@
         "release": [
           "output/pdf/icems2026_full_paper.pdf"
         ],
+        "reports": [
+          "paper/icems2026/reports"
+        ],
         "support": [
           "paper/icems2026/README.md",
-          "paper/icems2026/working"
+          "paper/icems2026/working/chapter_blueprint.md",
+          "paper/icems2026/working/dynamic_response_selection.json"
         ]
       }
     },
@@ -102,6 +109,7 @@
       "roles": {
         "canonical": [
           "paper/sci_upgrade_survey/LINE.md",
+          "paper/sci_upgrade_survey/ARTIFACTS.json",
           "paper/sci_upgrade_survey/JOURNAL_TARGET.md",
           "paper/sci_upgrade_survey/DIFFERENTIATION_MEMO.md",
           "paper/sci_upgrade_survey/REPORT.md",
@@ -112,6 +120,20 @@
         ],
         "reports": [
           "paper/sci_upgrade_survey/reports"
+        ]
+      }
+    },
+    {
+      "id": "decoupling-marl-model-first",
+      "kind": "manuscript",
+      "status": "active",
+      "root": "paper/decoupling_marl_model_first",
+      "roles": {
+        "canonical": [
+          "paper/decoupling_marl_model_first/LINE.md"
+        ],
+        "support": [
+          "paper/decoupling_marl_model_first/working/model_contract.md"
         ]
       }
     },
@@ -230,6 +252,8 @@
     "discover": [
       "scripts/*.py",
       "scripts/*.sh",
+      "memory/tools/session_context.py",
+      "memory/tools/feed_check.py",
       "probes/**/*.py",
       "probes/**/*.sh",
       "memory/rounds/R*/**/*.py",
@@ -300,7 +324,25 @@
         "owner": "repo-governance"
       },
       {
+        "pattern": "memory/tools/session_context.py",
+        "role": "operation",
+        "state": "active",
+        "owner": "session-bootstrap"
+      },
+      {
+        "pattern": "memory/tools/feed_check.py",
+        "role": "maintenance",
+        "state": "active",
+        "owner": "publication-gate"
+      },
+      {
         "pattern": "scripts/andes_scratch.py",
+        "role": "operation",
+        "state": "active",
+        "owner": "andes-runtime"
+      },
+      {
+        "pattern": "scripts/run_parallel_wsl_shards.py",
         "role": "operation",
         "state": "active",
         "owner": "andes-runtime"
@@ -443,19 +485,88 @@
       "relation": "byte-identical"
     }
   ],
+  "round_documents": {
+    "enforce_from": 287,
+    "allowed_markdown": [
+      "plan.md",
+      "verdict.md",
+      "stage_b_protocol.md",
+      "stage_c_fast_controller_development_protocol.md",
+      "stage_d_compact_controller_validation_protocol.md",
+      "stage_e_decentralized_execution_protocol.md"
+    ],
+    "allowed_paths": [
+      "R295/consensus_timescale_probe_protocol.md",
+      "R335/pre_execution_failure.md"
+    ]
+  },
+  "manuscript_lines": {
+    "entry_name": "LINE.md",
+    "manifest_name": "ARTIFACTS.json",
+    "navigation_budgets": {
+      "line_max_lines": 90,
+      "line_max_bytes": 8192,
+      "required_reading_max_bytes": 24576
+    },
+    "venue_statuses": [
+      "unassessed",
+      "shortlisted",
+      "locked",
+      "revalidate"
+    ],
+    "venue_kinds": [
+      "journal",
+      "conference",
+      "other"
+    ],
+    "official_source_statuses": [
+      "unverified",
+      "partial",
+      "current"
+    ],
+    "artifact_statuses": [
+      "active",
+      "frozen",
+      "stale",
+      "superseded"
+    ],
+    "time_sensitive_purposes": [
+      "venue-decision",
+      "literature-landscape",
+      "differentiation",
+      "consolidated-review"
+    ],
+    "transient_patterns": [
+      "**/__pycache__/**",
+      "**/*.aux",
+      "**/*.bbl",
+      "**/*.blg",
+      "**/*.fdb_latexmk",
+      "**/*.fls",
+      "**/*.log",
+      "**/*.out",
+      "**/*.synctex.gz",
+      "**/*.toc"
+    ]
+  },
   "external_adapters": [
     {
       "id": "academic-research-suite",
       "lock": "docs/repo-hygiene/external-skills.lock.json",
       "authority": "explicit-adapter"
+    },
+    {
+      "id": "supervisor-skills",
+      "lock": "docs/repo-hygiene/supervisor-skills.lock.json",
+      "authority": "explicit-adapter"
     }
   ],
+  "research_skill_scope": "docs/repo-hygiene/research-skills.scope.json",
   "navigation": [
     {
       "adapter": "AGENTS.md",
       "must_reference": [
-        "memory/RESEARCH_PROGRAM.md",
-        "memory/STATE.md",
+        "memory/tools/session_context.py",
         "CLAUDE.md"
       ]
     },
@@ -463,6 +574,9 @@
       "adapter": "CLAUDE.md",
       "must_reference": [
         "skills/kundur-round/SKILL.md",
+        "memory/tools/session_context.py",
+        "memory/tools/feed_check.py",
+        "skills/kundur-round/references/research-skill-adapter.md",
         "docs/agents/issue-tracker.md",
         "docs/agents/domain.md",
         "docs/repo-hygiene/executables.md",
@@ -474,7 +588,8 @@
       "adapter": "README.md",
       "must_reference": [
         "docs/README.md",
-        "memory/STATE.md"
+        "memory/STATE.md",
+        "memory/tools/session_context.py"
       ],
       "forbid_text": [
         "Status (as of"
@@ -492,6 +607,7 @@
       "must_reference": [
         "memory/RESEARCH_PROGRAM.md",
         "memory/STATE.md",
+        "memory/tools/session_context.py",
         "skills/kundur-round/SKILL.md"
       ]
     },
@@ -511,8 +627,11 @@
       "adapter": "skills/kundur-round/SKILL.md",
       "must_reference": [
         "CLAUDE.md",
+        "memory/tools/session_context.py",
+        "memory/tools/feed_check.py",
         "docs/repo-hygiene/executables.md",
-        "paper/sci_upgrade_survey/LINE.md"
+        "skills/kundur-round/references/research-skill-adapter.md",
+        "skills/kundur-round/references/publication-gate.md"
       ]
     }
   ],
