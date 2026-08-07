@@ -1,0 +1,158 @@
+{
+  "contract": {
+    "decision": {
+      "distributed_runtime_authorized": false,
+      "eval_authorized": false,
+      "invalid": "ANALYSIS-INVALID",
+      "negative": "NO-TRAINING",
+      "positive": "RESIDUAL-PROBE-ELIGIBLE",
+      "positive_authority": "one-separately-sealed-non-learning-physical-probe",
+      "training_authorized": false
+    },
+    "exclusions": {
+      "andes_executed": false,
+      "architecture_selected": false,
+      "distributed_runtime_executed": false,
+      "eval_executed": false,
+      "physical_trajectory_created": false,
+      "reward_defined": false,
+      "training_executed": false
+    },
+    "execution": {
+      "create_only": true,
+      "host_capacity_anchor": "memory/rounds/R344/capacity_ladder_attempt_2.json",
+      "native_threads_per_process": 1,
+      "other_reserved_processes": 0,
+      "ready_job_cap": 16,
+      "worker_processes": 16
+    },
+    "inventory": {
+      "disturbance_locations": 4,
+      "operating_points": 2,
+      "records": 32,
+      "samples_per_trace": 25,
+      "scenario_pairs": 16,
+      "signs": 2
+    },
+    "limits": {
+      "charge_efficiency": 0.9848857802,
+      "discharge_efficiency": 0.9848857802,
+      "energy_mwh": 28.0,
+      "maximum_soc": 0.8,
+      "minimum_soc": 0.2,
+      "node_power": 0.36,
+      "node_ramp": 0.072,
+      "sample_period_seconds": 0.2,
+      "system_mva": 100.0
+    },
+    "local_information": {
+      "estimator": "standardized-ordinary-least-squares",
+      "forbidden_features": [
+        "operating_point_label",
+        "disturbance_location_label",
+        "sign_label",
+        "scenario_id",
+        "future_value",
+        "joint_coordinate",
+        "oracle_endpoint"
+      ],
+      "governor": "minimum-l2-edge-sequence-projection",
+      "per_edge_features": [
+        "endpoint_frequency_deviation_hz",
+        "endpoint_previous_achieved_power_system_pu",
+        "endpoint_previous_commanded_power_system_pu"
+      ],
+      "validation": "leave-one-scenario-out"
+    },
+    "question": "Q-0091",
+    "residual": {
+      "common_coordinate": 0.0,
+      "edge_coordinates": 3,
+      "minimum_improvement_fraction": 0.02,
+      "model_error_envelope": "scenario-coordinate-max-absolute-innovation",
+      "objective": "minimum-l2-sequence-meeting-both-endpoint-targets"
+    },
+    "round": "R345",
+    "schema_version": 1,
+    "solver": {
+      "feasibility_tolerance": 1e-08,
+      "function_tolerance": 1e-09,
+      "maximum_iterations": 20000,
+      "method": "SLSQP"
+    },
+    "stage": "create-only-offline-residual-headroom",
+    "statistics": {
+      "bound": "one-sided-paired-student-t-upper",
+      "confidence_level": 0.95,
+      "signed_relative_change": "(candidate-base)/base",
+      "subgroup_rule": "every-subgroup-mean-directionally-improves",
+      "subgroups": [
+        "point",
+        "channel",
+        "sign"
+      ],
+      "unit": "scenario"
+    }
+  },
+  "contract_payload_sha256": "6492c9a8b087eabcd41222b3bb246c167936e1e82f8de33b5de3a6daf41fd1ab",
+  "created_utc": "2026-08-06T06:01:43.137313+00:00",
+  "formal_retry_authorized": false,
+  "question": "Q-0091",
+  "result_root_absent_at_freeze": true,
+  "round": "R345",
+  "schema_version": 1,
+  "sources": {
+    "adapter": {
+      "path": "scripts/run_r345_residual_headroom.py",
+      "sha256": "97f598cfe63694c5028ee37a2acbb9b31ed94d8d6d1a36635082ff3745c935fb"
+    },
+    "candidate_models": {
+      "path": "results/r341_staged_fresh_model_validation/candidate_models.json",
+      "sha256": "7a74cb78dca8c5e30f32a344ca43704079a1549c966ff21de492eba7a3f1e32e"
+    },
+    "formal_analysis": {
+      "path": "results/r344_deterministic_bridge/formal_analysis.json",
+      "sha256": "41c8e73deadbf30d0352dc5a20f82938ad3723ca7f2467a86f2d8f494996ad72"
+    },
+    "formal_execution": {
+      "path": "results/r344_deterministic_bridge/formal_execution.json",
+      "sha256": "8a82763ce1b3f777c4e7a1429f92651eb88d94d0bc238ee0c06664be6676bbd1"
+    },
+    "formal_manifest": {
+      "path": "results/r344_deterministic_bridge/formal_manifest.json",
+      "sha256": "3752b735536c599bc920b2f792ca1d677876436421858614c046707ab66e8b24"
+    },
+    "formal_seal": {
+      "path": "memory/rounds/R344/formal_seal.json",
+      "sha256": "eec71696276e45ead9f85bd2f7c932f4a2aeae37f6ceabe3d570871e3c129a8d"
+    },
+    "offline_limits": {
+      "path": "src/andes_rl_kundur/control/model_first_offline_feedback.py",
+      "sha256": "c154e73c4e6f642029284bdeb3f7acb087378c2a46bc0c8e90c8c4cf4c5e573e"
+    },
+    "physical_bridge_metrics": {
+      "path": "src/andes_rl_kundur/evaluation/model_first_physical_bridge.py",
+      "sha256": "a557af702529a010d303f92a622efc3210eb2681ba09b198c93519c7f71239a1"
+    },
+    "plan": {
+      "path": "memory/rounds/R345/plan.md",
+      "sha256": "6100dcddf1b70e648af436f18ad25a70ce5e3d8c42f6b1c445df7417df1937b9"
+    },
+    "probe": {
+      "path": "probes/r345_residual_headroom.py",
+      "sha256": "e175020e592064361c40b63ad6cb5f44db430529abd033a6a47a128aebaa344a"
+    },
+    "r344_adapter": {
+      "path": "scripts/run_r344_deterministic_bridge.py",
+      "sha256": "1bd75fe35f51cf296c6b151c293b59e8f3f24dd986eb211c9bd8be0d9a40cc69"
+    },
+    "separate_input": {
+      "path": "src/andes_rl_kundur/control/model_first_separate_input.py",
+      "sha256": "dafc577bc92481cf15b1ce57abdd9a5797def904cb02f13f4a811efd543bc881"
+    },
+    "tests": {
+      "path": "tests/test_r345_residual_headroom.py",
+      "sha256": "8f8deccfb79af7a93039cc42402451c2d610cf7215d6b63ae416ceb7a0af5e84"
+    }
+  }
+}

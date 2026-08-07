@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "captured_local": "2026-08-06T01:54:24.0288181+08:00",
+  "host": {
+    "processor": "AMD Ryzen 9 8940HX with Radeon Graphics",
+    "physical_cores": 16,
+    "logical_processors": 32,
+    "observed_cpu_load_percent": 26,
+    "physical_memory_bytes": 33518587904,
+    "observed_free_physical_memory_bytes": 13024792576
+  },
+  "wsl": {
+    "logical_processors": 32,
+    "memory_total_bytes": 25195311104,
+    "memory_available_bytes": 22814093312,
+    "swap_total_bytes": 8589934592,
+    "swap_free_bytes": 8589934592
+  },
+  "empirical_anchor": {
+    "round": "R339",
+    "concurrent_workers": 16,
+    "native_threads_per_worker": 1,
+    "all_records_valid": true,
+    "capacity_source": "memory/rounds/R339/host_capacity.json"
+  },
+  "capacity_canary": {
+    "round": "R339",
+    "accepted": true,
+    "accepted_worker_budget": 16,
+    "native_threads_per_worker": 1,
+    "all_jobs_completed": true,
+    "all_jobs_overlapped": true,
+    "formal_output_created": false,
+    "capacity_source": "memory/rounds/R339/host_capacity.json"
+  },
+  "whole_host_python_process_budget": 16,
+  "other_reserved_processes": 0,
+  "native_threads_per_process": 1,
+  "reason": "Current same-host snapshot plus the accepted R339 sixteen-process overlap anchor; recheck competing processes before launch."
+}

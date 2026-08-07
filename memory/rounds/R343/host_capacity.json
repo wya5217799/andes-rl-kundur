@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "captured_local": "2026-08-06T05:18:59.7387015+08:00",
+  "host": {
+    "processor": "AMD Ryzen 9 8940HX with Radeon Graphics",
+    "physical_cores": 16,
+    "logical_processors": 32,
+    "physical_memory_bytes": 33518587904,
+    "observed_free_physical_memory_bytes": 10203553792
+  },
+  "wsl": {
+    "logical_processors": 32,
+    "memory_total_bytes": 25195311104,
+    "memory_available_bytes": 18950062080,
+    "swap_total_bytes": 8589934592,
+    "swap_free_bytes": 8589934592
+  },
+  "empirical_anchor": {
+    "round": "R339",
+    "accepted_worker_budget": 16,
+    "native_threads_per_worker": 1,
+    "all_jobs_completed": true,
+    "all_jobs_overlapped": true,
+    "capacity_source": "memory/rounds/R339/host_capacity.json"
+  },
+  "capacity_canary": {
+    "round": "R339",
+    "accepted": true,
+    "accepted_worker_budget": 16,
+    "native_threads_per_worker": 1,
+    "all_jobs_completed": true,
+    "all_jobs_overlapped": true,
+    "formal_output_created": false,
+    "capacity_source": "memory/rounds/R339/host_capacity.json"
+  },
+  "r342_observation": {
+    "screen_workers": 16,
+    "all_screen_traces_completed": true,
+    "screen_trace_count": 24,
+    "minimum_observed_wsl_available_memory_bytes": 15452618752,
+    "canary_failure_stage": "manifest-verification-before-ANDES",
+    "capacity_failure_observed": false
+  },
+  "whole_host_python_process_budget": 16,
+  "other_reserved_processes": 0,
+  "native_threads_per_process": 1,
+  "reason": "Current same-host snapshot, accepted R339 sixteen-worker capacity evidence, and R342 sixteen-worker screen completion."
+}

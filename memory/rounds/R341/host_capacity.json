@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "captured_local": "2026-08-05T01:51:17.4910131+08:00",
+  "host": {
+    "processor": "AMD Ryzen 9 8940HX with Radeon Graphics",
+    "physical_cores": 16,
+    "logical_processors": 32,
+    "observed_cpu_load_percent": 45.9,
+    "physical_memory_bytes": 33518587904,
+    "observed_free_physical_memory_bytes": 3678199808,
+    "physical_memory_gib": 31.22,
+    "observed_free_physical_memory_gib": 3.38
+  },
+  "wsl": {
+    "logical_processors": 32,
+    "memory_total_bytes": 25195311104,
+    "memory_available_bytes": 19432574976,
+    "swap_total_bytes": 8589934592,
+    "swap_free_bytes": 8589934592,
+    "memory_total_kib": 24604796,
+    "memory_available_kib": 18977124,
+    "swap_total_kib": 8388608,
+    "swap_free_kib": 8388608
+  },
+  "empirical_anchor": {
+    "round": "R340",
+    "completed_trace_count": 60,
+    "first_to_last_trace_minutes": 171.3,
+    "formal_result_valid": false,
+    "use": "timing only; no trajectory or prediction metric read"
+  },
+  "capacity_canary": {
+    "round": "R339",
+    "accepted": true,
+    "accepted_worker_budget": 16,
+    "unique_python_processes": 16,
+    "native_threads_per_worker": 1,
+    "all_jobs_completed": true,
+    "all_jobs_overlapped": true,
+    "maximum_worker_resident_set_kib": 171932,
+    "swap_used_bytes": 0,
+    "formal_output_created": false,
+    "capacity_source": "memory/rounds/R339/host_capacity.json"
+  },
+  "whole_host_python_process_budget": 16,
+  "other_reserved_processes": 0,
+  "native_threads_per_process": 1,
+  "development_canary_estimate_minutes": [5, 15],
+  "formal_first_decision_estimate_minutes": [30, 70],
+  "formal_full_estimate_minutes": [180, 240],
+  "reason": "One process per measured physical core. WSL has about 18 GiB available and no research Python process; R340 timing replaces its optimistic pre-run estimate. Recheck free memory and competing processes immediately before launch."
+}

@@ -1,0 +1,1149 @@
+{
+  "schema_version": 1,
+  "phase": "validation",
+  "round": "R340",
+  "question": "Q-0089",
+  "created_utc": "2026-08-04T13:22:57.230455+00:00",
+  "contract": {
+    "round": "R340",
+    "question": "Q-0089",
+    "stage": "fresh-nonlinear-model-validation",
+    "operating_points": {
+      "HV0": {
+        "vsg_m_device": 190.0,
+        "vsg_d_device": 95.0,
+        "tie_rx_scale": 1.22,
+        "initial_soc": 0.46
+      },
+      "HV1": {
+        "vsg_m_device": 220.0,
+        "vsg_d_device": 110.0,
+        "tie_rx_scale": 1.45,
+        "initial_soc": 0.56
+      }
+    },
+    "channels": [
+      {
+        "device_idx": "PQ_0",
+        "bus_idx": 7,
+        "initial_active_system_pu": 11.59,
+        "initial_reactive_system_pu": -0.735
+      },
+      {
+        "device_idx": "PQ_1",
+        "bus_idx": 8,
+        "initial_active_system_pu": 15.75,
+        "initial_reactive_system_pu": -0.899
+      },
+      {
+        "device_idx": "PQ_Bus14",
+        "bus_idx": 14,
+        "initial_active_system_pu": 2.48,
+        "initial_reactive_system_pu": 0.0
+      },
+      {
+        "device_idx": "PQ_Bus15",
+        "bus_idx": 15,
+        "initial_active_system_pu": 0.05,
+        "initial_reactive_system_pu": 0.0
+      }
+    ],
+    "waveforms": {
+      "held_pulse_unit": [
+        0.6,
+        1.0,
+        1.0,
+        1.0,
+        0.6
+      ],
+      "two_pulse_unit": [
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        0.6,
+        0.6
+      ]
+    },
+    "amplitudes_system_pu": [
+      0.03,
+      0.07
+    ],
+    "signs": [
+      "positive",
+      "negative"
+    ],
+    "record_count_per_point": 33,
+    "record_count": 66,
+    "total_steps": 1000,
+    "validation_horizon_seconds": 200.0,
+    "estimated_wall_minutes": [
+      11.0,
+      15.0
+    ],
+    "estimated_from": "R336 measured 25-step per-record throughput scaled to 1000 steps at sixteen processes",
+    "sample_period_seconds": 0.2,
+    "tds_substeps": 5,
+    "sample_observation_convention": "end-of-held-interval",
+    "candidate_construction": {
+      "method": "frozen-R339-point-scheduled-descriptor-to-ERA",
+      "finite_difference_steps_system_pu": [
+        0.0001,
+        1e-05,
+        1e-06
+      ],
+      "order": 12,
+      "block_rows": 8,
+      "block_columns": 8,
+      "markov_samples": 25,
+      "pole_projection": false,
+      "trajectory_fit_count": 0,
+      "trajectory_selection_count": 0
+    },
+    "thresholds": {
+      "nrmse_maximum": 0.15,
+      "peak_vector_residual_maximum": 0.2
+    },
+    "whole_host_python_processes": 16,
+    "native_threads_per_process": 1,
+    "candidate_artifact_create_only": true,
+    "validation_seal_binds_candidate_sha256": true,
+    "formal_construction_retry_authorized": false,
+    "formal_validation_retry_authorized": false,
+    "controller_executed": false,
+    "closed_loop_executed": false,
+    "distributed_runtime_executed": false,
+    "training_executed": false,
+    "eval_executed": false
+  },
+  "contract_payload_sha256": "03569e919888d0dc9a342edce88fe27e7668866feb692e5d5aa8a811a5b1b14c",
+  "candidate": {
+    "path": "results/r340_fresh_model_validation/candidate_models.json",
+    "sha256": "f0c264cf3a1f40e102a8d06bb85ab4e677f387bb4a71748cf955cc007e9c0cf1",
+    "construction_method": "frozen-R339-point-scheduled-descriptor-to-order12",
+    "construction_pass": true
+  },
+  "sources": {
+    "andes_scratch": {
+      "path": "scripts/andes_scratch.py",
+      "sha256": "1a16582b8ec68bd0ca17e0efe76f80dae6a1c602750c3bf6c1390ee5c842e709"
+    },
+    "artifact_io": {
+      "path": "memory/tools/artifact_io.py",
+      "sha256": "03c42cddde3cd4281aeca341c74114c8ad6a10bd52546ed3f3cceefe74aeb6c8"
+    },
+    "dynamic_reduction_math": {
+      "path": "src/andes_rl_kundur/evaluation/model_first_dynamic_reduction.py",
+      "sha256": "4cc9a99b6a3a558ae24f621605e41684ccfe10a9abcc3cb84156d0bdea3128f7"
+    },
+    "input_bridge_math": {
+      "path": "src/andes_rl_kundur/evaluation/model_first_input_bridge.py",
+      "sha256": "a657db08cd75a4212b7047b65488e8d6b8f65c09a01911847052c89b757ed182"
+    },
+    "model_first_contract": {
+      "path": "src/andes_rl_kundur/env/andes/model_first_contract.py",
+      "sha256": "1fd3dd02c363185c27a8af6f006853f82bf258676ef1ab3c7928c6db4d93cbf6"
+    },
+    "model_first_env": {
+      "path": "src/andes_rl_kundur/env/andes/model_first_env.py",
+      "sha256": "8b8aa445aafe4b40182cfe60b2dad3cf639dca98ff695d176b01bb5784965f13"
+    },
+    "pq_disturbance": {
+      "path": "src/andes_rl_kundur/env/andes/model_first_pq_disturbance.py",
+      "sha256": "2a731ec3b8d2379134baea8bccff339d5b4b464ce31f303e833847defd7f9d11"
+    },
+    "pq_profile": {
+      "path": "src/andes_rl_kundur/env/andes/model_first_pq_profile.py",
+      "sha256": "1c7a8ebc0e195f3e10ca0cac8ab9ffd97d43f9dbb027fcd3adf34fa3b9692238"
+    },
+    "r335_runner": {
+      "path": "scripts/run_r335_disturbance_package.py",
+      "sha256": "dc0ecb1533492ea44f06e1eaa9dbc25f4639513e845e2f4a14f50b7316d78b73"
+    },
+    "r336_runner": {
+      "path": "scripts/run_r336_disturbance_package.py",
+      "sha256": "87a8e542b19e6f3a026131b7e8c1db33f7cb304ba99bc04b6c03f791790a9e03"
+    },
+    "r339_probe": {
+      "path": "probes/r339_input_bridge_diagnosis.py",
+      "sha256": "ad478938e328f9fc228253c298fd39297f65c64237c6f244819c2faf4e8eb3b4"
+    },
+    "r339_runner": {
+      "path": "scripts/run_r339_input_bridge_diagnosis.py",
+      "sha256": "01832489f14c531e22aa082010eaa8f121457a78153302107d20199b1b7083e5"
+    },
+    "r340_probe": {
+      "path": "probes/r340_fresh_model_validation.py",
+      "sha256": "1ac572962fc1bc61d5a815ae492034595ba35a2b7cc2b4551d438a03ca6dbddd"
+    },
+    "r340_runner": {
+      "path": "scripts/run_r340_fresh_model_validation.py",
+      "sha256": "8fa28a277bcda8ba9171bc584060d637651052b152ce84329acfc2022d6e1d9a"
+    },
+    "r340_tests": {
+      "path": "tests/test_r340_fresh_model_validation.py",
+      "sha256": "1e0fd16943c0fe165125d4f0f04c27fb2b12f6aa9132bbd4fd6aa70a878be458"
+    }
+  },
+  "parents": {
+    "candidate_models": {
+      "path": "results/r340_fresh_model_validation/candidate_models.json",
+      "sha256": "f0c264cf3a1f40e102a8d06bb85ab4e677f387bb4a71748cf955cc007e9c0cf1"
+    },
+    "construction_attempt": {
+      "path": "results/r340_fresh_model_validation/construction_attempt.json",
+      "sha256": "71a10cf2120509415abe3784593a9a0c0bb8c4b06849e8ddf66d9d2923ad4c90"
+    },
+    "construction_execution": {
+      "path": "results/r340_fresh_model_validation/construction_execution.json",
+      "sha256": "9f8fd54c5b49644e31cbbbeab40a414b057614d433f8ddfd4286817c571abb78"
+    },
+    "construction_manifest": {
+      "path": "results/r340_fresh_model_validation/construction_manifest.json",
+      "sha256": "254ae76b49bbbc5bd1cde25b46b339dd8083bda28d062c935cbd95996b11c26a"
+    },
+    "construction_provenance": {
+      "path": "results/r340_fresh_model_validation/construction_provenance.json",
+      "sha256": "0511d6ada57d9429908ec7904367950f5491cd44670110ad3e22a4b2ab6e4326"
+    },
+    "construction_seal": {
+      "path": "memory/rounds/R340/construction_seal.json",
+      "sha256": "a14f59064766d07d6c8568ca8ca245a2ac68be211e7fda633a6dc247a8bd04e9"
+    }
+  },
+  "expected_runtime": {
+    "andes_version": "2.0.0",
+    "installed_sources": {
+      "andes/models/static/pq.py": "958db0ff11cc5d3108bc084579090c43d33b5bbb37c0f8c3ea209b1af9bd0ae3",
+      "andes/models/timer.py": "3bb4eac11e38691a6e4a3f9f5a92601d4fa851bf29c28e2568586580eba654b6",
+      "andes/core/model/model.py": "fd5502a78fa43e84132d089152f8806fb5facf35b939e0be4eced1db870ebe96",
+      "andes/core/param.py": "5dd76b168ab16eefcb2f54cbdda64e7a725bb5360e615afbb16c297b44757b89",
+      "andes/routines/tds.py": "224ff43d78de8e6808efa0a6b858d8dbe2ca511128a90a8260009c8146d6e8ba",
+      "andes/system/facade.py": "b6aa12d10811a5b35e0d5939c309d3414713daff4f5d30f2b9063e0d518080c9",
+      "andes/models/timeseries.py": "57b4949ccbdca488e23180879c2eee6d949f96ad86c8ec21b5650e079ef1da46",
+      "andes/system/dae_compactor.py": "121d779bbf9c5aca097d362a92500383f9518dab0f4ab4d21c13ea0463df95f9",
+      "andes/models/dynload/fload.py": "0f0df94d8a678da4830b663113e4154d6ac7f9787c2adfb3d50107b4de380876",
+      "andes/models/dynload/zip.py": "869d8f640c9dea22a0c5e28045c507d7e297124cadd1b9d14e1a61b10afc02e6"
+    },
+    "case_sha256": "f725e03ba12d8207616f68acdd606bbd35e7c4a68f13e66d7db43925adac2ed8"
+  },
+  "record_specs": [
+    {
+      "record_index": 0,
+      "point": "HV0",
+      "channel": null,
+      "waveform": "zero",
+      "profile_key": "zero",
+      "amplitude_system_pu": 0.0,
+      "sign": "zero"
+    },
+    {
+      "record_index": 1,
+      "point": "HV0",
+      "channel": {
+        "device_idx": "PQ_0",
+        "bus_idx": 7,
+        "initial_active_system_pu": 11.59,
+        "initial_reactive_system_pu": -0.735
+      },
+      "waveform": "held_pulse_unit",
+      "profile_key": "held_pulse_unit__0.03",
+      "amplitude_system_pu": 0.03,
+      "sign": "positive"
+    },
+    {
+      "record_index": 2,
+      "point": "HV0",
+      "channel": {
+        "device_idx": "PQ_0",
+        "bus_idx": 7,
+        "initial_active_system_pu": 11.59,
+        "initial_reactive_system_pu": -0.735
+      },
+      "waveform": "held_pulse_unit",
+      "profile_key": "held_pulse_unit__0.03",
+      "amplitude_system_pu": 0.03,
+      "sign": "negative"
+    },
+    {
+      "record_index": 3,
+      "point": "HV0",
+      "channel": {
+        "device_idx": "PQ_0",
+        "bus_idx": 7,
+        "initial_active_system_pu": 11.59,
+        "initial_reactive_system_pu": -0.735
+      },
+      "waveform": "held_pulse_unit",
+      "profile_key": "held_pulse_unit__0.07",
+      "amplitude_system_pu": 0.07,
+      "sign": "positive"
+    },
+    {
+      "record_index": 4,
+      "point": "HV0",
+      "channel": {
+        "device_idx": "PQ_0",
+        "bus_idx": 7,
+        "initial_active_system_pu": 11.59,
+        "initial_reactive_system_pu": -0.735
+      },
+      "waveform": "held_pulse_unit",
+      "profile_key": "held_pulse_unit__0.07",
+      "amplitude_system_pu": 0.07,
+      "sign": "negative"
+    },
+    {
+      "record_index": 5,
+      "point": "HV0",
+      "channel": {
+        "device_idx": "PQ_0",
+        "bus_idx": 7,
+        "initial_active_system_pu": 11.59,
+        "initial_reactive_system_pu": -0.735
+      },
+      "waveform": "two_pulse_unit",
+      "profile_key": "two_pulse_unit__0.03",
+      "amplitude_system_pu": 0.03,
+      "sign": "positive"
+    },
+    {
+      "record_index": 6,
+      "point": "HV0",
+      "channel": {
+        "device_idx": "PQ_0",
+        "bus_idx": 7,
+        "initial_active_system_pu": 11.59,
+        "initial_reactive_system_pu": -0.735
+      },
+      "waveform": "two_pulse_unit",
+      "profile_key": "two_pulse_unit__0.03",
+      "amplitude_system_pu": 0.03,
+      "sign": "negative"
+    },
+    {
+      "record_index": 7,
+      "point": "HV0",
+      "channel": {
+        "device_idx": "PQ_0",
+        "bus_idx": 7,
+        "initial_active_system_pu": 11.59,
+        "initial_reactive_system_pu": -0.735
+      },
+      "waveform": "two_pulse_unit",
+      "profile_key": "two_pulse_unit__0.07",
+      "amplitude_system_pu": 0.07,
+      "sign": "positive"
+    },
+    {
+      "record_index": 8,
+      "point": "HV0",
+      "channel": {
+        "device_idx": "PQ_0",
+        "bus_idx": 7,
+        "initial_active_system_pu": 11.59,
+        "initial_reactive_system_pu": -0.735
+      },
+      "waveform": "two_pulse_unit",
+      "profile_key": "two_pulse_unit__0.07",
+      "amplitude_system_pu": 0.07,
+      "sign": "negative"
+    },
+    {
+      "record_index": 9,
+      "point": "HV0",
+      "channel": {
+        "device_idx": "PQ_1",
+        "bus_idx": 8,
+        "initial_active_system_pu": 15.75,
+        "initial_reactive_system_pu": -0.899
+      },
+      "waveform": "held_pulse_unit",
+      "profile_key": "held_pulse_unit__0.03",
+      "amplitude_system_pu": 0.03,
+      "sign": "positive"
+    },
+    {
+      "record_index": 10,
+      "point": "HV0",
+      "channel": {
+        "device_idx": "PQ_1",
+        "bus_idx": 8,
+        "initial_active_system_pu": 15.75,
+        "initial_reactive_system_pu": -0.899
+      },
+      "waveform": "held_pulse_unit",
+      "profile_key": "held_pulse_unit__0.03",
+      "amplitude_system_pu": 0.03,
+      "sign": "negative"
+    },
+    {
+      "record_index": 11,
+      "point": "HV0",
+      "channel": {
+        "device_idx": "PQ_1",
+        "bus_idx": 8,
+        "initial_active_system_pu": 15.75,
+        "initial_reactive_system_pu": -0.899
+      },
+      "waveform": "held_pulse_unit",
+      "profile_key": "held_pulse_unit__0.07",
+      "amplitude_system_pu": 0.07,
+      "sign": "positive"
+    },
+    {
+      "record_index": 12,
+      "point": "HV0",
+      "channel": {
+        "device_idx": "PQ_1",
+        "bus_idx": 8,
+        "initial_active_system_pu": 15.75,
+        "initial_reactive_system_pu": -0.899
+      },
+      "waveform": "held_pulse_unit",
+      "profile_key": "held_pulse_unit__0.07",
+      "amplitude_system_pu": 0.07,
+      "sign": "negative"
+    },
+    {
+      "record_index": 13,
+      "point": "HV0",
+      "channel": {
+        "device_idx": "PQ_1",
+        "bus_idx": 8,
+        "initial_active_system_pu": 15.75,
+        "initial_reactive_system_pu": -0.899
+      },
+      "waveform": "two_pulse_unit",
+      "profile_key": "two_pulse_unit__0.03",
+      "amplitude_system_pu": 0.03,
+      "sign": "positive"
+    },
+    {
+      "record_index": 14,
+      "point": "HV0",
+      "channel": {
+        "device_idx": "PQ_1",
+        "bus_idx": 8,
+        "initial_active_system_pu": 15.75,
+        "initial_reactive_system_pu": -0.899
+      },
+      "waveform": "two_pulse_unit",
+      "profile_key": "two_pulse_unit__0.03",
+      "amplitude_system_pu": 0.03,
+      "sign": "negative"
+    },
+    {
+      "record_index": 15,
+      "point": "HV0",
+      "channel": {
+        "device_idx": "PQ_1",
+        "bus_idx": 8,
+        "initial_active_system_pu": 15.75,
+        "initial_reactive_system_pu": -0.899
+      },
+      "waveform": "two_pulse_unit",
+      "profile_key": "two_pulse_unit__0.07",
+      "amplitude_system_pu": 0.07,
+      "sign": "positive"
+    },
+    {
+      "record_index": 16,
+      "point": "HV0",
+      "channel": {
+        "device_idx": "PQ_1",
+        "bus_idx": 8,
+        "initial_active_system_pu": 15.75,
+        "initial_reactive_system_pu": -0.899
+      },
+      "waveform": "two_pulse_unit",
+      "profile_key": "two_pulse_unit__0.07",
+      "amplitude_system_pu": 0.07,
+      "sign": "negative"
+    },
+    {
+      "record_index": 17,
+      "point": "HV0",
+      "channel": {
+        "device_idx": "PQ_Bus14",
+        "bus_idx": 14,
+        "initial_active_system_pu": 2.48,
+        "initial_reactive_system_pu": 0.0
+      },
+      "waveform": "held_pulse_unit",
+      "profile_key": "held_pulse_unit__0.03",
+      "amplitude_system_pu": 0.03,
+      "sign": "positive"
+    },
+    {
+      "record_index": 18,
+      "point": "HV0",
+      "channel": {
+        "device_idx": "PQ_Bus14",
+        "bus_idx": 14,
+        "initial_active_system_pu": 2.48,
+        "initial_reactive_system_pu": 0.0
+      },
+      "waveform": "held_pulse_unit",
+      "profile_key": "held_pulse_unit__0.03",
+      "amplitude_system_pu": 0.03,
+      "sign": "negative"
+    },
+    {
+      "record_index": 19,
+      "point": "HV0",
+      "channel": {
+        "device_idx": "PQ_Bus14",
+        "bus_idx": 14,
+        "initial_active_system_pu": 2.48,
+        "initial_reactive_system_pu": 0.0
+      },
+      "waveform": "held_pulse_unit",
+      "profile_key": "held_pulse_unit__0.07",
+      "amplitude_system_pu": 0.07,
+      "sign": "positive"
+    },
+    {
+      "record_index": 20,
+      "point": "HV0",
+      "channel": {
+        "device_idx": "PQ_Bus14",
+        "bus_idx": 14,
+        "initial_active_system_pu": 2.48,
+        "initial_reactive_system_pu": 0.0
+      },
+      "waveform": "held_pulse_unit",
+      "profile_key": "held_pulse_unit__0.07",
+      "amplitude_system_pu": 0.07,
+      "sign": "negative"
+    },
+    {
+      "record_index": 21,
+      "point": "HV0",
+      "channel": {
+        "device_idx": "PQ_Bus14",
+        "bus_idx": 14,
+        "initial_active_system_pu": 2.48,
+        "initial_reactive_system_pu": 0.0
+      },
+      "waveform": "two_pulse_unit",
+      "profile_key": "two_pulse_unit__0.03",
+      "amplitude_system_pu": 0.03,
+      "sign": "positive"
+    },
+    {
+      "record_index": 22,
+      "point": "HV0",
+      "channel": {
+        "device_idx": "PQ_Bus14",
+        "bus_idx": 14,
+        "initial_active_system_pu": 2.48,
+        "initial_reactive_system_pu": 0.0
+      },
+      "waveform": "two_pulse_unit",
+      "profile_key": "two_pulse_unit__0.03",
+      "amplitude_system_pu": 0.03,
+      "sign": "negative"
+    },
+    {
+      "record_index": 23,
+      "point": "HV0",
+      "channel": {
+        "device_idx": "PQ_Bus14",
+        "bus_idx": 14,
+        "initial_active_system_pu": 2.48,
+        "initial_reactive_system_pu": 0.0
+      },
+      "waveform": "two_pulse_unit",
+      "profile_key": "two_pulse_unit__0.07",
+      "amplitude_system_pu": 0.07,
+      "sign": "positive"
+    },
+    {
+      "record_index": 24,
+      "point": "HV0",
+      "channel": {
+        "device_idx": "PQ_Bus14",
+        "bus_idx": 14,
+        "initial_active_system_pu": 2.48,
+        "initial_reactive_system_pu": 0.0
+      },
+      "waveform": "two_pulse_unit",
+      "profile_key": "two_pulse_unit__0.07",
+      "amplitude_system_pu": 0.07,
+      "sign": "negative"
+    },
+    {
+      "record_index": 25,
+      "point": "HV0",
+      "channel": {
+        "device_idx": "PQ_Bus15",
+        "bus_idx": 15,
+        "initial_active_system_pu": 0.05,
+        "initial_reactive_system_pu": 0.0
+      },
+      "waveform": "held_pulse_unit",
+      "profile_key": "held_pulse_unit__0.03",
+      "amplitude_system_pu": 0.03,
+      "sign": "positive"
+    },
+    {
+      "record_index": 26,
+      "point": "HV0",
+      "channel": {
+        "device_idx": "PQ_Bus15",
+        "bus_idx": 15,
+        "initial_active_system_pu": 0.05,
+        "initial_reactive_system_pu": 0.0
+      },
+      "waveform": "held_pulse_unit",
+      "profile_key": "held_pulse_unit__0.03",
+      "amplitude_system_pu": 0.03,
+      "sign": "negative"
+    },
+    {
+      "record_index": 27,
+      "point": "HV0",
+      "channel": {
+        "device_idx": "PQ_Bus15",
+        "bus_idx": 15,
+        "initial_active_system_pu": 0.05,
+        "initial_reactive_system_pu": 0.0
+      },
+      "waveform": "held_pulse_unit",
+      "profile_key": "held_pulse_unit__0.07",
+      "amplitude_system_pu": 0.07,
+      "sign": "positive"
+    },
+    {
+      "record_index": 28,
+      "point": "HV0",
+      "channel": {
+        "device_idx": "PQ_Bus15",
+        "bus_idx": 15,
+        "initial_active_system_pu": 0.05,
+        "initial_reactive_system_pu": 0.0
+      },
+      "waveform": "held_pulse_unit",
+      "profile_key": "held_pulse_unit__0.07",
+      "amplitude_system_pu": 0.07,
+      "sign": "negative"
+    },
+    {
+      "record_index": 29,
+      "point": "HV0",
+      "channel": {
+        "device_idx": "PQ_Bus15",
+        "bus_idx": 15,
+        "initial_active_system_pu": 0.05,
+        "initial_reactive_system_pu": 0.0
+      },
+      "waveform": "two_pulse_unit",
+      "profile_key": "two_pulse_unit__0.03",
+      "amplitude_system_pu": 0.03,
+      "sign": "positive"
+    },
+    {
+      "record_index": 30,
+      "point": "HV0",
+      "channel": {
+        "device_idx": "PQ_Bus15",
+        "bus_idx": 15,
+        "initial_active_system_pu": 0.05,
+        "initial_reactive_system_pu": 0.0
+      },
+      "waveform": "two_pulse_unit",
+      "profile_key": "two_pulse_unit__0.03",
+      "amplitude_system_pu": 0.03,
+      "sign": "negative"
+    },
+    {
+      "record_index": 31,
+      "point": "HV0",
+      "channel": {
+        "device_idx": "PQ_Bus15",
+        "bus_idx": 15,
+        "initial_active_system_pu": 0.05,
+        "initial_reactive_system_pu": 0.0
+      },
+      "waveform": "two_pulse_unit",
+      "profile_key": "two_pulse_unit__0.07",
+      "amplitude_system_pu": 0.07,
+      "sign": "positive"
+    },
+    {
+      "record_index": 32,
+      "point": "HV0",
+      "channel": {
+        "device_idx": "PQ_Bus15",
+        "bus_idx": 15,
+        "initial_active_system_pu": 0.05,
+        "initial_reactive_system_pu": 0.0
+      },
+      "waveform": "two_pulse_unit",
+      "profile_key": "two_pulse_unit__0.07",
+      "amplitude_system_pu": 0.07,
+      "sign": "negative"
+    },
+    {
+      "record_index": 33,
+      "point": "HV1",
+      "channel": null,
+      "waveform": "zero",
+      "profile_key": "zero",
+      "amplitude_system_pu": 0.0,
+      "sign": "zero"
+    },
+    {
+      "record_index": 34,
+      "point": "HV1",
+      "channel": {
+        "device_idx": "PQ_0",
+        "bus_idx": 7,
+        "initial_active_system_pu": 11.59,
+        "initial_reactive_system_pu": -0.735
+      },
+      "waveform": "held_pulse_unit",
+      "profile_key": "held_pulse_unit__0.03",
+      "amplitude_system_pu": 0.03,
+      "sign": "positive"
+    },
+    {
+      "record_index": 35,
+      "point": "HV1",
+      "channel": {
+        "device_idx": "PQ_0",
+        "bus_idx": 7,
+        "initial_active_system_pu": 11.59,
+        "initial_reactive_system_pu": -0.735
+      },
+      "waveform": "held_pulse_unit",
+      "profile_key": "held_pulse_unit__0.03",
+      "amplitude_system_pu": 0.03,
+      "sign": "negative"
+    },
+    {
+      "record_index": 36,
+      "point": "HV1",
+      "channel": {
+        "device_idx": "PQ_0",
+        "bus_idx": 7,
+        "initial_active_system_pu": 11.59,
+        "initial_reactive_system_pu": -0.735
+      },
+      "waveform": "held_pulse_unit",
+      "profile_key": "held_pulse_unit__0.07",
+      "amplitude_system_pu": 0.07,
+      "sign": "positive"
+    },
+    {
+      "record_index": 37,
+      "point": "HV1",
+      "channel": {
+        "device_idx": "PQ_0",
+        "bus_idx": 7,
+        "initial_active_system_pu": 11.59,
+        "initial_reactive_system_pu": -0.735
+      },
+      "waveform": "held_pulse_unit",
+      "profile_key": "held_pulse_unit__0.07",
+      "amplitude_system_pu": 0.07,
+      "sign": "negative"
+    },
+    {
+      "record_index": 38,
+      "point": "HV1",
+      "channel": {
+        "device_idx": "PQ_0",
+        "bus_idx": 7,
+        "initial_active_system_pu": 11.59,
+        "initial_reactive_system_pu": -0.735
+      },
+      "waveform": "two_pulse_unit",
+      "profile_key": "two_pulse_unit__0.03",
+      "amplitude_system_pu": 0.03,
+      "sign": "positive"
+    },
+    {
+      "record_index": 39,
+      "point": "HV1",
+      "channel": {
+        "device_idx": "PQ_0",
+        "bus_idx": 7,
+        "initial_active_system_pu": 11.59,
+        "initial_reactive_system_pu": -0.735
+      },
+      "waveform": "two_pulse_unit",
+      "profile_key": "two_pulse_unit__0.03",
+      "amplitude_system_pu": 0.03,
+      "sign": "negative"
+    },
+    {
+      "record_index": 40,
+      "point": "HV1",
+      "channel": {
+        "device_idx": "PQ_0",
+        "bus_idx": 7,
+        "initial_active_system_pu": 11.59,
+        "initial_reactive_system_pu": -0.735
+      },
+      "waveform": "two_pulse_unit",
+      "profile_key": "two_pulse_unit__0.07",
+      "amplitude_system_pu": 0.07,
+      "sign": "positive"
+    },
+    {
+      "record_index": 41,
+      "point": "HV1",
+      "channel": {
+        "device_idx": "PQ_0",
+        "bus_idx": 7,
+        "initial_active_system_pu": 11.59,
+        "initial_reactive_system_pu": -0.735
+      },
+      "waveform": "two_pulse_unit",
+      "profile_key": "two_pulse_unit__0.07",
+      "amplitude_system_pu": 0.07,
+      "sign": "negative"
+    },
+    {
+      "record_index": 42,
+      "point": "HV1",
+      "channel": {
+        "device_idx": "PQ_1",
+        "bus_idx": 8,
+        "initial_active_system_pu": 15.75,
+        "initial_reactive_system_pu": -0.899
+      },
+      "waveform": "held_pulse_unit",
+      "profile_key": "held_pulse_unit__0.03",
+      "amplitude_system_pu": 0.03,
+      "sign": "positive"
+    },
+    {
+      "record_index": 43,
+      "point": "HV1",
+      "channel": {
+        "device_idx": "PQ_1",
+        "bus_idx": 8,
+        "initial_active_system_pu": 15.75,
+        "initial_reactive_system_pu": -0.899
+      },
+      "waveform": "held_pulse_unit",
+      "profile_key": "held_pulse_unit__0.03",
+      "amplitude_system_pu": 0.03,
+      "sign": "negative"
+    },
+    {
+      "record_index": 44,
+      "point": "HV1",
+      "channel": {
+        "device_idx": "PQ_1",
+        "bus_idx": 8,
+        "initial_active_system_pu": 15.75,
+        "initial_reactive_system_pu": -0.899
+      },
+      "waveform": "held_pulse_unit",
+      "profile_key": "held_pulse_unit__0.07",
+      "amplitude_system_pu": 0.07,
+      "sign": "positive"
+    },
+    {
+      "record_index": 45,
+      "point": "HV1",
+      "channel": {
+        "device_idx": "PQ_1",
+        "bus_idx": 8,
+        "initial_active_system_pu": 15.75,
+        "initial_reactive_system_pu": -0.899
+      },
+      "waveform": "held_pulse_unit",
+      "profile_key": "held_pulse_unit__0.07",
+      "amplitude_system_pu": 0.07,
+      "sign": "negative"
+    },
+    {
+      "record_index": 46,
+      "point": "HV1",
+      "channel": {
+        "device_idx": "PQ_1",
+        "bus_idx": 8,
+        "initial_active_system_pu": 15.75,
+        "initial_reactive_system_pu": -0.899
+      },
+      "waveform": "two_pulse_unit",
+      "profile_key": "two_pulse_unit__0.03",
+      "amplitude_system_pu": 0.03,
+      "sign": "positive"
+    },
+    {
+      "record_index": 47,
+      "point": "HV1",
+      "channel": {
+        "device_idx": "PQ_1",
+        "bus_idx": 8,
+        "initial_active_system_pu": 15.75,
+        "initial_reactive_system_pu": -0.899
+      },
+      "waveform": "two_pulse_unit",
+      "profile_key": "two_pulse_unit__0.03",
+      "amplitude_system_pu": 0.03,
+      "sign": "negative"
+    },
+    {
+      "record_index": 48,
+      "point": "HV1",
+      "channel": {
+        "device_idx": "PQ_1",
+        "bus_idx": 8,
+        "initial_active_system_pu": 15.75,
+        "initial_reactive_system_pu": -0.899
+      },
+      "waveform": "two_pulse_unit",
+      "profile_key": "two_pulse_unit__0.07",
+      "amplitude_system_pu": 0.07,
+      "sign": "positive"
+    },
+    {
+      "record_index": 49,
+      "point": "HV1",
+      "channel": {
+        "device_idx": "PQ_1",
+        "bus_idx": 8,
+        "initial_active_system_pu": 15.75,
+        "initial_reactive_system_pu": -0.899
+      },
+      "waveform": "two_pulse_unit",
+      "profile_key": "two_pulse_unit__0.07",
+      "amplitude_system_pu": 0.07,
+      "sign": "negative"
+    },
+    {
+      "record_index": 50,
+      "point": "HV1",
+      "channel": {
+        "device_idx": "PQ_Bus14",
+        "bus_idx": 14,
+        "initial_active_system_pu": 2.48,
+        "initial_reactive_system_pu": 0.0
+      },
+      "waveform": "held_pulse_unit",
+      "profile_key": "held_pulse_unit__0.03",
+      "amplitude_system_pu": 0.03,
+      "sign": "positive"
+    },
+    {
+      "record_index": 51,
+      "point": "HV1",
+      "channel": {
+        "device_idx": "PQ_Bus14",
+        "bus_idx": 14,
+        "initial_active_system_pu": 2.48,
+        "initial_reactive_system_pu": 0.0
+      },
+      "waveform": "held_pulse_unit",
+      "profile_key": "held_pulse_unit__0.03",
+      "amplitude_system_pu": 0.03,
+      "sign": "negative"
+    },
+    {
+      "record_index": 52,
+      "point": "HV1",
+      "channel": {
+        "device_idx": "PQ_Bus14",
+        "bus_idx": 14,
+        "initial_active_system_pu": 2.48,
+        "initial_reactive_system_pu": 0.0
+      },
+      "waveform": "held_pulse_unit",
+      "profile_key": "held_pulse_unit__0.07",
+      "amplitude_system_pu": 0.07,
+      "sign": "positive"
+    },
+    {
+      "record_index": 53,
+      "point": "HV1",
+      "channel": {
+        "device_idx": "PQ_Bus14",
+        "bus_idx": 14,
+        "initial_active_system_pu": 2.48,
+        "initial_reactive_system_pu": 0.0
+      },
+      "waveform": "held_pulse_unit",
+      "profile_key": "held_pulse_unit__0.07",
+      "amplitude_system_pu": 0.07,
+      "sign": "negative"
+    },
+    {
+      "record_index": 54,
+      "point": "HV1",
+      "channel": {
+        "device_idx": "PQ_Bus14",
+        "bus_idx": 14,
+        "initial_active_system_pu": 2.48,
+        "initial_reactive_system_pu": 0.0
+      },
+      "waveform": "two_pulse_unit",
+      "profile_key": "two_pulse_unit__0.03",
+      "amplitude_system_pu": 0.03,
+      "sign": "positive"
+    },
+    {
+      "record_index": 55,
+      "point": "HV1",
+      "channel": {
+        "device_idx": "PQ_Bus14",
+        "bus_idx": 14,
+        "initial_active_system_pu": 2.48,
+        "initial_reactive_system_pu": 0.0
+      },
+      "waveform": "two_pulse_unit",
+      "profile_key": "two_pulse_unit__0.03",
+      "amplitude_system_pu": 0.03,
+      "sign": "negative"
+    },
+    {
+      "record_index": 56,
+      "point": "HV1",
+      "channel": {
+        "device_idx": "PQ_Bus14",
+        "bus_idx": 14,
+        "initial_active_system_pu": 2.48,
+        "initial_reactive_system_pu": 0.0
+      },
+      "waveform": "two_pulse_unit",
+      "profile_key": "two_pulse_unit__0.07",
+      "amplitude_system_pu": 0.07,
+      "sign": "positive"
+    },
+    {
+      "record_index": 57,
+      "point": "HV1",
+      "channel": {
+        "device_idx": "PQ_Bus14",
+        "bus_idx": 14,
+        "initial_active_system_pu": 2.48,
+        "initial_reactive_system_pu": 0.0
+      },
+      "waveform": "two_pulse_unit",
+      "profile_key": "two_pulse_unit__0.07",
+      "amplitude_system_pu": 0.07,
+      "sign": "negative"
+    },
+    {
+      "record_index": 58,
+      "point": "HV1",
+      "channel": {
+        "device_idx": "PQ_Bus15",
+        "bus_idx": 15,
+        "initial_active_system_pu": 0.05,
+        "initial_reactive_system_pu": 0.0
+      },
+      "waveform": "held_pulse_unit",
+      "profile_key": "held_pulse_unit__0.03",
+      "amplitude_system_pu": 0.03,
+      "sign": "positive"
+    },
+    {
+      "record_index": 59,
+      "point": "HV1",
+      "channel": {
+        "device_idx": "PQ_Bus15",
+        "bus_idx": 15,
+        "initial_active_system_pu": 0.05,
+        "initial_reactive_system_pu": 0.0
+      },
+      "waveform": "held_pulse_unit",
+      "profile_key": "held_pulse_unit__0.03",
+      "amplitude_system_pu": 0.03,
+      "sign": "negative"
+    },
+    {
+      "record_index": 60,
+      "point": "HV1",
+      "channel": {
+        "device_idx": "PQ_Bus15",
+        "bus_idx": 15,
+        "initial_active_system_pu": 0.05,
+        "initial_reactive_system_pu": 0.0
+      },
+      "waveform": "held_pulse_unit",
+      "profile_key": "held_pulse_unit__0.07",
+      "amplitude_system_pu": 0.07,
+      "sign": "positive"
+    },
+    {
+      "record_index": 61,
+      "point": "HV1",
+      "channel": {
+        "device_idx": "PQ_Bus15",
+        "bus_idx": 15,
+        "initial_active_system_pu": 0.05,
+        "initial_reactive_system_pu": 0.0
+      },
+      "waveform": "held_pulse_unit",
+      "profile_key": "held_pulse_unit__0.07",
+      "amplitude_system_pu": 0.07,
+      "sign": "negative"
+    },
+    {
+      "record_index": 62,
+      "point": "HV1",
+      "channel": {
+        "device_idx": "PQ_Bus15",
+        "bus_idx": 15,
+        "initial_active_system_pu": 0.05,
+        "initial_reactive_system_pu": 0.0
+      },
+      "waveform": "two_pulse_unit",
+      "profile_key": "two_pulse_unit__0.03",
+      "amplitude_system_pu": 0.03,
+      "sign": "positive"
+    },
+    {
+      "record_index": 63,
+      "point": "HV1",
+      "channel": {
+        "device_idx": "PQ_Bus15",
+        "bus_idx": 15,
+        "initial_active_system_pu": 0.05,
+        "initial_reactive_system_pu": 0.0
+      },
+      "waveform": "two_pulse_unit",
+      "profile_key": "two_pulse_unit__0.03",
+      "amplitude_system_pu": 0.03,
+      "sign": "negative"
+    },
+    {
+      "record_index": 64,
+      "point": "HV1",
+      "channel": {
+        "device_idx": "PQ_Bus15",
+        "bus_idx": 15,
+        "initial_active_system_pu": 0.05,
+        "initial_reactive_system_pu": 0.0
+      },
+      "waveform": "two_pulse_unit",
+      "profile_key": "two_pulse_unit__0.07",
+      "amplitude_system_pu": 0.07,
+      "sign": "positive"
+    },
+    {
+      "record_index": 65,
+      "point": "HV1",
+      "channel": {
+        "device_idx": "PQ_Bus15",
+        "bus_idx": 15,
+        "initial_active_system_pu": 0.05,
+        "initial_reactive_system_pu": 0.0
+      },
+      "waveform": "two_pulse_unit",
+      "profile_key": "two_pulse_unit__0.07",
+      "amplitude_system_pu": 0.07,
+      "sign": "negative"
+    }
+  ],
+  "record_specs_payload_sha256": "dd08dc82fc1836ef73457c39659536a840d000aa0fbe4f3667216f204f4928c9",
+  "formal_artifacts_create_only": true,
+  "formal_retry_authorized": false
+}

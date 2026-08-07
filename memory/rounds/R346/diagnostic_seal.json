@@ -1,0 +1,98 @@
+{
+  "contract": {
+    "authorizations": {
+      "distributed_runtime_authorized": false,
+      "eval_authorized": false,
+      "question_disposition_authorized": false,
+      "residual_probe_authorized": false,
+      "scientific_result_authorized": false,
+      "training_authorized": false
+    },
+    "diagnostic_only": true,
+    "execution": {
+      "create_only": true,
+      "native_threads_per_process": 1,
+      "retry_authorized": false,
+      "worker_processes": 16
+    },
+    "omitted_fields": [
+      "base_endpoints",
+      "zero_control_endpoints",
+      "nominal_endpoints",
+      "mismatch_bounded_endpoints",
+      "edge_actions",
+      "residual_node_actions",
+      "counterfactual_node_commands",
+      "counterfactual_soc"
+    ],
+    "parent_round": "R345",
+    "question": "Q-0091",
+    "round": "R346",
+    "scenario_count": 16,
+    "schema_version": 1,
+    "serialized_fields": [
+      "scenario_id",
+      "point",
+      "channel",
+      "sign",
+      "worker_pid",
+      "elapsed_seconds",
+      "worker_exception",
+      "optimizer_valid",
+      "target_feasible",
+      "feasible",
+      "message",
+      "solver_iterations",
+      "maximum_constraint_residual",
+      "maximum_target_shortfall",
+      "objective_value"
+    ],
+    "stage": "sealed-r345-optimizer-invalidity-localization",
+    "unchanged_worker": "scripts.run_r345_residual_headroom._oracle_worker"
+  },
+  "contract_payload_sha256": "62449d3886437a0e0510ae35b95dd3a70456726ecf7a49f0a97e2dea21637baf",
+  "created_utc": "2026-08-06T06:08:47.666922+00:00",
+  "question": "Q-0091",
+  "result_root_absent_at_freeze": true,
+  "retry_authorized": false,
+  "round": "R346",
+  "schema_version": 1,
+  "sources": {
+    "adapter": {
+      "path": "scripts/run_r346_r345_optimizer_diagnosis.py",
+      "sha256": "9e2ff5f91d3f290b367830cd643e885509fd791575154726906b07a544d9e9de"
+    },
+    "plan": {
+      "path": "memory/rounds/R346/plan.md",
+      "sha256": "87f970bab1d126e84dbf076f0a228349776ac26eee883553b6b9c2dee318876c"
+    },
+    "r345_adapter": {
+      "path": "scripts/run_r345_residual_headroom.py",
+      "sha256": "97f598cfe63694c5028ee37a2acbb9b31ed94d8d6d1a36635082ff3745c935fb"
+    },
+    "r345_attempt": {
+      "path": "results/r345_residual_headroom/analysis_attempt.json",
+      "sha256": "c93466515c681812164b4a3b3a7a1f79ba86592e0b5f83a15f5130368dcc908d"
+    },
+    "r345_failure": {
+      "path": "results/r345_residual_headroom/failure.json",
+      "sha256": "8a519fb736151ea793f18cff2b0d08de65d810dd8f49425104cd9f68de08c9a3"
+    },
+    "r345_probe": {
+      "path": "probes/r345_residual_headroom.py",
+      "sha256": "e175020e592064361c40b63ad6cb5f44db430529abd033a6a47a128aebaa344a"
+    },
+    "r345_seal": {
+      "path": "memory/rounds/R345/analysis_seal.json",
+      "sha256": "47f1b287316f1475725a2c844f470016058ec06f5759d1d743829c74afbc04f4"
+    },
+    "r345_tests": {
+      "path": "tests/test_r345_residual_headroom.py",
+      "sha256": "8f8deccfb79af7a93039cc42402451c2d610cf7215d6b63ae416ceb7a0af5e84"
+    },
+    "tests": {
+      "path": "tests/test_r346_r345_optimizer_diagnosis.py",
+      "sha256": "633f9d622074d25c0eae4026e9f40937c44756018e9552b8fd3242d313a09c0b"
+    }
+  }
+}

@@ -1,0 +1,198 @@
+{
+  "schema_version": 1,
+  "round": "R339",
+  "question": "Q-0087",
+  "created_utc": "2026-08-04T12:24:36.630248+00:00",
+  "contract": {
+    "round": "R339",
+    "question": "Q-0087",
+    "stage": "full-dae-separate-input-diagnosis",
+    "operating_points": {
+      "HS0": {
+        "vsg_m_device": 177.5,
+        "vsg_d_device": 88.75,
+        "tie_rx_scale": 1.1,
+        "initial_soc": 0.41
+      },
+      "HS1": {
+        "vsg_m_device": 202.5,
+        "vsg_d_device": 101.25,
+        "tie_rx_scale": 1.35,
+        "initial_soc": 0.51
+      }
+    },
+    "input_families": [
+      "control",
+      "load"
+    ],
+    "control_channels": [
+      "R272_BESS_1/Pext0",
+      "R272_BESS_2/Pext0",
+      "R272_BESS_3/Pext0",
+      "R272_BESS_4/Pext0"
+    ],
+    "load_channels": [
+      "PQ_0/Ppf",
+      "PQ_1/Ppf",
+      "PQ_Bus14/Ppf",
+      "PQ_Bus15/Ppf"
+    ],
+    "load_baselines": [
+      {
+        "device_idx": "PQ_0",
+        "bus_idx": 7,
+        "active_system_pu": 11.59,
+        "reactive_system_pu": -0.735
+      },
+      {
+        "device_idx": "PQ_1",
+        "bus_idx": 8,
+        "active_system_pu": 15.75,
+        "reactive_system_pu": -0.899
+      },
+      {
+        "device_idx": "PQ_Bus14",
+        "bus_idx": 14,
+        "active_system_pu": 2.48,
+        "reactive_system_pu": 0.0
+      },
+      {
+        "device_idx": "PQ_Bus15",
+        "bus_idx": 15,
+        "active_system_pu": 0.05,
+        "reactive_system_pu": 0.0
+      }
+    ],
+    "job_specs": [
+      {
+        "point": "HS0",
+        "input_family": "control"
+      },
+      {
+        "point": "HS0",
+        "input_family": "load"
+      },
+      {
+        "point": "HS1",
+        "input_family": "control"
+      },
+      {
+        "point": "HS1",
+        "input_family": "load"
+      }
+    ],
+    "parallel_design": "one parent job plus three forked child jobs",
+    "whole_host_python_processes": 4,
+    "native_threads_per_process": 1,
+    "finite_difference_scheme": "central-at-fixed-equilibrium-x-y",
+    "finite_difference_steps_system_pu": [
+      0.0001,
+      1e-05,
+      1e-06
+    ],
+    "sample_period_seconds": 0.2,
+    "sample_observation_convention": "end-of-held-interval",
+    "fresh_nonlinear_trajectory_executed": false,
+    "controller_executed": false,
+    "closed_loop_executed": false,
+    "distributed_runtime_executed": false,
+    "training_executed": false,
+    "eval_executed": false,
+    "formal_retry_authorized": false
+  },
+  "contract_payload_sha256": "5039fa4b58f4fc46a5b8490febe1c2682a38e9bf5c377ed1d20b1549d13cf3c4",
+  "sources": {
+    "andes_scratch": {
+      "path": "scripts/andes_scratch.py",
+      "sha256": "1a16582b8ec68bd0ca17e0efe76f80dae6a1c602750c3bf6c1390ee5c842e709"
+    },
+    "artifact_io": {
+      "path": "memory/tools/artifact_io.py",
+      "sha256": "03c42cddde3cd4281aeca341c74114c8ad6a10bd52546ed3f3cceefe74aeb6c8"
+    },
+    "dynamic_reduction_math": {
+      "path": "src/andes_rl_kundur/evaluation/model_first_dynamic_reduction.py",
+      "sha256": "4cc9a99b6a3a558ae24f621605e41684ccfe10a9abcc3cb84156d0bdea3128f7"
+    },
+    "input_bridge_math": {
+      "path": "src/andes_rl_kundur/evaluation/model_first_input_bridge.py",
+      "sha256": "a657db08cd75a4212b7047b65488e8d6b8f65c09a01911847052c89b757ed182"
+    },
+    "input_bridge_math_tests": {
+      "path": "tests/test_model_first_input_bridge.py",
+      "sha256": "8030f604bbbc0b5e87d96ddfe121d1528983261bdf664f3f9eb5a86af05c50b9"
+    },
+    "installed_runtime_verifier": {
+      "path": "scripts/run_r333_pq_disturbance_identification.py",
+      "sha256": "1beb58fce1bd09982db45a77a515fa81207ef495e3cb0c29edf7209a9fef6a70"
+    },
+    "model_first_contract": {
+      "path": "src/andes_rl_kundur/env/andes/model_first_contract.py",
+      "sha256": "1fd3dd02c363185c27a8af6f006853f82bf258676ef1ab3c7928c6db4d93cbf6"
+    },
+    "model_first_env": {
+      "path": "src/andes_rl_kundur/env/andes/model_first_env.py",
+      "sha256": "8b8aa445aafe4b40182cfe60b2dad3cf639dca98ff695d176b01bb5784965f13"
+    },
+    "pq_disturbance": {
+      "path": "src/andes_rl_kundur/env/andes/model_first_pq_disturbance.py",
+      "sha256": "2a731ec3b8d2379134baea8bccff339d5b4b464ce31f303e833847defd7f9d11"
+    },
+    "r339_runner": {
+      "path": "scripts/run_r339_input_bridge_diagnosis.py",
+      "sha256": "97cb12e90ac7299c85b34377b6a9bf053b417ada5e7056960ebc72e699d092dc"
+    },
+    "r339_runner_tests": {
+      "path": "tests/test_r339_input_bridge_diagnosis.py",
+      "sha256": "c53ea1471b0dc0718c18e1c4cbeb52f4fa8b5131f34ab66df360a626c3559f2c"
+    }
+  },
+  "parents": {
+    "clm0885": {
+      "path": "memory/claims/CLM-0885.md",
+      "sha256": "26b1bdb111e3237ca0c1835584cf7a33bfb676a467b06de425143c25115f2b0a"
+    },
+    "q0087": {
+      "path": "memory/questions/Q-0087.md",
+      "sha256": "8ddc52dfdb5545493e1fdb00a1f1471595f6647c0e6abaa866e6f181cc75aff4"
+    },
+    "r316_model": {
+      "path": "results/r316_dynamic_reduction/dynamic_model.json",
+      "sha256": "da0eef3efca6bba1f176156445c355b260f9d21fe48e223191d507bb62a6c6bc"
+    },
+    "r336_analysis": {
+      "path": "results/r336_disturbance_package/analysis.json",
+      "sha256": "86cda073ea6f9e263967e91ed14bb4719411591fc29c0e20aaffbedacd4666fb"
+    },
+    "r336_execution": {
+      "path": "results/r336_disturbance_package/execution.json",
+      "sha256": "a7d5d139074a79b7f7db5c268be2965ed53282109cddf037e69bc75dac20c385"
+    },
+    "r339_capacity": {
+      "path": "memory/rounds/R339/host_capacity.json",
+      "sha256": "48ef9a78767266acdd1324a9d60838bdd2132e13c2fc99d75c553dd5ba5292b4"
+    },
+    "r339_plan": {
+      "path": "memory/rounds/R339/plan.md",
+      "sha256": "722a4d9498756ee181e3d0303875731c3b222832904f5f1747028316302127f0"
+    }
+  },
+  "expected_runtime": {
+    "andes_version": "2.0.0",
+    "installed_sources": {
+      "andes/models/static/pq.py": "958db0ff11cc5d3108bc084579090c43d33b5bbb37c0f8c3ea209b1af9bd0ae3",
+      "andes/models/timer.py": "3bb4eac11e38691a6e4a3f9f5a92601d4fa851bf29c28e2568586580eba654b6",
+      "andes/core/model/model.py": "fd5502a78fa43e84132d089152f8806fb5facf35b939e0be4eced1db870ebe96",
+      "andes/core/param.py": "5dd76b168ab16eefcb2f54cbdda64e7a725bb5360e615afbb16c297b44757b89",
+      "andes/routines/tds.py": "224ff43d78de8e6808efa0a6b858d8dbe2ca511128a90a8260009c8146d6e8ba",
+      "andes/system/facade.py": "b6aa12d10811a5b35e0d5939c309d3414713daff4f5d30f2b9063e0d518080c9",
+      "andes/models/timeseries.py": "57b4949ccbdca488e23180879c2eee6d949f96ad86c8ec21b5650e079ef1da46",
+      "andes/system/dae_compactor.py": "121d779bbf9c5aca097d362a92500383f9518dab0f4ab4d21c13ea0463df95f9",
+      "andes/models/dynload/fload.py": "0f0df94d8a678da4830b663113e4154d6ac7f9787c2adfb3d50107b4de380876",
+      "andes/models/dynload/zip.py": "869d8f640c9dea22a0c5e28045c507d7e297124cadd1b9d14e1a61b10afc02e6"
+    },
+    "case_sha256": "f725e03ba12d8207616f68acdd606bbd35e7c4a68f13e66d7db43925adac2ed8"
+  },
+  "formal_artifacts_create_only": true,
+  "formal_retry_authorized": false
+}

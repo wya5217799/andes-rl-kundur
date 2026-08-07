@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "captured_local": "2026-08-04T20:08:06.8617710+08:00",
+  "host": {
+    "processor": "AMD Ryzen 9 8940HX with Radeon Graphics",
+    "physical_cores": 16,
+    "logical_processors": 32,
+    "observed_cpu_load_percent": 16,
+    "physical_memory_bytes": 33518587904,
+    "observed_free_physical_memory_bytes": 9234145280
+  },
+  "wsl": {
+    "logical_processors": 32,
+    "memory_total_bytes": 25195311104,
+    "memory_available_bytes": 19429306368,
+    "swap_total_bytes": 8589934592,
+    "swap_used_bytes": 0
+  },
+  "empirical_anchor": {
+    "round": "R336",
+    "concurrent_workers": 4,
+    "native_threads_per_worker": 1,
+    "development_split_elapsed_seconds": 17.390247,
+    "holdout_split_elapsed_seconds": 17.710094,
+    "all_records_valid": true,
+    "execution_sha256": "a7d5d139074a79b7f7db5c268be2965ed53282109cddf037e69bc75dac20c385"
+  },
+  "candidate_whole_host_python_process_budget": 16,
+  "whole_host_python_process_budget": 16,
+  "capacity_canary": {
+    "round": "R339",
+    "seal": "memory/rounds/R339/input_bridge_seal_v3.json",
+    "seal_sha256": "4304d4fef53e62fbbac9ddf8f8d654af7ab551e94f19c889cfda2b335ab027d0",
+    "accepted": true,
+    "accepted_worker_budget": 16,
+    "unique_python_processes": 16,
+    "native_threads_per_worker": 1,
+    "all_jobs_completed": true,
+    "all_jobs_overlapped": true,
+    "combined_operating_points": 2,
+    "maximum_worker_resident_set_kib": 171932,
+    "worker_cpu_seconds_sum": 21.238701,
+    "overlap_wall_seconds": 2.244029,
+    "formal_output_created": false,
+    "scratch_dir": "/mnt/e/Projects/andes-rl-kundur/tmp/andes/run_r339_input_bridge_diagnosis-20260804T123949.037297Z-292"
+  },
+  "reason": "Use one single-threaded Python process per measured physical core. The R339 sixteen-way same-path capacity canary completed all distinct per-channel jobs concurrently without swap or a formal output."
+}

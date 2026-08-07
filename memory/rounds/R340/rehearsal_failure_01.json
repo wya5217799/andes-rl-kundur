@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "round": "R340",
+  "phase": "construction-rehearsal",
+  "created_local": "2026-08-04T21:21:44+08:00",
+  "construction_seal_sha256": "a14f59064766d07d6c8568ca8ca245a2ac68be211e7fda633a6dc247a8bd04e9",
+  "classification": "PRE-EXECUTION-LAUNCHER-ERROR",
+  "error_type": "ModuleNotFoundError",
+  "error_message": "Windows Python was used instead of the required WSL ANDES interpreter; module 'andes' was not installed in that Windows runtime.",
+  "physical_execution_started": false,
+  "candidate_gate_evaluated": false,
+  "fresh_nonlinear_trajectory_executed": false,
+  "formal_output_created": false,
+  "retry_or_formal_attempt_consumed": false,
+  "corrected_command_uses": "/home/wya/andes_venv/bin/python under WSL",
+  "scratch_dir": "tmp/andes/run_r340_fresh_model_validation-20260804T132144.515668Z-66372"
+}

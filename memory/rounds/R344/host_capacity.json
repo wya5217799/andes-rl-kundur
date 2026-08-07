@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "captured_local": "2026-08-06T12:49:29.3403344+08:00",
+  "execution_readiness": "READY",
+  "host": {
+    "processor": "AMD Ryzen 9 8940HX with Radeon Graphics",
+    "physical_cores": 16,
+    "logical_processors": 32,
+    "physical_memory_bytes": 33518587904,
+    "observed_free_physical_memory_bytes": 12518146048
+  },
+  "wsl": {
+    "logical_processors": 32,
+    "memory_total_bytes": 25195311104,
+    "memory_available_bytes": 18675228672,
+    "swap_total_bytes": 8589934592,
+    "swap_free_bytes": 8589934592
+  },
+  "released_reservation": {
+    "round": "R343",
+    "state": "aborted",
+    "formal_result_created": false,
+    "artifacts_preserved": true
+  },
+  "empirical_anchor": {
+    "concurrent_workers": 32,
+    "native_threads_per_worker": 1,
+    "all_records_valid": true,
+    "all_records_overlapped": true,
+    "all_scratch_directories_isolated": true,
+    "swap_use_detected": false,
+    "minimum_wsl_available_memory_bytes": 15412871168,
+    "capacity_source": "memory/rounds/R344/capacity_ladder_attempt_2.json"
+  },
+  "capacity_attempt_1": {
+    "path": "memory/rounds/R344/capacity_ladder.json",
+    "classification": "CAPACITY-NO-VALID-RUNG",
+    "representative_jobs_started": 0,
+    "failure": "isolated launcher repository import bootstrap"
+  },
+  "capacity_ladder": {
+    "state": "completed",
+    "path": "memory/rounds/R344/capacity_ladder_attempt_2.json",
+    "sha256": "dbcda8ae246259ec46e9dba5f70d8e97f323c7408c2dcc7d0a7c4797d83063f3",
+    "representative_job_count": 32,
+    "worker_rungs": [16, 24, 32],
+    "native_threads_per_worker": 1,
+    "selected_worker_processes": 32,
+    "selection": "highest valid aggregate completed-job throughput",
+    "performance_endpoints_inspected": false,
+    "formal_output_created": false,
+    "training_executed": false,
+    "results": [
+      {
+        "worker_processes": 16,
+        "elapsed_seconds": 13.49565684600384,
+        "throughput_jobs_per_second": 2.371133199750513,
+        "minimum_wsl_available_memory_bytes": 16444788736,
+        "swap_use_detected": false,
+        "valid": true
+      },
+      {
+        "worker_processes": 24,
+        "elapsed_seconds": 12.983070650996524,
+        "throughput_jobs_per_second": 2.464748198650819,
+        "minimum_wsl_available_memory_bytes": 16212713472,
+        "swap_use_detected": false,
+        "valid": true
+      },
+      {
+        "worker_processes": 32,
+        "elapsed_seconds": 12.46602136999718,
+        "throughput_jobs_per_second": 2.5669777910871048,
+        "minimum_wsl_available_memory_bytes": 15412871168,
+        "swap_use_detected": false,
+        "valid": true
+      }
+    ]
+  },
+  "whole_host_python_process_budget": 32,
+  "other_reserved_processes": 0,
+  "available_processes_for_r344": 32,
+  "native_threads_per_process": 1,
+  "reason": "All three representative single-thread rungs were valid. The 32-process rung had the highest measured valid completed-job throughput, used no swap, and retained more than the frozen 4 GiB WSL memory reserve."
+}

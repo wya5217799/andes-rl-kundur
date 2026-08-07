@@ -1,0 +1,238 @@
+{
+  "schema_version": 1,
+  "phase": "construction",
+  "round": "R340",
+  "question": "Q-0089",
+  "created_utc": "2026-08-04T13:21:38.766571+00:00",
+  "contract": {
+    "round": "R340",
+    "question": "Q-0089",
+    "stage": "fresh-nonlinear-model-validation",
+    "operating_points": {
+      "HV0": {
+        "vsg_m_device": 190.0,
+        "vsg_d_device": 95.0,
+        "tie_rx_scale": 1.22,
+        "initial_soc": 0.46
+      },
+      "HV1": {
+        "vsg_m_device": 220.0,
+        "vsg_d_device": 110.0,
+        "tie_rx_scale": 1.45,
+        "initial_soc": 0.56
+      }
+    },
+    "channels": [
+      {
+        "device_idx": "PQ_0",
+        "bus_idx": 7,
+        "initial_active_system_pu": 11.59,
+        "initial_reactive_system_pu": -0.735
+      },
+      {
+        "device_idx": "PQ_1",
+        "bus_idx": 8,
+        "initial_active_system_pu": 15.75,
+        "initial_reactive_system_pu": -0.899
+      },
+      {
+        "device_idx": "PQ_Bus14",
+        "bus_idx": 14,
+        "initial_active_system_pu": 2.48,
+        "initial_reactive_system_pu": 0.0
+      },
+      {
+        "device_idx": "PQ_Bus15",
+        "bus_idx": 15,
+        "initial_active_system_pu": 0.05,
+        "initial_reactive_system_pu": 0.0
+      }
+    ],
+    "waveforms": {
+      "held_pulse_unit": [
+        0.6,
+        1.0,
+        1.0,
+        1.0,
+        0.6
+      ],
+      "two_pulse_unit": [
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        0.6,
+        0.6
+      ]
+    },
+    "amplitudes_system_pu": [
+      0.03,
+      0.07
+    ],
+    "signs": [
+      "positive",
+      "negative"
+    ],
+    "record_count_per_point": 33,
+    "record_count": 66,
+    "total_steps": 1000,
+    "validation_horizon_seconds": 200.0,
+    "estimated_wall_minutes": [
+      11.0,
+      15.0
+    ],
+    "estimated_from": "R336 measured 25-step per-record throughput scaled to 1000 steps at sixteen processes",
+    "sample_period_seconds": 0.2,
+    "tds_substeps": 5,
+    "sample_observation_convention": "end-of-held-interval",
+    "candidate_construction": {
+      "method": "frozen-R339-point-scheduled-descriptor-to-ERA",
+      "finite_difference_steps_system_pu": [
+        0.0001,
+        1e-05,
+        1e-06
+      ],
+      "order": 12,
+      "block_rows": 8,
+      "block_columns": 8,
+      "markov_samples": 25,
+      "pole_projection": false,
+      "trajectory_fit_count": 0,
+      "trajectory_selection_count": 0
+    },
+    "thresholds": {
+      "nrmse_maximum": 0.15,
+      "peak_vector_residual_maximum": 0.2
+    },
+    "whole_host_python_processes": 16,
+    "native_threads_per_process": 1,
+    "candidate_artifact_create_only": true,
+    "validation_seal_binds_candidate_sha256": true,
+    "formal_construction_retry_authorized": false,
+    "formal_validation_retry_authorized": false,
+    "controller_executed": false,
+    "closed_loop_executed": false,
+    "distributed_runtime_executed": false,
+    "training_executed": false,
+    "eval_executed": false
+  },
+  "contract_payload_sha256": "03569e919888d0dc9a342edce88fe27e7668866feb692e5d5aa8a811a5b1b14c",
+  "sources": {
+    "andes_scratch": {
+      "path": "scripts/andes_scratch.py",
+      "sha256": "1a16582b8ec68bd0ca17e0efe76f80dae6a1c602750c3bf6c1390ee5c842e709"
+    },
+    "artifact_io": {
+      "path": "memory/tools/artifact_io.py",
+      "sha256": "03c42cddde3cd4281aeca341c74114c8ad6a10bd52546ed3f3cceefe74aeb6c8"
+    },
+    "dynamic_reduction_math": {
+      "path": "src/andes_rl_kundur/evaluation/model_first_dynamic_reduction.py",
+      "sha256": "4cc9a99b6a3a558ae24f621605e41684ccfe10a9abcc3cb84156d0bdea3128f7"
+    },
+    "input_bridge_math": {
+      "path": "src/andes_rl_kundur/evaluation/model_first_input_bridge.py",
+      "sha256": "a657db08cd75a4212b7047b65488e8d6b8f65c09a01911847052c89b757ed182"
+    },
+    "model_first_contract": {
+      "path": "src/andes_rl_kundur/env/andes/model_first_contract.py",
+      "sha256": "1fd3dd02c363185c27a8af6f006853f82bf258676ef1ab3c7928c6db4d93cbf6"
+    },
+    "model_first_env": {
+      "path": "src/andes_rl_kundur/env/andes/model_first_env.py",
+      "sha256": "8b8aa445aafe4b40182cfe60b2dad3cf639dca98ff695d176b01bb5784965f13"
+    },
+    "pq_disturbance": {
+      "path": "src/andes_rl_kundur/env/andes/model_first_pq_disturbance.py",
+      "sha256": "2a731ec3b8d2379134baea8bccff339d5b4b464ce31f303e833847defd7f9d11"
+    },
+    "pq_profile": {
+      "path": "src/andes_rl_kundur/env/andes/model_first_pq_profile.py",
+      "sha256": "1c7a8ebc0e195f3e10ca0cac8ab9ffd97d43f9dbb027fcd3adf34fa3b9692238"
+    },
+    "r335_runner": {
+      "path": "scripts/run_r335_disturbance_package.py",
+      "sha256": "dc0ecb1533492ea44f06e1eaa9dbc25f4639513e845e2f4a14f50b7316d78b73"
+    },
+    "r336_runner": {
+      "path": "scripts/run_r336_disturbance_package.py",
+      "sha256": "87a8e542b19e6f3a026131b7e8c1db33f7cb304ba99bc04b6c03f791790a9e03"
+    },
+    "r339_probe": {
+      "path": "probes/r339_input_bridge_diagnosis.py",
+      "sha256": "ad478938e328f9fc228253c298fd39297f65c64237c6f244819c2faf4e8eb3b4"
+    },
+    "r339_runner": {
+      "path": "scripts/run_r339_input_bridge_diagnosis.py",
+      "sha256": "01832489f14c531e22aa082010eaa8f121457a78153302107d20199b1b7083e5"
+    },
+    "r340_probe": {
+      "path": "probes/r340_fresh_model_validation.py",
+      "sha256": "1ac572962fc1bc61d5a815ae492034595ba35a2b7cc2b4551d438a03ca6dbddd"
+    },
+    "r340_runner": {
+      "path": "scripts/run_r340_fresh_model_validation.py",
+      "sha256": "8fa28a277bcda8ba9171bc584060d637651052b152ce84329acfc2022d6e1d9a"
+    },
+    "r340_tests": {
+      "path": "tests/test_r340_fresh_model_validation.py",
+      "sha256": "1e0fd16943c0fe165125d4f0f04c27fb2b12f6aa9132bbd4fd6aa70a878be458"
+    }
+  },
+  "parents": {
+    "adr0013": {
+      "path": "docs/adr/0013-candidate-before-validation-and-capacity-bound-long-horizon.md",
+      "sha256": "7e33dbe3177a0a7a180bed4538084c9c930c3a6e69b5235b304349f29d77256a"
+    },
+    "clm0890": {
+      "path": "memory/claims/CLM-0890.md",
+      "sha256": "84a225255b0433c9535e64c602aca0c6037a5fba1dfd06d1c12b3e1b137048fc"
+    },
+    "q0089": {
+      "path": "memory/questions/Q-0089.md",
+      "sha256": "f20d36a78f1521a8df7ee3a81740ca8ea87488a81cc40ee996135a1f3640e166"
+    },
+    "r339_analysis": {
+      "path": "results/r339_input_bridge_diagnosis/analysis.json",
+      "sha256": "60c1ae995759c41919b31eb924ae22025d3d1140d5bac9190bf9cf823c9dab9d"
+    },
+    "r339_execution": {
+      "path": "results/r339_input_bridge_diagnosis/execution.json",
+      "sha256": "7f7b14215238e012971e9c073de198140a13b4419fd08a076533dfa61d0f8242"
+    },
+    "r339_seal": {
+      "path": "memory/rounds/R339/input_bridge_seal_v3.json",
+      "sha256": "4304d4fef53e62fbbac9ddf8f8d654af7ab551e94f19c889cfda2b335ab027d0"
+    },
+    "r339_verdict": {
+      "path": "memory/rounds/R339/verdict.md",
+      "sha256": "47f7f1e6dc0e77ff9296080432192d2718ee79ce9f2f1d08832e043bc679c347"
+    },
+    "r340_capacity": {
+      "path": "memory/rounds/R340/host_capacity.json",
+      "sha256": "8e904f67de14fb0739e910c63954005d84d12c8a350d278533b39b19f211b3e3"
+    },
+    "r340_plan": {
+      "path": "memory/rounds/R340/plan.md",
+      "sha256": "43646afac4f81ddee778e313d71f16d3e50bb400bcdc372106a1f9bc1e9b0a41"
+    }
+  },
+  "expected_runtime": {
+    "andes_version": "2.0.0",
+    "installed_sources": {
+      "andes/models/static/pq.py": "958db0ff11cc5d3108bc084579090c43d33b5bbb37c0f8c3ea209b1af9bd0ae3",
+      "andes/models/timer.py": "3bb4eac11e38691a6e4a3f9f5a92601d4fa851bf29c28e2568586580eba654b6",
+      "andes/core/model/model.py": "fd5502a78fa43e84132d089152f8806fb5facf35b939e0be4eced1db870ebe96",
+      "andes/core/param.py": "5dd76b168ab16eefcb2f54cbdda64e7a725bb5360e615afbb16c297b44757b89",
+      "andes/routines/tds.py": "224ff43d78de8e6808efa0a6b858d8dbe2ca511128a90a8260009c8146d6e8ba",
+      "andes/system/facade.py": "b6aa12d10811a5b35e0d5939c309d3414713daff4f5d30f2b9063e0d518080c9",
+      "andes/models/timeseries.py": "57b4949ccbdca488e23180879c2eee6d949f96ad86c8ec21b5650e079ef1da46",
+      "andes/system/dae_compactor.py": "121d779bbf9c5aca097d362a92500383f9518dab0f4ab4d21c13ea0463df95f9",
+      "andes/models/dynload/fload.py": "0f0df94d8a678da4830b663113e4154d6ac7f9787c2adfb3d50107b4de380876",
+      "andes/models/dynload/zip.py": "869d8f640c9dea22a0c5e28045c507d7e297124cadd1b9d14e1a61b10afc02e6"
+    },
+    "case_sha256": "f725e03ba12d8207616f68acdd606bbd35e7c4a68f13e66d7db43925adac2ed8"
+  },
+  "formal_artifacts_create_only": true,
+  "formal_retry_authorized": false
+}

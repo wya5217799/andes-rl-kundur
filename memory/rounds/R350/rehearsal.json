@@ -1,0 +1,107 @@
+{
+  "attempt_created": false,
+  "case_count": 16,
+  "case_ids": [
+    "FV0__PQ_0__negative",
+    "FV0__PQ_0__positive",
+    "FV0__PQ_1__negative",
+    "FV0__PQ_1__positive",
+    "FV0__PQ_Bus14__negative",
+    "FV0__PQ_Bus14__positive",
+    "FV0__PQ_Bus15__negative",
+    "FV0__PQ_Bus15__positive",
+    "FV1__PQ_0__negative",
+    "FV1__PQ_0__positive",
+    "FV1__PQ_1__negative",
+    "FV1__PQ_1__positive",
+    "FV1__PQ_Bus14__negative",
+    "FV1__PQ_Bus14__positive",
+    "FV1__PQ_Bus15__negative",
+    "FV1__PQ_Bus15__positive"
+  ],
+  "contract_payload_sha256": "6cdc1f01c5d5a0252f78d50695503bbaef3766daafd24212a19a71d662a6b4f2",
+  "created_utc": "2026-08-06T07:32:43.137026+00:00",
+  "formal_output_absent": true,
+  "native_threads_per_process": 1,
+  "result_created": false,
+  "round": "R350",
+  "schema_version": 1,
+  "source_snapshot": {
+    "adapter": {
+      "path": "scripts/run_r350_smooth_convex_residual.py",
+      "sha256": "da1beefeb2d99cf08f239bd86dff72ce9b9755a36bafe39cedf1f4ce5769a35c"
+    },
+    "adapter_tests": {
+      "path": "tests/test_r350_smooth_convex_residual_analysis.py",
+      "sha256": "785a026e76c3a34af01d8f6f7ea70e1c2f549912a57398feab277fc0d36f8ad7"
+    },
+    "certificate": {
+      "path": "src/andes_rl_kundur/control/convex_first_order_certificate.py",
+      "sha256": "ca96219f76535d9d93baffa5abd4d0f6f086cf0212db9069e3c8b15f429d4dae"
+    },
+    "parent_certificate": {
+      "path": "src/andes_rl_kundur/control/minimum_norm_certificate.py",
+      "sha256": "9dc24a0189c1d29368b7bd4da0a8c21a02a108ea214c5bf8ca303e6664ad69f8"
+    },
+    "parent_certificate_tests": {
+      "path": "tests/test_minimum_norm_certificate.py",
+      "sha256": "bc5d18b8285743d9fced156107d16ab6b3d4984196192faf5110c302990f5796"
+    },
+    "plan": {
+      "path": "memory/rounds/R350/plan.md",
+      "sha256": "16b4d13307b2300132170a758aa58c6db15b5fdc296a1811a1d5844c7f9974bd"
+    },
+    "probe": {
+      "path": "probes/r350_smooth_convex_residual.py",
+      "sha256": "7a1729a92e709076f0ebc1753e1344e06ed80d5ce5530fc4f804d4040ef6eaa1"
+    },
+    "probe_tests": {
+      "path": "tests/test_r350_smooth_convex_residual.py",
+      "sha256": "e5bb3d6f66d5fcdd1fb27f4a5f44099fc2f8468f405d50320275d2115491dcba"
+    },
+    "r345_adapter": {
+      "path": "scripts/run_r345_residual_headroom.py",
+      "sha256": "97f598cfe63694c5028ee37a2acbb9b31ed94d8d6d1a36635082ff3745c935fb"
+    },
+    "r345_probe": {
+      "path": "probes/r345_residual_headroom.py",
+      "sha256": "e175020e592064361c40b63ad6cb5f44db430529abd033a6a47a128aebaa344a"
+    },
+    "r348_probe": {
+      "path": "probes/r348_fully_normalized_residual.py",
+      "sha256": "e766a1e8573051eb185adab00e6e4a08d6130f07f075507da20bf53b8b26b976"
+    },
+    "r349_adapter": {
+      "path": "scripts/run_r349_certified_residual_analysis.py",
+      "sha256": "3e5ef8c73cb4e21d3aa65113281b360f63d898e7c69f06294a7b461dcf60f298"
+    },
+    "r349_attempt": {
+      "path": "results/r349_certified_residual_analysis/analysis_attempt.json",
+      "sha256": "86871fa45fb1c0f89ba056ac9c45ce1a60e828fb58dc4822edde8702cd4ff414"
+    },
+    "r349_diagnostic": {
+      "path": "results/r349_certified_residual_analysis/oracle_diagnostic.json",
+      "sha256": "9d96abc57d740090a3fd37f52d128ad7d839b132b59121be662720c1d2aef5ef"
+    },
+    "r349_failure": {
+      "path": "results/r349_certified_residual_analysis/failure.json",
+      "sha256": "ce4b3b4ff43815e0771fe4f9756684ec19445578e40620908194cb0ed37cf2bc"
+    },
+    "r349_probe": {
+      "path": "probes/r349_certified_residual.py",
+      "sha256": "4bcecd343c1c5919bf30dc9f67667e89be491cd3642e892b61391315d52bb11c"
+    },
+    "r349_seal": {
+      "path": "memory/rounds/R349/analysis_seal.json",
+      "sha256": "bf4a593e7ebbda446726ea45361e10b035582953263e853b3a6bbcfbf65c3af3"
+    },
+    "solver": {
+      "path": "src/andes_rl_kundur/control/convex_residual_solver.py",
+      "sha256": "5f5d135796c39444f2d07ca46f28b7132c8f75c1d8c359eaa6594f0a10fc6346"
+    },
+    "solver_tests": {
+      "path": "tests/test_convex_residual_solver.py",
+      "sha256": "0e35f465504229337fbc9b86a694c13c89f6c6e0ad0cad4555ecd8efc7383a8d"
+    }
+  }
+}

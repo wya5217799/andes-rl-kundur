@@ -1,0 +1,190 @@
+{
+  "contract": {
+    "authorizations": {
+      "distributed_runtime_authorized": false,
+      "eval_authorized": false,
+      "reward_design_authorized": false,
+      "simulation_authorized": false,
+      "training_authorized": false
+    },
+    "execution": {
+      "create_only": true,
+      "native_threads_per_process": 1,
+      "other_reserved_processes": 0,
+      "ready_job_cap": 16,
+      "retry_authorized": false,
+      "worker_processes": 16
+    },
+    "numerical_repair": {
+      "edge_variable_scale": "frozen-node-ramp",
+      "endpoint_constraint_scale": "scenario-baseline-endpoint",
+      "minimum_norm_solution_changed": false,
+      "power_constraint_scale": "frozen-node-power",
+      "ramp_constraint_scale": "frozen-node-ramp",
+      "relative_endpoint_slacks": true,
+      "scientific_feasible_set_changed": false,
+      "soc_constraint_scale": "frozen-soc-span"
+    },
+    "parent_scientific_contract": {
+      "decision": {
+        "distributed_runtime_authorized": false,
+        "eval_authorized": false,
+        "invalid": "ANALYSIS-INVALID",
+        "negative": "NO-TRAINING",
+        "positive": "RESIDUAL-PROBE-ELIGIBLE",
+        "positive_authority": "one-separately-sealed-non-learning-physical-probe",
+        "training_authorized": false
+      },
+      "exclusions": {
+        "andes_executed": false,
+        "architecture_selected": false,
+        "distributed_runtime_executed": false,
+        "eval_executed": false,
+        "physical_trajectory_created": false,
+        "reward_defined": false,
+        "training_executed": false
+      },
+      "execution": {
+        "create_only": true,
+        "host_capacity_anchor": "memory/rounds/R344/capacity_ladder_attempt_2.json",
+        "native_threads_per_process": 1,
+        "other_reserved_processes": 0,
+        "ready_job_cap": 16,
+        "worker_processes": 16
+      },
+      "inventory": {
+        "disturbance_locations": 4,
+        "operating_points": 2,
+        "records": 32,
+        "samples_per_trace": 25,
+        "scenario_pairs": 16,
+        "signs": 2
+      },
+      "limits": {
+        "charge_efficiency": 0.9848857802,
+        "discharge_efficiency": 0.9848857802,
+        "energy_mwh": 28.0,
+        "maximum_soc": 0.8,
+        "minimum_soc": 0.2,
+        "node_power": 0.36,
+        "node_ramp": 0.072,
+        "sample_period_seconds": 0.2,
+        "system_mva": 100.0
+      },
+      "local_information": {
+        "estimator": "standardized-ordinary-least-squares",
+        "forbidden_features": [
+          "operating_point_label",
+          "disturbance_location_label",
+          "sign_label",
+          "scenario_id",
+          "future_value",
+          "joint_coordinate",
+          "oracle_endpoint"
+        ],
+        "governor": "minimum-l2-edge-sequence-projection",
+        "per_edge_features": [
+          "endpoint_frequency_deviation_hz",
+          "endpoint_previous_achieved_power_system_pu",
+          "endpoint_previous_commanded_power_system_pu"
+        ],
+        "validation": "leave-one-scenario-out"
+      },
+      "question": "Q-0091",
+      "residual": {
+        "common_coordinate": 0.0,
+        "edge_coordinates": 3,
+        "minimum_improvement_fraction": 0.02,
+        "model_error_envelope": "scenario-coordinate-max-absolute-innovation",
+        "objective": "minimum-l2-sequence-meeting-both-endpoint-targets"
+      },
+      "round": "R345",
+      "schema_version": 1,
+      "solver": {
+        "feasibility_tolerance": 1e-08,
+        "function_tolerance": 1e-09,
+        "maximum_iterations": 20000,
+        "method": "SLSQP"
+      },
+      "stage": "create-only-offline-residual-headroom",
+      "statistics": {
+        "bound": "one-sided-paired-student-t-upper",
+        "confidence_level": 0.95,
+        "signed_relative_change": "(candidate-base)/base",
+        "subgroup_rule": "every-subgroup-mean-directionally-improves",
+        "subgroups": [
+          "point",
+          "channel",
+          "sign"
+        ],
+        "unit": "scenario"
+      }
+    },
+    "parent_scientific_contract_payload_sha256": "6492c9a8b087eabcd41222b3bb246c167936e1e82f8de33b5de3a6daf41fd1ab",
+    "question": "Q-0091",
+    "round": "R348",
+    "schema_version": 1,
+    "stage": "create-only-fully-normalized-residual-headroom"
+  },
+  "contract_payload_sha256": "350a85bab7edb295cfd0b12e3e939cc27776cdb989b5295c1aac14ae3f382c45",
+  "created_utc": "2026-08-06T06:23:30.871937+00:00",
+  "question": "Q-0091",
+  "result_root_absent_at_freeze": true,
+  "retry_authorized": false,
+  "round": "R348",
+  "schema_version": 1,
+  "sources": {
+    "adapter": {
+      "path": "scripts/run_r348_fully_normalized_residual.py",
+      "sha256": "a0672fd0d643e6c69ea67d702d70dffa12336ac10bc28a633fb001d59cf7bffb"
+    },
+    "plan": {
+      "path": "memory/rounds/R348/plan.md",
+      "sha256": "a3eb703be00361f80999e0e8827f4804cfea97a21c725d1f693f221c721d4bfc"
+    },
+    "probe": {
+      "path": "probes/r348_fully_normalized_residual.py",
+      "sha256": "e766a1e8573051eb185adab00e6e4a08d6130f07f075507da20bf53b8b26b976"
+    },
+    "r345_adapter": {
+      "path": "scripts/run_r345_residual_headroom.py",
+      "sha256": "97f598cfe63694c5028ee37a2acbb9b31ed94d8d6d1a36635082ff3745c935fb"
+    },
+    "r345_probe": {
+      "path": "probes/r345_residual_headroom.py",
+      "sha256": "e175020e592064361c40b63ad6cb5f44db430529abd033a6a47a128aebaa344a"
+    },
+    "r347_adapter": {
+      "path": "scripts/run_r347_scale_stable_residual.py",
+      "sha256": "1cd2c145f072d1baacea3a968c6624ae69cab9701739bf3b3020df3ab410fcb1"
+    },
+    "r347_attempt": {
+      "path": "results/r347_scale_stable_residual/analysis_attempt.json",
+      "sha256": "d36dba38e4c974f1b02b9e82b5488d3fc14993ac69d34910bc8dd25ae9098db3"
+    },
+    "r347_diagnostic": {
+      "path": "results/r347_scale_stable_residual/oracle_diagnostic.json",
+      "sha256": "608169c63d5bd5eb16c7b01fa753d5dc49d2b6b705b1f333ed72608d0c914399"
+    },
+    "r347_failure": {
+      "path": "results/r347_scale_stable_residual/failure.json",
+      "sha256": "feb8ea6f9b4d2dacbd0584b8afb0342a0857f4a45897a98530a1db45747b6a69"
+    },
+    "r347_probe": {
+      "path": "probes/r347_scale_stable_residual.py",
+      "sha256": "961557471133fabe8f2b01b7afd0e2eab3349b94cbc373abafda30f42219fff8"
+    },
+    "r347_seal": {
+      "path": "memory/rounds/R347/analysis_seal.json",
+      "sha256": "f91a223aac0d96435230ebc371ae398a7e300e9e9327fbf1320fbe02790e22e7"
+    },
+    "r347_tests": {
+      "path": "tests/test_r347_scale_stable_residual.py",
+      "sha256": "cb8bd5172fdefea78a8e45d006d890efeb090ed4a891604938162c3adeb5a2d4"
+    },
+    "tests": {
+      "path": "tests/test_r348_fully_normalized_residual.py",
+      "sha256": "4c420a67b47de00ebbe98cf70272d36da15264ac76a46beae2cbd0801551194b"
+    }
+  }
+}

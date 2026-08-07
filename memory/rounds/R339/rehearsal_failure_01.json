@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "round": "R339",
+  "stage": "sealed-rehearsal-before-formal-attempt",
+  "created_utc": "2026-08-04T12:24:52+00:00",
+  "seal_sha256": "80aea9154b949c903dfb3f38a63d74cc865bd4c6d9968323ff75c26d42a64d77",
+  "formal_attempt_created": false,
+  "physical_job_started": false,
+  "formal_output_created": false,
+  "error_type": "KeyError",
+  "error_message": "The inherited R333 installed-source verifier did not return the case member required by the R339 wrapper.",
+  "repair": "Use the already audited R334 installed-source plus official-case verifier and bind both verifier sources into the successor seal.",
+  "retry_scope": "rehearsal only; no formal attempt or scientific output existed"
+}
