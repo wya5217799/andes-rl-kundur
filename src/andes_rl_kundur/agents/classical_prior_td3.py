@@ -44,7 +44,7 @@ class _ClassicalPriorMixin:
         magnitude = (
             torch.abs(prior)
             + self.classical_contract.residual_scale * actor_residual.clamp(-1.0, 1.0)
-        ).clamp(0.0, 1.0)
+        ).clamp(-self.classical_contract.reverse_limit, 1.0)
         return torch.sign(delta) * magnitude
 
     def _select_with_prior(
@@ -69,14 +69,36 @@ class _ClassicalPriorMixin:
                 self.explore_noise,
                 size=residual.shape,
             )
-        delta = edge_severity_delta(obs, self.classical_contract)
+        return self._compose_numpy_and_record(obs, residual)
+
+    def _compose_numpy_and_record(
+        self,
+        observations: np.ndarray,
+        actor_residual: np.ndarray,
+    ) -> np.ndarray:
+        delta = edge_severity_delta(observations, self.classical_contract)
         prior = np.tanh(self.classical_contract.gain * delta).astype(np.float32)
-        return compose_prior_residual_numpy(
+        clipped_residual = np.clip(
+            np.asarray(actor_residual, dtype=np.float32).reshape(3), -1.0, 1.0
+        )
+        action = compose_prior_residual_numpy(
             prior,
-            residual,
+            clipped_residual,
             delta,
             residual_scale=self.classical_contract.residual_scale,
+            reverse_limit=self.classical_contract.reverse_limit,
         )
+        aligned = (np.sign(delta) * action).astype(np.float32)
+        self.last_residual_composition = {
+            "severity_delta": delta.astype(float).tolist(),
+            "prior_raw": prior.astype(float).tolist(),
+            "actor_residual": clipped_residual.astype(float).tolist(),
+            "aligned_magnitude": aligned.astype(float).tolist(),
+            "executed_edge_action": action.astype(float).tolist(),
+            "reverse_count": int(np.sum(aligned < 0.0)),
+            "reverse_limit": float(self.classical_contract.reverse_limit),
+        }
+        return action
 
     def compose_actor_residual(
         self,
@@ -86,14 +108,7 @@ class _ClassicalPriorMixin:
         """Map an externally supplied residual through the frozen local prior."""
 
         obs = self._stack_observations(observations)
-        delta = edge_severity_delta(obs, self.classical_contract)
-        prior = np.tanh(self.classical_contract.gain * delta).astype(np.float32)
-        return compose_prior_residual_numpy(
-            prior,
-            actor_residual,
-            delta,
-            residual_scale=self.classical_contract.residual_scale,
-        )
+        return self._compose_numpy_and_record(obs, actor_residual)
 
 
 class DistributedPriorResidualTD3(_ClassicalPriorMixin, DistributedEdgeTD3):

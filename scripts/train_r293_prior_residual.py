@@ -96,16 +96,46 @@ def _git_head() -> str:
     ).strip()
 
 
-def _selected_contract() -> ClassicalEdgeContract:
-    guard = _load_json(GUARD_SUMMARY)
-    if guard.get("classification") != "CLASSICAL-GUARD-PASS":
-        raise ValueError("R293 classical full-horizon guard did not pass")
-    telemetry = guard["selected_classical_contract"]
+def _contract_from_telemetry(telemetry: dict[str, Any]) -> ClassicalEdgeContract:
+    """Restore both legacy beta-zero and limited-reversal contracts."""
+
     return ClassicalEdgeContract(
         family=str(telemetry["family"]),
         gain=float(telemetry["gain"]),
         residual_scale=float(telemetry["residual_scale"]),
+        reverse_limit=float(telemetry.get("reverse_limit", 0.0)),
     )
+
+
+def _selected_contract() -> ClassicalEdgeContract:
+    guard = _load_json(GUARD_SUMMARY)
+    if guard.get("classification") != "CLASSICAL-GUARD-PASS":
+        raise ValueError("R293 classical full-horizon guard did not pass")
+    return _contract_from_telemetry(guard["selected_classical_contract"])
+
+
+def _training_budget() -> dict[str, Any]:
+    checkpoint_count = len(ARCHITECTURES) * len(SEEDS)
+    return {
+        "episodes": EPISODES,
+        "steps_per_episode": TRAINING_STEPS,
+        "steps_per_checkpoint": EPISODES * TRAINING_STEPS,
+        "checkpoint_count": checkpoint_count,
+        "total_real_andes_steps": checkpoint_count * EPISODES * TRAINING_STEPS,
+        "warmup_steps": WARMUP_STEPS,
+        "final_checkpoint_only": True,
+        "best_checkpoint": False,
+        "early_stopping": False,
+        "retry_after_failure": False,
+    }
+
+
+def _expected_actor_counts() -> dict[str, int]:
+    expected = {"central_prior": 4959, "distributed_prior": 4929}
+    unknown = set(ARCHITECTURES) - set(expected)
+    if unknown:
+        raise ValueError(f"unknown architecture capacity: {sorted(unknown)}")
+    return {architecture: expected[architecture] for architecture in ARCHITECTURES}
 
 
 def _source_paths() -> dict[str, Path]:
@@ -231,8 +261,13 @@ def prepare(manifest_path: Path, out_root: Path) -> None:
         raise ValueError("training bank must contain 24 scenarios")
     contract = _selected_contract()
     counts = _actor_counts(contract)
-    if counts != {"central_prior": 4959, "distributed_prior": 4929}:
+    if counts != _expected_actor_counts():
         raise ValueError(f"actor capacity drift: {counts}")
+    matched_relative_difference = None
+    if {"central_prior", "distributed_prior"} <= set(counts):
+        matched_relative_difference = abs(
+            counts["central_prior"] - counts["distributed_prior"]
+        ) / counts["distributed_prior"]
     sources = {
         name: {
             "path": str(path.relative_to(ROOT)).replace("\\", "/"),
@@ -256,22 +291,8 @@ def prepare(manifest_path: Path, out_root: Path) -> None:
         "architectures": list(ARCHITECTURES),
         "seeds": list(SEEDS),
         "actor_parameter_counts": counts,
-        "actor_parameter_relative_difference": abs(
-            counts["central_prior"] - counts["distributed_prior"]
-        )
-        / counts["distributed_prior"],
-        "training": {
-            "episodes": EPISODES,
-            "steps_per_episode": TRAINING_STEPS,
-            "steps_per_checkpoint": EPISODES * TRAINING_STEPS,
-            "checkpoint_count": 10,
-            "total_real_andes_steps": 10 * EPISODES * TRAINING_STEPS,
-            "warmup_steps": WARMUP_STEPS,
-            "final_checkpoint_only": True,
-            "best_checkpoint": False,
-            "early_stopping": False,
-            "retry_after_failure": False,
-        },
+        "actor_parameter_relative_difference": matched_relative_difference,
+        "training": _training_budget(),
         "hyperparameters": {
             "actor_lr": 3e-4,
             "critic_lr": 3e-4,
@@ -301,8 +322,13 @@ def prepare(manifest_path: Path, out_root: Path) -> None:
         "action_and_reward": {
             "vector_contract": vector,
             "classical_prior": contract.telemetry(),
-            "actor_output_role": "bounded magnitude residual only",
+            "actor_output_role": (
+                "bounded magnitude residual only"
+                if contract.reverse_limit == 0.0
+                else "bounded aligned residual with limited reverse"
+            ),
             "residual_scale": contract.residual_scale,
+            "reverse_limit": contract.reverse_limit,
             "rocof_reward_weight": R293_ROCOF_REWARD_WEIGHT,
             "rocof_reward_scale_hz_s": R293_ROCOF_SCALE_HZ_S,
             "reward_sweep": False,
@@ -399,11 +425,7 @@ def train(
         _load_json(BANK_PATH, manifest["development_bank"]["sha256"])["scenarios"]
     )
     classical = manifest["action_and_reward"]["classical_prior"]
-    classical_contract = ClassicalEdgeContract(
-        family=classical["family"],
-        gain=float(classical["gain"]),
-        residual_scale=float(classical["residual_scale"]),
-    )
+    classical_contract = _contract_from_telemetry(classical)
 
     np.random.seed(seed)
     torch.manual_seed(seed)
@@ -533,6 +555,7 @@ def train(
 
 def verify_matrix(manifest_path: Path, expected: str, out_root: Path) -> None:
     _verify(manifest_path, expected)
+    expected_run_count = len(ARCHITECTURES) * len(SEEDS)
     rows: list[dict[str, Any]] = []
     artifacts: dict[str, str] = {}
     for architecture in ARCHITECTURES:
@@ -590,9 +613,9 @@ def verify_matrix(manifest_path: Path, expected: str, out_root: Path) -> None:
         "question": QUESTION_ID,
         "phase": "matched-classical-prior-residual-training-complete",
         "training_seal_sha256": expected,
-        "expected_run_count": 10,
+        "expected_run_count": expected_run_count,
         "observed_run_count": len(rows),
-        "all_completed": len(rows) == 10,
+        "all_completed": len(rows) == expected_run_count,
         "seed_selection_performed": False,
         "rows": rows,
         "artifact_hashes": dict(sorted(artifacts.items())),

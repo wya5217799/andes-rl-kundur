@@ -104,12 +104,23 @@ def test_reserve_next_round_missing_dir_raises(tmp_path: Path) -> None:
 # ─── Frontmatter parser ──────────────────────────────────────────────────
 
 
-def _write_plan(path: Path, state: str, opened: str = "2026-05-20",
-                driver: str = "test plan") -> None:
+def _write_plan(
+    path: Path,
+    state: str,
+    opened: str = "2026-05-20",
+    driver: str = "test plan",
+    manuscript_line: str | None = None,
+) -> None:
+    ownership = (
+        f"manuscript_line: {manuscript_line}\n"
+        if manuscript_line is not None
+        else ""
+    )
     path.write_text(
         f"---\n"
         f"round: {path.parent.name}\n"
         f"state: {state}\n"
+        f"{ownership}"
         f"opened: '{opened}'\n"
         f"closed: null\n"
         f"---\n"
@@ -247,6 +258,21 @@ def _bootstrap_memory(tmp_path: Path) -> Path:
     return mem
 
 
+def _write_manuscript_contract(repo_root: Path) -> None:
+    contract = repo_root / "docs" / "repo-hygiene"
+    contract.mkdir(parents=True, exist_ok=True)
+    (contract / "contract.json").write_text(
+        """{
+  "delivery_lines": [
+    {"id": "line-a", "kind": "manuscript", "status": "active", "root": "paper/a"},
+    {"id": "line-b", "kind": "manuscript", "status": "active", "root": "paper/b"}
+  ]
+}
+""",
+        encoding="utf-8",
+    )
+
+
 def test_cli_basic_reserve(tmp_path: Path) -> None:
     mem = _bootstrap_memory(tmp_path)
     r = _run_cli(mem)
@@ -314,6 +340,63 @@ def test_cli_strict_no_active_passes_when_none(tmp_path: Path) -> None:
     assert r.returncode == 0
     assert r.stdout.strip() == "11"
     assert (mem / "rounds" / "R11").is_dir()
+
+
+def test_cli_line_scope_allows_a_different_manuscript_line(tmp_path: Path) -> None:
+    mem = _bootstrap_memory(tmp_path)
+    _write_manuscript_contract(tmp_path)
+    (mem / "rounds" / "R5").mkdir()
+    _write_plan(
+        mem / "rounds" / "R5" / "plan.md",
+        "active",
+        manuscript_line="line-a",
+    )
+
+    result = _run_cli(
+        mem,
+        "--strict-no-active",
+        "--line",
+        "line-b",
+        "--write-plan-stub",
+    )
+
+    assert result.returncode == 0, result.stderr
+    assert result.stdout.strip() == "6"
+    plan = (mem / "rounds" / "R6" / "plan.md").read_text(encoding="utf-8")
+    assert "manuscript_line: line-b" in plan
+
+
+def test_cli_line_scope_blocks_a_second_round_on_the_same_line(tmp_path: Path) -> None:
+    mem = _bootstrap_memory(tmp_path)
+    _write_manuscript_contract(tmp_path)
+    (mem / "rounds" / "R5").mkdir()
+    _write_plan(
+        mem / "rounds" / "R5" / "plan.md",
+        "active",
+        manuscript_line="line-a",
+    )
+
+    result = _run_cli(mem, "--strict-no-active", "--line", "line-a")
+
+    assert result.returncode == 1
+    assert "R5" in result.stderr
+    assert "line-a" in result.stderr
+    assert not (mem / "rounds" / "R6").exists()
+
+
+def test_cli_line_scope_keeps_unowned_active_round_as_global_lock(
+    tmp_path: Path,
+) -> None:
+    mem = _bootstrap_memory(tmp_path)
+    _write_manuscript_contract(tmp_path)
+    (mem / "rounds" / "R5").mkdir()
+    _write_plan(mem / "rounds" / "R5" / "plan.md", "active")
+
+    result = _run_cli(mem, "--strict-no-active", "--line", "line-b")
+
+    assert result.returncode == 1
+    assert "R5" in result.stderr
+    assert not (mem / "rounds" / "R6").exists()
 
 
 def test_cli_default_warn_active_but_proceed(tmp_path: Path) -> None:

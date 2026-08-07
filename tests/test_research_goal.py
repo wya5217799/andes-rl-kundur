@@ -77,11 +77,23 @@ def _write_programme(
     )
 
 
-def _write_round(root: Path, name: str, *, verdict: bool = False) -> None:
+def _write_round(
+    root: Path,
+    name: str,
+    *,
+    verdict: bool = False,
+    manuscript_line: str | None = None,
+) -> None:
     round_dir = root / "memory" / "rounds" / name
     round_dir.mkdir(parents=True, exist_ok=True)
+    ownership = (
+        f"manuscript_line: {manuscript_line}\n"
+        if manuscript_line is not None
+        else ""
+    )
     (round_dir / "plan.md").write_text(
-        f"---\nround: {name}\nstate: active\nopened: '2026-07-24'\n---\n",
+        f"---\nround: {name}\nstate: active\n{ownership}"
+        "opened: '2026-07-24'\n---\n",
         encoding="utf-8",
     )
     if verdict:
@@ -128,6 +140,19 @@ def test_active_round_blocks_new_goal(tmp_path: Path) -> None:
     assert selected.status == "blocked-active-round"
     assert selected.active_rounds == ("R7",)
     assert selected.prompt == ""
+
+
+def test_active_round_on_another_line_does_not_block_selected_line_goal(
+    tmp_path: Path,
+) -> None:
+    _write_programme(tmp_path, [("Q-0001", 10)])
+    _write_question(tmp_path, "Q-0001", "open")
+    _write_round(tmp_path, "R7", manuscript_line="line-a")
+
+    selected = select_next_goal(tmp_path, manuscript_line="line-b")
+
+    assert selected.status == "ready"
+    assert selected.question_id == "Q-0001"
 
 
 def test_stale_active_plan_with_verdict_does_not_block(tmp_path: Path) -> None:

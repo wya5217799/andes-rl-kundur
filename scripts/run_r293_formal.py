@@ -44,6 +44,9 @@ from probes.r293_comparison import (  # noqa: E402
 
 ROUND_ID = "R293"
 QUESTION_ID = "Q-0050"
+PHASE = "fresh-bank-twelve-arm-prior-residual-formal"
+EXPERIMENT = "r293_strong_classical_prior_comparison"
+ALLOW_EXISTING_TRACE_RESUME = True
 ENV_SEED = 42
 STEPS = 300
 FAST_STEPS = 15
@@ -253,7 +256,7 @@ def prepare(manifest_path: Path, out_dir: Path) -> None:
         "schema_version": 1,
         "round": ROUND_ID,
         "question": QUESTION_ID,
-        "phase": "fresh-bank-twelve-arm-prior-residual-formal",
+        "phase": PHASE,
         "repository_head": _git_head(),
         "formal_bank": {
             "path": str(FORMAL_BANK.relative_to(ROOT)).replace("\\", "/"),
@@ -392,7 +395,7 @@ def _validate_new_trace(
     expected = {
         "round": ROUND_ID,
         "question": QUESTION_ID,
-        "phase": "fresh-bank-twelve-arm-prior-residual-formal",
+        "phase": PHASE,
         "controller": arm,
         "scenario": scenario["name"],
         "delta_u": scenario["delta_u"],
@@ -422,6 +425,8 @@ def run_shard(
     for index, (scenario, arm) in enumerate(selected, start=1):
         path = _trace_path(out_dir, scenario["name"], arm)
         if path.exists():
+            if not ALLOW_EXISTING_TRACE_RESUME:
+                raise FileExistsError(f"formal execution is create-only: {path}")
             _validate_new_trace(path, scenario, arm, manifest, expected)
             print(f"[resume {index:03d}/{len(selected):03d}] {path.name}", flush=True)
             continue
@@ -437,7 +442,7 @@ def run_shard(
                 delta_u=scenario["delta_u"],
                 seed=ENV_SEED,
                 steps=STEPS,
-                phase="fresh-bank-twelve-arm-prior-residual-formal",
+                phase=PHASE,
                 evidence_hashes={
                     "formal_seal": expected,
                     "formal_bank": manifest["formal_bank"]["sha256"],
@@ -461,8 +466,8 @@ def run_shard(
             {
                 "round": ROUND_ID,
                 "question": QUESTION_ID,
-                "experiment": "r293_strong_classical_prior_comparison",
-                "phase": "fresh-bank-twelve-arm-prior-residual-formal",
+                "experiment": EXPERIMENT,
+                "phase": PHASE,
                 "controller": arm,
                 "location": scenario["location"],
                 "sign": scenario["sign"],

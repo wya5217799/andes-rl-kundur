@@ -5,8 +5,8 @@ Motivation
 An ANDES shard must use one WSL Python process.  Launching shards through a
 Python orchestrator inside WSL consumes an extra process and can accidentally
 serialize a nominally sharded study.  This host-side launcher starts every
-declared shard before waiting, enforces the repository's three-process cap,
-and reports progress against the global task count.
+declared shard before waiting, enforces an explicit measured process budget
+(historical default: three), and reports progress against the global task count.
 
 Usage
 -----
@@ -42,7 +42,7 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[1]
 WSL_PYTHON = "/home/wya/andes_venv/bin/python"
 SCRATCH_LAUNCHER = "scripts/andes_scratch.py"
-MAX_WSL_PYTHON_PROCESSES = 3
+DEFAULT_WSL_PYTHON_PROCESS_BUDGET = 3
 
 
 def _wsl_path(path: Path) -> str:
@@ -62,9 +62,11 @@ def _worker_script(value: str) -> str:
 
 
 def build_plan(args: argparse.Namespace) -> dict[str, Any]:
-    if not 1 <= args.shard_count <= MAX_WSL_PYTHON_PROCESSES:
+    if args.process_budget < 1:
+        raise ValueError("process_budget must be positive")
+    if not 1 <= args.shard_count <= args.process_budget:
         raise ValueError(
-            f"shard_count must be 1..{MAX_WSL_PYTHON_PROCESSES}"
+            f"shard_count must be 1..{args.process_budget}"
         )
     if args.global_task_count < 1:
         raise ValueError("global_task_count must be positive")
@@ -97,7 +99,7 @@ def build_plan(args: argparse.Namespace) -> dict[str, Any]:
     return {
         "schema_version": 1,
         "worker_count": args.shard_count,
-        "wsl_python_process_budget": MAX_WSL_PYTHON_PROCESSES,
+        "wsl_python_process_budget": args.process_budget,
         "global_task_count": args.global_task_count,
         "trace_dir": str(args.trace_dir.resolve()) if args.trace_dir else None,
         "workers": workers,
@@ -169,6 +171,12 @@ def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--worker-script", required=True)
     parser.add_argument("--shard-count", type=int, required=True)
+    parser.add_argument(
+        "--process-budget",
+        type=int,
+        default=DEFAULT_WSL_PYTHON_PROCESS_BUDGET,
+        help="Measured whole-host WSL Python budget (default: 3)",
+    )
     parser.add_argument("--global-task-count", type=int, required=True)
     parser.add_argument("--log-dir", type=Path, required=True)
     parser.add_argument("--trace-dir", type=Path)

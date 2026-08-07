@@ -63,6 +63,67 @@ def test_dry_run_reports_three_unique_workers_and_global_progress(tmp_path: Path
         ]
 
 
+def test_explicit_measured_budget_allows_sixteen_dry_run_workers(
+    tmp_path: Path,
+) -> None:
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(LAUNCHER),
+            "--worker-script",
+            "scripts/run_r342_limited_reverse_residual.py",
+            "--shard-count",
+            "16",
+            "--process-budget",
+            "16",
+            "--global-task-count",
+            "264",
+            "--log-dir",
+            str(tmp_path / "logs"),
+            "--dry-run",
+            "--",
+            "formal-worker",
+        ],
+        capture_output=True,
+        check=False,
+        text=True,
+        encoding="utf-8",
+    )
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    plan = json.loads(result.stdout)
+    assert plan["worker_count"] == 16
+    assert plan["wsl_python_process_budget"] == 16
+    assert [worker["shard_index"] for worker in plan["workers"]] == list(range(16))
+
+
+def test_explicit_budget_still_rejects_oversubscription(tmp_path: Path) -> None:
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(LAUNCHER),
+            "--worker-script",
+            "scripts/run.py",
+            "--shard-count",
+            "17",
+            "--process-budget",
+            "16",
+            "--global-task-count",
+            "17",
+            "--log-dir",
+            str(tmp_path / "logs"),
+            "--dry-run",
+        ],
+        capture_output=True,
+        check=False,
+        text=True,
+        encoding="utf-8",
+    )
+
+    assert result.returncode == 2
+    assert "shard_count must be 1..16" in result.stderr
+
+
 @pytest.mark.skipif(
     os.name != "nt" or shutil.which("wsl.exe") is None,
     reason="Windows WSL integration is unavailable",

@@ -178,6 +178,31 @@ def _trace_row(step: int, info: Mapping[str, Any], nominal_hz: float) -> dict[st
     }
 
 
+def residual_composition_telemetry(
+    controller: VectorResidualController,
+) -> dict[str, Any] | None:
+    """Return optional learned-prior composition telemetry without recomputing it."""
+
+    payload = getattr(controller, "last_residual_composition", None)
+    if payload is None:
+        return None
+    if not isinstance(payload, Mapping):
+        raise TypeError("last_residual_composition must be a mapping")
+    required = {
+        "severity_delta",
+        "prior_raw",
+        "actor_residual",
+        "aligned_magnitude",
+        "executed_edge_action",
+        "reverse_count",
+        "reverse_limit",
+    }
+    missing = required - set(payload)
+    if missing:
+        raise ValueError(f"residual composition telemetry missing: {sorted(missing)}")
+    return dict(payload)
+
+
 def run_vector_controller_scenario(
     controller: VectorResidualController,
     *,
@@ -295,11 +320,15 @@ def run_vector_controller_scenario(
                 ),
                 dtype=np.float32,
             )
+            composition = residual_composition_telemetry(controller)
             observation, _rewards, done, info = env.step(raw)
             if info.get("tds_failed"):
                 tds_failed = True
                 break
-            traces.append(_trace_row(step, info, nominal_hz))
+            row = _trace_row(step, info, nominal_hz)
+            if composition is not None:
+                row["residual_composition"] = composition
+            traces.append(row)
             if done:
                 break
         system = env.base_env.ss

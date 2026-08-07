@@ -32,6 +32,7 @@ class ClassicalEdgeContract:
     family: str
     gain: float
     residual_scale: float = 0.5
+    reverse_limit: float = 0.0
 
     def __post_init__(self) -> None:
         if self.family not in FEATURE_WEIGHTS:
@@ -40,6 +41,8 @@ class ClassicalEdgeContract:
             raise ValueError("gain must be positive")
         if not 0.0 < self.residual_scale <= 1.0:
             raise ValueError("residual_scale must lie in (0, 1]")
+        if not 0.0 <= self.reverse_limit <= 1.0:
+            raise ValueError("reverse_limit must lie in [0, 1]")
 
     @property
     def weights(self) -> tuple[float, float, float]:
@@ -47,7 +50,11 @@ class ClassicalEdgeContract:
 
     @property
     def name(self) -> str:
-        return f"classical_edge_{self.family}_k{self.gain:g}".replace(".", "p")
+        base = f"classical_edge_{self.family}_k{self.gain:g}".replace(".", "p")
+        if self.reverse_limit == 0.0:
+            return base
+        suffix = f"_b{self.reverse_limit:g}".replace(".", "p")
+        return base + suffix
 
     def telemetry(self) -> dict[str, Any]:
         payload = asdict(self)
@@ -160,8 +167,9 @@ def compose_prior_residual_numpy(
     severity_delta: np.ndarray,
     *,
     residual_scale: float = 0.5,
+    reverse_limit: float = 0.0,
 ) -> np.ndarray:
-    """Change prior magnitude without allowing flow against severity gradient."""
+    """Compose a residual with an optional bounded reverse aligned magnitude."""
 
     prior = np.asarray(prior_raw, dtype=np.float32).reshape(-1)
     residual = np.asarray(actor_residual, dtype=np.float32).reshape(-1)
@@ -172,9 +180,11 @@ def compose_prior_residual_numpy(
         raise ValueError("prior, residual, and severity_delta must be finite")
     if not 0.0 < residual_scale <= 1.0:
         raise ValueError("residual_scale must lie in (0, 1]")
+    if not 0.0 <= reverse_limit <= 1.0:
+        raise ValueError("reverse_limit must lie in [0, 1]")
     magnitude = np.clip(
         np.abs(prior) + np.float32(residual_scale) * np.clip(residual, -1.0, 1.0),
-        0.0,
+        -np.float32(reverse_limit),
         1.0,
     )
     return (np.sign(delta) * magnitude).astype(np.float32)
