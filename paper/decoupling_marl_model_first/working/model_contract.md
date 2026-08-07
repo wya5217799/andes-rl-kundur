@@ -3,8 +3,9 @@
 Working title: *Decoupling-Oriented Coordination of Paralleled VSGs With
 Multi-Agent Reinforcement Learning*.
 
-Status: pre-draft mathematical contract. This is not manuscript prose and is
-not evidence that any proposed controller works.
+Status: pre-draft mathematical contract, refreshed after R341 and the
+`full_order_bridge_resolution_v2` advisory review. This is not manuscript
+prose and is not evidence that any proposed controller works.
 
 ## Research objective
 
@@ -237,7 +238,9 @@ parameter or grid-strength robustness.
 ## Modeling and simulation workflow
 
 Modeling and simulation proceed iteratively, but formal evaluation is never
-used to redesign the model. The prospective sequence is:
+used to redesign the model. R341 has now completed the finite fresh-bank model
+gate. The active sequence therefore resumes at the deterministic physical
+bridge; the earlier items remain as provenance, not work to rerun:
 
 1. **Implementation map:** freeze DAE variables, bases, signs, ESD1 equations,
    sampled update order, projections, graphs, and operating domain. Run only a
@@ -247,13 +250,17 @@ used to redesign the model. The prospective sequence is:
    signed active-power probes at representative operating points. The previous
    0.444 cross/self observation already rejects hard decoupling against the
    0.20 development ceiling; subsequent models retain the cross blocks.
-3. **Reduced predictor:** derive a trajectory-linearized discrete LTV/LPV
-   predictor and mismatch set from development traces; validate on untouched
-   held-out traces. The previous coarse static LPV is not reused as the final
-   predictor.
-4. **Deterministic control:** validate DAPI, coupling-aware tube DMPC, and
-   centralized robust MPC before any learning. Require zero physical/solver
-   violations, recursive-feasibility/fallback evidence, and real-time margin.
+3. **Reduced predictor - qualified:** R339 selects separate control and
+   physical-load inputs, and R341 qualifies point-specific order-12 candidates
+   on one finite fresh bank. This does not validate interpolation, a general
+   LPV law, or prediction at a point whose local derivatives were not
+   constructed.
+4. **Deterministic physical bridge - active blocker:** reconcile and freeze one
+   controller against the R341 input structure, then stage zero-action and
+   signed-authority canaries before one longer comparison. Require separate
+   command/disturbance channels, achieved-action readback, zero physical and
+   solver violations, fallback semantics, and measured runtime margin. The
+   broader DAPI/DMPC/centralized suite is later work, not part of Q-0090.
 5. **Residual-headroom gate:** on development-only cases, test whether a safe
    outcome-seeing residual can improve both registered endpoints by at least
    2% over frozen DMPC, with both paired 95% upper bounds below zero and no
@@ -270,12 +277,11 @@ held-out coordinate-response NRMSE at most 0.15, peak error at most 10%, event
 timing within one 0.2-s sample, and complete inclusion in the declared mismatch
 set (or a prospectively registered probabilistic coverage bound).
 
-Full ANDES jobs remain capped by repository governance at three concurrent WSL
-Python processes. The three shards may run independently after seal; algebra,
-Jacobian processing, reduction fitting, proof work, and report generation may
-use the remaining host cores concurrently. Increasing the ANDES cap requires a
-separate governance decision and resource/reproducibility canary, not ad-hoc
-oversubscription during a paper-facing round.
+Formal ANDES concurrency has no fixed manuscript-level number. Each evidence
+round must measure and freeze a whole-host process budget, count the launcher
+and every worker, subtract capacity reserved by other executing manuscript
+lines, and pin every native numerical library to one thread. A prior round's
+budget is evidence for that round only and is not copied into Q-0090.
 
 The current primary-source literature audit is recorded in
 `working/hybrid_control_literature_note.md`. Its bounded conclusion is that
@@ -283,6 +289,72 @@ end-to-end RL remains an active empirical method but is not the assurance
 default for this safety-critical controller. The proposed contribution is
 therefore the independently executed, governed residual above a structured
 distributed controller, conditional on a measured residual gap.
+
+## R341 handoff and external advisory disposition
+
+The downloaded `full_order_bridge_resolution_v2` package is internally
+complete: all 48 manifest entries reproduce their SHA-256 digests, and its
+headline development metrics reproduce from the supplied CSV files. Its own
+classification is nevertheless
+`INDEPENDENT_DEVELOPMENT_ANALYSIS_NOT_FORMAL_HOLDOUT`. Project claims and feeds
+therefore outrank it. The following disposition is the only part imported into
+this contract:
+
+| Advisory object | Decision | Evidence-matched use |
+|---|---|---|
+| Full descriptor, exact Schur solve, and end-of-hold sampling checks | `QUALIFY` | Consistent with CLM-0890 on the exposed HS0/HS1 bank; do not promote advisory files into a second evidence ledger. |
+| “Bus 7/8 root cause is resolved” | `BLOCK` as unique causation | CLM-0890 allows only that the old static projected bridge is inadequate and the separate-input formulation is sufficient on the tested records; several changes were not isolated. |
+| Development common-basis ROM12 | `SCRATCH ONLY` | A useful alternative analysis model, but it cannot replace the prospectively bound R341 point-specific candidates inside Q-0090. |
+| Structured M20/M24 models | `SCRATCH ONLY` | Both are development candidates. Neither was included in R341 fresh validation, and neither may be selected from fresh outcomes or called the current control model. |
+| Exact law `dot(Ipout)=-50 Ipout+50 u_node` | `BLOCK` as a plant-wide identity | The installed ESD1 law is driven by limited, voltage-dependent `Ipcmd`; equality to the external request requires an explicitly checked inactive-limiter, fixed-voltage regime. |
+| Linear SOC law with one constant coefficient | `BLOCK` as exact | The executable SOC update is voltage- and sign-dependent and includes different charge/discharge efficiencies. A linear surrogate must carry a declared envelope and mismatch term. |
+| Four natural load coordinates | `QUALIFY` | They are an orthonormal disturbance basis and a useful estimator hypothesis. They are not the inertia-weighted output transform and do not make four labelled loads identifiable from local or one-hop frequency alone. |
+| Centralized MPC, DAPI, local MPC, then tube DMPC | `FUTURE SEQUENCE` | Q-0090 tests one deterministic physical bridge only. A comparison suite requires later registered questions and an identifiable comparator contract. |
+| Zero-sum learned edge residual | `RETAIN` | It may allocate relative synchronization and storage use but cannot supply fleet net active power; the deterministic common channel remains responsible for net balance. |
+
+The active R341 sampled model must retain distinct inputs:
+
+\[
+z_{k+1}=A z_k+B_u u_k+B_d d_k,
+\]
+
+\[
+y_{k+1}=C_{post}z_k+D_{u,post}u_k+D_{d,post}d_k.
+\]
+
+No controller, estimator, test fixture, or plotting adapter may replace these
+equations by `B(u+d)` or fit a static `d=M u`. The former R329/R330 controller
+package used one shared four-input reduced model and is therefore evidence for
+that historical model only; its controller structure may inform a new design,
+but its model matrices, estimator gains, and holdout result do not transfer to
+R341.
+
+The new scratch implementation seam is
+`src/andes_rl_kundur/control/model_first_separate_input.py`. Its public
+interface splits the joint eight-input realization into four control and four
+physical-disturbance channels, exposes a control-only view without deleting
+the disturbance model, and constructs the augmented estimator as
+
+\[
+\begin{bmatrix}z\\d\end{bmatrix}_{k+1}=
+\begin{bmatrix}A&B_d\\0&I\end{bmatrix}
+\begin{bmatrix}z\\d\end{bmatrix}_{k}+
+\begin{bmatrix}B_u\\0\end{bmatrix}u_k.
+\]
+
+Unit tests verify the split, the augmented matrices, and the causal subtraction
+of only executed-control feedthrough. A read-only compatibility check found
+the two R341 candidates observable under the full four-output information
+pattern, but this is engineering readiness only. It neither freezes an
+estimator nor supplies controller, stability, safety, or deployment evidence.
+
+Before reserving Q-0090, one offline controller work order must return: exact
+R341 candidate binding; one fixed controller/estimator identity; declared
+full-output or local-information pattern; request, projected command, and
+achieved-power semantics; explicit current/SOC/energy limits; solver and
+fallback contract; zero-action and signed-authority canary definitions; and a
+prospective stop rule. Absence of any item blocks physical execution rather
+than authorizing an advisory default.
 
 ## Equation-to-implementation reconciliation
 
@@ -451,7 +523,12 @@ interval. This one-sample causal timing must be retained in every comparator.
   Model-validation probes use explicit locations and keep the case's implicit
   `Line_8 @ 2 s` outage disabled.
 
-### Reconciliation findings and repair gate
+### Historical reconciliation findings and repair gate
+
+The table below records the 2026-08-03 implementation gate that led to the
+R306--R341 sequence. It is retained for provenance and must not be read as the
+active task list. Current routing is owned by Q-0090 and the R341 handoff
+above.
 
 | ID | Severity | Finding | Required repair before evidence generation |
 |---|---|---|---|
@@ -467,10 +544,11 @@ interval. This one-sample causal timing must be retained in every comparator.
 | MF-10 | MAJOR | Zero-sum edge allocation guarantees requested/commanded residual neutrality, not exact achieved inverter-power neutrality. | Report achieved fleet imbalance and include it in the predictor mismatch set; weaken any physical-neutrality wording accordingly. |
 | MF-11 | MINOR | The first response sample follows a pre-disturbance controller observation. | State and test the one-sample timing rather than plotting it as zero-delay feedback. |
 
-Current domain verdict: **BLOCK** the present implementation as claim-bearing
-evidence; **ALLOW** a prospective repair plus non-learning canary; **BLOCK**
-controller-performance or neural training conclusions. Presentation review is
-not applicable because no manuscript prose or result figures exist.
+Historical domain verdict: **BLOCK** the then-current implementation as
+claim-bearing evidence and **ALLOW** only prospective repairs plus non-learning
+canaries. R341 now qualifies the finite-bank predictor, but deterministic
+physical control and neural training remain **BLOCKED**. Presentation review
+is not applicable because no manuscript prose or result figures exist.
 
 The claim ceiling after reconciliation, but before any new result, is limited
 to: “an implementation-faithful contract and prospective validation protocol
@@ -478,6 +556,10 @@ were specified for one modified Kundur phasor-domain plant.” It does not suppo
 controller efficacy, stability, safety, MARL value, or generalisation.
 
 ## Stage-0 and Stage-1 non-learning probe contract
+
+This frozen contract explains earlier rounds. Those rounds are closed and its
+points, pulses, thresholds, or process assumptions are not automatically the
+Q-0090 bank.
 
 These line-level values are frozen before data access. A future atomic research
 question and create-only seal must copy them, hash the implementation sources,
@@ -600,8 +682,10 @@ development.
    uncertainty, tails, action use, and constraint execution. It remains
    `EXTERNAL_AUTHORITY_REQUIRED`; feed/claim/verdict state owns evidence.
 
-The equation-to-implementation reconciliation and non-learning probe design
-are now frozen at manuscript-line level. The next task requires a new atomic
-research question authorizing only the MF-01--MF-07 implementation repairs and
-the Stage-0 canary. Stage 1 remains conditional on Stage 0, and no neural
-training is authorized by this contract.
+The equation-to-implementation history remains frozen at manuscript-line
+level. The active question is Q-0090: one separately sealed deterministic
+physical bridge, staged from zero action and signed authority and using the
+R341 separate-input candidate structure. A valid failure stops this route; a
+valid pass may open only a separate residual-headroom question. No distributed
+runtime, reward design, neural training, EVAL, topology change, or title-result
+claim is authorized by this contract.
