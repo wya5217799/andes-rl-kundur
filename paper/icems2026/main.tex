@@ -37,8 +37,8 @@ gain can instead come from extra aggregate support or a favorable seed. We
 separate sustained common-frequency restoration, a \SI{3}{s} common-inertia
 pulse, and differential inertia redistribution. The first two layers are fixed;
 a parameter-shared multi-agent policy is restricted to a bounded, slew-limited,
-hard-zero-sum two-area residual. A size-matched centralized actor benchmarks
-this specific shared scalar factorization. Both
+hard-zero-sum two-area residual, benchmarked against a size-matched centralized
+actor under the same scalar action space. Both
 architectures use three predefined training seeds and are fixed before an
 independent 24-disturbance evaluation bank is generated.
 Across 192 matched \SI{60}{s} trajectories, the centralized actor reduces
@@ -47,7 +47,7 @@ synchronization loss by \SI{24.35}{\percent} and early inter-area error by
 \SI{16.79}{\percent} and \SI{9.54}{\percent}. The 95\% intervals account for
 both seed and disturbance variability and exclude zero for all four effects.
 However, the shared policy is worse than the centralized actor by
-\SI{9.98}{\percent} and \SI{9.04}{\percent}, respectively, with all three seeds
+\SI{9.98}{\percent} and \SI{9.04}{\percent}, with all three seeds
 agreeing. All action and storage constraints are satisfied. Thus, constrained
 learned differential allocation transfers to the independent evaluation bank,
 but the tested shared scalar factorization remains inferior to centralized TD3.
@@ -89,7 +89,7 @@ learned inertia--damping adaptation with explicit power-decoupling control
 ~\cite{peng2026cooperative}. These studies support model-free adaptation
 under changing operating conditions. Nevertheless, jointly learning several
 inertia--damping actions can mix aggregate support, differential
-redistribution, and action effort. Selecting the best checkpoint can also give
+redistribution, and action effort; selecting the best checkpoint can also give
 an optimistic estimate if training-seed variability and a weak reference are
 not separated from the claimed physical mechanism.
 
@@ -186,10 +186,9 @@ The fast common layer is a fixed normalized pulse \(c_k=0.25\) for the first
 15 samples (\SI{3}{s}) and zero afterwards. With \(M_0=200\),
 \(\Delta M_{\max}=600\), and fixed \(D_i=100\), the common-only reference is
 \(M_i=M_0+\Delta M_{\max}c_k\). The slow layer is evaluated against zero
-support, and the pulse is then evaluated against the slow-only reference
-before learning is introduced. A development-stage outcome-seeing screen
-preferred the selected pulse in five of eight cases; the pulse was then fixed
-before the 24-case comparison.
+support, and the pulse then against the slow-only reference before learning is
+introduced; a development-stage outcome-seeing screen preferred the selected
+pulse in five of eight cases, after which it was fixed.
 
 Figure~\ref{fig:architecture} summarizes the fixed common layers, differential
 coordinate, and matched centralized alternative.
@@ -233,9 +232,7 @@ fixed area sign. Each component is scaled in physical units and clipped to
 \([-5,5]\). Thus the actors share
 parameters but receive different local measurements; execution still requires
 the small coordination layer in~\eqref{eq:projection} to aggregate their
-votes.
-
-\subsection{Matched training objective}
+votes.\subsection{Matched training objective}
 
 The shared controller uses one 64--64 actor (\(4737\) parameters) at all four
 agents and one pair of centralized twin-delayed deep deterministic
@@ -264,6 +261,20 @@ update period are \(0.1\), \(0.2\), \(0.1\), and 2. Seeds 17, 53, and 89 are
 each trained for 300 episodes of 15 steps. Only the six final checkpoints are
 evaluated; there is no best-checkpoint selection or early stopping.
 
+\subsection{Genuine three-edge comparison}
+
+A separate sealed comparison on the same plant evaluates a genuinely
+distributed formulation: one shared actor is invoked separately on each of
+the three path edges using only that edge's two endpoint observations, and
+its three scalar outputs are the three executed edge actions, with the joint
+critic training-only. A matched joint-observation single actor maps the
+concatenated observation to the identical three action coordinates. Both
+learned arms share the selected classical edge prior, projection, limits,
+reward, training budget, five seeds, bank, and thresholds, and the selected
+deterministic classical edge controller is retained as the strong comparator.
+This identifies only the executed endpoint-only and joint-observation
+information patterns, not MARL as a class.
+
 \section{Experimental Setup and Evaluation}
 
 \subsection{Plant and disturbance bank}
@@ -282,9 +293,9 @@ limits follow storage-modeling practice summarized in
 
 The 24-case development bank covers four disturbance locations, both signs,
 and moderate (0.65--0.85 pu), strong (0.95--1.15 pu), and edge
-(1.35--1.50 pu) magnitudes. It is used for classical mechanism checks and
-training only. After all six controllers are fixed, an independent generator
-(seed 2026072704) creates the independent evaluation bank with the same balanced
+(1.35--1.50 pu) magnitudes, and is used for classical checks and training
+only. After all six controllers are fixed, an independent generator
+(seed 2026072704) creates the evaluation bank with the same balanced
 location/sign/severity design but new magnitudes. A zero-support screen that
 does not use controller outcomes accepts all 24 cases; no case is redrawn or
 excluded. The control interval is
@@ -315,7 +326,7 @@ causal controller uses only the current joint observation:
 \end{equation}
 The denominators are in hertz and hertz per second. Nine gain pairs were fixed
 before the development comparison; among candidates meeting all checks, the
-lowest worst-location score selected \((k_f,k_r)=(0,0.25)\). This law was then
+lowest worst-location score selected \((k_f,k_r)=(0,0.25)\). This law was
 fixed before the independent bank and passed through the same magnitude, slew,
 active-window, and physical-action mapping as the learned controllers.
 
@@ -324,9 +335,8 @@ The two primary endpoints are the full-trajectory mean of
 \(\sum_{k=1}^{15}|\Delta f_{\mathrm{AB},k}|\Delta t\).
 Secondary checks are maximum sampled RoCoF, worst-bus peak, full-horizon
 common-frequency integral absolute error (IAE), and mean common error in the
-final \SI{10}{s}. A controller is considered effective only if both primary
-effects improve by at least 2\% and both 95\% interval upper bounds remain
-below zero. Fast
+final \SI{10}{s}. A controller is effective only if both primary effects
+improve by at least 2\% with both 95\% interval upper bounds below zero; fast
 metrics may not worsen by more than 5\%, and slow metrics by more than 2\%.
 Completion and limits on action magnitude, slew, active-window compliance,
 storage power and energy, SOC, saturation, constraints, and empirical 90\%
@@ -341,8 +351,7 @@ changes in controller/reference means and bars are 95\% intervals (several
 panel-(a) intervals are narrower than the markers); negative
 values favor the controller named first. Panel (a) intervals resample matched
 disturbances for the classical mechanism checks, whereas panel (b) intervals
-account for both seeds and disturbances. Positive shared-versus-central effects
-therefore mean that shared MARL is worse.}
+account for both seeds and disturbances.}
 \label{fig:effects}
 \end{figure*}
 
@@ -353,13 +362,11 @@ therefore mean that shared MARL is worse.}
 differential commands and their scheduled deactivation after \SI{3}{s}, while
 common-frequency and fleet-storage responses remain close to the \(q=0\)
 reference. The case is the first moderate-severity scenario in the fixed
-evaluation-bank order and is selected without using controller outcomes. Lines
+evaluation-bank order, selected without using controller outcomes. Lines
 are three-seed means, shading is the seed range where shown, and panels
-(c)--(d) use step plots because commands update every \SI{0.2}{s}. The vertical
-line marks scheduled deactivation, the
-horizontal dotted lines in (c) mark \(\lvert q_k\rvert\leq0.25\), and (d)
-shows the executed inertia setpoints, with area~A in each controller's main
-line style and area~B in a thinner dashed variant.}
+(c)--(d) use step plots because commands update every \SI{0.2}{s}; the vertical
+line marks scheduled deactivation, dotted lines in (c) mark
+\(\lvert q_k\rvert\leq0.25\), and (d) shows the executed inertia setpoints.}
 \label{fig:dynamics}
 \end{figure*}
 
@@ -387,12 +394,11 @@ RoCoF by \SI{28.37}{\percent}, worst-bus peak by
 \SI{11.08}{\percent}, synchronization loss by \SI{4.29}{\percent}, and early
 inter-area IAE by \SI{9.91}{\percent}, with all paired intervals below zero.
 
-The four-arm comparison showed additive rather than synergistic behavior. None
-of six interaction terms reached the required \(-2\%\) improvement with an
-interval below zero; the interaction estimates range from
-\(-0.15\%\) to \(+1.49\%\) of the zero-support mean. Hence the two classical
-layers are worth retaining, but their joint value is not evidence of a special
-coordination synergy.
+The four-arm comparison showed additive rather than synergistic behavior:
+none of six interaction terms reached the required \(-2\%\) improvement with an
+interval below zero (estimates range from \(-0.15\%\) to \(+1.49\%\) of the
+zero-support mean). Hence the two classical layers are worth retaining, but
+their joint value is not evidence of a special coordination synergy.
 
 A separate fresh-bank handoff gate challenged the fixed \SI{3}{s} timing.
 Neither a \SI{5}{s} pulse nor either of two causal state-aware smooth handoffs
@@ -407,9 +413,8 @@ The outcome-seeing oracle then tested whether any differential action could
 still help. It chose a non-reference differential pulse in 18 of 24
 cases and reduced synchronization loss by \SI{25.64}{\percent} and early
 inter-area IAE by \SI{19.66}{\percent}, with paired intervals wholly below
-zero. These results establish an attainable differential margin on the
-development bank; they do not establish that a causal policy can identify the
-action.
+zero. This establishes an attainable differential margin on the development
+bank; it does not establish that a causal policy can identify the action.
 
 \subsection{Evaluation-bank comparison of learned controllers}
 
@@ -452,9 +457,9 @@ include both seed and scenario variability and exclude zero.
 The direct architecture comparison showed that shared MARL was worse
 than the centralized actor by \SI{9.98}{\percent} in synchronization loss and
 \SI{9.04}{\percent} in area IAE. The intervals lie entirely above zero, and
-each of the three paired seeds favors centralized TD3 on both endpoints. The
-learned differential action is therefore directionally consistent across the
-three predefined seeds. Thus, the tested shared scalar factorization improved
+each of the three paired seeds favors centralized TD3 on both endpoints, so
+the learned differential action is directionally consistent across seeds.
+Thus, the tested shared scalar factorization improved
 on \(q=0\) but was inferior to centralized TD3; broader multi-agent designs
 were not tested.
 
@@ -462,7 +467,7 @@ All 192 trajectories completed 300 samples. Maximum commanded storage power was
 \(\FormalMaxCommand\) pu, SOC remained in
 \([\FormalMinSoc,\FormalMaxSoc]\), and no saturation reason or constraint
 violation occurred. Action magnitude, slew, active-window, relative no-harm,
-and all storage limits were satisfied. The hard-zero-sum map prevents either
+and storage limits were all satisfied; the hard-zero-sum map prevents either
 learned controller from obtaining differential improvement by increasing
 fleet-average inertia.
 
@@ -472,17 +477,44 @@ fleet mean remains equal to the reference allocation. Common frequency and
 aggregate storage power remain close to \(q=0\), so the illustrated
 differential response is not produced by additional common support. At
 \SI{3}{s}, the common pulse and differential residual are switched off by
-design; the jump is not closed-loop settling. Statistical inference comes from
-all 24 scenarios and all three seeds in Fig.~\ref{fig:effects}, not from this
-trace.
+design; the jump is not closed-loop settling. Inference comes from all 24
+scenarios and all three seeds in Fig.~\ref{fig:effects}, not from this trace.
+
+\subsection{Three-edge architecture comparison}
+
+A separately sealed fresh bank challenges the three-edge formulation in
+Section~III against the selected classical edge controller. The complete
+288-cell matrix (264 new controller trajectories plus 24 zero-residual
+records) passed every integrity, storage, and action guard. The classical
+controller first established a strong incremental baseline: relative to zero
+residual, it reduced normalized synchronization loss by \SI{16.46}{\percent}
+(95\% interval \SIrange{-19.21}{-12.45}{\percent}) and fast inter-area IAE by
+\SI{3.27}{\percent} (\SIrange{-4.55}{-2.02}{\percent}). Against this
+controller, the joint-observation single actor changed the two endpoints by
+\SI{+2.51}{\percent} (\SIrange{-0.10}{+5.14}{\percent}) and
+\SI{-0.44}{\percent} (\SIrange{-1.84}{+0.71}{\percent}), and the
+neighbour-only shared-edge actor by \SI{+3.05}{\percent}
+(\SIrange{+1.48}{+4.54}{\percent}) and \SI{+0.63}{\percent}
+(\SIrange{-0.56}{+1.78}{\percent}); neither cleared both registered primary
+gates, and zero of five seeds improved both endpoints. The distributed actor
+met the numerical 5\% non-inferiority check against the joint-observation
+actor on both endpoints in all five paired seeds (\SI{+0.53}{\percent},
+\SIrange{-1.45}{+2.52}{\percent} and \SI{+1.07}{\percent},
+\SIrange{-0.09}{+2.44}{\percent}) but no seed improved both endpoints
+relative to the classical controller, so no incremental multi-agent benefit
+is established. Both learned families also failed the relative tail no-harm
+guard, with tail synchronization-loss effects of \SI{+12.74}{\percent} and
+\SI{+12.00}{\percent} above the registered 5\% limit. The sealed
+classification is therefore \texttt{NO-NEURAL-INCREMENT}, and the selected
+classical edge controller is retained.
 
 \FloatBarrier
 \section{Limitations and Reproducibility}
 
 The independent evaluation bank and three seeds address disturbance and seed
 robustness within one modified Kundur topology; they do not establish topology
-generalization. Three predefined seeds rule out a single lucky-seed explanation
-on this bank but do not characterize the wider training-seed population.
+generalization, and three seeds do not characterize the wider training-seed
+population.
 Because the shared execution layer aggregates four local votes,
 the result also does not support fully decentralized deployment. Zero-sum
 projection guarantees fleet-budget neutrality at the input, not modal or
@@ -492,7 +524,13 @@ motor-dominated-load, stability, or hardware transfer; the missing coupled
 converter--energy and voltage--frequency dynamics require separate validation.
 The handoff gate covers only one fresh bank and two deterministic state-aware
 rules; it neither establishes that \SI{3}{s} is optimal nor that event-triggered
-handoff is generally ineffective.
+handoff is generally ineffective. The three-edge comparison covers one plant,
+one fixed four-node path, one sealed 24-scenario bank, and five predefined
+seeds; its endpoint-only execution and the joint-observation actor differ in
+information pattern, and its registered trace guards establish empirical
+feasibility on that bank rather than a stability or safety certificate. It does
+not show that distributed learning, multi-agent methods, or learned residual
+control are generally ineffective.
 
 The initial numerical check rejected five of 192 rows because single-precision
 slew values exceeded 0.25 by at most \(\num{\AuditMaxExcess}\), less than one
@@ -519,7 +557,11 @@ inferior performance relative to centralized TD3. This does not establish
 that MARL lacks value generally or that the nonlinear plant is modally
 decoupled. The tested deterministic handoffs also failed their joint gate, so
 the fixed \SI{3}{s} pulse remains a bounded benchmark rather than a general
-solution of fast--slow coupling.
+solution of fast--slow coupling. In a separate three-edge formulation,
+neither the neighbour-only shared-edge actor nor the matched joint-observation
+actor improved on the selected classical edge controller, so the classical
+controller is retained and the negative result is used only as a bounded
+limitation.
 
 \IEEEtriggeratref{12}
 \bibliographystyle{IEEEtran}

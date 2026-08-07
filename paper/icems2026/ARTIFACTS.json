@@ -14,7 +14,7 @@
         "paper/icems2026/reports"
       ],
       "input_hashes": {
-        "paper/icems2026/reports": "2d71a5c81b1820c28fe806454bf414bfa4fc99a4c1088eb755f0a5c458dbf986"
+        "paper/icems2026/reports": "5ac9eb99402438040e5a4e43c4bb830f4acc235cf3fdbfb4e78d48545d562481"
       },
       "supersedes": [],
       "review_after": null
@@ -88,6 +88,24 @@
       "authoritative": false,
       "producer": "paper-revision",
       "inputs": [],
+      "supersedes": [],
+      "review_after": null
+    },
+    {
+      "id": "minimal-change-algorithm-optimization",
+      "purpose": "future-work-design-question",
+      "path": "paper/icems2026/working/gpt_pro_minimal_change_algorithm_optimization.md",
+      "status": "active",
+      "canonical": false,
+      "authoritative": false,
+      "producer": "research-design",
+      "inputs": [
+        "memory/claims/CLM-0905.md",
+        "paper/icems2026/reports/R338.md",
+        "results/r338_formal_evaluation/formal_summary.json",
+        "src/andes_rl_kundur/control/classical_edge_residual.py",
+        "src/andes_rl_kundur/agents/classical_prior_td3.py"
+      ],
       "supersedes": [],
       "review_after": null
     },

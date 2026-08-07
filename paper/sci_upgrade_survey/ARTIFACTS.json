@@ -14,7 +14,7 @@
         "paper/sci_upgrade_survey/reports"
       ],
       "input_hashes": {
-        "paper/sci_upgrade_survey/reports": "d8450b4087a41cdea9542bed0318ff21e99a3481249fc06b29d71d639c842755"
+        "paper/sci_upgrade_survey/reports": "5ff025cfd06bbcf11d4506c6ae9db901e964673990e4d0a521fdf1ad4df9c67e"
       },
       "supersedes": [],
       "review_after": null
@@ -32,8 +32,8 @@
         "paper/sci_upgrade_survey/DIFFERENTIATION_MEMO.md"
       ],
       "input_hashes": {
-        "paper/sci_upgrade_survey/REPORT.md": "761ca8967c425fa25a3a58e8e8c17d5d36cbf60087ede6d3c9e6f6265ee5895c",
-        "paper/sci_upgrade_survey/DIFFERENTIATION_MEMO.md": "a34d9a6a8b591644abbf604b93bc8bff9b82d1ee5757bda60fa0daa2589412d7"
+        "paper/sci_upgrade_survey/REPORT.md": "4e6542d5438db2d1148225caf108b3ddbd171d1ca19b85a6bc272779086ce5d0",
+        "paper/sci_upgrade_survey/DIFFERENTIATION_MEMO.md": "f59a7fd8fe74ad4c13ea8a4e4d9313563e1321c4f9c3411ebd8e045106971dbc"
       },
       "supersedes": [],
       "review_after": "2026-09-30"
@@ -77,8 +77,8 @@
         "paper/sci_upgrade_survey/REPORT.md"
       ],
       "input_hashes": {
-        "paper/icems2026/main.tex": "0fa477a9784c15ad6d56a66dcd10927ffd2dc4c0bbbb1aa9ea18af684f40536f",
-        "paper/sci_upgrade_survey/REPORT.md": "761ca8967c425fa25a3a58e8e8c17d5d36cbf60087ede6d3c9e6f6265ee5895c"
+        "paper/icems2026/main.tex": "9e12f7d97f88d3cbf2afc8ff682657e5ed4e6d40af8c39c6d94375c25ed73b97",
+        "paper/sci_upgrade_survey/REPORT.md": "4e6542d5438db2d1148225caf108b3ddbd171d1ca19b85a6bc272779086ce5d0"
       },
       "supersedes": [],
       "review_after": "2026-10-29"
@@ -115,11 +115,11 @@
         "paper/sci_upgrade_survey/reports/R285.md"
       ],
       "input_hashes": {
-        "paper/sci_upgrade_survey/reports/R281.md": "090388bc29a6afa876f7a6eab6cfafbd22ff045f0313ec5cafb8b772c7325a5d",
-        "paper/sci_upgrade_survey/reports/R282.md": "488362e0138a60479153b63ac07ad1eb9a5a5c28f37669f0012a74953e467356",
-        "paper/sci_upgrade_survey/reports/R283.md": "93089140ee93f04c60d88151942e1d9abc9c1e1365fb6859fcfb167a21300eb9",
-        "paper/sci_upgrade_survey/reports/R284.md": "173a594edc206028b388ff1b265a92402dd44780576dba047453e41ece294d46",
-        "paper/sci_upgrade_survey/reports/R285.md": "94e35fa1071943fa7cef3c830ed110df5c06c90805640f933597270f4b86c497"
+        "paper/sci_upgrade_survey/reports/R281.md": "4ead2f5fe84cec31cf6b340f9994cb71d311cfcdf18c5cb8026fa783ea2ba5ba",
+        "paper/sci_upgrade_survey/reports/R282.md": "300237473044868879870e2315c94f0a184829b50a922413488487c1be0445b3",
+        "paper/sci_upgrade_survey/reports/R283.md": "92af91c4acbc8d83c50610722a1c499d2bf8a167e31f1e7abe9c635bdbc11e16",
+        "paper/sci_upgrade_survey/reports/R284.md": "c1438f50283d0e5abb74dec5ca4e54cbd817ae753745de0be9ddae641ad5fa48",
+        "paper/sci_upgrade_survey/reports/R285.md": "ff30fd27f6ab0035c8112461c1807cf5697cada8ba7527778040aeae742868c9"
       },
       "supersedes": [],
       "review_after": null
@@ -139,9 +139,9 @@
         "paper/sci_upgrade_survey/reports/R287.md"
       ],
       "input_hashes": {
-        "paper/sci_upgrade_survey/reports/R283.md": "93089140ee93f04c60d88151942e1d9abc9c1e1365fb6859fcfb167a21300eb9",
-        "paper/sci_upgrade_survey/reports/R285.md": "94e35fa1071943fa7cef3c830ed110df5c06c90805640f933597270f4b86c497",
-        "paper/sci_upgrade_survey/reports/R286.md": "b45bfd379a20ab54ae8d9cec3b011e02a59c847c8dcded3edc0188e998a13272",
+        "paper/sci_upgrade_survey/reports/R283.md": "92af91c4acbc8d83c50610722a1c499d2bf8a167e31f1e7abe9c635bdbc11e16",
+        "paper/sci_upgrade_survey/reports/R285.md": "ff30fd27f6ab0035c8112461c1807cf5697cada8ba7527778040aeae742868c9",
+        "paper/sci_upgrade_survey/reports/R286.md": "84d4ba237a4ef9ac4a76fcae251d7022c2e08aa9e979ebcfda10fe9d962f9d26",
         "paper/sci_upgrade_survey/reports/R287.md": "d87b383069acfff2f775563b1fea057b0c0ce1b0775dfe6a333fe04feb65e064"
       },
       "supersedes": [],
