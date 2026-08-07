@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "round": "R363",
+  "captured_utc": "2026-08-07T22:45:00.0000000Z",
+  "whole_host_python_process_budget": 1,
+  "host": {
+    "logical_processors": 32,
+    "physical_memory_bytes": 33518587904,
+    "workspace_free_bytes": 744478937088,
+    "observed_background_python_processes": 4
+  },
+  "wsl": {
+    "memory_available_bytes": 18320416768,
+    "python_process_budget": 0
+  },
+  "other_reserved_processes": 0,
+  "empirical_anchor": {
+    "stage": "development-only-dry-probe",
+    "scenario_count": 16,
+    "concurrent_workers": 1,
+    "native_threads_per_worker": 1,
+    "elapsed_seconds": 0.5195,
+    "all_records_valid": true,
+    "persistent_outputs_created": false,
+    "holdout_residual_labels_read": 0,
+    "simulator_executed": false,
+    "training_executed": false
+  },
+  "cap_classification": "intentional-serial-hard-cap",
+  "limiting_bottleneck": "single staged create-only analysis dependency",
+  "notes": [
+    "four-channel joint-endpoint QP dry probe completed all 16 development cases in one Windows process with one native thread in 0.52 seconds",
+    "formal run adds sealed classification only; serial cap is intentional because stages are dependent",
+    "any active conflicting manuscript process, missing dependency, or source drift returns HOLD"
+  ]
+}
