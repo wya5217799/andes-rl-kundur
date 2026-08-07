@@ -1,8 +1,8 @@
 ---
 round: R338
-state: active
+state: completed
 opened: '2026-08-04'
-closed: null
+closed: '2026-08-05'
 supersedes_rounds:
 - R337
 superseded_by_round: null

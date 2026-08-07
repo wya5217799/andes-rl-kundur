@@ -181,9 +181,13 @@ canonical，不再要求另建 Note 索引。
 ## 手稿线作用域与文档生命周期
 
 - 每篇文章一个 `paper/<line>/LINE.md`，声明状态、优先级、读写作用域、当前
-  目标与 venue gate；它只做导航，不复制 Deep Research、feed 结论或实验
-  数字。`decision_refs` 指向持久决策，`evidence_refs` 绑定 claim 与 feed；
-  authoritative feed 禁止进入 `required_reading`，按 claim 懒加载。
+   目标与 venue gate；它只做导航，不复制 Deep Research、feed 结论或实验
+   数字。`decision_refs` 指向持久决策，`evidence_refs` 绑定 claim 与 feed；
+   authoritative feed 禁止进入 `required_reading`，按 claim 懒加载。
+   `verification` 段是 schema 强制项，但只许放通用执行规则或"事实在 feed"
+   指针，禁止逐轮复述结论/数字——逐轮事实只住 feed，LINE 每轮只增一条
+   `evidence_refs`。若 LINE 接近导航预算，优先压缩 `verification`/`stop_when`
+   的复述，而不是裁剪 `evidence_refs` 指针。
   `active` 是生命周期状态，不是全局唯一主线；多条在写论文可以同时 active。
   用户明确提到某篇论文时必须用 `session_context.py --line <id>` 显式选择；
   不知道 id 时先用 `--list-lines`。只有请求未指定论文时才按 `priority`
@@ -217,7 +221,13 @@ canonical，不再要求另建 Note 索引。
   `session_context.py --json --list-lines`；未指定论文才用
   `session_context.py --json` 回退 (内部组合 research_goal + selected
   manuscript LINE; ≤8 个 required files).
-- 开工: `research_goal.py --json` → `reserve_round.py --strict-no-active`
+- 开工: manuscript evidence 用
+  `session_context.py --json --line <line-id>` →
+  `reserve_round.py --strict-no-active --line <line-id> --write-plan-stub`。
+  不同手稿线可各有一个 active round；缺失或 `null` 的 `manuscript_line`
+  仍是全仓库锁。未指定手稿线的 programme 工作继续用
+  `research_goal.py --json` →
+  `reserve_round.py --strict-no-active --write-plan-stub`
   (防 context 压缩后重复开工; `--list-active` 查看) → 写 plan →
   `round_preflight.py R<N>` (exit 2 = BLOCK 修完再跑, exit 1 = WARN).
 - 收尾: `reserve_claim.py --round R<N>` (只先领 id, feed 内联数字要挂) →
@@ -246,15 +256,20 @@ canonical，不再要求另建 Note 索引。
   `OBS_AREA_MEAN_FREQ_AUG` 默认关: 开启改 obs_dim, 与历史 ckpt 不兼容.
 - **V4 regression**: `tests/test_v4_env_regression.py` 1e-9 tol 必须绿.
 - **No Simulink 1:1 chase** (ADR-0005). ANDES = single platform of record.
-- 并行上限: 单机最多 3 个 WSL python，including child and process-pool
-  workers；plan 必须声明总进程数，不能只数逻辑 shard。正式并行时每个进程的
-  native numerical-library threads fixed to one；分区、拟合与验证等封存边界仍
-  串行。正式 ANDES 执行的 rehearsal/封存顺序见 `kundur-round` evidence lane。
+- 并行预算: 不设固定 WSL Python 进程数。R339+ 的正式 plan 必须在 seal 前用
+  当前机器的容量证据冻结 `host_process_budget`，声明本任务完整
+  `wsl_python_processes`（including child and process-pool workers，并计入 launcher）和其他正在执行
+  手稿线的 `other_reserved_processes`；两者之和不得超过整机预算。预算一经
+  封存不得按结果改动。正式并行时每个进程的 native numerical-library
+  threads fixed to one；分区、拟合与验证等封存边界仍串行。正式 ANDES 执行的
+  rehearsal/封存顺序见 `kundur-round` evidence lane。已冻结的旧轮次保持其原
+  进程数，不追溯改写。
 - 布局: `src/andes_rl_kundur/` 包结构, 见 `docs/adr/0001-src-layout.md`.
 - Issue/triage/agent 文档约定: `docs/agents/`.
 
 ## 活跃研究规则 (现状)
 
+- **AI-only compactness**: new/edited AI rules/state = caveman short clauses + pointers + one fact/one home (fact allocation -> `kundur-round` §3).
 - plan 与 verdict 技术骨架可用紧凑中文；question/claim/feed 用英文。
   给 PI 的正文必须用完整、自然、无术语的中文，不能用 caveman 省略句。
 - **Plateau (R86)**: algo dim 结构性 plateau 已证, 别起 algo SOTA-hunt rounds.

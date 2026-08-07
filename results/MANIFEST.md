@@ -72,8 +72,24 @@ locator before calling these artifacts durably archived.
 | R333 | `results/r333_pq_disturbance_identification/` | `analysis.json` | `39d5f7be9f3280aea28c5c5e57a42b0c46811e6002758fddf64ab981878d36c1` |
 | R334 | `results/r334_pq_disturbance_identification/` | `analysis.json` | `453ada22907526f571a4099295b9a9e9056b5a81fc286e0af0f0084f7dd4c86f` |
 | R336 | `results/r336_disturbance_package/` | `analysis.json` | `86cda073ea6f9e263967e91ed14bb4719411591fc29c0e20aaffbedacd4666fb` |
+| R338 | `results/r338_formal_evaluation/` | `formal_summary.json` | `2aeff9b8016e92b282214908b3f0c5aa07bd028baadbc0ada0340c8c52d1cf04` |
+| R339 | `results/r339_input_bridge_diagnosis/` | `analysis.json` | `60c1ae995759c41919b31eb924ae22025d3d1140d5bac9190bf9cf823c9dab9d` |
+| R340 | `results/r340_fresh_model_validation/` | `validation_failure.json` | `a62a8865eb9c14ac8ca5f90973bc3ee31c024dfddc8dd29077f9cac044a7a4f1` |
+| R341 | `results/r341_staged_fresh_model_validation/` | `analysis.json` | `f68b4f98399c804670e6f2e80d65dc6bda3cc0cccc1da5ac5d437a9bb1c73ac9` |
+| R344 | `results/r344_deterministic_bridge/` | `formal_analysis.json` | `41c8e73deadbf30d0352dc5a20f82938ad3723ca7f2467a86f2d8f494996ad72` |
+| R350 | `results/r350_smooth_convex_residual/` | `analysis.json` | `81801fd7e2d90b6aa231a887c13b4ded838e4392a0b112cff594a8278c418e32` |
+| R351 | `results/r351_matched_distributed_bridge/` | `analysis.json` | `8dd75b25ad1c28e9df2334df1e3494cdffb883837ba88462d77da66f42be5e65` |
+| R352 | `results/r352_distributed_controller_loop_v2/` | `formal_analysis.json` | `c4533ed29a9c5f7e39430f84c9c65d11b95f1fd4379cbccb1a76597b07f79a8e` |
+| R356 | `results/r356_joint_endpoint_feasibility/` | `analysis.json` | `9a4334c4575cd803114e52c4ed2279efe6defa979734b08e3bc28de0e37332b1` |
+| R357 | `results/r357_physical_joint_endpoint_feasibility/` | `failure.json` | `933ea85ca6b753fe1bfaf72ab674427d68f1dee8b1acb2911f3a0aeb010a77fb` |
+| R358 | `results/r358_physical_joint_endpoint_qp/` | `analysis.json` | `c471aafc51a3019202777ca166e66b7c93739304fcd335bbe1511a5b3f4f26fb` |
+| R359 | `results/r359_neighbour_causal_residual/` | `analysis.json` | `aa5b1d89d238a68f5b3c5506319a66450fdaa23b4f207894a3b7bd2fb4832f0f` |
+| R360 | `results/r360_flexible_neighbour_residual/` | `analysis.json` | `2a87258e37a52578d1bb339542054d6055c1e534378078e4b6afe53687e61ffc` |
+| R361 | `results/r361_neighbour_message_residual/` | `analysis.json` | `279f5aa53cfeccca658b4359441d735079da04712fd648430fa088edf320677f` |
+| R362 | `results/r362_shared_prediction_residual/` | `analysis.json` | `bcad59b38032ef8bb33293711897e06bc5a8e023f52763afcfcb640bfec14fc1` |
+| R363 | `results/r363_common_channel_qp/` | `analysis.json` | `acc805c0cb2b4a90997f9a410f1af6187fe78bf254576326dc17c649f5d00238` |
 
-The fifty-three roots currently occupy 422,351,079 bytes. R286, R287, R291, R292,
+The sixty-three roots currently occupy 698,059,785 bytes. R286, R287, R291, R292,
 R294, R295, R296, R297, R298, R299, and R300 raw traces remain ignored; their retained trace hashes are indexed by
 each round's decision and provenance artifacts.
 

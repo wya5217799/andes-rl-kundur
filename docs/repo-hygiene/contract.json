@@ -31,8 +31,7 @@
       "scripts",
       "skills",
       "src",
-      "tests",
-      "研究计划"
+      "tests"
     ],
     "allowed_globs": [],
     "tool_state": [
@@ -47,7 +46,6 @@
     "paper/*",
     "paper_review",
     "quality_reports/*",
-    "研究计划/proposal",
     "docs/research/external_A报告",
     "lessons"
   ],
@@ -134,35 +132,6 @@
         ],
         "support": [
           "paper/decoupling_marl_model_first/working/model_contract.md"
-        ]
-      }
-    },
-    {
-      "id": "research-proposal",
-      "kind": "proposal",
-      "status": "frozen",
-      "root": "研究计划/proposal",
-      "roles": {
-        "canonical": [
-          "研究计划/proposal/main.tex",
-          "研究计划/proposal/refs.bib",
-          "研究计划/proposal/PROPOSAL_SPEC.md",
-          "研究计划/proposal/proposal_progression_evidence.json",
-          "研究计划/proposal/figures/make_progression.py"
-        ],
-        "derived": [
-          "研究计划/proposal/main.pdf",
-          "研究计划/proposal/figures/proposal_progression.pdf",
-          "研究计划/proposal/figures/proposal_progression.png",
-          "研究计划/proposal/figures/score_bar_summary.pdf",
-          "研究计划/proposal/figures/v4_progression_chart.pdf"
-        ],
-        "support": [
-          "研究计划/研究计划要求.md",
-          "研究计划/proposal/figures/kundur-topology.png",
-          "研究计划/proposal/figures/paper_fig1_architecture.png",
-          "研究计划/proposal/figures/paper_fig3_kundur.png",
-          "研究计划/proposal/figures/proposal_control_effect.png"
         ]
       }
     },
@@ -259,8 +228,7 @@
       "memory/rounds/R*/**/*.py",
       "memory/rounds/R*/**/*.sh",
       "paper/*/build*.py",
-      "paper/*/figures/*.py",
-      "研究计划/proposal/figures/*.py"
+      "paper/*/figures/*.py"
     ],
     "classifiers": [
       {
@@ -306,15 +274,6 @@
           "results/r279_formal_evaluation/formal_summary.json",
           "results/r279_formal_evaluation/traces",
           "results/r280_r279_action_audit_correction/correction_summary.json"
-        ]
-      },
-      {
-        "pattern": "研究计划/proposal/figures/make_progression.py",
-        "role": "figure-adapter",
-        "state": "frozen",
-        "owner": "research-proposal",
-        "evidence": [
-          "研究计划/proposal/proposal_progression_evidence.json"
         ]
       },
       {
@@ -487,6 +446,7 @@
   ],
   "round_documents": {
     "enforce_from": 287,
+    "ownership_enforce_from": 339,
     "allowed_markdown": [
       "plan.md",
       "verdict.md",
@@ -497,7 +457,10 @@
     ],
     "allowed_paths": [
       "R295/consensus_timescale_probe_protocol.md",
-      "R335/pre_execution_failure.md"
+      "R335/pre_execution_failure.md",
+      "R339/package_admissibility.md",
+      "R339/rehearsal_success_02.md",
+      "R339/rehearsal_success_03.md"
     ]
   },
   "manuscript_lines": {

@@ -1,5 +1,8 @@
 # Codex research bootstrap
 
+完整工程规则在 `CLAUDE.md`——文件名是历史遗留,与 Claude Code 工具无关;
+它是本仓库工程规则唯一真源。改代码或仓库治理前必读。
+
 This repository is a TPWRS-oriented automatic research programme, not an
 open-ended algorithm sweep.
 
@@ -13,8 +16,10 @@ At the start of every research session:
    route.
 2. Read every path in its bounded `required_reading` list and no historical
    ledger files unless the current task requires them.
-3. If it reports `resume-round`, close that round before reserving another. If
-   it reports `research`, use its exact objective, verification, and stopping
+3. If it reports `resume-round`, close that round before reserving another on
+   the same manuscript line. A separately selected manuscript line may own one
+   different active round; an unowned/global active round still blocks every
+   line. If it reports `research`, use its exact objective, verification, and stopping
    conditions. If it reports `manuscript`, follow the active `LINE.md`. If it
    reports `manuscript-refresh`, clear the artifact freshness alerts before
    drafting or reviewing. If it reports `idle`, do not manufacture an
@@ -27,7 +32,10 @@ At the start of every research session:
    protected-asset change, or claim/question/title consequence enters
    `evidence` prospectively.
 6. Reserve round and claim IDs only through the atomic tools documented in
-   `CLAUDE.md`; preflight before running ANDES or training.
+   `CLAUDE.md`. Manuscript evidence rounds use
+   `reserve_round.py --strict-no-active --line <line-id> --write-plan-stub`,
+   which records line ownership and rejects a second active round on that
+   line. Preflight before running ANDES or training.
 7. Finish every paper-facing experiment with a feed publication gate before
    claim registration and drafting. Then complete the verdict, measured
    provenance, question/claim updates, reconcile the active manuscript
@@ -53,6 +61,11 @@ selecting and authorizing that line.
 papers may remain active, `--line` selects the current session, and `priority`
 is only the fallback when the request does not identify a paper. Switching
 lines never copies evidence or changes another line's lifecycle state.
+Round ownership follows the same scope: at most one active evidence round per
+manuscript line. Repository-global rounds and protected shared-asset changes
+remain exclusive. Formal simulation concurrency has no fixed repository
+number; each new evidence round must freeze a performance-derived whole-host
+budget and subtract capacity reserved by other executing lines.
 `LINE.md` is navigation only: use `decision_refs` and claim-to-feed
 `evidence_refs`; never copy Deep Research conclusions, feed facts, or result
 values into it, and never eagerly list authoritative feeds in

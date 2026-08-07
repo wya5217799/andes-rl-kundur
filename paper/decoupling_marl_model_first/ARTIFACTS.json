@@ -14,7 +14,7 @@
         "paper/decoupling_marl_model_first/reports"
       ],
       "input_hashes": {
-        "paper/decoupling_marl_model_first/reports": "766ba2400ae063b6eaf24f5bd6673cba489fd9d02889317bf8ed3119851cb300"
+        "paper/decoupling_marl_model_first/reports": "898207b8c50ef01972c39f5302221eed5aa2580b49e861531b91ae5b0f6d5cf8"
       },
       "supersedes": [],
       "review_after": null
@@ -56,6 +56,46 @@
       "authoritative": false,
       "producer": "research",
       "inputs": [],
+      "supersedes": [],
+      "review_after": null
+    },
+    {
+      "id": "title-method-headroom-deep-research",
+      "purpose": "title-method-diagnosis",
+      "path": "paper/decoupling_marl_model_first/working/deep_research_title_method_headroom.md",
+      "status": "active",
+      "canonical": true,
+      "authoritative": false,
+      "producer": "deep-research",
+      "inputs": [
+        "paper/decoupling_marl_model_first/working/model_contract.md",
+        "paper/decoupling_marl_model_first/reports/R344.md",
+        "paper/decoupling_marl_model_first/reports/R350.md",
+        "paper/decoupling_marl_model_first/working/hybrid_control_literature_note.md"
+      ],
+      "input_hashes": {
+        "paper/decoupling_marl_model_first/working/model_contract.md": "7eee38cd23914fda73d8b47469c79d5bcb5859d395ac65d42079509ebe766cb1",
+        "paper/decoupling_marl_model_first/reports/R344.md": "086e1a63245dd4364fbadb3a2dc2300e04e8afaedf4ac86c7a364c01ffb0649c",
+        "paper/decoupling_marl_model_first/reports/R350.md": "3edb604a97b7a203c3ab5579c96e6174597b60a3ec6caa7995cc377441477a38",
+        "paper/decoupling_marl_model_first/working/hybrid_control_literature_note.md": "7074de65b90ccc0b9a968aec3d9d617eb3d1499f06d658418dabcf2f47ecb4ff"
+      },
+      "supersedes": [],
+      "review_after": null
+    },
+    {
+      "id": "neighbour-information-learnability-survey",
+      "purpose": "deep-research",
+      "path": "paper/decoupling_marl_model_first/working/deep_research_neighbour_information_learnability.md",
+      "status": "active",
+      "canonical": true,
+      "authoritative": false,
+      "producer": "deep-research",
+      "inputs": [
+        "paper/decoupling_marl_model_first/working/deep_research_title_method_headroom.md",
+        "paper/decoupling_marl_model_first/working/hybrid_control_literature_note.md",
+        "paper/decoupling_marl_model_first/reports/R359.md",
+        "paper/decoupling_marl_model_first/reports/R360.md"
+      ],
       "supersedes": [],
       "review_after": null
     }

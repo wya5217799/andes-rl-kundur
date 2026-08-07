@@ -11,9 +11,11 @@ routes execution; it does not replace the full `kundur-round` skill.
    Preserve the plan, seal, inputs, outputs, sidecars, failures, and exclusions.
    Never overwrite a formal artifact or change a threshold after seeing an
    endpoint.
-3. Execute only the active plan. Do not reserve another round, broaden the
-   question, enter manuscript prose, or bind evidence to a paper line unless
-   the plan explicitly authorizes it.
+3. Execute only the active plan for the selected manuscript line. Do not
+   reserve another round on that line, broaden the question, enter manuscript
+   prose, or bind evidence to a paper line unless the plan explicitly
+   authorizes it. A separately selected task may own one round on a different
+   manuscript line; a repository-global round still blocks every line.
 4. Before feed numeric claims, reserve a claim atomically. The feed is the
    compact experiment-facing fact sheet; large analysis, Deep Research, and
    raw outputs remain authoritative targets reached by pointers.
@@ -28,5 +30,5 @@ routes execution; it does not replace the full `kundur-round` skill.
    defines a recovery path.
 
 The next session discovers the current state through
-`python memory/tools/session_context.py --json`; no chat transcript is an
-authority.
+`python memory/tools/session_context.py --json --line <line-id>` when a paper
+is named; no chat transcript is an authority.

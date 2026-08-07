@@ -129,9 +129,11 @@ silence blocks.
 ### `WSL-only` (ANDES)
 ANDES (the power system DAE simulator) is installed inside WSL only:
 `/home/wya/andes_venv/bin/python`. Any Windows-side `andes` install is
-a historical mis-install; do not use. Hard limit: ≤3 parallel ANDES
-Python processes (R23 finding — TDS internal stiffness mis-judges
-under contention).
+a historical mis-install; do not use. Formal concurrency has no fixed process
+count: every new evidence round measures and freezes a whole-host budget, pins
+native numerical threads to one, and includes capacity reserved by other
+executing manuscript lines. R23's contention failure remains a reason for the
+capacity probe, not a permanent three-process ceiling.
 
 ### `paper-cited / paper-grade / paper-faithful-modified / paper-strict-pure / paper-strict-rescaled`
 Five different concepts (term-split via ADR-0002, R58):

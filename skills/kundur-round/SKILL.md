@@ -64,7 +64,10 @@ authoritative feed。
 
 ### Evidence lane: Round 生命周期 (步骤)
 
-1. **领号**: `reserve_round.py --strict-no-active`; 收尾前
+1. **领号**: manuscript evidence uses
+   `reserve_round.py --strict-no-active --line <line-id> --write-plan-stub`;
+   the recorded `manuscript_line` permits one active round per line while an
+   explicit `null` remains a repository-global lock. 收尾前
    `reserve_claim.py --round R<N>` — claim id 必须先于 feed 存在
    (feed 内联数字要挂它)。ID 永不手挑。
 2. **plan**: `memory/rounds/R<N>/plan.md` — 冻结契约 (什么变/什么固定)、
@@ -83,7 +86,10 @@ authoritative feed。
    对任何正式 ANDES/WSL 执行，plan 还必须有 `## Formal launch contract`，
    明写 `formal_entry`、`rehearsal_command`、`rehearsal_scope`、
    `rehearsal_checks`、`wsl_python_processes` 与
-   `native_threads_per_process`；`round_preflight.py` 对缺项、超并行上限或
+   `native_threads_per_process`。R339+ 还必须声明 `capacity_evidence`、
+   `host_process_budget`、`other_reserved_processes`；并发数没有固定常数，
+   但本任务进程数与其他执行中论文线预留数之和不得超过实测整机预算。
+   `round_preflight.py` 对缺项、超出当次整机预算或
    原生线程不等于一直接 BLOCK。实现完成且 seal 之前，必须实际执行
    `rehearsal_command`，让它走 formal entry 的 **same pre-attempt
    verification path**，覆盖 source/parent hash、installed package、
