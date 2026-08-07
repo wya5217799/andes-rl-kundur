@@ -46,6 +46,55 @@ def _governance_files(root: Path) -> None:
     (root / "CLAUDE.md").write_text("# Rules\n", encoding="utf-8")
 
 
+def _write_minimal_manuscript_lines(root: Path) -> None:
+    delivery_lines = []
+    for line_id, folder, priority in (("line-a", "a", 1), ("line-b", "b", 2)):
+        line_root = root / "paper" / folder
+        line_root.mkdir(parents=True)
+        (line_root / "venue.md").write_text("# Venue\n", encoding="utf-8")
+        (line_root / "ARTIFACTS.json").write_text(
+            json.dumps({"version": 1, "line_id": line_id, "artifacts": []}),
+            encoding="utf-8",
+        )
+        (line_root / "LINE.md").write_text(
+            "---\n"
+            f"line_id: {line_id}\n"
+            "status: active\n"
+            f"priority: {priority}\n"
+            "stage: analysis\n"
+            f"objective: Continue {line_id}.\n"
+            f"artifact_manifest: paper/{folder}/ARTIFACTS.json\n"
+            "scope:\n"
+            f"  write_roots: [paper/{folder}]\n"
+            "  shared_read_roots: []\n"
+            "venue:\n"
+            "  kind: conference\n"
+            "  status: locked\n"
+            f"  primary: Conference {line_id}\n"
+            f"  decision_record: paper/{folder}/venue.md\n"
+            "  official_source_status: current\n"
+            f"required_reading: [paper/{folder}/LINE.md]\n"
+            "verification: [Verify.]\n"
+            "stop_when: [Done.]\n"
+            "---\n",
+            encoding="utf-8",
+        )
+        delivery_lines.append(
+            {
+                "id": line_id,
+                "kind": "manuscript",
+                "status": "active",
+                "root": f"paper/{folder}",
+            }
+        )
+    contract = root / "docs" / "repo-hygiene"
+    contract.mkdir(parents=True)
+    (contract / "contract.json").write_text(
+        json.dumps({"delivery_lines": delivery_lines}),
+        encoding="utf-8",
+    )
+
+
 def test_line_catalog_lists_active_and_frozen_manuscripts_without_loading_history(
     tmp_path: Path,
 ) -> None:
@@ -254,6 +303,52 @@ def test_active_round_preempts_manuscript(tmp_path: Path) -> None:
     )
     assert "CLAUDE.md" not in context.required_reading
     assert "skills/kundur-round/SKILL.md" not in context.required_reading
+
+
+def test_selected_line_ignores_active_round_owned_by_another_line(
+    tmp_path: Path,
+) -> None:
+    _programme(tmp_path)
+    _governance_files(tmp_path)
+    _write_minimal_manuscript_lines(tmp_path)
+    round_dir = tmp_path / "memory" / "rounds" / "R339"
+    round_dir.mkdir()
+    (round_dir / "plan.md").write_text(
+        "---\n"
+        "round: R339\n"
+        "state: active\n"
+        "manuscript_line: line-a\n"
+        "---\n",
+        encoding="utf-8",
+    )
+
+    other = build_session_context(tmp_path, manuscript_line="line-b")
+    owner = build_session_context(tmp_path, manuscript_line="line-a")
+
+    assert other.mode == "manuscript"
+    assert other.manuscript_line == "line-b"
+    assert owner.mode == "resume-round"
+    assert owner.active_rounds == ("R339",)
+
+
+def test_legacy_selected_line_text_scopes_frozen_active_plan(tmp_path: Path) -> None:
+    _programme(tmp_path)
+    _governance_files(tmp_path)
+    _write_minimal_manuscript_lines(tmp_path)
+    round_dir = tmp_path / "memory" / "rounds" / "R338"
+    round_dir.mkdir()
+    (round_dir / "plan.md").write_text(
+        "---\nround: R338\nstate: active\n---\n"
+        "# Plan\n\n- Selected line: `paper/a`.\n",
+        encoding="utf-8",
+    )
+
+    other = build_session_context(tmp_path, manuscript_line="line-b")
+    owner = build_session_context(tmp_path, manuscript_line="line-a")
+
+    assert other.mode == "manuscript"
+    assert owner.mode == "resume-round"
+    assert owner.active_rounds == ("R338",)
 
 
 def test_feed_era_active_state_preempts_even_when_verdict_exists(

@@ -366,6 +366,11 @@ _FORMAL_LAUNCH_FIELDS = (
     "wsl_python_processes",
     "native_threads_per_process",
 )
+_ADAPTIVE_CAPACITY_FIELDS = (
+    "capacity_evidence",
+    "host_process_budget",
+    "other_reserved_processes",
+)
 _REHEARSAL_CHECKS = {
     "source_hash",
     "parent_hash",
@@ -398,25 +403,47 @@ def _contract_field(section: str, name: str) -> str | None:
     return value
 
 
-def repository_wsl_process_cap(claude_path: Path | None = None) -> int | None:
-    """Read the single-host WSL process ceiling from repository governance."""
-    path = claude_path or (_ROOT / "CLAUDE.md")
-    if not path.is_file():
-        return None
-    text = path.read_text(encoding="utf-8")
-    match = re.search(
-        r"并行上限[^\n]*?最多\s*(\d+)\s*个\s*WSL\s+python",
-        text,
-        re.IGNORECASE,
+def _uses_formal_andes_or_wsl(plan_text: str) -> bool:
+    """Detect positive simulator execution, ignoring snapshots and prohibitions."""
+
+    without_snapshot = re.sub(
+        r"(?ms)^##\s+Snapshot at plan-time\s*$\n.*?(?=^##\s|\Z)",
+        "",
+        plan_text,
     )
-    return int(match.group(1)) if match else None
+    retained_lines = []
+    for line in without_snapshot.splitlines():
+        if re.search(r"(?i)^\s*[-*]\s*wsl_python_processes\s*:", line):
+            continue
+        if re.search(
+            r"(?i)\b(?:no|zero|without|forbid(?:den)?|unauthori[sz]ed)\b"
+            r"[^\n]{0,40}\b(?:ANDES|WSL)\b",
+            line,
+        ):
+            continue
+        retained_lines.append(line)
+    execution_text = "\n".join(retained_lines)
+    if re.search(
+        r"(?i)andes_scratch\.py|wsl\.exe|/home/[^\s]*/andes(?:_|-)venv/",
+        execution_text,
+    ):
+        return True
+    return bool(
+        re.search(
+            r"(?i)\b(?:execute|run|launch|simulate|train)\w*\b"
+            r"[^\n]{0,80}\b(?:ANDES|WSL)\b"
+            r"|\b(?:ANDES|WSL)\b[^\n]{0,80}"
+            r"\b(?:execute|run|launch|simulation|training)\w*\b",
+            execution_text,
+        )
+    )
 
 
 def check_formal_launch_contract(
     report: PreflightReport,
     plan_text: str,
     *,
-    max_wsl_python_processes: int | None,
+    adaptive_budget_required: bool,
 ) -> None:
     """Fail closed for formal ANDES/WSL evidence plans without a rehearsed entry.
 
@@ -427,7 +454,7 @@ def check_formal_launch_contract(
     is_evidence = bool(
         re.search(r"(?i)(?:workload|workflow load)\s*:\s*`?evidence`?", plan_text)
     )
-    uses_andes = bool(re.search(r"(?i)\b(?:ANDES|WSL)\b|andes_scratch\.py", plan_text))
+    uses_andes = _uses_formal_andes_or_wsl(plan_text)
     if not (is_evidence and uses_andes):
         return
 
@@ -443,7 +470,10 @@ def check_formal_launch_contract(
         )
         return
 
-    fields = {name: _contract_field(section, name) for name in _FORMAL_LAUNCH_FIELDS}
+    required_fields = _FORMAL_LAUNCH_FIELDS + (
+        _ADAPTIVE_CAPACITY_FIELDS if adaptive_budget_required else ()
+    )
+    fields = {name: _contract_field(section, name) for name in required_fields}
     missing = [name for name, value in fields.items() if value is None]
     if missing:
         report.add(
@@ -489,22 +519,43 @@ def check_formal_launch_contract(
             "wsl_python_processes must be a positive integer total",
             "count the launcher plus every child and process-pool worker",
         )
-    elif max_wsl_python_processes is None:
-        report.add(
-            "BLOCK",
-            "wsl-process-cap",
-            "repository WSL process ceiling could not be read from CLAUDE.md",
-            "restore the single source of truth before launching",
-        )
-    elif process_count > max_wsl_python_processes:
-        report.add(
-            "BLOCK",
-            "wsl-process-cap",
-            f"plan declares {process_count} WSL Python processes; repository cap "
-            f"is {max_wsl_python_processes}",
-            "reduce total concurrent launcher/child workers; serial split "
-            "boundaries remain unchanged",
-        )
+
+    if adaptive_budget_required:
+        try:
+            host_budget = int(fields["host_process_budget"])
+        except (TypeError, ValueError):
+            host_budget = -1
+        try:
+            other_reserved = int(fields["other_reserved_processes"])
+        except (TypeError, ValueError):
+            other_reserved = -1
+        if host_budget < 1:
+            report.add(
+                "BLOCK",
+                "host-process-budget",
+                "host_process_budget must be a positive measured whole-host budget",
+                "derive and freeze it from the declared capacity evidence before sealing",
+            )
+        if other_reserved < 0:
+            report.add(
+                "BLOCK",
+                "host-process-budget",
+                "other_reserved_processes must be a non-negative integer",
+                "count processes reserved by every concurrently executing line",
+            )
+        if (
+            process_count > 0
+            and host_budget > 0
+            and other_reserved >= 0
+            and process_count + other_reserved > host_budget
+        ):
+            report.add(
+                "BLOCK",
+                "host-process-budget",
+                f"plan needs {process_count} processes plus {other_reserved} reserved "
+                f"elsewhere, exceeding measured host budget {host_budget}",
+                "reduce this task's share or wait for another line to release capacity",
+            )
 
     try:
         native_threads = int(fields["native_threads_per_process"])
@@ -516,6 +567,111 @@ def check_formal_launch_contract(
             "native-thread-cap",
             "native_threads_per_process must equal 1 for formal parallel runs",
             "pin numerical-library threads to one in every worker",
+        )
+
+
+def check_capacity_evidence(
+    report: PreflightReport,
+    plan_text: str,
+    *,
+    repo_root: Path,
+) -> None:
+    """Bind an adaptive process budget to one machine-readable measurement.
+
+    Declaring a path in prose is not sufficient: the evidence must exist,
+    describe the host resources, agree with the declared whole-host budget,
+    and contain either a successful empirical anchor or an accepted capacity
+    canary at least as large as that budget.
+    """
+
+    section = _formal_launch_section(plan_text)
+    if section is None:
+        return
+    evidence_value = _contract_field(section, "capacity_evidence")
+    budget_value = _contract_field(section, "host_process_budget")
+    if evidence_value is None or budget_value is None:
+        return
+    raw_path = evidence_value.split("#", maxsplit=1)[0].strip().strip("`\"'")
+    evidence_path = Path(raw_path)
+    if evidence_path.is_absolute():
+        resolved = evidence_path.resolve()
+    else:
+        resolved = (repo_root / evidence_path).resolve()
+    try:
+        resolved.relative_to(repo_root.resolve())
+    except ValueError:
+        report.add(
+            "BLOCK",
+            "capacity-evidence",
+            f"capacity evidence is outside the repository: {raw_path}",
+            "store the frozen capacity snapshot inside the round or results tree",
+        )
+        return
+    if not resolved.is_file():
+        report.add(
+            "BLOCK",
+            "capacity-evidence",
+            f"capacity evidence does not exist: {raw_path}",
+            "capture the host snapshot and successful worker anchor before sealing",
+        )
+        return
+    try:
+        payload = json.loads(resolved.read_text(encoding="utf-8"))
+        declared_budget = int(budget_value)
+        evidence_budget = int(payload["whole_host_python_process_budget"])
+        logical_processors = int(payload["host"]["logical_processors"])
+        physical_memory = int(payload["host"]["physical_memory_bytes"])
+        wsl_available = int(payload["wsl"]["memory_available_bytes"])
+    except (KeyError, TypeError, ValueError, json.JSONDecodeError) as error:
+        report.add(
+            "BLOCK",
+            "capacity-evidence",
+            f"capacity evidence is incomplete or malformed: {error}",
+            "record the declared budget plus positive CPU, host-memory, and WSL-memory measurements",
+        )
+        return
+    if min(logical_processors, physical_memory, wsl_available) <= 0:
+        report.add(
+            "BLOCK",
+            "capacity-evidence",
+            "capacity evidence contains non-positive host measurements",
+            "capture a valid host and WSL resource snapshot",
+        )
+    if evidence_budget != declared_budget:
+        report.add(
+            "BLOCK",
+            "capacity-evidence",
+            f"plan budget {declared_budget} disagrees with evidence budget {evidence_budget}",
+            "make the plan consume the exact measured whole-host budget",
+        )
+
+    measured_workers = 0
+    anchor = payload.get("empirical_anchor")
+    if (
+        isinstance(anchor, dict)
+        and anchor.get("all_records_valid") is True
+        and anchor.get("native_threads_per_worker") == 1
+    ):
+        try:
+            measured_workers = max(
+                measured_workers, int(anchor.get("concurrent_workers", 0))
+            )
+        except (TypeError, ValueError):
+            pass
+    canary = payload.get("capacity_canary")
+    if isinstance(canary, dict) and canary.get("accepted") is True:
+        try:
+            measured_workers = max(
+                measured_workers, int(canary.get("accepted_worker_budget", 0))
+            )
+        except (TypeError, ValueError):
+            pass
+    if evidence_budget > measured_workers:
+        report.add(
+            "BLOCK",
+            "capacity-evidence",
+            f"budget {evidence_budget} exceeds measured successful concurrency {measured_workers}",
+            "run a prospective capacity canary or reduce the budget to a successful empirical anchor",
         )
 
 
@@ -547,11 +703,16 @@ def preflight_check(plan_path: Path, *,
     current_round_num = int(round_num_match.group(1)) if round_num_match else None
 
     check_plan_structure(report, text)
+    adaptive_budget_required = (
+        current_round_num is not None and current_round_num >= 339
+    )
     check_formal_launch_contract(
         report,
         text,
-        max_wsl_python_processes=repository_wsl_process_cap(),
+        adaptive_budget_required=adaptive_budget_required,
     )
+    if adaptive_budget_required:
+        check_capacity_evidence(report, text, repo_root=_ROOT)
     check_superseded_citations(report, text, claims)
     check_baselines_measured(report, text, results_dir,
                              current_round_num=current_round_num)

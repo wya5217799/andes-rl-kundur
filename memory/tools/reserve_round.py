@@ -45,6 +45,10 @@ Usage (CLI):
     ERROR: 1 active round(s) in progress. Refuse to reserve.
     (exit code 1)
 
+    $ python memory/tools/reserve_round.py --strict-no-active \
+        --line decoupling-marl-model-first --write-plan-stub
+    339
+
 Usage (library):
     >>> from memory.tools.reserve_round import reserve_next_round
     >>> n = reserve_next_round(Path("memory/rounds"))
@@ -52,11 +56,72 @@ Usage (library):
 from __future__ import annotations
 
 import argparse
+import atexit
 import datetime as dt
+import os
 import re
 import subprocess
 import sys
+import time
 from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[2]
+SRC = ROOT / "src"
+if str(SRC) not in sys.path:
+    sys.path.insert(0, str(SRC))
+
+from andes_rl_kundur.round_scope import (  # noqa: E402
+    RoundScopeError,
+    lines_conflict,
+    resolve_line_selector,
+    resolve_round_line,
+)
+
+
+def _release_reservation_lock(lock_path: Path) -> None:
+    """Release only the reservation mutex acquired by this process."""
+
+    try:
+        lock_path.unlink()
+    except FileNotFoundError:
+        pass
+
+
+def _acquire_reservation_lock(
+    rounds_dir: Path,
+    *,
+    timeout_seconds: float = 15.0,
+) -> Path:
+    """Serialize the short scan/reserve/stub transaction across processes.
+
+    The mutex does not serialize experiments. It only prevents two sessions
+    from both observing the same line as idle before either plan becomes
+    visible. Exclusive file creation works for Windows and WSL callers sharing
+    the checkout.
+    """
+
+    lock_path = rounds_dir / ".reservation.lock"
+    deadline = time.monotonic() + timeout_seconds
+    payload = f"pid={os.getpid()} started={dt.datetime.now().isoformat()}\n"
+    while True:
+        try:
+            descriptor = os.open(
+                lock_path,
+                os.O_CREAT | os.O_EXCL | os.O_WRONLY,
+            )
+        except FileExistsError:
+            if time.monotonic() >= deadline:
+                raise TimeoutError(
+                    f"round reservation is busy or stale at {lock_path}; "
+                    "confirm no reservation command is running before removing it"
+                )
+            time.sleep(0.05)
+            continue
+        try:
+            os.write(descriptor, payload.encode("utf-8"))
+        finally:
+            os.close(descriptor)
+        return lock_path
 
 
 def _max_existing_r(rounds_dir: Path) -> int:
@@ -131,7 +196,12 @@ def _extract_oracle_snapshot(state_md: Path) -> str:
     return "\n\n".join(sections)
 
 
-def _write_plan_stub(round_dir: Path, n: int, oracle_snapshot: str) -> None:
+def _write_plan_stub(
+    round_dir: Path,
+    n: int,
+    oracle_snapshot: str,
+    manuscript_line: str | None = None,
+) -> None:
     """Drop a plan.md skeleton with the oracle snapshot inlined.
 
     The snapshot freezes the open Q / recently-closed list at plan-write
@@ -153,6 +223,7 @@ def _write_plan_stub(round_dir: Path, n: int, oracle_snapshot: str) -> None:
         f"---\n"
         f"round: R{n}\n"
         f"state: active\n"
+        f"manuscript_line: {manuscript_line or 'null'}\n"
         f"opened: '{now}'\n"
         f"closed: null\n"
         f"supersedes_rounds: []\n"
@@ -362,14 +433,51 @@ def _active_rounds_in_progress(
     return out
 
 
-def _format_active_list(active: list[tuple[int, dict[str, str], str]],
-                       rounds_dir: Path) -> str:
+def _active_rounds_in_scope(
+    active: list[tuple[int, dict[str, str], str]],
+    *,
+    repo_root: Path,
+    rounds_dir: Path,
+    manuscript_line: str | None,
+) -> list[tuple[int, dict[str, str], str]]:
+    """Return active rounds that conflict with the requested line scope."""
+
+    if manuscript_line is None:
+        return active
+    return [
+        item
+        for item in active
+        if lines_conflict(
+            resolve_round_line(
+                repo_root,
+                rounds_dir / item[2] / "plan.md",
+                item[1],
+            ),
+            manuscript_line,
+        )
+    ]
+
+
+def _format_active_list(
+    active: list[tuple[int, dict[str, str], str]],
+    rounds_dir: Path,
+    *,
+    repo_root: Path | None = None,
+) -> str:
     """Pretty-print active rounds for CLI output."""
     if not active:
         return ""
     lines = ["Active rounds (state=active in plan.md; explicit close required):"]
     for n, fm, dir_name in active:
         opened = fm.get("opened", "?")
+        line = ""
+        if repo_root is not None:
+            owner = resolve_round_line(
+                repo_root,
+                rounds_dir / dir_name / "plan.md",
+                fm,
+            )
+            line = f"  line={owner or 'GLOBAL'}"
         # Extract Driver line from plan body if present
         driver = ""
         plan_path = rounds_dir / dir_name / "plan.md"
@@ -382,7 +490,7 @@ def _format_active_list(active: list[tuple[int, dict[str, str], str]],
                 driver = "  driver=" + (drv[:60] + "..." if len(drv) > 60 else drv)
         except OSError:
             pass
-        lines.append(f"  {dir_name}  opened={opened}{driver}")
+        lines.append(f"  {dir_name}  opened={opened}{line}{driver}")
     return "\n".join(lines)
 
 
@@ -424,6 +532,13 @@ def _main() -> None:
         "--memory-dir",
         default="memory",
         help="Path to the memory root (default: memory)",
+    )
+    parser.add_argument(
+        "--line",
+        help=(
+            "Own the new round by one active manuscript line. Active rounds "
+            "on other lines do not conflict; unowned rounds remain global locks."
+        ),
     )
     parser.add_argument(
         "--write-plan-stub",
@@ -484,14 +599,32 @@ def _main() -> None:
     args = parser.parse_args()
     memory_dir = Path(args.memory_dir)
     rounds_dir = memory_dir / "rounds"
+    repo_root = memory_dir.resolve().parent
+    manuscript_line: str | None = None
+    if args.line is not None:
+        try:
+            manuscript_line = resolve_line_selector(
+                repo_root,
+                args.line,
+                require_active=True,
+            )
+        except RoundScopeError as exc:
+            print(f"ERROR: {exc}", file=sys.stderr)
+            sys.exit(4)
 
     # --list-active short-circuit: report and exit without reserving.
     if args.list_active:
         active = _active_rounds_in_progress(rounds_dir)
+        active = _active_rounds_in_scope(
+            active,
+            repo_root=repo_root,
+            rounds_dir=rounds_dir,
+            manuscript_line=manuscript_line,
+        )
         if not active:
             print("(no active rounds)")
         else:
-            print(_format_active_list(active, rounds_dir))
+            print(_format_active_list(active, rounds_dir, repo_root=repo_root))
         return
 
     if args.gc:
@@ -503,8 +636,21 @@ def _main() -> None:
             print("GC: no zombies found")
         return
 
+    try:
+        reservation_lock = _acquire_reservation_lock(rounds_dir)
+    except TimeoutError as exc:
+        print(f"ERROR: {exc}", file=sys.stderr)
+        sys.exit(5)
+    atexit.register(_release_reservation_lock, reservation_lock)
+
     # Active-rounds preflight (R256 followup, 2026-05-20).
     active = _active_rounds_in_progress(rounds_dir)
+    active = _active_rounds_in_scope(
+        active,
+        repo_root=repo_root,
+        rounds_dir=rounds_dir,
+        manuscript_line=manuscript_line,
+    )
     if active:
         if args.strict_no_active:
             print(
@@ -512,7 +658,10 @@ def _main() -> None:
                 f"Refuse to reserve.",
                 file=sys.stderr,
             )
-            print(_format_active_list(active, rounds_dir), file=sys.stderr)
+            print(
+                _format_active_list(active, rounds_dir, repo_root=repo_root),
+                file=sys.stderr,
+            )
             print(
                 "Resolve the active round(s) first (close to "
                 "state=completed/aborted/superseded) or use a non-strict "
@@ -528,7 +677,10 @@ def _main() -> None:
                 f"Proceeding anyway.",
                 file=sys.stderr,
             )
-            print(_format_active_list(active, rounds_dir), file=sys.stderr)
+            print(
+                _format_active_list(active, rounds_dir, repo_root=repo_root),
+                file=sys.stderr,
+            )
             print(
                 "If this is unintentional (e.g. you forgot you already "
                 "have an in-flight round from a prior turn), abort with "
@@ -541,9 +693,20 @@ def _main() -> None:
     if args.write_plan_stub:
         _refresh_oracle(memory_dir)
     n = reserve_next_round(rounds_dir)
-    if args.write_plan_stub:
-        snapshot = _extract_oracle_snapshot(memory_dir / "STATE.md")
-        _write_plan_stub(rounds_dir / f"R{n}", n, snapshot)
+    if args.write_plan_stub or manuscript_line is not None:
+        snapshot = (
+            _extract_oracle_snapshot(memory_dir / "STATE.md")
+            if args.write_plan_stub
+            else ""
+        )
+        _write_plan_stub(
+            rounds_dir / f"R{n}",
+            n,
+            snapshot,
+            manuscript_line=manuscript_line,
+        )
+    _release_reservation_lock(reservation_lock)
+    atexit.unregister(_release_reservation_lock)
     print(n)
 
 

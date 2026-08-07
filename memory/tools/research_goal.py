@@ -46,6 +46,7 @@ from typing import Any
 import yaml
 
 from reserve_round import _active_rounds_in_progress
+from reserve_round import _active_rounds_in_scope
 
 ROOT = Path(__file__).resolve().parents[2]
 PROGRAMME_PATH = Path("memory/RESEARCH_PROGRAM.md")
@@ -112,10 +113,19 @@ def _string_list(value: Any, *, key: str, source: Path) -> tuple[str, ...]:
     return tuple(item.strip() for item in value)
 
 
-def _active_rounds(repo_root: Path) -> tuple[str, ...]:
+def _active_rounds(
+    repo_root: Path,
+    manuscript_line: str | None = None,
+) -> tuple[str, ...]:
     """Return rounds whose lifecycle frontmatter still requires closure."""
     rounds_dir = repo_root / "memory" / "rounds"
     active = _active_rounds_in_progress(rounds_dir)
+    active = _active_rounds_in_scope(
+        active,
+        repo_root=repo_root,
+        rounds_dir=rounds_dir,
+        manuscript_line=manuscript_line,
+    )
     return tuple(name for _, _, name in active)
 
 
@@ -157,7 +167,10 @@ def _render_prompt(
     )
 
 
-def select_next_goal(repo_root: Path = ROOT) -> GoalSelection:
+def select_next_goal(
+    repo_root: Path = ROOT,
+    manuscript_line: str | None = None,
+) -> GoalSelection:
     """Return the next programme-ranked goal without changing repository state.
 
     Selection order:
@@ -177,7 +190,7 @@ def select_next_goal(repo_root: Path = ROOT) -> GoalSelection:
     programme_id = _required_string(programme, "programme_id", programme_path)
     phase = _required_string(programme, "current_phase", programme_path)
 
-    active = _active_rounds(repo_root)
+    active = _active_rounds(repo_root, manuscript_line=manuscript_line)
     if active:
         return GoalSelection(
             status="blocked-active-round",
@@ -278,6 +291,10 @@ def main(argv: list[str] | None = None) -> int:
         help="repository root (defaults to this tool's repository)",
     )
     parser.add_argument(
+        "--line",
+        help="Limit active-round blocking to one manuscript line.",
+    )
+    parser.add_argument(
         "--json",
         action="store_true",
         help="emit the full selection as JSON",
@@ -285,7 +302,7 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     try:
-        selection = select_next_goal(args.root)
+        selection = select_next_goal(args.root, manuscript_line=args.line)
     except ProgrammeError as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
         return 4

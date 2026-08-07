@@ -45,6 +45,10 @@ from andes_rl_kundur.repo_governance import (  # noqa: E402
     ContractError,
     inspect_manuscript_lines,
 )
+from andes_rl_kundur.round_scope import (  # noqa: E402
+    RoundScopeError,
+    resolve_line_selector,
+)
 
 CONTRACT_PATH = Path("docs/repo-hygiene/contract.json")
 ROUND_SKILL = "skills/kundur-round/SKILL.md"
@@ -626,8 +630,17 @@ def build_session_context(
     manuscript_line: str | None = None,
 ) -> SessionContext:
     repo_root = repo_root.resolve()
+    if manuscript_line is not None:
+        try:
+            manuscript_line = resolve_line_selector(
+                repo_root,
+                manuscript_line,
+                require_active=True,
+            )
+        except RoundScopeError as exc:
+            raise ContextError(str(exc)) from exc
     try:
-        goal = select_next_goal(repo_root)
+        goal = select_next_goal(repo_root, manuscript_line=manuscript_line)
     except ProgrammeError as exc:
         raise ContextError(str(exc)) from exc
 
@@ -653,6 +666,7 @@ def build_session_context(
             verification=("follow the active plan's frozen verification contract",),
             stop_when=("the active round satisfies the kundur-round close-out contract",),
             active_rounds=goal.active_rounds,
+            manuscript_line=manuscript_line,
         )
 
     manuscripts: tuple[ManuscriptContext, ...] | None = None

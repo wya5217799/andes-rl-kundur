@@ -66,6 +66,61 @@ def test_future_claim_statement_has_fact_layer_budget(tmp_path):
     assert any("statement budget" in error for error in errors)
 
 
+def _write_active_round(
+    rounds_dir: Path,
+    round_id: str,
+    *,
+    manuscript_line: str | None | object = ...,
+) -> None:
+    round_dir = rounds_dir / round_id
+    round_dir.mkdir(parents=True)
+    if manuscript_line is ...:
+        ownership = ""
+    elif manuscript_line is None:
+        ownership = "manuscript_line: null\n"
+    else:
+        ownership = f"manuscript_line: {manuscript_line}\n"
+    (round_dir / "plan.md").write_text(
+        f"---\nround: {round_id}\nstate: active\n{ownership}---\n",
+        encoding="utf-8",
+    )
+
+
+def test_future_round_requires_explicit_manuscript_line_ownership(tmp_path):
+    from validate import validate_active_round_ownership
+
+    rounds = tmp_path / "memory" / "rounds"
+    _write_active_round(rounds, "R339")
+
+    errors = validate_active_round_ownership(rounds, repo_root=tmp_path)
+
+    assert any("manuscript_line" in error and "R339" in error for error in errors)
+
+
+def test_two_active_rounds_on_same_manuscript_line_are_invalid(tmp_path):
+    from validate import validate_active_round_ownership
+
+    rounds = tmp_path / "memory" / "rounds"
+    _write_active_round(rounds, "R339", manuscript_line="line-a")
+    _write_active_round(rounds, "R340", manuscript_line="line-a")
+
+    errors = validate_active_round_ownership(rounds, repo_root=tmp_path)
+
+    assert any("line-a" in error and "R339" in error and "R340" in error for error in errors)
+
+
+def test_global_active_round_cannot_overlap_a_line_owned_round(tmp_path):
+    from validate import validate_active_round_ownership
+
+    rounds = tmp_path / "memory" / "rounds"
+    _write_active_round(rounds, "R339", manuscript_line=None)
+    _write_active_round(rounds, "R340", manuscript_line="line-a")
+
+    errors = validate_active_round_ownership(rounds, repo_root=tmp_path)
+
+    assert any("global" in error.lower() and "R339" in error for error in errors)
+
+
 def test_rule2_supersedes_nonexistent_target_fails():
     claims = {
         "CLM-0001": {"id": "CLM-0001", "status": "current",

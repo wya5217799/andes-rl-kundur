@@ -5,6 +5,7 @@ in-memory claim ledger to exercise one check at a time. The shared
 preflight_check() integration test verifies they compose."""
 from __future__ import annotations
 
+import json
 import sys
 from pathlib import Path
 
@@ -14,6 +15,7 @@ from round_preflight import (  # noqa: E402
     _cited_clm_ids,
     _cited_run_names,
     _extract_methodology_flags,
+    check_capacity_evidence,
     check_dual_metric_plan,
     check_formal_launch_contract,
     check_plan_structure,
@@ -167,14 +169,14 @@ def test_formal_andes_plan_blocks_without_launch_contract(tmp_path: Path):
         "- Execute ANDES once in WSL after sealing.\n"
     )
     report = PreflightReport(round_id="R001", plan_path=tmp_path / "plan.md")
-    check_formal_launch_contract(report, plan, max_wsl_python_processes=3)
+    check_formal_launch_contract(report, plan, adaptive_budget_required=False)
     assert any(
         f.check == "formal-launch-contract" and f.level == "BLOCK"
         for f in report.findings
     )
 
 
-def test_formal_andes_plan_blocks_process_count_above_repository_cap(
+def test_formal_andes_plan_blocks_process_count_above_measured_host_budget(
         tmp_path: Path):
     plan = (
         "# R001 plan — formal run\n"
@@ -188,16 +190,20 @@ def test_formal_andes_plan_blocks_process_count_above_repository_cap(
         "installed_case,output_absence\n"
         "- wsl_python_processes: 4\n"
         "- native_threads_per_process: 1\n"
+        "- capacity_evidence: results/host_capacity.json#accepted\n"
+        "- host_process_budget: 4\n"
+        "- other_reserved_processes: 1\n"
     )
     report = PreflightReport(round_id="R001", plan_path=tmp_path / "plan.md")
-    check_formal_launch_contract(report, plan, max_wsl_python_processes=3)
+    check_formal_launch_contract(report, plan, adaptive_budget_required=True)
     assert any(
-        f.check == "wsl-process-cap" and f.level == "BLOCK"
+        f.check == "host-process-budget" and f.level == "BLOCK"
         for f in report.findings
     )
 
 
-def test_formal_andes_plan_accepts_complete_launch_contract(tmp_path: Path):
+def test_formal_andes_plan_accepts_more_than_three_with_measured_budget(
+        tmp_path: Path):
     plan = (
         "# R001 plan — formal run\n"
         "- Workload: `evidence`\n"
@@ -208,19 +214,151 @@ def test_formal_andes_plan_accepts_complete_launch_contract(tmp_path: Path):
         "- rehearsal_scope: same-pre-attempt-path\n"
         "- rehearsal_checks: source_hash,parent_hash,installed_package,"
         "installed_case,output_absence\n"
-        "- wsl_python_processes: 3\n"
+        "- wsl_python_processes: 4\n"
         "- native_threads_per_process: 1\n"
+        "- capacity_evidence: results/host_capacity.json#accepted\n"
+        "- host_process_budget: 6\n"
+        "- other_reserved_processes: 1\n"
     )
     report = PreflightReport(round_id="R001", plan_path=tmp_path / "plan.md")
-    check_formal_launch_contract(report, plan, max_wsl_python_processes=3)
+    check_formal_launch_contract(report, plan, adaptive_budget_required=True)
     assert not any(f.level == "BLOCK" for f in report.findings)
+
+
+def test_future_formal_plan_blocks_without_adaptive_capacity_fields(
+        tmp_path: Path):
+    plan = (
+        "# R339 plan — formal run\n"
+        "- Workload: `evidence`\n"
+        "- Execute ANDES once in WSL after sealing.\n"
+        "## Formal launch contract\n"
+        "- formal_entry: scripts/run_formal.py --execute\n"
+        "- rehearsal_command: scripts/run_formal.py --verify-runtime\n"
+        "- rehearsal_scope: same-pre-attempt-path\n"
+        "- rehearsal_checks: source_hash,parent_hash,installed_package,"
+        "installed_case,output_absence\n"
+        "- wsl_python_processes: 4\n"
+        "- native_threads_per_process: 1\n"
+    )
+    report = PreflightReport(round_id="R339", plan_path=tmp_path / "plan.md")
+
+    check_formal_launch_contract(report, plan, adaptive_budget_required=True)
+
+    assert any(
+        f.check == "formal-launch-contract" and "capacity_evidence" in f.message
+        for f in report.findings
+    )
+
+
+def test_capacity_evidence_binds_declared_budget_to_successful_anchor(
+        tmp_path: Path):
+    evidence = {
+        "host": {"logical_processors": 32, "physical_memory_bytes": 32_000_000_000},
+        "wsl": {"memory_available_bytes": 18_000_000_000},
+        "empirical_anchor": {
+            "concurrent_workers": 4,
+            "native_threads_per_worker": 1,
+            "all_records_valid": True,
+        },
+        "whole_host_python_process_budget": 4,
+    }
+    (tmp_path / "capacity.json").write_text(json.dumps(evidence), encoding="utf-8")
+    plan = (
+        "## Formal launch contract\n"
+        "- capacity_evidence: capacity.json\n"
+        "- host_process_budget: 4\n"
+    )
+    report = PreflightReport(round_id="R339", plan_path=tmp_path / "plan.md")
+
+    check_capacity_evidence(report, plan, repo_root=tmp_path)
+
+    assert report.findings == []
+
+
+def test_capacity_evidence_blocks_unmeasured_budget_extrapolation(tmp_path: Path):
+    evidence = {
+        "host": {"logical_processors": 32, "physical_memory_bytes": 32_000_000_000},
+        "wsl": {"memory_available_bytes": 18_000_000_000},
+        "empirical_anchor": {
+            "concurrent_workers": 4,
+            "native_threads_per_worker": 1,
+            "all_records_valid": True,
+        },
+        "whole_host_python_process_budget": 5,
+    }
+    (tmp_path / "capacity.json").write_text(json.dumps(evidence), encoding="utf-8")
+    plan = (
+        "## Formal launch contract\n"
+        "- capacity_evidence: capacity.json\n"
+        "- host_process_budget: 5\n"
+    )
+    report = PreflightReport(round_id="R339", plan_path=tmp_path / "plan.md")
+
+    check_capacity_evidence(report, plan, repo_root=tmp_path)
+
+    assert any(
+        f.check == "capacity-evidence" and f.level == "BLOCK"
+        for f in report.findings
+    )
+
+
+def test_capacity_evidence_blocks_missing_or_mismatched_snapshot(tmp_path: Path):
+    report = PreflightReport(round_id="R339", plan_path=tmp_path / "plan.md")
+    check_capacity_evidence(
+        report,
+        "## Formal launch contract\n"
+        "- capacity_evidence: missing.json\n"
+        "- host_process_budget: 4\n",
+        repo_root=tmp_path,
+    )
+    assert any(f.check == "capacity-evidence" for f in report.findings)
+
+    evidence = {
+        "host": {"logical_processors": 32, "physical_memory_bytes": 32_000_000_000},
+        "wsl": {"memory_available_bytes": 18_000_000_000},
+        "empirical_anchor": {
+            "concurrent_workers": 4,
+            "native_threads_per_worker": 1,
+            "all_records_valid": True,
+        },
+        "whole_host_python_process_budget": 4,
+    }
+    (tmp_path / "capacity.json").write_text(json.dumps(evidence), encoding="utf-8")
+    mismatch = PreflightReport(round_id="R339", plan_path=tmp_path / "plan.md")
+    check_capacity_evidence(
+        mismatch,
+        "## Formal launch contract\n"
+        "- capacity_evidence: capacity.json\n"
+        "- host_process_budget: 5\n",
+        repo_root=tmp_path,
+    )
+    assert any(f.check == "capacity-evidence" for f in mismatch.findings)
 
 
 def test_non_andes_plan_does_not_need_formal_launch_contract(tmp_path: Path):
     plan = "# R001 plan — offline proof\n- Workload: `evidence`\n"
     report = PreflightReport(round_id="R001", plan_path=tmp_path / "plan.md")
-    check_formal_launch_contract(report, plan, max_wsl_python_processes=3)
+    check_formal_launch_contract(report, plan, adaptive_budget_required=True)
     assert report.findings == []
+
+
+def test_offline_plan_ignores_negated_and_snapshot_andes_wsl_mentions(
+        tmp_path: Path):
+    plan = (
+        "# R358 plan — offline proof\n"
+        "- Workload: `evidence`\n"
+        "## Snapshot at plan-time\n"
+        "- legacy question: verify one unrelated case from WSL\n"
+        "## Methodology\n"
+        "- zero ANDES, zero WSL, zero simulation, and zero training\n"
+        "## Offline formal execution contract\n"
+        "- formal_entry: python scripts/run_offline.py analyse\n"
+    )
+    report = PreflightReport(round_id="R358", plan_path=tmp_path / "plan.md")
+
+    check_formal_launch_contract(report, plan, adaptive_budget_required=True)
+
+    assert not any(f.level == "BLOCK" for f in report.findings)
 
 
 # ── check: prior-art ──────────────────────────────────────────────────

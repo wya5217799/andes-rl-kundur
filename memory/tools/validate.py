@@ -12,6 +12,18 @@ from typing import Any
 
 import yaml
 
+ROOT = Path(__file__).resolve().parents[2]
+SRC = ROOT / "src"
+if str(SRC) not in sys.path:
+    sys.path.insert(0, str(SRC))
+
+from andes_rl_kundur.round_scope import (  # noqa: E402
+    RoundScopeError,
+    manuscript_lines,
+    resolve_round_line,
+)
+from reserve_round import _active_rounds_in_progress  # noqa: E402
+
 FRONTMATTER_RE = re.compile(r"^---\n(.*?)\n---\n", re.DOTALL)
 # Strict round-directory pattern. Shared with render.py so both tools agree
 # on what counts as a "round" dir under memory/rounds/. README/, _SKIPPED.md,
@@ -87,6 +99,9 @@ ROUND_STATE_TERMINAL = {"completed", "superseded", "aborted"}
 # verdict.md plus state=active is never a compatibility case: it is an
 # unclosed lifecycle that must block validation and cold-start continuation.
 EXPLICIT_LIFECYCLE_ROUND = 281
+# R339 introduces line-scoped concurrency. Every new round must state whether
+# it belongs to one manuscript line or is deliberately repository-global.
+ROUND_OWNERSHIP_CUTOFF = 339
 # R176 G9: tightened thresholds. Project velocity is ~30 rounds/day,
 # so 14 days = ~400 rounds before stale fires (useless). 3-day active
 # / 2-day queued matches actual research cadence.
@@ -830,6 +845,71 @@ def validate_round_state(
         )
 
     return errors, warnings
+
+
+def validate_active_round_ownership(
+    rounds_dir: Path,
+    *,
+    repo_root: Path,
+) -> list[str]:
+    """Validate the one-active-round-per-manuscript-line invariant.
+
+    ``manuscript_line: null`` is an intentional repository-global lock and
+    cannot overlap any other active round. Missing ownership remains a global
+    compatibility lock for old rounds, but is an error from R339 onward.
+    """
+
+    errors: list[str] = []
+    active = _active_rounds_in_progress(rounds_dir)
+    known_lines: set[str] | None = None
+    try:
+        known_lines = {line.line_id for line in manuscript_lines(repo_root)}
+    except RoundScopeError:
+        # Unit fixtures and partial recovery checkouts may omit the repository
+        # contract. Lifecycle conflicts are still checkable without it.
+        pass
+
+    owned: dict[str, list[str]] = {}
+    global_rounds: list[str] = []
+    for round_number, frontmatter, round_id in active:
+        if (
+            round_number >= ROUND_OWNERSHIP_CUTOFF
+            and "manuscript_line" not in frontmatter
+        ):
+            errors.append(
+                f"{round_id}: active round missing `manuscript_line`; set an "
+                "active line id or explicit null (R-round-ownership-required)"
+            )
+        plan_path = rounds_dir / round_id / "plan.md"
+        owner = resolve_round_line(repo_root, plan_path, frontmatter)
+        if owner is None:
+            global_rounds.append(round_id)
+            continue
+        if known_lines is not None and owner not in known_lines:
+            errors.append(
+                f"{round_id}: unknown manuscript_line {owner!r} "
+                "(R-round-ownership-line)"
+            )
+        owned.setdefault(owner, []).append(round_id)
+
+    for line_id, round_ids in sorted(owned.items()):
+        if len(round_ids) > 1:
+            errors.append(
+                f"manuscript line {line_id!r} has multiple active rounds: "
+                f"{', '.join(round_ids)} (R-round-ownership-conflict)"
+            )
+    if global_rounds and len(active) > len(global_rounds):
+        errors.append(
+            "repository-global active round(s) cannot overlap line-owned "
+            f"rounds: {', '.join(global_rounds)} "
+            "(R-round-global-overlap)"
+        )
+    if len(global_rounds) > 1:
+        errors.append(
+            "multiple repository-global active rounds are forbidden: "
+            f"{', '.join(global_rounds)} (R-round-global-overlap)"
+        )
+    return errors
 
 
 def validate_rules(
@@ -1599,6 +1679,10 @@ def main() -> int:
         )
         errors.extend(r_errors)
         warnings.extend(r_warnings)
+
+    errors.extend(
+        validate_active_round_ownership(args.rounds_dir, repo_root=repo_root)
+    )
 
     # R50 opt K: soft check that provenance paths exist on disk.
     # Gitignored areas (results/, logs/) routinely produce warnings;
