@@ -1,7 +1,7 @@
 # CONTEXT — andes-rl-kundur
 
 **Purpose:** canonical domain glossary for this repo.
-**Glossary last updated:** 2026-05-19 (R80–R86).
+**Glossary last updated:** 2026-08-09.
 **Navigation role clarified:** 2026-07-29.
 
 This file captures terms and decisions that are not derivable from the code
@@ -12,6 +12,16 @@ architecture decisions live as individual records in `docs/adr/`.
 ---
 
 ## Glossary
+
+### `Project Learning Registry`
+The non-authoritative `learning/` asset that maps transferable foundations
+needed to understand this repository. It is a learning graph, not a project
+glossary, source index, evidence ledger, or learner-progress record.
+
+### `Foundation Atom`
+A precise, transferable STEM or research-method concept selected because this
+repository uses it. Project-local names remain Context terms and point to
+Foundation Atoms through `used-in` relations and repository anchors.
 
 ### `paper path`
 The end-to-end execution flow that produces the paper's headline numbers:

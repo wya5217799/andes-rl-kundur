@@ -10,6 +10,7 @@ the registered delivery line in `docs/repo-hygiene/contract.json`.
 | Engineering note | `docs/eng-notes/` | Simulator and implementation knowledge |
 | Cross-line research investigation | `docs/research/` | Dated landscape, audit, or strategy report |
 | Repository governance | `docs/repo-hygiene/` | Contract, baseline, lifecycle, type-check scope, external-skill adapters, and evidence snapshots |
+| Project foundation learning | `learning/README.md` | Non-authoritative Foundation Atoms, prerequisite edges, project-use links, and repository anchors |
 | Line-specific deep research or decision | `paper/<line>/` | Register in that line's `ARTIFACTS.json`; do not place it in another paper line |
 | Delivery evidence report | `paper/<line>/reports/` | Feed contract from `kundur-round` |
 | Delivery draft/corpus | Registered delivery root | Roles declared by the delivery registry |

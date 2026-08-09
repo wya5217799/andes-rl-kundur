@@ -18,6 +18,7 @@
       "_legacy",
       "assets",
       "docs",
+      "learning",
       "lessons",
       "memory",
       "output",
@@ -47,6 +48,7 @@
     "paper_review",
     "quality_reports/*",
     "docs/research/external_A报告",
+    "learning",
     "lessons"
   ],
   "delivery_binary_extensions": [
@@ -199,6 +201,19 @@
         ],
         "support": [
           "assets/teaching.css"
+        ]
+      }
+    },
+    {
+      "id": "project-foundation-learning",
+      "kind": "teaching",
+      "status": "active",
+      "root": "learning",
+      "roles": {
+        "canonical": [
+          "learning/README.md",
+          "learning/project-map.md",
+          "learning/branches/power-system-and-control-foundations.md"
         ]
       }
     },
@@ -530,7 +545,8 @@
       "adapter": "AGENTS.md",
       "must_reference": [
         "memory/tools/session_context.py",
-        "CLAUDE.md"
+        "CLAUDE.md",
+        "learning/README.md"
       ]
     },
     {
@@ -582,6 +598,7 @@
         "docs/eng-notes/",
         "docs/repo-hygiene/",
         "docs/research/",
+        "learning/README.md",
         "memory/STATE.md",
         "paper"
       ]

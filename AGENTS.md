@@ -6,6 +6,17 @@
 This repository is a TPWRS-oriented automatic research programme, not an
 open-ended algorithm sweep.
 
+## Repository learning
+
+When the user asks to understand the foundations behind this repository, use
+the available `atomic-stem-tutor` Repository mode and maintain the registry
+described in `learning/README.md`.
+Load only the relevant branch, enrich one bounded prerequisite slice, and run
+the bundled project-registry validator. Ordinary implementation does not
+trigger this path. `learning/` is non-authoritative: it never replaces source,
+feeds, claims, verdicts, or manuscript evidence. Ordinary Chat atoms enter it
+only through an explicit repository import followed by source revalidation.
+
 At the start of every research session:
 
 1. If the request clearly names one manuscript, run
