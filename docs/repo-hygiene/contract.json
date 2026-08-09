@@ -213,7 +213,9 @@
         "canonical": [
           "learning/README.md",
           "learning/project-map.md",
-          "learning/branches/power-system-and-control-foundations.md"
+          "learning/branches/power-system-and-control-foundations.md",
+          "learning/branches/modeling-and-evidence-foundations.md",
+          "learning/branches/control-and-learning-architecture.md"
         ]
       }
     },
