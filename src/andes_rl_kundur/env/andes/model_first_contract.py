@@ -367,6 +367,7 @@ class DescriptorReduction:
 class InputJacobians:
     f_input: np.ndarray
     g_input: np.ndarray
+    midpoint_ratios: np.ndarray
     scheme: str
     step: float
 
@@ -392,6 +393,8 @@ def finite_difference_input_jacobians(
     g0 = _finite_vector(base_g, name="g residual")
     f_input = np.zeros((f0.size, centre.size), dtype=float)
     g_input = np.zeros((g0.size, centre.size), dtype=float)
+    midpoint_ratios = np.zeros(centre.size, dtype=float)
+    base = np.concatenate((f0, g0))
     for column in range(centre.size):
         positive = centre.copy()
         negative = centre.copy()
@@ -409,9 +412,18 @@ def finite_difference_input_jacobians(
             raise ValueError("g residual shape changed during finite difference")
         f_input[:, column] = (fp - fn) / (2.0 * step)
         g_input[:, column] = (gp - gn) / (2.0 * step)
+        positive_residual = np.concatenate((fp, gp))
+        negative_residual = np.concatenate((fn, gn))
+        even = 0.5 * (positive_residual + negative_residual) - base
+        odd = 0.5 * (positive_residual - negative_residual)
+        midpoint_ratios[column] = np.linalg.norm(even) / max(
+            np.linalg.norm(odd),
+            1.0e-12,
+        )
     return InputJacobians(
         f_input=f_input,
         g_input=g_input,
+        midpoint_ratios=midpoint_ratios,
         scheme="central",
         step=float(step),
     )
