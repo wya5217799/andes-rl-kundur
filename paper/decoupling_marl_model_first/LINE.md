@@ -1,8 +1,7 @@
 ---
 line_id: decoupling-marl-model-first
-status: active
-priority: 3
-stage: common-channel-headroom-confirmed-methodology-route
+status: frozen
+stage: frozen-methodology-evidence-line
 artifact_manifest: paper/decoupling_marl_model_first/ARTIFACTS.json
 scope:
   write_roots: [paper/decoupling_marl_model_first]
@@ -18,12 +17,13 @@ venue:
 working_title: "Decoupling-Oriented Coordination of Paralleled VSGs With Multi-Agent Reinforcement Learning"
 title_policy: "Wording fixed by PI on 2026-08-03; unchanged wording does not validate title terms before their registered gates pass."
 objective: >-
-  Rebuild the titled MARL coordination from an implementation-faithful sampled-data
-  DAE, exact common/differential decomposition retaining measured cross-coupling,
-  independently executed local vector actions, and a matched deterministic-plus-neural
-  comparison. Neural training is forbidden until model, authority, deterministic-control,
-  and residual-headroom gates pass.
+  Preserve the implementation-faithful model, actuator, information,
+  deterministic-control, and residual-headroom gates as read-only methodology
+  evidence. The line establishes a bounded centralized deterministic
+  storage-power-control gain, but no incremental learned-controller or MARL
+  gain.
 decision_refs:
+  - "docs/adr/0015-reset-fixed-title-to-object-matched-line.md#decision"
   - "paper/decoupling_marl_model_first/working/model_contract.md#research-objective"
   - "paper/decoupling_marl_model_first/working/model_contract.md#equation-to-implementation-reconciliation"
   - "paper/decoupling_marl_model_first/working/model_contract.md#stage-0-and-stage-1-non-learning-probe-contract"
@@ -80,5 +80,30 @@ verification:
   - "This navigation card holds no feed facts: per-round verdicts, numbers, and gate outcomes live only in the feeds bound by evidence_refs above. Run the registered rounds and read their feeds before claiming any gate status."
   - "Runtime execution uses local observations, declared neighbour messages, and independent vector actions without a central scalar projection; EVAL remains diagnostic-only and training starts only after a prospective residual-headroom gate."
 stop_when:
-  - "The affine, flexible non-neural, one-hop message, and shared-prediction learnability gates are complete and negative; the common-channel headroom gate is positive. Any continuation must register a mechanistically different falsifiable question; no new execution starts from the current evidence alone. The working title wording remains fixed; its Coordination and Multi-Agent Reinforcement Learning terms remain prospective until valid distributed-action and learning evidence exists."
+  - "This line remains read-only and non-selectable. Its gates may inform the successor design, but its claims, outcomes, and common-channel feasibility do not transfer as controller or MARL evidence."
 ---
+
+# Model-First frozen methodology evidence line
+
+## Outcome disposition
+
+This manuscript line is a failed title-goal attempt but a successful bounded
+deterministic-control and methodology investigation.  The implemented plant
+adds four independently commanded storage devices at the four VSG buses and
+optimizes their active-power requests; it does not implement one unified
+VSG-with-storage device.  The retained centralized deterministic controller
+establishes a finite-bank storage-power-control gain (`CLM-0910`).  Relative to
+that controller, even the outcome-seeing offline upper bound exposes only
+marginal nominal residual headroom, while the registered residual and
+local/neighbour information families do not establish a qualifying causal
+learnable increment (`CLM-0915`, `CLM-0945`--`CLM-0960`).  No neural or
+multi-agent controller was therefore trained or evaluated.  The later
+common-channel result (`CLM-0965`) preserves a physical mechanism clue, not a
+controller or learning result.  Consequently, this line cannot support the
+fixed title's Multi-Agent Reinforcement Learning term.  It remains frozen as
+bounded deterministic-control and methodology evidence, together with its
+reusable implementation assets.
+
+This file is navigation only. Open evidence through current claims and the
+registered artifact map; do not copy result values or source-paper conclusions
+into this file.

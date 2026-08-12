@@ -1,7 +1,7 @@
 # CONTEXT — andes-rl-kundur
 
 **Purpose:** canonical domain glossary for this repo.
-**Glossary last updated:** 2026-08-09.
+**Glossary last updated:** 2026-08-12.
 **Navigation role clarified:** 2026-07-29.
 
 This file captures terms and decisions that are not derivable from the code
@@ -12,6 +12,23 @@ architecture decisions live as individual records in `docs/adr/`.
 ---
 
 ## Glossary
+
+### `title-goal line`
+The one active manuscript line whose plant object, agent identity, action,
+training semantics, and evaluation are jointly designed to support every term
+in a fixed title.  An old line is not made title-compatible by renaming its
+actors or combining its claims with another line.
+
+### `evidence line`
+A frozen manuscript line retained for its bounded claims, negative results,
+implementation assets, and methodological lessons.  It is not selectable for
+new execution and cannot supply headline evidence to a successor line.
+
+### `implementation reuse` / `evidence transfer`
+Implementation reuse adapts code, contracts, probes, or evaluation plumbing
+and revalidates them prospectively on a new object.  Evidence transfer moves
+old checkpoints, result values, claims, or manuscript language into a new
+line.  The former is allowed by the new line's gates; the latter is forbidden.
 
 ### `Project Learning Registry`
 The non-authoritative `learning/` asset that maps transferable foundations

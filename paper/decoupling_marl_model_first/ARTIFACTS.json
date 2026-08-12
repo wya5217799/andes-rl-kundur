@@ -6,7 +6,7 @@
       "id": "line-state",
       "purpose": "line-state",
       "path": "paper/decoupling_marl_model_first/LINE.md",
-      "status": "active",
+      "status": "frozen",
       "canonical": true,
       "authoritative": true,
       "producer": "project-governance",
@@ -96,6 +96,18 @@
         "paper/decoupling_marl_model_first/reports/R359.md",
         "paper/decoupling_marl_model_first/reports/R360.md"
       ],
+      "supersedes": [],
+      "review_after": null
+    },
+    {
+      "id": "implemented-control-and-topology",
+      "purpose": "implementation-inventory",
+      "path": "paper/decoupling_marl_model_first/working/implemented_control_and_topology.md",
+      "status": "active",
+      "canonical": false,
+      "authoritative": false,
+      "producer": "paper-writer",
+      "inputs": [],
       "supersedes": [],
       "review_after": null
     }

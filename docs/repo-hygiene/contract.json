@@ -71,7 +71,7 @@
     {
       "id": "icems2026",
       "kind": "manuscript",
-      "status": "active",
+      "status": "frozen",
       "root": "paper/icems2026",
       "roles": {
         "canonical": [
@@ -104,7 +104,7 @@
     {
       "id": "sci-upgrade-survey",
       "kind": "manuscript",
-      "status": "active",
+      "status": "frozen",
       "root": "paper/sci_upgrade_survey",
       "roles": {
         "canonical": [
@@ -126,7 +126,7 @@
     {
       "id": "decoupling-marl-model-first",
       "kind": "manuscript",
-      "status": "active",
+      "status": "frozen",
       "root": "paper/decoupling_marl_model_first",
       "roles": {
         "canonical": [
@@ -134,6 +134,22 @@
         ],
         "support": [
           "paper/decoupling_marl_model_first/working/model_contract.md"
+        ]
+      }
+    },
+    {
+      "id": "paralleled-vsg-marl",
+      "kind": "manuscript",
+      "status": "active",
+      "root": "paper/paralleled_vsg_marl",
+      "roles": {
+        "canonical": [
+          "paper/paralleled_vsg_marl/LINE.md",
+          "paper/paralleled_vsg_marl/ARTIFACTS.json",
+          "paper/paralleled_vsg_marl/ROUTE.md"
+        ],
+        "reports": [
+          "paper/paralleled_vsg_marl/reports"
         ]
       }
     },

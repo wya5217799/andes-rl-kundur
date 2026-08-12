@@ -19,13 +19,15 @@ Foundation Atoms are bilingual transferable concepts connected by acyclic
 `requires` edges and linked to project stages by `used-in` plus typed live
 anchors. Project-local names, concrete results, claims, full explanations,
 teaching-method choices, and inferred learner mastery stay in their existing
-homes. The global tutor may update this registry for repository-learning
-intent, while ordinary Chat content remains a separate asset scope unless the
-user explicitly requests a repository import and the sources are revalidated.
+homes. An explicitly invoked `$atomic-stem-tutor` may read this registry for
+repository tutoring, while only an explicitly invoked
+`$enrich-project-learning` may update it. Ordinary Chat content remains a
+separate asset scope unless the user explicitly requests a repository import
+and the sources are revalidated.
 
 ## Consequences
 
-- Repository questions can enrich one shared learning graph without an
+- Explicit enrichment requests can grow one shared learning graph without an
   exhaustive initial scan.
 - `learning/` is registered as an active non-authoritative teaching delivery;
   it cannot support a paper claim or override source and evidence.

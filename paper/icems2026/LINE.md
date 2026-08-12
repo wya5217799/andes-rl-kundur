@@ -1,8 +1,7 @@
 ---
 line_id: icems2026
-status: active
-priority: 1
-stage: revision
+status: frozen
+stage: frozen-evidence-line
 artifact_manifest: paper/icems2026/ARTIFACTS.json
 scope:
   write_roots:
@@ -22,11 +21,11 @@ venue:
     - before final upload
     - after organizer instructions change
 objective: >-
-  Revise the ICEMS paper using the current R280, R291, and R338 claim/feed
-  authority: preserve the title, retain fixed 3 s only as a bounded benchmark,
-  and align all architecture language with the executed scalar and three-edge
-  comparisons without a positive class-level or generalization claim.
+  Preserve the bounded ICEMS manuscript, claims, feeds, and implementation
+  assets as a read-only evidence line. No result or checkpoint transfers to
+  the successor fixed-title line.
 decision_refs:
+  - "docs/adr/0015-reset-fixed-title-to-object-matched-line.md#decision"
   - "paper/icems2026/README.md#icems-2026-full-paper"
   - "paper/icems2026/working/chapter_blueprint.md#v-results-and-discussion"
 evidence_refs:
@@ -47,14 +46,26 @@ verification:
   - Unified GFM-BESS, motor-load, topology, EMT, and deployment transfer remain explicit non-claims unless separately authorized and evidenced.
   - No source manuscript or SCI line is modified outside its selected write scope.
 stop_when:
-  - Abstract, contributions, results, limitations, and conclusion use the same bounded architecture claim.
-  - The R291 negative handoff gate is used only as bounded result and limitation evidence.
-  - The R338 genuine distributed comparison is used only through CLM-0905 and its bounded negative publication disposition.
-  - The professor-facing revision decision says no further control experiment is currently necessary.
-  - The exact ICEMS package passes its evidence, domain, repository, and compile checks.
+  - This line remains read-only and non-selectable; reopening requires a new explicit decision.
+  - R280, R291, and R338 remain bounded to their executed objects and do not support the successor title.
 ---
 
-# ICEMS 2026 manuscript line
+# ICEMS 2026 frozen evidence line
+
+## Failure disposition
+
+This manuscript line is a failed title-goal attempt, not a merely incomplete
+positive MARL result.  Its headline shared scalar factorization does not
+compare one independently acting agent per VSG.  The later sealed distributed
+comparison uses three edge actors rather than four VSG agents and establishes
+`NO-NEURAL-INCREMENT` against the selected classical edge controller
+(`CLM-0905`), including failure of the registered relative no-harm guard.  The
+learned distributed arm therefore did not merely lack a positive increment; it
+failed the registered comparison against the retained classical controller.
+Consequently, this line cannot support the fixed title as a successful
+multi-agent coordination contribution.  It remains frozen only as bounded
+negative evidence and as a source of reusable implementation and evaluation
+assets.
 
 This file is navigation only. Open evidence through current claims and the
 registered artifact map; do not copy result values or source-paper conclusions

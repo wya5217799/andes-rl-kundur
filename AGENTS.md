@@ -8,14 +8,18 @@ open-ended algorithm sweep.
 
 ## Repository learning
 
-When the user asks to understand the foundations behind this repository, use
-the available `atomic-stem-tutor` Repository mode and maintain the registry
-described in `learning/README.md`.
-Load only the relevant branch, enrich one bounded prerequisite slice, and run
-the bundled project-registry validator. Ordinary implementation does not
-trigger this path. `learning/` is non-authoritative: it never replaces source,
-feeds, claims, verdicts, or manuscript evidence. Ordinary Chat atoms enter it
-only through an explicit repository import followed by source revalidation.
+Repository tutoring is explicit-only. Enter `atomic-stem-tutor` Repository mode
+only when the user explicitly invokes `$atomic-stem-tutor`; ordinary requests to
+understand, explain, or interpret the repository receive a direct answer. Once
+invoked, reuse `learning/project-map.md` and load only the relevant branch. The
+Tutor is read-only, so newly inferred foundations remain transient. Persist one
+bounded slice only after the user explicitly invokes `$enrich-project-learning`;
+that writer merges into the same project graph, preserves unrelated branches,
+follows the registry contract in `learning/README.md`, and runs its bundled
+project-registry validator. `learning/` is
+non-authoritative: it never replaces source, feeds, claims, verdicts, or
+manuscript evidence. Ordinary Chat atoms enter it only through an explicit
+repository import followed by source revalidation.
 
 At the start of every research session:
 

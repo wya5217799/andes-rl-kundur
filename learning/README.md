@@ -15,12 +15,14 @@ project-local names, current results, and paper conclusions.
 - Full explanations, teaching-method selections, learner progress, project
   identifiers, and concrete experiment conclusions remain outside this graph.
 
-The registry grows only when a repository-learning question exposes a useful
-bounded slice. Branch count scales with project size; a new file is created
-only when an existing branch becomes difficult to navigate.
+The same registry is reused across repository-learning questions. Read-only
+Tutor sessions may propose transient candidates but do not change these files.
+Only an explicit `$enrich-project-learning` request merges one useful bounded
+slice. Branch count scales with project size; a new file is created only when
+an existing branch becomes difficult to navigate.
 
-Validate with the `atomic-stem-tutor` bundled script:
+Validate with the `$enrich-project-learning` bundled script:
 
 ```powershell
-python <atomic-stem-tutor>/scripts/validate_project_registry.py learning
+python <enrich-project-learning>/scripts/validate_project_registry.py learning
 ```

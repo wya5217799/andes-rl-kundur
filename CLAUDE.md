@@ -217,6 +217,10 @@ canonical，不再要求另建 Note 索引。
   prototype 走 `scratch`；scratch 每个 red-green slice 只跑定向测试。新
   ANDES/训练、受保护资产改动或 claim/question/title 影响才 prospectively
   升级到 `evidence`。完整规则 canonical 在 `skills/kundur-round/SKILL.md` §2。
+- 方向恢复: 下一技术路线不清、历史路线过多或准备再换算法时，先按
+  `skills/kundur-round/references/technical-route-census.md` 盘点五家族，
+  再用 `technical_route_census.py validate` 强制检查全覆盖、唯一归类与终端
+  选择；盘点默认留在 `tmp/<line-id>/`，不建立第二 evidence ledger。
 - 冷启动: 已知论文用 `session_context.py --json --line <id>`；未知 id 先用
   `session_context.py --json --list-lines`；未指定论文才用
   `session_context.py --json` 回退 (内部组合 research_goal + selected

@@ -61,23 +61,26 @@ same deliverable by default.
 
 ## Atomic STEM Tutor
 
-`atomic-stem-tutor` may be selected when the user asks to understand the
-repository, a subsystem, or a scientific concept used by the project. Its
-repository mode may maintain the non-authoritative learning assets under
-`learning/` when the current user request authorizes that work.
+`atomic-stem-tutor` is explicit-only. Select it only when the user invokes
+`$atomic-stem-tutor`; ordinary requests to understand the repository, a
+subsystem, or a scientific concept receive a direct answer. Its Repository mode
+is read-only. Only an explicit `$enrich-project-learning` request may maintain
+the non-authoritative learning assets under `learning/`.
 
-The tutor records transferable foundation atoms and their `requires` and
-`used-in` relations. It must not treat project-local identifiers, experiment
-verdicts, paper claims, or implementation symbols as foundation atoms; mutate
-research rounds or evidence ledgers; or use `learning/` as evidence. Ordinary
-coding work does not trigger learning-graph maintenance. Chat-derived atoms
-remain outside the project graph unless the user explicitly requests an import
-and the candidate is revalidated against live repository anchors.
+The enrichment writer records transferable foundation atoms and their
+`requires` and `used-in` relations. Neither skill may treat project-local
+identifiers, experiment verdicts, paper claims, or implementation symbols as
+foundation atoms; mutate research rounds or evidence ledgers; or use
+`learning/` as evidence. Ordinary learning and coding requests trigger neither
+skill. Chat-derived atoms remain outside the project graph unless the user
+explicitly requests an import and the candidate is revalidated against live
+repository anchors.
 
-This teaching adapter is intentionally outside
+These teaching skills are intentionally outside
 `docs/repo-hygiene/research-skills.scope.json`: that manifest governs academic
-research skills with no project-write authority, whereas this adapter has one
-narrow, user-authorized teaching destination and no research authority.
+research skills with no project-write authority. The Tutor is read-only; the
+enrichment writer has one narrow, user-authorized teaching destination and no
+research authority.
 
 ## Invocation and scope manifest
 

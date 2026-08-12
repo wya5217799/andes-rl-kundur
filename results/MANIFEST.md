@@ -88,10 +88,38 @@ locator before calling these artifacts durably archived.
 | R361 | `results/r361_neighbour_message_residual/` | `analysis.json` | `279f5aa53cfeccca658b4359441d735079da04712fd648430fa088edf320677f` |
 | R362 | `results/r362_shared_prediction_residual/` | `analysis.json` | `bcad59b38032ef8bb33293711897e06bc5a8e023f52763afcfcb640bfec14fc1` |
 | R363 | `results/r363_common_channel_qp/` | `analysis.json` | `acc805c0cb2b4a90997f9a410f1af6187fe78bf254576326dc17c649f5d00238` |
+| R365 | `results/research_loop/r365_per_vsg_object_gate/` | `formal_analysis.json` | `3dde99211f8a685b04aa491787a9bcc0e869416637e206ac76319bc735b4986b` |
+| R366 | `results/research_loop/r366_per_vsg_md_design/` | `analysis_v3.json` | `d8c29b9f5d523fbeae095c8efd827b5b2e044afa6e2061a1f396c5bae8f4f16e` |
+| R367 | `results/research_loop/r367_deterministic_headroom/` | `formal_failure.json` | `4be0cc4e01a416035c3c5af13fba8c1c047e66b7c3e076bcc0db6c58c6ddda0f` |
+| R368 | `results/research_loop/r368_deterministic_headroom/` | `formal_analysis.json` | `4b25f418f0c3b3fadf032d58cb0232f7ac69f5ea3a943a0e1dfbb99fb3264f6c` |
+| R369 | `results/research_loop/r369_actuator_mapping_reanalysis/` | `analysis.json` | `e898cc452484f058d4f60cd43d1eca0f93ed0168d76062fa1fba90e08e01511f` |
+| R371 | `results/research_loop/r371_vsg_energy_port_design/` | `analysis_v5.json` | `a068ec3756e834ba1f0c11d9c0736264e1ac81ca84c3bdc66ee3414caa531ca0` |
+| R372 | `results/research_loop/r372_energy_port_object_gate/` | `formal_analysis.json` | `1268e7e92354b267d877e7590cb096c757773083a38070e8ec98035b3f72af6b` |
+| R373 | `results/research_loop/r373_energy_port_authority/` | `formal_analysis.json` | `3392eb9b48702d88130cb27cdb24f7878dc9511e0b007aaa3223053194953b54` |
+| R374 | `results/research_loop/r374_deterministic_decoupling/` | `formal_failure.json` | `61c32ace05929d55740539d9e4ca2a94e2db9153c189c0eabb4d97e387acc168` |
+| R375 | `results/research_loop/r375_deterministic_decoupling_identity_correction/` | `formal_analysis.json` | `77e5f91053cd9437fd4922c8279d9fdf0175ed31d720532119611096732ba76c` |
+| R376 | `results/research_loop/r376_gate_b_deterministic/` | `formal_analysis.json` | `db8c338f7c0b55f637f89388f3def10515be39b4e1f749a464d253044223af91` |
+| R377 | `results/research_loop/r377_gate_b2_deterministic/` | `formal_analysis.json` | `7bd27756da8fe231565a4e52e8f49df0e1d1ad4ed9218a55feaa39a9c4d13f88` |
+| R378 | `results/research_loop/r378_gate_b2_correction/` | `formal_analysis.json` | `af0395488440c183d7d0d48fd6ab9f0e66c9ea06d0b4f955116df51318aad1b2` |
+| R379 | `results/research_loop/r377_gate_b3_deterministic/` | `formal_analysis.json` | `f6a8b4199626cebe4ad50c31f201948be71e6479dd43a1c80d2ba65663eb2ddb` |
+| R380 | `results/research_loop/r380_vsg_source_model_gate/` | `formal_analysis.json` | `1503ed571b9d86ccf3c15af2ee679f5be7731e94f782e2bab0f9b5b2441b9de4` |
+| R381 | `results/research_loop/r381_gate_b4_deterministic/` | `formal_analysis.json` | `696bd3c3f31e8b0e09ca3e8ff2af719b1094005dcb4863eddd3854892eec204d` |
+| R382 | `results/research_loop/r382_bounded_headroom_witness/` | `formal_analysis.json` | `ddf1639bf8b14e89254f7b08da736fa97727d1b808594b31853bdc258cadd133` |
 
-The sixty-three roots currently occupy 698,059,785 bytes. R286, R287, R291, R292,
+The eighty-six roots currently occupy 756,808,760 bytes. R286, R287, R291, R292,
 R294, R295, R296, R297, R298, R299, and R300 raw traces remain ignored; their retained trace hashes are indexed by
 each round's decision and provenance artifacts.
+
+R366 `analysis.json` and `analysis_v2.json` are preserved pre-audit static
+snapshots.  The first lacked one shared rowwise clip/slew seam; the second
+overstated full-comparison identifiability before learning capacity, training,
+tuning, seed/checkpoint, and sealed-evaluation budgets were frozen.
+`analysis_v3.json` is the current decision artifact.
+
+R371 `analysis.json` through `analysis_v4.json` are preserved pre-audit static
+snapshots.  They respectively lacked actual-torque settlement, a current
+torque-readback label, the bound governor-free V4 check, and fail-closed actor-
+vector shape validation.  `analysis_v5.json` is the current decision artifact.
 
 Integrity note: the 12 JSON files under R281-R285 received non-overwriting
 `.sha256` sidecars on 2026-07-30. These are

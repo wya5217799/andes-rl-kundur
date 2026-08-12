@@ -1,8 +1,7 @@
 ---
 line_id: sci-upgrade-survey
-status: active
-priority: 2
-stage: evidence-ready
+status: frozen
+stage: frozen-derived-evidence-line
 artifact_manifest: paper/sci_upgrade_survey/ARTIFACTS.json
 scope:
   write_roots:
@@ -25,10 +24,11 @@ venue:
     - before submission
     - after a material scope, ranking, fee, or policy change
 objective: >-
-  Keep the manuscript evidence frontier at CLM-0650/R287. Q-0047 is
-  closed-partial through CLM-0665; R288-R290 remain programme diagnostics
-  with stay-out disposition and do not extend this manuscript line.
+  Preserve the ICEMS-derived literature, differentiation, venue, draft, and
+  evidence-frontier assets as a read-only line; do not use it as a competing
+  default route for the fixed title.
 decision_refs:
+  - "docs/adr/0015-reset-fixed-title-to-object-matched-line.md#decision"
   - "paper/sci_upgrade_survey/REPORT.md#section-7"
   - "paper/sci_upgrade_survey/DIFFERENTIATION_MEMO.md#section-4"
   - "paper/sci_upgrade_survey/JOURNAL_TARGET.md#decision"
@@ -49,19 +49,19 @@ verification:
   - Existing C1/C2 evidence remains bound through current CLM-to-feed pointers.
   - Any adoption of new evidence updates evidence_refs and affected artifact input hashes semantically, not hash-only.
 stop_when:
-  - Navigation records Q-0047 as closed-partial and R288-R290 as stay-out diagnostics.
-  - No manuscript prose, LaTeX, polished figure, or venue package is created.
+  - This line remains read-only and non-selectable; reopening requires a new explicit decision.
+  - Its evidence frontier remains bounded through R287 and does not transfer to the successor line.
 ---
 
-# SCI 升级线导航
+# SCI 升级线冻结导航
 
 本页只保存当前动作、权限边界和可验证指针。实验数字、结论与限制分别由
 claim card、feed 和 results 持有；Deep Research 与期刊判断保留在已登记原文，
 不得复制进本页。
 
-## 当前状态
+## 冻结状态
 
-- 唯一写作用域：`paper/sci_upgrade_survey/`；其他论文线及共享事实层只读。
+- 本线只读且不再参与默认导航；全部资产原位保留。
 - 当前手稿证据前沿仍封存至 `CLM-0650 -> reports/R287.md`。
 - Q-0047 已由 `CLM-0665` 以 `closed-partial` 关闭；R288-R290 只作为 programme
   诊断并保持 `stay-out`，不进入本手稿证据。正式论文正文仍未授权。

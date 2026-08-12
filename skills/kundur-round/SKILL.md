@@ -36,6 +36,14 @@ authoritative feed。
 
 领 round 前先看**下一动作**，不是看整个长期目标。只允许三条 lane：
 
+当下一技术方向不清楚、历史路线过多，或有人在对象/余量没有定清前提议再换
+算法时，先执行
+`skills/kundur-round/references/technical-route-census.md` 的 **direction
+recovery gate**。它把全部已发现 route episode 逐条归入五个技术家族，强制核对
+遗漏、证据可转移性、当前 stop rule 与题目匹配，最后只能返回一个
+`PROCEED`、`MANUSCRIPT-ONLY` 或 `UNRESOLVED`。该盘点属于 `scratch`，本身不
+授权实验；只有 `PROCEED` 才能继续按本节判断是否升级到 evidence round。
+
 - **`scratch`**：只读诊断、普通代码/TDD、离线数学或使用已声明 development
   数据的原型；不产生新 ANDES/训练/物理数据，不改变标题、摘要、claim、
   question 或正式 verdict，不写 sealed/paper-cited 资产。scratch 不领 round/claim，
@@ -266,5 +274,7 @@ Question 或当前手稿 `LINE.md`。
 - `memory/tools/*.py` — 自文档 (docstring 含 motivation/usage/失败模式)
 - `skills/kundur-round/references/research-skill-adapter.md` — 全局研究
   skill 在本项目中的唯一适配层
+- `skills/kundur-round/references/technical-route-census.md` — 方向不清时的
+  五家族穷尽盘点、覆盖校验与唯一后续路线门
 - `paper/<line>/LINE.md` — 各手稿线自己的状态与作用域
 - `paper/<line>/ARTIFACTS.json` — 各手稿线的持久文档生命周期清单
