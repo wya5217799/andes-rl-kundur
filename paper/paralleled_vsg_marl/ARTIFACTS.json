@@ -1,0 +1,315 @@
+{
+  "version": 1,
+  "line_id": "paralleled-vsg-marl",
+  "artifacts": [
+    {
+      "id": "line-state",
+      "purpose": "line-state",
+      "path": "paper/paralleled_vsg_marl/LINE.md",
+      "status": "active",
+      "canonical": true,
+      "authoritative": true,
+      "producer": "project-governance",
+      "inputs": [
+        "paper/paralleled_vsg_marl/reports"
+      ],
+      "input_hashes": {
+        "paper/paralleled_vsg_marl/reports": "8b9645fd1995ba911fcbf34bf22d629f216801ca24aa1d99f783400830bc943a"
+      },
+      "supersedes": [],
+      "review_after": null
+    },
+    {
+      "id": "experiment-feeds",
+      "purpose": "experiment-feeds",
+      "path": "paper/paralleled_vsg_marl/reports",
+      "status": "active",
+      "canonical": true,
+      "authoritative": true,
+      "producer": "kundur-round-feed",
+      "inputs": [
+        "memory/claims",
+        "memory/rounds"
+      ],
+      "supersedes": [],
+      "review_after": null
+    },
+    {
+      "id": "execution-route",
+      "purpose": "research-route",
+      "path": "paper/paralleled_vsg_marl/ROUTE.md",
+      "status": "active",
+      "canonical": true,
+      "authoritative": false,
+      "producer": "ask-research-supervisor+ask-matt",
+      "inputs": [
+        "docs/adr/0015-reset-fixed-title-to-object-matched-line.md",
+        "memory/claims/CLM-0905.md",
+        "memory/claims/CLM-0945.md",
+        "memory/claims/CLM-0965.md",
+        "memory/claims/CLM-0985.md",
+        "memory/claims/CLM-0990.md",
+        "memory/claims/CLM-0995.md",
+        "memory/claims/CLM-1000.md",
+        "memory/claims/CLM-1005.md",
+        "memory/claims/CLM-1010.md",
+        "memory/claims/CLM-1015.md",
+        "memory/claims/CLM-1020.md",
+        "memory/claims/CLM-1050.md",
+        "memory/claims/CLM-1055.md",
+        "paper/paralleled_vsg_marl/working/feasibility_native_four_vsg_contract.md"
+      ],
+      "supersedes": [],
+      "review_after": null
+    },
+    {
+      "id": "feasibility-native-four-vsg-contract",
+      "purpose": "argument-contract",
+      "path": "paper/paralleled_vsg_marl/working/feasibility_native_four_vsg_contract.md",
+      "status": "active",
+      "canonical": true,
+      "authoritative": false,
+      "producer": "ask-research-supervisor+ask-matt+project-scratch",
+      "inputs": [
+        "memory/claims/CLM-1020.md",
+        "src/andes_rl_kundur/control/active_power.py",
+        "src/andes_rl_kundur/control/feasibility_native_vsg_action.py",
+        "src/andes_rl_kundur/control/vsg_energy_port.py",
+        "tests/test_feasibility_native_vsg_action.py"
+      ],
+      "supersedes": [],
+      "review_after": null
+    },
+    {
+      "id": "gate-b-deterministic-physical-contract",
+      "purpose": "experiment-contract",
+      "path": "paper/paralleled_vsg_marl/working/gate_b_deterministic_physical_contract.md",
+      "status": "active",
+      "canonical": true,
+      "authoritative": false,
+      "producer": "project-scratch",
+      "inputs": [
+        "memory/claims/CLM-1020.md",
+        "paper/paralleled_vsg_marl/working/feasibility_native_four_vsg_contract.md",
+        "src/andes_rl_kundur/control/active_power.py",
+        "src/andes_rl_kundur/control/feasibility_native_vsg_action.py",
+        "src/andes_rl_kundur/control/vsg_energy_port.py"
+      ],
+      "supersedes": [],
+      "review_after": null
+    },
+    {
+      "id": "gate-b2-deterministic-physical-contract",
+      "purpose": "experiment-contract",
+      "path": "paper/paralleled_vsg_marl/working/gate_b2_deterministic_physical_contract.md",
+      "status": "superseded",
+      "canonical": false,
+      "authoritative": false,
+      "producer": "project-scratch",
+      "inputs": [
+        "memory/claims/CLM-1025.md",
+        "paper/paralleled_vsg_marl/working/gate_b_deterministic_physical_contract.md",
+        "src/andes_rl_kundur/control/active_power.py",
+        "src/andes_rl_kundur/control/feasibility_native_vsg_action.py",
+        "src/andes_rl_kundur/control/vsg_energy_port.py"
+      ],
+      "supersedes": [],
+      "review_after": null
+    },
+    {
+      "id": "gate-b3-deterministic-physical-contract",
+      "purpose": "experiment-contract",
+      "path": "paper/paralleled_vsg_marl/working/gate_b3_deterministic_physical_contract.md",
+      "status": "superseded",
+      "canonical": false,
+      "authoritative": false,
+      "producer": "project-scratch",
+      "inputs": [
+        "memory/claims/CLM-1035.md",
+        "paper/paralleled_vsg_marl/working/gate_b_deterministic_physical_contract.md",
+        "src/andes_rl_kundur/control/active_power.py",
+        "src/andes_rl_kundur/control/feasibility_native_vsg_action.py",
+        "src/andes_rl_kundur/control/vsg_energy_port.py"
+      ],
+      "supersedes": [],
+      "review_after": null
+    },
+    {
+      "id": "evidence-reviews",
+      "purpose": "evidence-reviews",
+      "path": "paper/paralleled_vsg_marl/reviews",
+      "status": "active",
+      "canonical": true,
+      "authoritative": false,
+      "producer": "audit-manuscript-evidence+review-power-systems-manuscript",
+      "inputs": [
+        "results/research_loop/r365_per_vsg_object_gate/formal_analysis.json",
+        "results/research_loop/r365_per_vsg_object_gate/formal_execution.json",
+        "results/research_loop/r368_deterministic_headroom/formal_analysis.json",
+        "results/research_loop/r368_deterministic_headroom/formal_execution.json",
+        "results/research_loop/r369_actuator_mapping_reanalysis/analysis.json",
+        "results/research_loop/r371_vsg_energy_port_design/analysis_v5.json",
+        "results/research_loop/r372_energy_port_object_gate/formal_analysis.json",
+        "results/research_loop/r372_energy_port_object_gate/formal_execution.json",
+        "results/research_loop/r373_energy_port_authority/formal_analysis.json",
+        "results/research_loop/r373_energy_port_authority/formal_execution.json",
+        "results/research_loop/r375_deterministic_decoupling_identity_correction/formal_analysis.json",
+        "results/research_loop/r375_deterministic_decoupling_identity_correction/evaluation_execution.json"
+      ],
+      "supersedes": [],
+      "review_after": null
+    },
+    {
+      "id": "decoupling-marl-landscape",
+      "purpose": "research-synthesis",
+      "path": "paper/paralleled_vsg_marl/working/Decoupling-Oriented_Coordination_of_Paralleled_VSGs_with_MARL_deep-research.md",
+      "status": "active",
+      "canonical": true,
+      "authoritative": false,
+      "producer": "deep-research",
+      "inputs": [],
+      "supersedes": [],
+      "review_after": "2027-02-12"
+    },
+    {
+      "id": "md-route-causal-diagnosis",
+      "purpose": "research-synthesis",
+      "path": "paper/paralleled_vsg_marl/working/why-md-looks-like-the-only-successful-marl-route.md",
+      "status": "active",
+      "canonical": false,
+      "authoritative": false,
+      "producer": "deep-research",
+      "inputs": [
+        "paper/paralleled_vsg_marl/working/Decoupling-Oriented_Coordination_of_Paralleled_VSGs_with_MARL_deep-research.md",
+        "memory/claims/CLM-0320.md",
+        "memory/claims/CLM-0445.md",
+        "memory/claims/CLM-0495.md",
+        "memory/claims/CLM-0610.md",
+        "memory/claims/CLM-0905.md",
+        "memory/claims/CLM-0915.md",
+        "memory/claims/CLM-0990.md",
+        "memory/claims/CLM-1020.md",
+        "memory/claims/CLM-1050.md",
+        "memory/claims/CLM-1045.md"
+      ],
+      "supersedes": [],
+      "review_after": "2027-02-12"
+    },
+    {
+      "id": "learning-readiness-deep-research",
+      "purpose": "research-synthesis",
+      "path": "paper/paralleled_vsg_marl/working/when-learning-is-unnecessary-learning-readiness-deep-research.md",
+      "status": "active",
+      "canonical": false,
+      "authoritative": false,
+      "producer": "deep-research",
+      "inputs": [
+        "paper/paralleled_vsg_marl/working/Decoupling-Oriented_Coordination_of_Paralleled_VSGs_with_MARL_deep-research.md",
+        "paper/paralleled_vsg_marl/working/why-md-looks-like-the-only-successful-marl-route.md",
+        "memory/claims/CLM-0550.md",
+        "memory/claims/CLM-0905.md",
+        "memory/claims/CLM-0990.md",
+        "memory/claims/CLM-1055.md"
+      ],
+      "supersedes": [],
+      "review_after": "2027-02-13"
+    },
+    {
+      "id": "grid-control-vsg-bess-active-power-deep-research",
+      "purpose": "research-synthesis",
+      "path": "paper/paralleled_vsg_marl/working/from-grid-frequency-control-to-vsg-bess-active-power-deep-research.md",
+      "status": "active",
+      "canonical": false,
+      "authoritative": false,
+      "producer": "deep-research",
+      "inputs": [
+        "docs/research/2026-07-25_energy_feasible_multitimescale_vsg_landscape.md",
+        "paper/paralleled_vsg_marl/working/feasibility_native_four_vsg_contract.md",
+        "paper/paralleled_vsg_marl/reports/R371.md",
+        "paper/paralleled_vsg_marl/reports/R372.md",
+        "paper/paralleled_vsg_marl/reports/R373.md",
+        "paper/paralleled_vsg_marl/reports/R375.md",
+        "paper/paralleled_vsg_marl/reports/R382.md"
+      ],
+      "supersedes": [],
+      "review_after": "2027-02-13"
+    },
+    {
+      "id": "manuscript-argument-contract",
+      "purpose": "manuscript-argument-contract",
+      "path": "paper/paralleled_vsg_marl/working/manuscript_argument_contract.md",
+      "status": "active",
+      "canonical": true,
+      "authoritative": false,
+      "producer": "ask-research-supervisor",
+      "inputs": [
+        "paper/paralleled_vsg_marl/ROUTE.md",
+        "paper/paralleled_vsg_marl/LINE.md",
+        "docs/adr/0015-reset-fixed-title-to-object-matched-line.md",
+        "memory/claims/CLM-0975.md",
+        "memory/claims/CLM-0980.md",
+        "memory/claims/CLM-0985.md",
+        "memory/claims/CLM-0990.md",
+        "memory/claims/CLM-0995.md",
+        "memory/claims/CLM-1000.md",
+        "memory/claims/CLM-1005.md",
+        "memory/claims/CLM-1010.md",
+        "memory/claims/CLM-1015.md",
+        "memory/claims/CLM-1020.md",
+        "memory/claims/CLM-1025.md",
+        "memory/claims/CLM-1030.md",
+        "memory/claims/CLM-1035.md",
+        "memory/claims/CLM-1040.md",
+        "memory/claims/CLM-1045.md",
+        "memory/claims/CLM-1050.md",
+        "memory/claims/CLM-1055.md"
+      ],
+      "supersedes": [],
+      "review_after": null
+    },
+    {
+      "id": "manuscript-draft",
+      "purpose": "manuscript-draft",
+      "path": "paper/paralleled_vsg_marl/manuscript/manuscript.md",
+      "status": "active",
+      "canonical": true,
+      "authoritative": false,
+      "producer": "ask-research-supervisor",
+      "inputs": [
+        "paper/paralleled_vsg_marl/working/manuscript_argument_contract.md",
+        "paper/paralleled_vsg_marl/working/feasibility_native_four_vsg_contract.md",
+        "memory/claims/CLM-0975.md",
+        "memory/claims/CLM-0980.md",
+        "memory/claims/CLM-0985.md",
+        "memory/claims/CLM-0990.md",
+        "memory/claims/CLM-0995.md",
+        "memory/claims/CLM-1000.md",
+        "memory/claims/CLM-1005.md",
+        "memory/claims/CLM-1010.md",
+        "memory/claims/CLM-1015.md",
+        "memory/claims/CLM-1020.md",
+        "memory/claims/CLM-1025.md",
+        "memory/claims/CLM-1030.md",
+        "memory/claims/CLM-1035.md",
+        "memory/claims/CLM-1040.md",
+        "memory/claims/CLM-1045.md",
+        "memory/claims/CLM-1050.md",
+        "memory/claims/CLM-1055.md"
+      ],
+      "supersedes": [],
+      "review_after": null
+    },
+    {
+      "id": "venue-decision-2026-08-13",
+      "purpose": "venue-decision",
+      "path": "paper/paralleled_vsg_marl/working/venue_decision_2026-08-13.md",
+      "status": "active",
+      "canonical": true,
+      "authoritative": false,
+      "producer": "ask-research-supervisor",
+      "inputs": [],
+      "supersedes": [],
+      "review_after": "2026-10-06"
+    }
+  ]
+}
