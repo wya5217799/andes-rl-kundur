@@ -68,10 +68,20 @@ def test_source_and_parent_closure_bind_exact_r352_r358_inputs() -> None:
 
 def test_rehearsal_and_prepare_are_create_only_and_do_not_read_holdout_labels(
     tmp_path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     rehearsal_path = tmp_path / "rehearsal.json"
     seal_path = tmp_path / "seal.json"
     formal_out = tmp_path / "formal"
+    active_plan = tmp_path / "plan.md"
+    active_question = tmp_path / "question.md"
+    active_plan.write_text("---\nstate: active\n---\n", encoding="utf-8")
+    active_question.write_text(
+        "---\nstatus: in-flight\n---\nR359:\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(r359, "PLAN", active_plan)
+    monkeypatch.setattr(r359, "QUESTION", active_question)
 
     r359.rehearsal(rehearsal_path, out_dir=formal_out)
     rehearsal = json.loads(rehearsal_path.read_text(encoding="utf-8"))

@@ -53,6 +53,14 @@ def _run(root: Path, *args: str) -> subprocess.CompletedProcess[str]:
     )
 
 
+def test_repository_tutoring_requires_explicit_invocation() -> None:
+    agents = (REPO_ROOT / "AGENTS.md").read_text(encoding="utf-8")
+
+    assert "Repository tutoring is explicit-only" in agents
+    assert "explicitly invokes `$atomic-stem-tutor`" in agents
+    assert "ordinary requests to\nunderstand, explain, or interpret" in agents
+
+
 def test_clean_repository_passes_through_the_cli_seam(tmp_path: Path) -> None:
     (tmp_path / "README.md").write_text("See docs/source.md\n", encoding="utf-8")
     (tmp_path / "docs").mkdir()

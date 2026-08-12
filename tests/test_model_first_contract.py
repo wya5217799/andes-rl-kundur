@@ -176,6 +176,10 @@ def test_finite_difference_input_jacobians_recover_descriptor_input_blocks() -> 
 
     np.testing.assert_allclose(jacobians.f_input, f_input, atol=1e-10)
     np.testing.assert_allclose(jacobians.g_input, g_input, atol=1e-10)
+    np.testing.assert_allclose(
+        jacobians.midpoint_ratios,
+        np.asarray([1e-6 / 4.5, 1e-6 / np.sqrt(14.0)]),
+    )
     assert jacobians.scheme == "central"
 
 

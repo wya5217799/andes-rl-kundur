@@ -78,8 +78,25 @@ def test_r330_design_and_mismatch_fingerprints_reconstruct_exactly() -> None:
     ]
 
 
-def test_r330_accepts_only_the_known_r329_closure_drift() -> None:
-    parent = _module()._parent_bundle()
+def test_r330_accepts_only_the_known_r329_closure_drift(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    module = _module()
+    r329_seal, _digest = module.r329.r328.r326.r325._read_verified_json(
+        module.R329_SEAL,
+        "a36340c17ca5738946d2bc42f7ddb54a17af1a3211d98f58bec0c7fcebd405aa",
+    )
+    dependency = r329_seal["sources"]["project_dependencies"]
+    dependency_path = (module.ROOT / dependency["path"]).resolve()
+    original_sha256_file = module._sha256_file
+
+    def sealed_dependency_hash(path: Path) -> str:
+        if path.resolve() == dependency_path:
+            return dependency["sha256"]
+        return original_sha256_file(path)
+
+    monkeypatch.setattr(module, "_sha256_file", sealed_dependency_hash)
+    parent = module._parent_bundle()
 
     assert parent["r329_expected_closure_source_drift"] == ["plan", "question"]
     assert len(parent["r329_seal"]["sha256"]) == 64
