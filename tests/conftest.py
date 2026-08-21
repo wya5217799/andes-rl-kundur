@@ -9,8 +9,9 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 SRC = str(ROOT / "src")
 
-if SRC not in sys.path:
-    sys.path.insert(0, SRC)
+for _path in (SRC, str(ROOT)):
+    if _path not in sys.path:
+        sys.path.insert(0, _path)
 
 
 _CLOSED_ROUND_LIFECYCLE_TESTS = {

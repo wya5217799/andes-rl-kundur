@@ -41,6 +41,14 @@ from andes_rl_kundur.probes.andes_common.paper_constants import SCENARIOS  # noq
 
 BASELINE_DIR = ROOT / "results" / "research_loop" / "eval_v4_baseline_PRE_REFACTOR"
 
+
+@pytest.fixture(autouse=True)
+def _isolate_andes_working_directory(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    """Keep real-ANDES TDS outputs out of the repository root during replay."""
+    monkeypatch.chdir(tmp_path)
+
 # Match the no-control eval harness exactly
 SEED = 42
 STEPS = 150
