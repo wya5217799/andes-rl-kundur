@@ -9,6 +9,10 @@ scientific command, registers a claim, edits a feed, creates a formal seal, or
 writes paper-facing output. Round plans, seals, results, feeds, claims, and
 project gates remain the scientific authority.
 
+Round phases are inferred from positive evidence only: rehearsal, formal seal,
+material output, round-bound feed reports, round-citing claims, and verdicts.
+Insufficient evidence yields `unknown` or `inconsistent`, never a guess.
+
 ## Command families
 
 | Need | Command family | Writes |
@@ -28,6 +32,10 @@ SHA-256 digest.
 
 Operational metadata and events are hash-bound. Events use create-only,
 per-sequence atomic files guarded by crash-releasing operating-system locks.
+A terminal job event also writes a create-only hash-bound terminal record
+binding the terminal event digest; readers fall back to the event chain when
+that record is absent. Artifact traces include the declared command and its
+digest when exactly one owner round declares it.
 Scratch frontiers freeze candidate and compute budgets, retain terminal
 failures, and rank successful candidates deterministically.
 

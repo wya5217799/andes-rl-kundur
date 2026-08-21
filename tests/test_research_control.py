@@ -55,6 +55,26 @@ def _write_json(path: Path, payload: dict[str, object]) -> None:
     path.write_text(json.dumps(payload), encoding="utf-8")
 
 
+def test_snapshot_maps_analysis_and_audit_from_positive_evidence(tmp_path: Path) -> None:
+    round_dir = _write_round(tmp_path, body="Create-only root `results/r7`.")
+    (round_dir / "rehearsal.json").write_text("{}", encoding="utf-8")
+    (round_dir / "formal_seal.json").write_text("{}", encoding="utf-8")
+    (tmp_path / "results" / "r7").mkdir(parents=True)
+    (tmp_path / "results" / "r7" / "data.json").write_text("{}", encoding="utf-8")
+
+    assert build_control_snapshot(tmp_path)["rounds"][0]["phase"] == "materializing"
+
+    feed = tmp_path / "paper" / "demo" / "reports" / "R7.md"
+    feed.parent.mkdir(parents=True)
+    feed.write_text("Analysis of R7.\n", encoding="utf-8")
+    assert build_control_snapshot(tmp_path)["rounds"][0]["phase"] == "analysis"
+
+    claims = tmp_path / "memory" / "claims"
+    claims.mkdir(parents=True)
+    (claims / "CLM-0001.md").write_text("Finding from R7.\n", encoding="utf-8")
+    assert build_control_snapshot(tmp_path)["rounds"][0]["phase"] == "audit"
+
+
 def test_snapshot_infers_positive_round_lifecycle_without_zombie_guessing(
     tmp_path: Path,
 ) -> None:
@@ -492,6 +512,77 @@ def test_aborted_job_registration_does_not_mask_or_brick(tmp_path: Path, monkeyp
     assert registered["job_id"] == "crashed"
 
 
+def test_terminal_status_is_bound_into_the_job_record(tmp_path: Path) -> None:
+    _write_round(tmp_path, body="Create-only root `results/r7`.")
+    store = OperationalEventStore(tmp_path)
+    store.register_job(
+        job_id="terminal",
+        round_id="R7",
+        command="python run.py",
+        output_root="results/r7",
+        process_budget=1,
+    )
+    store.append_event("terminal", "running", {})
+    succeeded = store.append_event("terminal", "succeeded", {"exit_code": 0})
+
+    terminal_path = (
+        tmp_path / "tmp" / "research-control" / "jobs" / "terminal" / "terminal.json"
+    )
+    payload = json.loads(terminal_path.read_text(encoding="utf-8"))
+    assert payload["schema"] == "andes-research-control/job-terminal.v1"
+    assert payload["job_id"] == "terminal"
+    assert payload["event"] == "succeeded"
+    assert payload["event_sha256"] == succeeded["sha256"]
+
+    jobs, _ = store.list_jobs_with_diagnostics()
+    assert jobs[0]["terminal_status"] == "succeeded"
+
+
+def test_terminal_status_falls_back_and_mismatch_degrades(tmp_path: Path) -> None:
+    _write_round(tmp_path, body="Create-only root `results/r7`.")
+    store = OperationalEventStore(tmp_path)
+    store.register_job(
+        job_id="fallback",
+        round_id="R7",
+        command="python run.py",
+        output_root="results/r7",
+        process_budget=1,
+    )
+    store.append_event("fallback", "running", {})
+    store.append_event("fallback", "failed", {"reason": "fixture"})
+
+    terminal_path = (
+        tmp_path / "tmp" / "research-control" / "jobs" / "fallback" / "terminal.json"
+    )
+    terminal_path.unlink()
+    jobs, diagnostics = store.list_jobs_with_diagnostics()
+    assert jobs[0]["terminal_status"] == "failed"
+    assert diagnostics == []
+
+    payload = {
+        "schema": "andes-research-control/job-terminal.v1",
+        "job_id": "fallback",
+        "event": "failed",
+        "at": "2026-08-21T00:00:00+00:00",
+        "event_sha256": "0" * 64,
+    }
+    payload["sha256"] = hashlib.sha256(
+        json.dumps(
+            payload,
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
+            allow_nan=False,
+        ).encode("utf-8")
+    ).hexdigest()
+    terminal_path.write_text(json.dumps(payload), encoding="utf-8")
+    jobs, diagnostics = store.list_jobs_with_diagnostics()
+    assert jobs == []
+    assert any(
+        value["code"] == "invalid-operational-job" for value in diagnostics
+    )
+
+
 def test_job_registration_accepts_trailing_slash_plan_roots(tmp_path: Path) -> None:
     _write_round(tmp_path, body="Create-only root `results/r7/`.")
     registered = OperationalEventStore(tmp_path).register_job(
@@ -688,6 +779,26 @@ def test_artifact_trace_binds_integrity_round_claim_feed_and_seal(tmp_path: Path
     assert len(reproduction["blocked_command_sha256"]) == 64
     assert reproduction["status"] == "blocked"
     assert "output-root-exists" in reproduction["blockers"]
+
+
+def test_artifact_trace_binds_the_declared_command(tmp_path: Path) -> None:
+    _write_round(
+        tmp_path,
+        body=(
+            "Create-only root `results/research_loop/r7_demo`.\n"
+            "## Formal launch contract\n"
+            "- formal_entry: `python scripts/run_r7.py formal`\n"
+        ),
+    )
+    artifact = tmp_path / "results" / "research_loop" / "r7_demo" / "decision.json"
+    _write_json(artifact, {"decision": "STOP"})
+
+    traced = trace_artifact(tmp_path, "results/research_loop/r7_demo/decision.json")
+
+    assert traced["declared_command"] == "python scripts/run_r7.py formal"
+    assert traced["declared_command_sha256"] == hashlib.sha256(
+        b"python scripts/run_r7.py formal"
+    ).hexdigest()
 
 
 def test_artifact_trace_reports_missing_drift_and_ambiguous_owners(tmp_path: Path) -> None:

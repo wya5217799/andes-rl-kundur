@@ -32,6 +32,8 @@ _RESULT_ROOT_RE = re.compile(
 _FORMAL_ENTRY_RE = re.compile(
     r"(?mi)^\s*-\s*`?formal_entry`?\s*:\s*(?P<value>.+?)\s*$"
 )
+_FEED_ROUND_COMPONENT_RE = re.compile(r"^[rR](\d+)(?:[_.-].*)?$")
+_CLAIM_ROUND_RE = re.compile(r"(?<![A-Za-z0-9])R(\d+)(?!\d|[A-Za-z])")
 _JOB_ID_RE = re.compile(r"^[a-z0-9][a-z0-9_.-]{0,63}$")
 _ROUND_ID_RE = re.compile(r"^R\d+$")
 _TERMINAL_EVENTS = frozenset({"succeeded", "failed", "cancelled"})
@@ -451,9 +453,71 @@ class OperationalEventStore:
             event["sha256"] = _payload_sha256(event)
             events_dir = job_dir / "events"
             _ensure_repository_write_path(self.repo_root, events_dir)
+            if event_name in _TERMINAL_EVENTS:
+                terminal_path = job_dir / "terminal.json"
+                _ensure_repository_write_path(self.repo_root, terminal_path)
+                if terminal_path.exists():
+                    raise ResearchControlError(
+                        f"operational job already has a terminal record: {job_id}"
+                    )
             events_dir.mkdir(exist_ok=True)
             _write_atomic_json(events_dir / f"{event['sequence']:08d}.json", event)
+            if event_name in _TERMINAL_EVENTS:
+                self._write_terminal_binding(job_id, event)
             return event
+
+    def _write_terminal_binding(self, job_id: str, event: Mapping[str, Any]) -> None:
+        """Bind the terminal status into the job record as a create-only sidecar.
+
+        The store rejects a second terminal record, so the sidecar is immutable
+        at the store level; a crash between the event write and this write
+        leaves the sidecar absent, and readers fall back to the event chain.
+        """
+
+        job_dir = self._job_dir(job_id)
+        path = job_dir / "terminal.json"
+        payload: dict[str, Any] = {
+            "schema": "andes-research-control/job-terminal.v1",
+            "job_id": job_id,
+            "event": str(event["event"]),
+            "at": str(event["at"]),
+            "event_sha256": str(event["sha256"]),
+        }
+        payload["sha256"] = _payload_sha256(payload)
+        _write_atomic_json(path, payload)
+
+    def _read_terminal(self, job_id: str) -> dict[str, Any] | None:
+        path = self._job_dir(job_id) / "terminal.json"
+        _ensure_repository_write_path(self.repo_root, path)
+        if not path.exists():
+            return None
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as exc:
+            raise ResearchControlError(
+                f"cannot read operational job terminal record {job_id}: {exc}"
+            ) from exc
+        if not isinstance(payload, dict):
+            raise ResearchControlError(
+                f"operational job terminal record is not an object: {job_id}"
+            )
+        recorded_hash = payload.get("sha256")
+        unhashed = {key: value for key, value in payload.items() if key != "sha256"}
+        if not isinstance(recorded_hash, str) or recorded_hash != _payload_sha256(unhashed):
+            raise ResearchControlError(
+                f"operational job terminal record hash mismatch: {job_id}"
+            )
+        if (
+            payload.get("schema") != "andes-research-control/job-terminal.v1"
+            or payload.get("job_id") != job_id
+            or payload.get("event") not in _TERMINAL_EVENTS
+            or not isinstance(payload.get("at"), str)
+            or re.fullmatch(r"[0-9a-f]{64}", str(payload.get("event_sha256"))) is None
+        ):
+            raise ResearchControlError(
+                f"operational job terminal record schema is invalid: {job_id}"
+            )
+        return payload
 
     def append_event(
         self,
@@ -499,6 +563,15 @@ class OperationalEventStore:
             try:
                 job = self._read_job(path.name)
                 events = self.list_events(path.name)
+                terminal = self._read_terminal(path.name)
+                if terminal is not None and (
+                    not events
+                    or events[-1]["event"] not in _TERMINAL_EVENTS
+                    or events[-1]["sha256"] != terminal["event_sha256"]
+                ):
+                    raise ResearchControlError(
+                        f"operational job terminal record does not bind the chain: {path.name}"
+                    )
             except ResearchControlError as exc:
                 diagnostics.append(
                     {
@@ -510,6 +583,12 @@ class OperationalEventStore:
                 continue
             job["latest_event"] = events[-1]["event"] if events else None
             job["latest_sequence"] = events[-1]["sequence"] if events else 0
+            if terminal is not None:
+                job["terminal_status"] = terminal["event"]
+            elif events and events[-1]["event"] in _TERMINAL_EVENTS:
+                job["terminal_status"] = events[-1]["event"]
+            else:
+                job["terminal_status"] = None
             values.append(job)
         return values, diagnostics
 
@@ -1565,13 +1644,18 @@ def _formal_seal_validation(
     }
 
 
+def _feed_candidates(repo_root: Path) -> list[Path]:
+    return sorted(
+        {
+            *repo_root.glob("paper/*/reports/*.md"),
+            *repo_root.glob("results/**/FEED.md"),
+        }
+    )
+
+
 def _feed_refs(repo_root: Path, target_path: str) -> list[str]:
-    candidates = [
-        *repo_root.glob("paper/*/reports/*.md"),
-        *repo_root.glob("results/**/FEED.md"),
-    ]
     refs: list[str] = []
-    for feed in sorted(set(candidates)):
+    for feed in _feed_candidates(repo_root):
         try:
             text = feed.read_text(encoding="utf-8")
         except OSError:
@@ -1605,6 +1689,12 @@ def trace_artifact(repo_root: Path, artifact_path: str | Path) -> dict[str, Any]
         if binding_statuses
         else "unreferenced"
     )
+    declared_command = owners[0]["formal_entry"] if len(owners) == 1 else None
+    declared_command_sha256 = (
+        hashlib.sha256(declared_command.encode("utf-8")).hexdigest()
+        if declared_command is not None
+        else None
+    )
     return {
         "schema": "andes-research-control/artifact-trace.v1",
         "authority": "derived-non-authoritative",
@@ -1612,6 +1702,8 @@ def trace_artifact(repo_root: Path, artifact_path: str | Path) -> dict[str, Any]
         "integrity": _artifact_integrity(target),
         "owner_rounds": owner_ids,
         "provenance_status": provenance_status,
+        "declared_command": declared_command,
+        "declared_command_sha256": declared_command_sha256,
         "claim_refs": [value["claim_id"] for value in claim_bindings],
         "claim_bindings": claim_bindings,
         "feed_refs": _feed_refs(root, relative),
@@ -1631,10 +1723,8 @@ def build_reproduction_plan(
     owners = [
         record for record in _plan_records(root) if record["round"] in trace["owner_rounds"]
     ]
-    command = owners[0]["formal_entry"] if len(owners) == 1 else None
-    command_sha256 = (
-        hashlib.sha256(command.encode("utf-8")).hexdigest() if command is not None else None
-    )
+    command = trace["declared_command"]
+    command_sha256 = trace["declared_command_sha256"]
     blockers: list[str] = []
     integrity = trace["integrity"]["status"]
     if integrity != "verified":
@@ -1719,6 +1809,40 @@ def _has_material_files(path: Path) -> bool:
         return False
 
 
+def _feed_bound_rounds(repo_root: Path) -> set[int]:
+    """Round numbers with a positively bound feed report.
+
+    Only the feed's own name component may bind: the report filename for
+    manuscript feeds and the run directory for results/*/FEED.md.
+    """
+
+    values: set[int] = set()
+    for feed in _feed_candidates(repo_root):
+        component = feed.parent.name if feed.name == "FEED.md" else feed.name
+        match = _FEED_ROUND_COMPONENT_RE.fullmatch(component)
+        if match is not None:
+            values.add(int(match.group(1)))
+    return values
+
+
+def _claim_cited_rounds(repo_root: Path) -> set[int]:
+    """Round numbers cited by at least one claim statement."""
+
+    values: set[int] = set()
+    claims_dir = repo_root / "memory" / "claims"
+    if not claims_dir.is_dir():
+        return values
+    for path in sorted(claims_dir.glob("*.md")):
+        if path.name.startswith("_"):
+            continue
+        try:
+            text = path.read_text(encoding="utf-8")
+        except OSError:
+            continue
+        values.update(int(value) for value in _CLAIM_ROUND_RE.findall(text))
+    return values
+
+
 def _phase(
     *,
     state: str,
@@ -1726,6 +1850,8 @@ def _phase(
     has_seal: bool,
     has_material_output: bool,
     has_verdict: bool,
+    has_feed_report: bool,
+    has_claim_citation: bool,
 ) -> str:
     if state not in {"active", "completed", "superseded", "aborted"}:
         return "unknown"
@@ -1738,6 +1864,10 @@ def _phase(
     if has_seal and not has_rehearsal:
         return "inconsistent"
     if has_material_output:
+        if has_feed_report and has_claim_citation:
+            return "audit"
+        if has_feed_report:
+            return "analysis"
         return "materializing"
     if has_seal:
         return "sealed"
@@ -1746,7 +1876,13 @@ def _phase(
     return "prepared"
 
 
-def _round_snapshot(repo_root: Path, plan_path: Path) -> dict[str, Any]:
+def _round_snapshot(
+    repo_root: Path,
+    plan_path: Path,
+    *,
+    feed_rounds: set[int],
+    claim_rounds: set[int],
+) -> dict[str, Any]:
     metadata, body = _read_plan(plan_path)
     round_id = metadata.get("round")
     if not isinstance(round_id, str) or not round_id.strip():
@@ -1762,12 +1898,17 @@ def _round_snapshot(repo_root: Path, plan_path: Path) -> dict[str, Any]:
     has_seal = (round_dir / "formal_seal.json").is_file()
     has_verdict = (round_dir / "verdict.md").is_file()
     has_material_output = bool(material_roots)
+    round_number = int(round_id[1:]) if round_id[1:].isdigit() else -1
+    has_feed_report = round_number in feed_rounds
+    has_claim_citation = round_number in claim_rounds
     phase = _phase(
         state=state,
         has_rehearsal=has_rehearsal,
         has_seal=has_seal,
         has_material_output=has_material_output,
         has_verdict=has_verdict,
+        has_feed_report=has_feed_report,
+        has_claim_citation=has_claim_citation,
     )
     blockers: list[str] = []
     if phase == "unknown":
@@ -1791,6 +1932,8 @@ def _round_snapshot(repo_root: Path, plan_path: Path) -> dict[str, Any]:
             "formal_seal": has_seal,
             "material_output": has_material_output,
             "verdict": has_verdict,
+            "feed_report": has_feed_report,
+            "claim_citation": has_claim_citation,
         },
     }
 
@@ -1817,9 +1960,18 @@ def build_control_snapshot(
     )
     rounds: list[dict[str, Any]] = []
     diagnostics: list[dict[str, str]] = []
+    feed_rounds = _feed_bound_rounds(root)
+    claim_rounds = _claim_cited_rounds(root)
     for path in plans:
         try:
-            rounds.append(_round_snapshot(root, path))
+            rounds.append(
+                _round_snapshot(
+                    root,
+                    path,
+                    feed_rounds=feed_rounds,
+                    claim_rounds=claim_rounds,
+                )
+            )
         except ResearchControlError as exc:
             diagnostics.append(
                 {
