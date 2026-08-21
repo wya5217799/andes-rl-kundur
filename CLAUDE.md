@@ -244,6 +244,9 @@ canonical，不再要求另建 Note 索引。
 - 查 baseline: `baselines.py --match <ref_run>` (measured, 别估).
 - 看状态: `status.py`; 查 claim: `query.py --tag / --best`; 关轮:
   `close_round.py RNN completed|superseded|aborted`.
+- 跨 round/job/artifact/scratch 的非权威控制视图用
+  `research_control.py`; 它不启动科研命令、不提升证据，契约见
+  `docs/repo-hygiene/research-control.md`.
 - reward-ablation claim 后必跑 `dual_metric_lint.py`.
 - 打分复用: `scripts/score_run.py` (paper-grade ranker).
 
