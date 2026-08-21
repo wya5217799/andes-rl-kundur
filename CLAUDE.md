@@ -14,6 +14,11 @@
 - **不依赖 cwd** — 用 `Path(__file__).resolve().parents[N]` 自找 ROOT.
 - **跨平台 ASCII fallback** — Windows GBK terminal 显示不了 ✓/✗, 统一 ASCII.
 - **文档跟代码一起改** — 改 CLAUDE.md / 模板是改动的一部分, 不是 follow-up.
+- **简化按证据** (吸收自 dsh-find-simplifications): 强候选 = 无生产消费者 /
+  仅测试·文档引用且非 load-bearing / 同一事实两份表示 / seam 方法无人用 /
+  纯测试支撑包 / speculative generality / 为未用 API 守护的不变式 /
+  手写重实现依赖。拒绝 = 有生产 caller (feature 决策非清理)、被决策或
+  defensive pattern 背书、只换 churn、太小 → TODO。全仓审计走 ask-matt。
 
 ### 2. 鲁棒性 (robustness)
 
@@ -162,6 +167,11 @@ closed-*. closed 必须有 closed_round (存在目录) + closed_by (存在 claim
 Note 只持摘要、claim candidates 与相关指针，不持 active task；未决工作必须
 升级为 `Q-NNNN` 或写入当前手稿 `LINE.md`。仓库内部 `docs/adr/` 已是
 canonical，不再要求另建 Note 索引。
+- **归档/合并按未来决策价值, 永不按字数·年龄** (吸收自
+  dsh-archive-agent-notes): 判这条 rationale 还会约束未来改动吗? keep = 负保证 /
+  持久边界 / 复现条件 / 安全规则 / 重新引入条件; archive = 一次性 UI / 已闭合
+  minor bug / 被取代实现细节 / 当前行为别处显然。字数与年龄只是发现线索,
+  不是归档判据。
 
 ## Round 文件契约 — feed 分工 (2026-07-29 起)
 
