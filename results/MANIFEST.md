@@ -88,6 +88,7 @@ locator before calling these artifacts durably archived.
 | R361 | `results/r361_neighbour_message_residual/` | `analysis.json` | `279f5aa53cfeccca658b4359441d735079da04712fd648430fa088edf320677f` |
 | R362 | `results/r362_shared_prediction_residual/` | `analysis.json` | `bcad59b38032ef8bb33293711897e06bc5a8e023f52763afcfcb640bfec14fc1` |
 | R363 | `results/r363_common_channel_qp/` | `analysis.json` | `acc805c0cb2b4a90997f9a410f1af6187fe78bf254576326dc17c649f5d00238` |
+| R445 | `results/r445_gpt_pro_intake_verify/` | `analysis.json` | `a35445af7fbce3b4dd7003c788d9102bf2dd1b4e5dbcf9650da9aaa708f601ea` |
 | R365 | `results/research_loop/r365_per_vsg_object_gate/` | `formal_analysis.json` | `3dde99211f8a685b04aa491787a9bcc0e869416637e206ac76319bc735b4986b` |
 | R366 | `results/research_loop/r366_per_vsg_md_design/` | `analysis_v3.json` | `d8c29b9f5d523fbeae095c8efd827b5b2e044afa6e2061a1f396c5bae8f4f16e` |
 | R367 | `results/research_loop/r367_deterministic_headroom/` | `formal_failure.json` | `4be0cc4e01a416035c3c5af13fba8c1c047e66b7c3e076bcc0db6c58c6ddda0f` |
@@ -105,10 +106,80 @@ locator before calling these artifacts durably archived.
 | R380 | `results/research_loop/r380_vsg_source_model_gate/` | `formal_analysis.json` | `1503ed571b9d86ccf3c15af2ee679f5be7731e94f782e2bab0f9b5b2441b9de4` |
 | R381 | `results/research_loop/r381_gate_b4_deterministic/` | `formal_analysis.json` | `696bd3c3f31e8b0e09ca3e8ff2af719b1094005dcb4863eddd3854892eec204d` |
 | R382 | `results/research_loop/r382_bounded_headroom_witness/` | `formal_analysis.json` | `ddf1639bf8b14e89254f7b08da736fa97727d1b808594b31853bdc258cadd133` |
+| R384 | `results/research_loop/r384_regcv1_object_gate/` | `formal_analysis.json` | `f9d92a165b10e2557810fa51da4c216cd2f5ccd5de2a9d14a0b10b5b022fa952` |
+| R385 | `results/research_loop/r385_regcv1_clean_init_gate/` | `formal_analysis.json` | `9c84357586387de067630e0673c1aee08e05a010bd66d13be9c9be478f9aa0c8` |
+| R386 | `results/research_loop/r386_regcv1_reference_capture_gate/` | `formal_analysis.json` | `16e0ea22e6703c3604013841c6d6e13fdaddf87f48ce1f39708879b15042a821` |
+| R387 | `results/research_loop/r387_regcv1_signed_authority_gate/` | `formal_analysis.json` | `b44586e182e0208683a1d4ed67056c23fb860b7d3aa0163cad417ce42403b12e` |
+| R388 | `results/research_loop/r388_regcv1_signed_authority_correction_gate/` | `formal_analysis.json` | `466296010670018e05619e2bd98a378c46f21d04cf74d0b01a2f4042215a5c39` |
+| R389 | `results/research_loop/r389_regf2_object_init_gate/` | `formal_analysis.json` | `45d3a4cd7942ec509cf399b71bf4115417ac4a79985cdd250aad594f793d931e` |
+| R390 | `results/research_loop/r390_regf2_equilibrium_eig_gate/` | `formal_analysis.json` | `a6a0bd51dec900ac978993aeba86347b1535e6b1e8b3a76f3b70e60382523d0e` |
+| R391 | `results/research_loop/r391_regf2_equilibrium_eig_correction_gate/` | `formal_analysis.json` | `170658c967798aced2f4b62b614dd2863d2a8445ea4e92fbc2ac05968731619e` |
+| R392 | `results/research_loop/r392_regf2_loop_perturbation_gate/` | `formal_analysis.json` | `e05da2d17c19d8d02012e4b8b1fc9d48b2ccb26d1af195bf9c3799fb7cb3ec8b` |
+| R393 | `results/research_loop/r393_ppvsm1_object_gate/` | `formal_analysis.json` | `a2f525d9463421037c433518d68e07c4fdce04079d910d8f3be024aa1cb8f3c3` |
+| R394 | `results/research_loop/r394_ppvsm1_object_gate/` | `formal_analysis.json` | `92a59571c4d704c7c655628d03048d444fe4e447e837731238b3b607d7752087` |
+| R395 | `results/research_loop/r395_ppvsm1_object_gate/` | `formal_analysis.json` | `be209cb548352aa17aaa69608a2462db8ad0c61649f8ba5bb14bff10c8e6889a` |
+| R396 | `results/research_loop/r396_ppvsm1_object_gate/` | `formal_analysis.json` | `b69847e30e6d2aee7f71dedfe7824a91a3fcc1b9591e4a5df906b3df454c916a` |
+| R397 | `results/research_loop/r397_ppvsm1_signed_authority_gate/` | `formal_analysis.json` | `98f5afd48f8f2d5bd5743f5065ae7c1104298aa2bcb71fecdc223ae6966d5e6f` |
+| R399 | `results/research_loop/r399_md_decoupling_headroom/` | `formal_analysis.json` | `03d8759f9417d382f3cc766d20f0a106cfc1822ba42a54d4d2659df1fb203088` |
+| R402 | `results/research_loop/r402_cd_matd3_canary/` | `formal_analysis.json` | `1b65ff7789483d1f1c6e36fce86d1da88e02f54009aa82ef6657711a44d705b4` |
+| R405 | `results/research_loop/r405_homogenization_gate/` | `formal_analysis.json` | `b608a586f16ef1aa9b54c08037a9637d3a29f5648a4a54a400d4afa26cf5393e` |
+| R406 | `results/research_loop/r406_alpha_sweep/` | `formal_analysis.json` | `8bcde6cd1d8d85656b21fdf7c2de91ae96afab3bbd99295e25eea2b0a109c977` |
+| R407 | `results/research_loop/r407_bandpass_gate/` | `formal_analysis.json` | `b5f698b8c838795faac263c6e66d777456b98672778ed2881d4f91f52058d460` |
+| R410 | `results/research_loop/r410_message_repair/` | `formal_analysis.json` | `7f6244ab28d1c20a7b7fbf6eae0a8cbeed39825f1b96917bce6a845e165529b1` |
+| R411 | `results/research_loop/r411_probe_amplitude_ladder/` | `formal_analysis.json` | `dde83a3bd1d39addacefe7d2111aa3e86b6c73497521d8d67aa90348fc219b29` |
+| R413 | `results/research_loop/r413_topology_robustness/` | `formal_analysis.json` | `bc94e1fe35ed77e4a45aa189f3158a3c0c3178ebdad763cf8c340f963ca7fb9e` |
+| R415 | `results/research_loop/r415_energy_port_extra_banks/` | `formal_analysis.json` | `58081cd4a990189b140ab4b114aa333fd18f7b8b7236d1dd2b969ef116e8502f` |
+| R416 | `results/research_loop/r416_headroom_expansion/` | `formal_analysis.json` | `f6e4740cc7a1d25c7cd043879ccdce5f89704f8f37bda946dabcf40c897aa21e` |
+| R417 | `results/research_loop/r417_energy_port_banks_k4/` | `formal_analysis.json` | `a96864f8a1d31548f1c1603462de43bde1c1c49bc561633d4c6ce74a765596da` |
+| R419 | `results/research_loop/r419_slew_state_bundle/` | `formal_analysis.json` | `9aa5ddd24e7bbeaa992b02a14fde27c368c0f32688591a646adbf7146e86115e` |
+| R420 | `results/research_loop/r420_objective_repair/` | `formal_analysis.json` | `f571966aba08f41612ec7ae217adb1e151a71f2bfdd70d92b7e3584a27b626b2` |
+| R421 | `results/research_loop/r421_diagnostics/` | `formal_analysis.json` | `00dfc2e3ec4969dafc746241c8a6f1e8b994d8654f33cf1351df6750fd636a99` |
+| R422 | `results/research_loop/r422_common_channel_repair/` | `formal_analysis.json` | `94791178d109eb282849150f3a9252e46694a45330d0807e5e3f72067ff595ff` |
+| R423 | `results/research_loop/r423_value_estimation_repair/` | `formal_analysis.json` | `f7f19914c842ad85d5ccd0de77a49608fab8006a199f7a25177e34189a191534` |
+| R424 | `results/research_loop/r424_guard_aligned_constraints/` | `formal_analysis.json` | `948c1864426867fe97bc2e6a70af2b9d0c168a690edba1fa742da94071df7f36` |
+| R425 | `results/research_loop/r425_guard_constraints_signfix/` | `formal_analysis.json` | `080b6e2f6c7ffafe9f1bb95634773834458cadb9bcc1d53d50559e2b47e5831e` |
+| R426 | `results/research_loop/r426_b2_five_seed/` | `formal_analysis.json` | `df9f7afae812fc04a1cb9595f5396e53541945fd4296e647d441bc8bb097a06d` |
+| R427 | `results/research_loop/r427_critic_target_normalization/` | `formal_analysis.json` | `0c7bdf8394353e5bafe7a2259686045cbe5ac87f42dbf1819fedbe8495dd1ca6` |
+| R428 | `results/research_loop/r428_c1_sac/` | `formal_analysis.json` | `9d20232faf44ded410bc7bd178cf2593dd8605dff4d01b1872e73e5fb22a97c0` |
+| R430 | `results/research_loop/r430_adapted_sac_successor/` | `formal_analysis.json` | `b180c23840dc57d0ec2555126ba8ed0ba330d0f527d05e5d7c3f66c32216c602` |
+| R431 | `results/research_loop/r431_sac_slew/` | `formal_analysis.json` | `a040191dc46d6daaf37923048128476b07f549a5a1482ca317f9aeabde097cdf` |
+| R432 | `results/research_loop/r432_b3_diagnostics/` | `train/cd_matd3_message/seed401/diagnostics_summary.json` | `ab071bd66c86ae39b4dea1a96c47d1425fd271e733a0964bcc0fb31502f63918` |
+| R433 | `results/research_loop/r433_sac_stress_penalty/` | `formal_analysis.json` | `b55f2edee6c20b0faf8926c417d93cd00e822f590f0151ba866dea0b58d188a2` |
+| R434 | `results/research_loop/r434_sac_topology_variants/` | `formal_analysis.json` | `278f7ab038d13737de0c34c80e1cfa68d266bf380a778e86ff760e97581ec75f` |
+| R435 | `results/research_loop/r435_multiplier_floor/` | `formal_analysis.json` | `e1e9db3c7bc181a95d91427a50723a13ed0631fbe311c7bfe41f4910dc37e50e` |
+| R437 | `results/research_loop/r437_relaxed_spectral/` | `formal_analysis.json` | `10ae5d230449a2d1540b58225aaa282b1dff96f2b404ad1c79c71442d3f0e510` |
+| R436 | `results/research_loop/r436_energy_residual_sac/` | `formal_analysis.json` | `82e9ab21836ecef50ad2dc11abc29256ac3ed89a981bf75fadb77d5a99a3ef31` |
+| R439 | `results/research_loop/r439_timevarying_oracle/` | `formal_analysis.json` | `db7cd42422c5dbd30ef15d703eb4c31ad9f74a290f9ca7c42fbb4a1494cddfe5` |
+| R438 | `results/research_loop/r438_sac_message_channels/` | `formal_analysis.json` | `0f16de4dcf67eb319a4d44f75610945e9afd51761d80297f3b2feee56c690c43` |
+| R440 | `results/research_loop/r440_robustness_expansion/` | `formal_analysis.json` | `7cd23688fe9cb7f16c721d69728f92c7ba7456e41edbc9d2a19f6d9cfc226758` |
+| R441 | `results/research_loop/r441_timevarying_guard/` | `formal_analysis.json` | `d9495b27d0de27b55456294cd65662daea4795d9e71ea36f79b0e8a5dd05af29` |
+| R444 | `results/research_loop/r444_signed_probe_order/` | `formal_analysis.json` | `244998adb3ba421da7dd31ce47aa6912033262b181b77c2c0b577ed3bb5781ab` |
+| R446 | `results/research_loop/r446_md_authority_fd/` | `formal_analysis.json` | `742a0816bbc0792222793e25aa56f921408772e6063d9f09ecd1eb3263a217f2` |
+| R447 | `results/research_loop/r447_p1_complex_response/` | `formal_analysis.json` | `18b6a57e6b4616381b11abacb70c41a43e147ade635e05cc439458704d0a585be4` |
+| R449 | `results/research_loop/r449_p1_sensitivity/` | `formal_analysis.json` | `621cae2c4cf527fea8fc848f23995ef0a8c4b616be56dbc98ebdd4522ed2fb7d` |
+| R450 | `results/research_loop/r450_p2_delay_loop/` | `formal_analysis.json` | `39339ce2965767337e6a21ee013552339af396422cab729f485655776e4c10e8` |
+| R453 | `results/research_loop/r453_m5_aggregate_repair/` | `formal_analysis.json` | `fa16eda8f71621a2bc37868c80b7349f30d107d8c627fe3020ea35178e41223d` |
+| R454 | `results/research_loop/r454_m4_residual_local_audit/` | `formal_analysis.json` | `dacc138d16e4ce814b8de8a84f805b8b2612b821eb2d0385c06705a7154ac4c5` |
+| R456 | `results/research_loop/r456_m1_dual_saturation/` | `formal_analysis.json` | `02bdaaaee8d561ff4e223d5d46f5277b589a39ce623ec3a429f9f19f36348e28` |
+| R457 | `results/research_loop/r457_m2_head_causality/` | `formal_analysis.json` | `da6683e5e192a4343478115374357fa62489b2293f3422f964e8decdf0c4b324` |
+| R458 | `results/research_loop/r458_dev_select_eval_validate/` | `formal_analysis.json` | `c48424301032b5c01f1216cbb8aa4c009cccf5e7892aa60c51b38aa63c602ca9` |
+| R459 | `results/research_loop/r459_u1_u8_shared_export/` | `checks/verification_report.json` | `f27fac1b114a6495e49f92e9d8f1e832ec559b2b3610a690eef4e99ad571b5c7` |
+| R460 | `results/research_loop/r460_u3_execution_semantics/` | `checks/verification_report.json` | `2a51f1377b75848f7fef9971c46f0d3bc2a42f10c4fa93bc73643c483a330d52` |
+| R463 | `results/research_loop/r463_u4_guard_audit/` | `checks/verification_report.json` | `d557e47cdce6ccb03f8a87da0040bbff169d0a4290e85e68ef772c37221159f2` |
+| R464 | `results/research_loop/r464_u1_qy10_certificate/` | `checks/verification_report.json` | `07f02a9160ffc167eb743b0c8ba8e9c3f5532a218f7915e16470ff6b9877050c` |
+| R465 | `results/research_loop/r465_u5_total_sensitivity/` | `checks/verification_report.json` | `7b99bb7ebc344c762bfea68c5659eafd2e01f4d5e4904026ddfa149e9a4daa82` |
+| R467 | `results/research_loop/r467_u6_fractional_delay/` | `checks/verification_report.json` | `af91e07f85b4b6f3d5a90a713ac1556f4f70bc425346bead5f3c537c3105bd19` |
+| R468 | `results/research_loop/r468_u7_local_taylor/` | `checks/verification_report.json` | `564a2fa7c66c6f3a8b20fe01fe2f78854715582c11406c4591004679569c222b` |
+| R469 | `results/research_loop/r469_u8_separation_bound/` | `checks/verification_report.json` | `57050677549689b7aaa9cd85b566bd6a71adadb23dc2f4825b53747612e2de1e` |
 
-The eighty-six roots currently occupy 756,808,760 bytes. R286, R287, R291, R292,
+The one hundred and ten roots currently occupy 7,442,610,762 bytes. R286, R287, R291, R292,
 R294, R295, R296, R297, R298, R299, and R300 raw traces remain ignored; their retained trace hashes are indexed by
 each round's decision and provenance artifacts.
+
+R466 is a preserved 99,253,032-byte engineering-invalid predecessor: its
+complete linear export remains under `results/research_loop/r466_u6_fractional_delay/`,
+but cyclic raw-telemetry serialization prevented a completed formal root. R467
+is the create-only successor and does not pool R466's partial output.
 
 R366 `analysis.json` and `analysis_v2.json` are preserved pre-audit static
 snapshots.  The first lacked one shared rowwise clip/slew seam; the second
