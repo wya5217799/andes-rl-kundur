@@ -6,7 +6,9 @@ routes execution; it does not replace the full `kundur-round` skill.
 
 1. Read `CLAUDE.md`, this card, and every active round plan returned by
    `session_context.py`. Do not load historical ledgers unless a plan points
-   to them.
+   to them. Rounds without `formal_seal.json` are parked: the context lists
+   them in `active_rounds` but keeps their plans out of the cold-start byte
+   budget; read a parked plan lazily right before its capacity/prepare step.
 2. Run `round_preflight.py <round>` before the first paper-facing execution.
    Preserve the plan, seal, inputs, outputs, sidecars, failures, and exclusions.
    Never overwrite a formal artifact or change a threshold after seeing an
@@ -14,8 +16,13 @@ routes execution; it does not replace the full `kundur-round` skill.
 3. Execute only the active plan for the selected manuscript line. Do not
    reserve another round on that line, broaden the question, enter manuscript
    prose, or bind evidence to a paper line unless the plan explicitly
-   authorizes it. A separately selected task may own one round on a different
-   manuscript line; a repository-global round still blocks every line.
+   authorizes it. Exception: the owner's standing concurrency authority
+   (CLAUDE.md 并行预算) allows same-line concurrent rounds whenever the
+   concurrent-load ladder and total-memory accounting show hardware surplus;
+   the new round's plan must declare every in-flight round's processes via
+   `other_reserved_processes`. A separately selected task may own one round
+   on a different manuscript line; a repository-global round still blocks
+   every line.
 4. Before feed numeric claims, reserve a claim atomically. The feed is the
    compact experiment-facing fact sheet; large analysis, Deep Research, and
    raw outputs remain authoritative targets reached by pointers.

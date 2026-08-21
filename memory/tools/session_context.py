@@ -650,12 +650,22 @@ def build_session_context(
         # governance change, so loading the full engineering manual here would
         # duplicate policy and can crowd a legitimate active plan out of the
         # bounded cold-start budget.
+        # Multi-round programs (owner-authorized concurrency) can keep several
+        # rounds active at once; parked rounds without a formal seal must not
+        # crowd execution-started plans out of the byte budget.  Sealed round
+        # plans are the frozen authority to resume; parked plans load lazily
+        # right before their capacity/prepare step.
+        sealed_plans = tuple(
+            f"memory/rounds/{round_id}/plan.md"
+            for round_id in goal.active_rounds
+            if (repo_root / "memory" / "rounds" / round_id / "formal_seal.json").is_file()
+        )
+        resume_plans = sealed_plans or tuple(
+            f"memory/rounds/{round_id}/plan.md" for round_id in goal.active_rounds
+        )
         reading = _bounded_reading(
             repo_root,
-            (
-                ROUND_RESUME_CONTRACT,
-                *(f"memory/rounds/{round_id}/plan.md" for round_id in goal.active_rounds),
-            ),
+            (ROUND_RESUME_CONTRACT, *resume_plans),
         )
         return SessionContext(
             mode="resume-round",

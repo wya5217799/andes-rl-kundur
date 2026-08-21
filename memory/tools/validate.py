@@ -77,7 +77,10 @@ PI_PROJECT_JARGON_TERMS = (
     "归一化", "谱半径", "特征值", "状态空间", "马尔可夫", "李雅普诺夫",
     "雅可比", "共模", "差模", "耦合", "解耦", "消融", "持出", "残差",
     "模态", "超参数", "损失函数", "观测空间", "动作空间", "执行器",
-    "置信区间", "标准差", "代理模型", "智能体",
+    "置信区间", "标准差", "代理模型",
+    # "智能体" removed 2026-08-19 (owner call, gate-calibration log):
+    # the PI reads it as plain language; reviewer-feedback rounds confirmed
+    # no comprehension loss in the briefing layer.
 )
 
 # R176 G7: TL;DR recommended-section cutoff parallel to PI_BRIEFING_CUTOFF.

@@ -90,7 +90,7 @@ python memory/tools/baselines.py --match <run> # look up measured baselines
 python memory/tools/dual_metric_lint.py       # audit paper-reward-ablation claims
 ```
 
-See `MEMORY.md` for the full memory-subsystem design.
+The memory-subsystem contract lives in `CLAUDE.md`.
 
 ## Layout
 

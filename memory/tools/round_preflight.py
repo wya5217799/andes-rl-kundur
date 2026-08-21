@@ -666,11 +666,22 @@ def check_capacity_evidence(
             )
         except (TypeError, ValueError):
             pass
-    if evidence_budget > measured_workers:
+    # Owner-authorized concurrency (2026-08-17): the whole-host budget may
+    # be covered by this round's measured concurrency plus the processes
+    # declared reserved for the concurrently executing round.
+    other_reserved = 0
+    other_value = _contract_field(section, "other_reserved_processes")
+    if other_value is not None:
+        try:
+            other_reserved = int(other_value)
+        except (TypeError, ValueError):
+            other_reserved = 0
+    if evidence_budget > measured_workers + other_reserved:
         report.add(
             "BLOCK",
             "capacity-evidence",
-            f"budget {evidence_budget} exceeds measured successful concurrency {measured_workers}",
+            f"budget {evidence_budget} exceeds measured successful concurrency "
+            f"{measured_workers} plus declared reserved {other_reserved}",
             "run a prospective capacity canary or reduce the budget to a successful empirical anchor",
         )
 
