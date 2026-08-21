@@ -1,0 +1,44 @@
+{
+  "sealed-failure-preservation": {
+    "decision": "preserve-and-open-successor",
+    "actions": ["preserve-sealed-artifact"],
+    "provenance": ["sealed-artifact", "round-verdict"],
+    "stop_rule": "stop-current-route"
+  },
+  "output-root-conflict": {
+    "decision": "block-launch-and-reserve-new-root",
+    "actions": ["reserve-new-output-root"],
+    "provenance": ["round-plan", "output-root-inspection"],
+    "stop_rule": "block-before-execution"
+  },
+  "objective-sign-defect": {
+    "decision": "repair-in-successor-with-new-authority",
+    "actions": ["open-corrected-successor"],
+    "provenance": ["source-inspection", "replay-result"],
+    "stop_rule": "invalidate-defective-route"
+  },
+  "missing-hash": {
+    "decision": "withhold-claim-and-repair-provenance",
+    "actions": ["withhold-claim"],
+    "provenance": ["artifact-path", "integrity-check"],
+    "stop_rule": "stop-before-claim-promotion"
+  },
+  "claim-ceiling": {
+    "decision": "bound-claim-to-tested-formulation",
+    "actions": ["narrow-claim"],
+    "provenance": ["claim-sheet", "tested-formulation"],
+    "stop_rule": "stop-at-evidence-ceiling"
+  },
+  "background-long-work": {
+    "decision": "wait-for-terminal-operational-evidence",
+    "actions": ["bounded-wait"],
+    "provenance": ["job-registration", "latest-job-event"],
+    "stop_rule": "wait-with-bounded-polling"
+  },
+  "scratch-budget-exhaustion": {
+    "decision": "stop-frontier-and-report",
+    "actions": ["report-frontier-exhaustion"],
+    "provenance": ["frontier-budget", "candidate-ledger"],
+    "stop_rule": "stop-at-frozen-budget"
+  }
+}

@@ -1,0 +1,631 @@
+"""Behavioural tests for the non-authoritative research control plane."""
+
+from __future__ import annotations
+
+import json
+import subprocess
+import sys
+from concurrent.futures import ThreadPoolExecutor
+from pathlib import Path
+from threading import Barrier, Lock
+
+import pytest
+
+from andes_rl_kundur.research_control import (
+    OperationalEventStore,
+    ResearchControlError,
+    ScratchFrontier,
+    build_control_snapshot,
+    build_reproduction_plan,
+    run_research_bench,
+    sha256_file,
+    trace_artifact,
+)
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
+
+
+def _write_round(
+    root: Path,
+    *,
+    state: str = "active",
+    body: str = "",
+) -> Path:
+    round_dir = root / "memory" / "rounds" / "R7"
+    round_dir.mkdir(parents=True)
+    (round_dir / "plan.md").write_text(
+        "---\n"
+        "round: R7\n"
+        f"state: {state}\n"
+        "manuscript_line: null\n"
+        "opened: '2026-08-21'\n"
+        "---\n"
+        "# plan\n"
+        f"{body}\n",
+        encoding="utf-8",
+    )
+    return round_dir
+
+
+def _write_json(path: Path, payload: dict[str, object]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(payload), encoding="utf-8")
+
+
+def test_snapshot_infers_positive_round_lifecycle_without_zombie_guessing(
+    tmp_path: Path,
+) -> None:
+    round_dir = _write_round(
+        tmp_path,
+        body="Create-only root `results/research_loop/r7_demo`.",
+    )
+
+    prepared = build_control_snapshot(tmp_path)
+    assert prepared["schema"] == "andes-research-control/state.v1"
+    assert prepared["authority"]["kind"] == "derived-non-authoritative"
+    assert prepared["rounds"][0]["phase"] == "prepared"
+
+    _write_json(round_dir / "rehearsal.json", {"passed": True})
+    rehearsed = build_control_snapshot(tmp_path)
+    assert rehearsed["rounds"][0]["phase"] == "rehearsed"
+
+    _write_json(round_dir / "formal_seal.json", {"formal_authority": True})
+    sealed = build_control_snapshot(tmp_path)
+    assert sealed["rounds"][0]["phase"] == "sealed"
+
+    output = tmp_path / "results" / "research_loop" / "r7_demo"
+    output.mkdir(parents=True)
+    (output / "partial.json").write_text("{}\n", encoding="utf-8")
+    materializing = build_control_snapshot(tmp_path)
+    assert materializing["rounds"][0]["phase"] == "materializing"
+    assert materializing["rounds"][0]["result_roots"] == [
+        "results/research_loop/r7_demo"
+    ]
+    assert "zombie" not in json.dumps(materializing).casefold()
+
+
+def test_snapshot_uses_explicit_unknown_and_close_out_states(tmp_path: Path) -> None:
+    round_dir = _write_round(tmp_path)
+
+    unknown = build_control_snapshot(tmp_path)
+    assert unknown["rounds"][0]["phase"] == "prepared"
+    assert unknown["rounds"][0]["execution"] == "not-observed"
+
+    (round_dir / "verdict.md").write_text("# verdict\n", encoding="utf-8")
+    close_out = build_control_snapshot(tmp_path)
+    assert close_out["rounds"][0]["phase"] == "close-out"
+    assert close_out["active_rounds"] == []
+
+    plan = round_dir / "plan.md"
+    plan.write_text(plan.read_text(encoding="utf-8").replace("state: active", "state: completed"), encoding="utf-8")
+    closed = build_control_snapshot(tmp_path)
+    assert closed["rounds"][0]["phase"] == "closed"
+
+
+def test_state_command_is_the_versioned_json_seam(tmp_path: Path) -> None:
+    _write_round(tmp_path)
+
+    completed = subprocess.run(
+        [
+            sys.executable,
+            str(REPO_ROOT / "memory" / "tools" / "research_control.py"),
+            "--root",
+            str(tmp_path),
+            "state",
+        ],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+
+    assert completed.returncode == 0, completed.stderr
+    payload = json.loads(completed.stdout)
+    assert payload["schema"] == "andes-research-control/state.v1"
+    assert payload["active_rounds"] == ["R7"]
+
+
+def test_operational_job_events_are_hash_linked_and_terminal(tmp_path: Path) -> None:
+    _write_round(tmp_path, body="Create-only root `results/research_loop/r7_demo`.")
+    store = OperationalEventStore(tmp_path)
+
+    registered = store.register_job(
+        job_id="r7-formal",
+        round_id="R7",
+        command="python scripts/run_r7.py formal",
+        output_root="results/research_loop/r7_demo",
+        process_budget=5,
+    )
+
+    assert registered["schema"] == "andes-research-control/job.v1"
+    assert registered["authority"] == "operational-only"
+    assert len(registered["command_sha256"]) == 64
+    assert "command" not in registered
+
+    running = store.append_event("r7-formal", "running", {"pid": 123})
+    succeeded = store.append_event("r7-formal", "succeeded", {"exit_code": 0})
+    events = store.list_events("r7-formal")
+
+    assert [event["sequence"] for event in events] == [1, 2, 3]
+    assert running["previous_sha256"] == events[0]["sha256"]
+    assert succeeded["previous_sha256"] == running["sha256"]
+    assert store.verify_chain("r7-formal")["valid"] is True
+
+    with pytest.raises(ResearchControlError, match="terminal"):
+        store.append_event("r7-formal", "heartbeat", {})
+
+
+def test_snapshot_projects_job_events_without_promoting_authority(tmp_path: Path) -> None:
+    _write_round(tmp_path, body="Create-only root `results/research_loop/r7_demo`.")
+    store = OperationalEventStore(tmp_path)
+    store.register_job(
+        job_id="r7-formal",
+        round_id="R7",
+        command="python run.py",
+        output_root="results/research_loop/r7_demo",
+        process_budget=2,
+    )
+    store.append_event("r7-formal", "running", {"pid": 456})
+
+    running = build_control_snapshot(tmp_path)
+
+    assert running["rounds"][0]["phase"] == "running"
+    assert running["jobs"][0]["latest_event"] == "running"
+    assert running["jobs"][0]["authority"] == "operational-only"
+
+    store.append_event("r7-formal", "succeeded", {"exit_code": 0})
+    collecting = build_control_snapshot(tmp_path)
+    assert collecting["rounds"][0]["phase"] == "collecting"
+
+
+def test_snapshot_aggregates_parallel_jobs_instead_of_using_job_id_order(
+    tmp_path: Path,
+) -> None:
+    _write_round(tmp_path, body="Create-only root `results/research_loop/r7_demo`.")
+    store = OperationalEventStore(tmp_path)
+    for job_id in ("a-live", "z-done"):
+        store.register_job(
+            job_id=job_id,
+            round_id="R7",
+            command="python run.py",
+            output_root="results/research_loop/r7_demo",
+            process_budget=1,
+        )
+    store.append_event("a-live", "running", {})
+    store.append_event("z-done", "running", {})
+    store.append_event("z-done", "succeeded", {})
+
+    snapshot = build_control_snapshot(tmp_path)
+    assert snapshot["rounds"][0]["phase"] == "running"
+    assert snapshot["rounds"][0]["job_event"] == "running"
+
+    store.append_event("a-live", "failed", {})
+    terminal = build_control_snapshot(tmp_path)
+    assert terminal["rounds"][0]["phase"] == "execution-failed"
+
+
+def test_event_wait_is_bounded_and_returns_only_new_events(tmp_path: Path) -> None:
+    _write_round(tmp_path)
+    store = OperationalEventStore(tmp_path)
+    store.register_job(
+        job_id="job-1",
+        round_id="R7",
+        command="python run.py",
+        output_root="results/r7",
+        process_budget=1,
+    )
+
+    no_change = store.wait("job-1", after_sequence=1, timeout_seconds=0.01)
+    assert no_change == {"status": "timeout", "events": []}
+
+    store.append_event("job-1", "failed", {"reason": "fixture"})
+    changed = store.wait("job-1", after_sequence=1, timeout_seconds=0.01)
+    assert changed["status"] == "terminal"
+    assert [event["event"] for event in changed["events"]] == ["failed"]
+
+
+def test_job_commands_share_the_json_control_seam(tmp_path: Path) -> None:
+    _write_round(tmp_path)
+    tool = str(REPO_ROOT / "memory" / "tools" / "research_control.py")
+    registered = subprocess.run(
+        [
+            sys.executable,
+            tool,
+            "--root",
+            str(tmp_path),
+            "job-register",
+            "--job-id",
+            "r7-job",
+            "--round",
+            "R7",
+            "--command",
+            "python run.py",
+            "--output-root",
+            "results/r7",
+            "--process-budget",
+            "2",
+        ],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    assert registered.returncode == 0, registered.stderr
+    assert json.loads(registered.stdout)["authority"] == "operational-only"
+
+    changed = subprocess.run(
+        [
+            sys.executable,
+            tool,
+            "--root",
+            str(tmp_path),
+            "job-event",
+            "--job-id",
+            "r7-job",
+            "--event",
+            "running",
+            "--details-json",
+            '{"pid": 789}',
+        ],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    assert changed.returncode == 0, changed.stderr
+    assert json.loads(changed.stdout)["event"] == "running"
+
+    listed = subprocess.run(
+        [sys.executable, tool, "--root", str(tmp_path), "job-events", "--job-id", "r7-job"],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    assert listed.returncode == 0, listed.stderr
+    assert [event["event"] for event in json.loads(listed.stdout)["events"]] == [
+        "registered",
+        "running",
+    ]
+
+
+def test_artifact_trace_binds_integrity_round_claim_feed_and_seal(tmp_path: Path) -> None:
+    round_dir = _write_round(
+        tmp_path,
+        body=(
+            "Create-only root `results/research_loop/r7_demo`.\n"
+            "## Formal launch contract\n"
+            "- formal_entry: `python scripts/run_r7.py formal`\n"
+        ),
+    )
+    artifact = tmp_path / "results" / "research_loop" / "r7_demo" / "decision.json"
+    _write_json(artifact, {"decision": "STOP"})
+    digest = sha256_file(artifact)
+    Path(f"{artifact}.sha256").write_text(f"{digest}  {artifact.name}\n", encoding="ascii")
+    _write_json(
+        round_dir / "formal_seal.json",
+        {
+            "formal_authority": True,
+            "sources": {"decision": {"path": "results/research_loop/r7_demo/decision.json", "sha256": digest}},
+        },
+    )
+    claims = tmp_path / "memory" / "claims"
+    claims.mkdir(parents=True)
+    (claims / "CLM-0001.md").write_text(
+        "---\n"
+        "id: CLM-0001\n"
+        "round: R7\n"
+        "evidence_refs:\n"
+        "  - path: results/research_loop/r7_demo/decision.json\n"
+        f"    sha256: {digest}\n"
+        "---\n",
+        encoding="utf-8",
+    )
+    feed = tmp_path / "paper" / "demo" / "reports" / "R7.md"
+    feed.parent.mkdir(parents=True)
+    feed.write_text(
+        "Pointer: results/research_loop/r7_demo/decision.json\n",
+        encoding="utf-8",
+    )
+
+    traced = trace_artifact(tmp_path, "results/research_loop/r7_demo/decision.json")
+
+    assert traced["schema"] == "andes-research-control/artifact-trace.v1"
+    assert traced["integrity"]["status"] == "verified"
+    assert traced["owner_rounds"] == ["R7"]
+    assert traced["claim_refs"] == ["CLM-0001"]
+    assert traced["feed_refs"] == ["paper/demo/reports/R7.md"]
+    assert traced["seal_refs"][0]["round"] == "R7"
+
+    reproduction = build_reproduction_plan(
+        tmp_path, "results/research_loop/r7_demo/decision.json"
+    )
+    assert reproduction["execute"] is False
+    assert reproduction["declared_command"] == "python scripts/run_r7.py formal"
+    assert reproduction["status"] == "blocked"
+    assert "output-root-exists" in reproduction["blockers"]
+
+
+def test_artifact_trace_reports_missing_drift_and_ambiguous_owners(tmp_path: Path) -> None:
+    _write_round(
+        tmp_path,
+        body="Create-only root `results/shared`.",
+    )
+    second = tmp_path / "memory" / "rounds" / "R8"
+    second.mkdir(parents=True)
+    (second / "plan.md").write_text(
+        "---\nround: R8\nstate: active\n---\n"
+        "Create-only root `results/shared`.\n",
+        encoding="utf-8",
+    )
+    artifact = tmp_path / "results" / "shared" / "value.json"
+    _write_json(artifact, {"value": 1})
+    Path(f"{artifact}.sha256").write_text(f"{'0' * 64}  value.json\n", encoding="ascii")
+
+    drifted = trace_artifact(tmp_path, "results/shared/value.json")
+    assert drifted["integrity"]["status"] == "mismatch"
+    assert drifted["owner_rounds"] == ["R7", "R8"]
+    assert drifted["ambiguities"] == ["multiple-owner-rounds"]
+
+    missing = trace_artifact(tmp_path, "results/shared/missing.json")
+    assert missing["integrity"]["status"] == "missing"
+
+
+def test_artifact_commands_share_the_json_control_seam(tmp_path: Path) -> None:
+    _write_round(
+        tmp_path,
+        body=(
+            "Create-only root `results/research_loop/r7_demo`.\n"
+            "- formal_entry: `python scripts/run_r7.py formal`\n"
+        ),
+    )
+    artifact = tmp_path / "results" / "research_loop" / "r7_demo" / "decision.json"
+    _write_json(artifact, {"decision": "STOP"})
+    digest = sha256_file(artifact)
+    Path(f"{artifact}.sha256").write_text(f"{digest}  {artifact.name}\n", encoding="ascii")
+    tool = str(REPO_ROOT / "memory" / "tools" / "research_control.py")
+
+    traced = subprocess.run(
+        [
+            sys.executable,
+            tool,
+            "--root",
+            str(tmp_path),
+            "trace",
+            "--artifact",
+            "results/research_loop/r7_demo/decision.json",
+        ],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    assert traced.returncode == 0, traced.stderr
+    assert json.loads(traced.stdout)["integrity"]["status"] == "verified"
+
+    reproduced = subprocess.run(
+        [
+            sys.executable,
+            tool,
+            "--root",
+            str(tmp_path),
+            "reproduce",
+            "--artifact",
+            "results/research_loop/r7_demo/decision.json",
+        ],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    assert reproduced.returncode == 0, reproduced.stderr
+    payload = json.loads(reproduced.stdout)
+    assert payload["execute"] is False
+    assert payload["status"] == "blocked"
+
+
+def test_scratch_frontier_is_bounded_deterministic_and_retains_failures(
+    tmp_path: Path,
+) -> None:
+    frontier = ScratchFrontier(tmp_path)
+    created = frontier.initialize(
+        frontier_id="r7-ablation",
+        max_candidates=3,
+        compute_budget=6.0,
+    )
+    assert created["authority"] == "scratch-advisory-only"
+    assert created["execute"] is False
+
+    frontier.add_candidate(
+        "r7-ablation", "candidate-b", {"hypothesis": "B"}, estimated_cost=2.0
+    )
+    frontier.add_candidate(
+        "r7-ablation", "candidate-a", {"hypothesis": "A"}, estimated_cost=2.0
+    )
+    frontier.add_candidate(
+        "r7-ablation", "candidate-c", {"hypothesis": "C"}, estimated_cost=2.0
+    )
+    frontier.record_result(
+        "r7-ablation", "candidate-b", outcome="succeeded", actual_cost=2.0, score=0.8
+    )
+    frontier.record_result(
+        "r7-ablation", "candidate-a", outcome="succeeded", actual_cost=1.5, score=0.8
+    )
+    frontier.record_result(
+        "r7-ablation", "candidate-c", outcome="failed", actual_cost=1.0, score=None
+    )
+
+    ranked = frontier.rank("r7-ablation")
+    assert [value["candidate_id"] for value in ranked["ranking"]] == [
+        "candidate-a",
+        "candidate-b",
+    ]
+    failed = next(
+        value for value in ranked["candidates"] if value["candidate_id"] == "candidate-c"
+    )
+    assert failed["outcome"] == "failed"
+    assert ranked["budget"]["reserved"] == 6.0
+    assert ranked["budget"]["actual"] == 4.5
+    assert not (tmp_path / "results").exists()
+    assert not (tmp_path / "memory").exists()
+
+    with pytest.raises(ResearchControlError, match="candidate capacity"):
+        frontier.add_candidate(
+            "r7-ablation", "candidate-d", {"hypothesis": "D"}, estimated_cost=0.1
+        )
+    with pytest.raises(ResearchControlError, match="terminal"):
+        frontier.record_result(
+            "r7-ablation", "candidate-c", outcome="failed", actual_cost=1.0, score=None
+        )
+
+
+def test_scratch_frontier_rejects_budget_escape_and_invalid_results(tmp_path: Path) -> None:
+    frontier = ScratchFrontier(tmp_path)
+    frontier.initialize(frontier_id="safe", max_candidates=2, compute_budget=2.0)
+    frontier.add_candidate("safe", "one", {}, estimated_cost=1.5)
+
+    with pytest.raises(ResearchControlError, match="compute budget"):
+        frontier.add_candidate("safe", "two", {}, estimated_cost=0.6)
+    with pytest.raises(ResearchControlError, match="reserved cost"):
+        frontier.record_result(
+            "safe", "one", outcome="succeeded", actual_cost=1.6, score=1.0
+        )
+    with pytest.raises(ResearchControlError, match="requires a score"):
+        frontier.record_result(
+            "safe", "one", outcome="succeeded", actual_cost=1.0, score=None
+        )
+    with pytest.raises(ResearchControlError, match="scratch payload"):
+        frontier.add_candidate("safe", "two", {"value": float("nan")}, estimated_cost=0.1)
+
+
+def test_scratch_frontier_enforces_capacity_inside_the_append_lock(tmp_path: Path) -> None:
+    frontier = ScratchFrontier(tmp_path)
+    frontier.initialize(frontier_id="race", max_candidates=1, compute_budget=1.0)
+    original_append = frontier._append
+    barrier = Barrier(2)
+    serialized_append = Lock()
+
+    def delayed_append(*args: object, **kwargs: object) -> dict[str, object]:
+        barrier.wait(timeout=5)
+        with serialized_append:
+            return original_append(*args, **kwargs)  # type: ignore[arg-type]
+
+    frontier._append = delayed_append  # type: ignore[method-assign]
+
+    def add(candidate_id: str) -> str:
+        try:
+            frontier.add_candidate(
+                "race", candidate_id, {}, estimated_cost=1.0
+            )
+        except ResearchControlError:
+            return "rejected"
+        return "accepted"
+
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        outcomes = list(pool.map(add, ("one", "two")))
+
+    assert sorted(outcomes) == ["accepted", "rejected"]
+    assert len(frontier.rank("race")["candidates"]) == 1
+
+
+def test_frontier_commands_share_the_json_control_seam(tmp_path: Path) -> None:
+    tool = str(REPO_ROOT / "memory" / "tools" / "research_control.py")
+    created = subprocess.run(
+        [
+            sys.executable,
+            tool,
+            "--root",
+            str(tmp_path),
+            "frontier-init",
+            "--frontier-id",
+            "demo",
+            "--max-candidates",
+            "1",
+            "--compute-budget",
+            "1.0",
+        ],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    assert created.returncode == 0, created.stderr
+    assert json.loads(created.stdout)["execute"] is False
+
+    added = subprocess.run(
+        [
+            sys.executable,
+            tool,
+            "--root",
+            str(tmp_path),
+            "frontier-add",
+            "--frontier-id",
+            "demo",
+            "--candidate-id",
+            "one",
+            "--proposal-json",
+            '{"hypothesis":"bounded"}',
+            "--estimated-cost",
+            "1.0",
+        ],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    assert added.returncode == 0, added.stderr
+    assert json.loads(added.stdout)["candidate_id"] == "one"
+
+
+def test_research_bench_scores_frozen_incident_replays() -> None:
+    cases = REPO_ROOT / "tests" / "research_bench" / "cases"
+    responses = json.loads(
+        (REPO_ROOT / "tests" / "research_bench" / "reference_responses.json").read_text(
+            encoding="utf-8"
+        )
+    )
+
+    report = run_research_bench(cases, responses)
+
+    assert report["schema"] == "andes-research-control/research-bench-report.v1"
+    assert report["authority"] == "evaluation-only-non-scientific"
+    assert report["case_count"] == 7
+    assert report["metrics"] == {
+        "decision_accuracy": 1.0,
+        "forbidden_action_rate": 0.0,
+        "provenance_compliance": 1.0,
+        "stop_rule_compliance": 1.0,
+    }
+    assert report["passed"] is True
+
+    unsafe = json.loads(json.dumps(responses))
+    unsafe["sealed-failure-preservation"]["decision"] = "retry-current-round"
+    unsafe["sealed-failure-preservation"]["actions"] = ["delete-sealed-artifact"]
+    degraded = run_research_bench(cases, unsafe)
+    assert degraded["metrics"]["decision_accuracy"] == pytest.approx(6 / 7)
+    assert degraded["metrics"]["forbidden_action_rate"] == pytest.approx(1 / 7)
+    assert degraded["passed"] is False
+
+    malformed = json.loads(json.dumps(responses))
+    malformed["sealed-failure-preservation"]["actions"] = "delete-sealed-artifact"
+    malformed_report = run_research_bench(cases, malformed)
+    assert malformed_report["passed"] is False
+    sealed = next(
+        value
+        for value in malformed_report["results"]
+        if value["case_id"] == "sealed-failure-preservation"
+    )
+    assert sealed["response_valid"] is False
+
+
+def test_research_bench_cli_uses_explicit_cases_and_responses() -> None:
+    tool = str(REPO_ROOT / "memory" / "tools" / "research_control.py")
+    completed = subprocess.run(
+        [
+            sys.executable,
+            tool,
+            "bench",
+            "--cases",
+            "tests/research_bench/cases",
+            "--responses",
+            "tests/research_bench/reference_responses.json",
+        ],
+        cwd=REPO_ROOT,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    assert completed.returncode == 0, completed.stderr
+    assert json.loads(completed.stdout)["passed"] is True
