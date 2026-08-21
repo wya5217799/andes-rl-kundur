@@ -1,0 +1,39 @@
+{
+  "checks": {
+    "authority": {
+      "active_line": true,
+      "active_plan": true,
+      "formal_output_absent": true,
+      "linux_runtime": true,
+      "one_native_thread": true,
+      "r449_present": true,
+      "r459_verified": true
+    },
+    "gauge": {
+      "gauge_eigenvalue_imag": 0.0,
+      "gauge_eigenvalue_real": 1.0000000000000004,
+      "output_norm": 3.369667270749138e-15,
+      "right_residual": 6.655356341213948e-15
+    },
+    "modes_match": true,
+    "names_match": true,
+    "nominal_equilibrium": 7.233433011496495e-09,
+    "nominal_gauge_check": {
+      "gauge_to_reduced_leakage": 3.011161392465304e-14,
+      "maximum_transfer_relative_error": 7.069809592702826e-14,
+      "spectral_radius": 0.982286879705136
+    },
+    "one_sided_zoh_A_relative": 0.00016498968643815937,
+    "one_sided_zoh_B_relative": 0.0001238145211412623,
+    "passed": true,
+    "perturbed_equilibrium": 7.233433309226836e-09,
+    "perturbed_gauge_check": {
+      "gauge_to_reduced_leakage": 3.1980181511404564e-14,
+      "maximum_transfer_relative_error": 1.0698705624385328e-13,
+      "spectral_radius": 0.9822571188795368
+    }
+  },
+  "created_utc": "2026-08-21T08:33:05.045231+00:00",
+  "round": "R465",
+  "wall_seconds": 1.922598758013919
+}

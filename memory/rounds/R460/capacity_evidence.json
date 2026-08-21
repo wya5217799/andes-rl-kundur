@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "round": "R460",
+  "created_utc": "2026-08-21T07:31:00Z",
+  "authorization": "Owner explicitly requested all GPT Pro data experiments and asked to check and improve hardware utilization.",
+  "formal_authority": false,
+  "training_executed": false,
+  "scientific_classification_inspected": false,
+  "readiness": "RUN-READY",
+  "method": "Fresh scratch-only ladder using distinct representative R431 evaluation trajectories; one native compute thread per WSL Python process; no formal result root created.",
+  "host_before": {
+    "cpu": "AMD Ryzen 9 8940HX with Radeon Graphics",
+    "physical_cores": 16,
+    "logical_processors": 32,
+    "cpu_load_percent": 28,
+    "total_visible_memory_bytes": 33518587904,
+    "free_physical_memory_bytes": 7932317696
+  },
+  "wsl_before": {
+    "logical_processors": 32,
+    "memory_total_bytes": 29423173632,
+    "memory_available_bytes": 21333299200,
+    "other_research_python_processes": 0
+  },
+  "gpu_before": {
+    "name": "NVIDIA GeForce RTX 5070 Laptop GPU",
+    "memory_total_mib": 8151,
+    "memory_used_mib": 2158,
+    "memory_free_mib": 5734,
+    "gpu_utilization_percent": 14,
+    "memory_utilization_percent": 4,
+    "selected_for_formal_run": false,
+    "reason": "The physical workload is CPU/DAE-bound and each per-step network is tiny; multi-process GPU sharing was not prospectively supported by a throughput measurement."
+  },
+  "ladder": [
+    {
+      "workers": 1,
+      "unique_probe_jobs": 1,
+      "steps_per_job": 3,
+      "runner_wall_seconds": 2.7122272360138595,
+      "peak_rss_bytes": 741355520,
+      "failures": 0,
+      "tds_failures": 0
+    },
+    {
+      "workers": 8,
+      "unique_probe_jobs": 8,
+      "steps_per_job": 3,
+      "orchestrated_wall_seconds": 11.7021534,
+      "throughput_jobs_per_second": 0.6836348598882663,
+      "mean_inner_job_wall_seconds": 3.534364527629455,
+      "max_peak_rss_bytes_per_process": 735936512,
+      "sum_peak_rss_bytes": 5877784576,
+      "failures": 0,
+      "tds_failures": 0
+    },
+    {
+      "workers": 15,
+      "unique_probe_jobs": 15,
+      "steps_per_job": 3,
+      "orchestrated_wall_seconds": 14.5341413,
+      "throughput_jobs_per_second": 1.0320527157665655,
+      "mean_inner_job_wall_seconds": 4.861090426069995,
+      "max_peak_rss_bytes_per_process": 735375360,
+      "sum_peak_rss_bytes": 11000553472,
+      "projected_wsl_available_after_aggregate_peak_rss_bytes": 10332745728,
+      "projected_wsl_total_memory_headroom_fraction": 0.3512,
+      "host_free_physical_memory_after_rung_bytes": 4763410432,
+      "failures": 0,
+      "tds_failures": 0
+    }
+  ],
+  "selection": {
+    "selected_workers": 15,
+    "reason": "The 15-worker rung completed without process or TDS failure, increased measured job throughput by 50.96% over the 8-worker rung, and retained more than the required 20% projected WSL-memory headroom. No higher rung was needed because the prior R458 17-process anchor already bounds the same host and the 15-worker plus one orchestrator allocation reaches that 16-process stable envelope.",
+    "formal_unique_jobs": 24,
+    "formal_waves": [15, 9],
+    "duplicate_formal_scientific_jobs": 0,
+    "native_threads_per_process": 1
+  },
+  "formal_allocation": {
+    "host_process_budget": 17,
+    "wsl_python_processes": 16,
+    "trajectory_workers": 15,
+    "orchestrator_processes": 1,
+    "threads_per_process": 1,
+    "gpu_processes": 0,
+    "formal_unique_jobs": 24,
+    "waves": [15, 9]
+  },
+  "stop_conditions": [
+    "any worker nonzero exit",
+    "any unexpected research Python process before launch",
+    "WSL available-memory headroom below 20 percent",
+    "formal source, plan, capacity, rehearsal, case, or checkpoint hash drift",
+    "pre-existing formal output root"
+  ]
+}

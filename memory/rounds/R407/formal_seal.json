@@ -1,0 +1,44 @@
+{
+  "bandpass": {
+    "controller_action_clip": 0.7,
+    "f0_hz": 0.4,
+    "zeta": 0.35
+  },
+  "capacity_evidence_sha256": "f911341500617fe08f0182b5855356b4b9fa76150f3ab1c4576d6684b723b036",
+  "created_utc": "2026-08-15T14:21:48.084017+00:00",
+  "held_out_accessed": false,
+  "k_grid": [
+    0.1,
+    0.25,
+    0.5,
+    1.0,
+    2.0
+  ],
+  "launch": {
+    "host_process_budget": 3,
+    "native_threads_per_process": 1,
+    "other_reserved_processes": 0,
+    "wsl_python_processes": 3
+  },
+  "manuscript_line": "paralleled-vsg-marl",
+  "plan_sha256": "dbe094b2d0538459d81cdc978b2cd435a775bacf0a05fc96bc3ee6021f6cb27f",
+  "rehearsal": {
+    "k": 0.1,
+    "pre_attempt": {
+      "contract_round": "R407",
+      "output_absence": true
+    },
+    "scenario": {
+      "identity_ok": true,
+      "rows": 50,
+      "tds_failed": false
+    }
+  },
+  "round": "R407",
+  "schema_version": 1,
+  "thresholds": {
+    "differential_ratio_max": 0.95,
+    "probe_cross_ratio_max": 1.1
+  },
+  "training_authorized": false
+}

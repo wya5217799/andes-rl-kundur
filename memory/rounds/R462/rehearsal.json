@@ -1,0 +1,19 @@
+{
+  "authority": {
+    "active_line": true,
+    "active_plan": true,
+    "formal_output_absent": true,
+    "r461_aborted": true,
+    "r461_partial_preserved": true,
+    "r461_seal_present": true
+  },
+  "checks": {
+    "parent_science_pass": true,
+    "phase_checker_pass": true,
+    "positive_infinity_candidate_count": 125,
+    "strict_json_pass": true
+  },
+  "created_utc": "2026-08-21T07:55:09.131160+00:00",
+  "round": "R462",
+  "wall_seconds": 0.32360180001705885
+}

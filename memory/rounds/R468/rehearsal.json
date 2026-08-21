@@ -1,0 +1,96 @@
+{
+  "authority": {
+    "active_line": true,
+    "active_plan": true,
+    "formal_output_absent": true,
+    "linux_runtime": true,
+    "one_native_thread": true,
+    "qualification_present": true,
+    "r444_present": true,
+    "r446_present": true,
+    "r459_verified": true,
+    "request_present": true
+  },
+  "corner_dimensions": {
+    "A_continuous": [
+      101,
+      101
+    ],
+    "A_post": [
+      101,
+      101
+    ],
+    "B_continuous": [
+      101,
+      7
+    ],
+    "B_post": [
+      101,
+      7
+    ],
+    "C_continuous": [
+      4,
+      101
+    ],
+    "C_post": [
+      4,
+      101
+    ],
+    "D_continuous": [
+      4,
+      7
+    ],
+    "D_post": [
+      4,
+      7
+    ]
+  },
+  "corner_residual": 7.233433011496495e-09,
+  "finite": true,
+  "gauge": {
+    "gauge_eigenvalue_imag": 0.0,
+    "gauge_eigenvalue_real": 1.0000000000000004,
+    "output_norm": 3.369667270749138e-15,
+    "right_residual": 6.655356341213948e-15
+  },
+  "modes_match": true,
+  "names_match": true,
+  "nominal_dimensions": {
+    "A_continuous": [
+      101,
+      101
+    ],
+    "A_post": [
+      101,
+      101
+    ],
+    "B_continuous": [
+      101,
+      7
+    ],
+    "B_post": [
+      101,
+      7
+    ],
+    "C_continuous": [
+      4,
+      101
+    ],
+    "C_post": [
+      4,
+      101
+    ],
+    "D_continuous": [
+      4,
+      7
+    ],
+    "D_post": [
+      4,
+      7
+    ]
+  },
+  "nominal_residual": 7.233433011496495e-09,
+  "passed": true,
+  "round": "R468",
+  "wall_seconds": 1.8622263700235635
+}

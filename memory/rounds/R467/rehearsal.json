@@ -1,0 +1,69 @@
+{
+  "checks": {
+    "authority": {
+      "active_line": true,
+      "active_plan": true,
+      "formal_output_absent": true,
+      "linux_runtime": true,
+      "one_native_thread_default": true,
+      "r450_hashed": true,
+      "r459_verified": true,
+      "r466_preserved": true
+    },
+    "endpoints": {
+      "dimension": 149,
+      "left_limit_B0_max_abs": 1.7999999988793194e-13,
+      "left_limit_B1_to_Bd_max_abs": 1.799999968413006e-13,
+      "left_limit_to_next_integer_max_abs": 1.0753842261124191e-11,
+      "tau_two_finite": true,
+      "tau_zero_Ad_identity_max_abs": 0.0,
+      "tau_zero_B0_equals_Bd_max_abs": 0.0,
+      "tau_zero_B1_max_abs": 0.0,
+      "tau_zero_delta": 0.0
+    },
+    "first_outer_segment_lengths": [
+      0.1,
+      0.1
+    ],
+    "model": {
+      "complement_shape": [
+        102,
+        101
+      ],
+      "continuous_gauge_to_quotient_leakage": 1.443206769344902e-12,
+      "gauge_eigenvalue_imag": 0.0,
+      "gauge_eigenvalue_real": 0.9999999999999925,
+      "headroom_system_pu": [
+        0.072,
+        0.072,
+        0.072,
+        0.072
+      ],
+      "sampled_gauge_output_norm": 5.231477505946542e-15,
+      "sampled_gauge_residual": 6.5938652887944044e-15
+    },
+    "passed": true,
+    "representative_completed_steps": 50,
+    "representative_mode_discontinuity": false,
+    "representative_tds_failed": false,
+    "spectra": {
+      "0.0": {
+        "max_modulus": 0.9822551826663141,
+        "max_residual": 2.6759215017603306e-16
+      },
+      "0.1": {
+        "max_modulus": 0.9822846135852853,
+        "max_residual": 1.5770695241663108e-15
+      },
+      "0.2": {
+        "max_modulus": 0.9823148889655611,
+        "max_residual": 2.5358788621857063e-16
+      }
+    },
+    "strict_json_bytes": 489568,
+    "strict_json_roundtrip_steps": 50
+  },
+  "created_utc": "2026-08-21T08:56:17.136787+00:00",
+  "round": "R467",
+  "wall_seconds": 15.803870452975389
+}

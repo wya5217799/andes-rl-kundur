@@ -1,0 +1,96 @@
+{
+  "authority": {
+    "active_line": true,
+    "active_plan": true,
+    "checker_present": true,
+    "formal_output_absent": true,
+    "linux_runtime": true,
+    "one_native_thread": true,
+    "r405_present": true,
+    "r459_verified": true,
+    "r468_present": true,
+    "request_present": true,
+    "solution_present": true
+  },
+  "corner_residual": 7.233433011496495e-09,
+  "finite": true,
+  "gauge": {
+    "eigenvalue_imag": 0.0,
+    "eigenvalue_real": 0.9999999999999994,
+    "output_norm": 9.982897020139155e-16,
+    "right_residual": 4.5944798929682916e-15
+  },
+  "lift_direct_max_abs_error": 2.6020852139652106e-17,
+  "lift_shape": [
+    90,
+    30
+  ],
+  "modes_match": true,
+  "names_match": true,
+  "nominal_residual": 7.233433011496495e-09,
+  "passed": true,
+  "projectors": {
+    "P_u": {
+      "idempotence": 0.0,
+      "rank": 1,
+      "symmetry": 0.0
+    },
+    "P_y": {
+      "idempotence": 0.0,
+      "rank": 1,
+      "symmetry": 0.0
+    },
+    "Q_u": {
+      "idempotence": 0.0,
+      "rank": 3,
+      "symmetry": 0.0
+    },
+    "Q_y": {
+      "idempotence": 0.0,
+      "rank": 3,
+      "symmetry": 0.0
+    },
+    "basis": {
+      "Td_orthonormal_error": 3.1401849173675503e-16,
+      "common_differential_orthogonality": 0.0,
+      "completeness": 1.1102230246251565e-16,
+      "qc_norm_error": 0.0
+    },
+    "passed": true
+  },
+  "quotient_dimensions": {
+    "A_continuous": [
+      101,
+      101
+    ],
+    "A_post": [
+      101,
+      101
+    ],
+    "B_continuous": [
+      101,
+      7
+    ],
+    "B_post": [
+      101,
+      7
+    ],
+    "C_continuous": [
+      4,
+      101
+    ],
+    "C_post": [
+      4,
+      101
+    ],
+    "D_continuous": [
+      4,
+      7
+    ],
+    "D_post": [
+      4,
+      7
+    ]
+  },
+  "wall_seconds": 2.1715153100085445
+}

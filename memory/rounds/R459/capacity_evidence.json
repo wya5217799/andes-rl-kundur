@@ -1,0 +1,78 @@
+{
+  "schema_version": "1.0",
+  "round": "R459",
+  "created_utc": "2026-08-21T06:53:14.2069113Z",
+  "readiness": "RUN-READY",
+  "classification": "quick-dependency-limited",
+  "capacity_anchor": {
+    "round": "R458",
+    "measured_host_ceiling_processes": 17,
+    "measured_stable_worker_rung": 16,
+    "measured_throughput_jobs_per_second": 2.2747,
+    "scope_note": "Anchor establishes host plumbing capacity only; R459 has one composite scientific job."
+  },
+  "current_host_check": {
+    "wsl_logical_cpus": 32,
+    "wsl_total_memory_bytes": 29423173632,
+    "wsl_available_memory_bytes": 21298475008,
+    "live_simulation_python_processes": 0,
+    "e_drive_free_bytes": 723140481024,
+    "gpu": {
+      "name": "NVIDIA GeForce RTX 5070 Laptop GPU",
+      "memory_total_mib": 8151,
+      "memory_free_mib": 5709,
+      "utilization_percent_at_check": 9,
+      "eligible_for_r459": false,
+      "reason": "Small DAE reconstruction and dense matrices at most 386-by-386; measured CPU wall time is about one second and transfer/setup would dominate."
+    }
+  },
+  "job_inventory": {
+    "ready_composite_jobs": 1,
+    "serial_subtasks": [
+      "object_b_export",
+      "object_a_export",
+      "independent_verification"
+    ],
+    "duplicate_jobs_authorized": false
+  },
+  "formal_allocation": {
+    "host_process_budget": 17,
+    "wsl_python_processes": 1,
+    "threads_per_process": 4,
+    "other_worker_processes": 0,
+    "unused_capacity_reason": "Only one create-only composite job is scientifically ready. A measured native-thread ladder selected 4 threads; 8 threads was slower, and splitting dependent reconstruction/verification stages would not create independent work."
+  },
+  "native_thread_ladder": [
+    {
+      "threads": 1,
+      "wall_seconds": 1.8309011239907704,
+      "peak_rss_bytes": 220041216,
+      "passed_shape_and_finiteness_probe": true
+    },
+    {
+      "threads": 4,
+      "wall_seconds": 1.25079621799523,
+      "peak_rss_bytes": 222720000,
+      "passed_shape_and_finiteness_probe": true
+    },
+    {
+      "threads": 8,
+      "wall_seconds": 1.278478154039476,
+      "peak_rss_bytes": 223948800,
+      "passed_shape_and_finiteness_probe": true
+    }
+  ],
+  "selection": {
+    "selected_threads_per_process": 4,
+    "criterion": "minimum measured wall time among stable representative rungs",
+    "wall_time_reduction_vs_one_thread_fraction": 0.3168465997370804,
+    "eight_thread_rejection": "slower than four threads; oversubscription/parallel overhead"
+  },
+  "measurement_gate": {
+    "representative_same_entry_rehearsal_required": true,
+    "measured_runtime_seconds": 17.4520034390152,
+    "measured_peak_rss_bytes": 226291712,
+    "formal_eta_seconds": 22.0,
+    "required_before_seal": false
+  }
+}

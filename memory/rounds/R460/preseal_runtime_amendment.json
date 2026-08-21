@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "round": "R460",
+  "created_utc": "2026-08-21T07:36:00Z",
+  "formal_authority": false,
+  "training_executed": false,
+  "prepare_attempt_created_seal": false,
+  "prepare_attempt_created_formal_output": false,
+  "corrected_rehearsal": "memory/rounds/R460/rehearsal_v2.json",
+  "corrected_rehearsal_sha256": "b966cf99ee89c6e4be7718726474d3155fb9274f1f4579b7a6e214269a31bae3",
+  "runner_before_sha256": "c99b542ff8d79454761d7bd40a189bde685e8c99dbc412d731b3fad520103034",
+  "runner_after_sha256": "253b977de03c113774e7b9b70c78d60bcb688f75270d4d8092ed5711a7025edd",
+  "failure": "The first formal-prepare call stopped before creating a seal or result root because runtime provenance looked for a repository-local Kundur workbook that does not exist.",
+  "correction": "Resolve the installed ANDES Kundur workbook with andes.get_case('kundur/kundur_full.xlsx'), matching the already verified R431 runtime identity.",
+  "scientific_path_affected": false,
+  "reason": "Only the provenance lookup in _runtime_manifest changed. Projector, learner, environment construction, trajectory, replay, target, reward, and checker paths are byte-unchanged from corrected rehearsal_v2.",
+  "disposition": "Bind this amendment and the corrected runner hash into the formal seal."
+}

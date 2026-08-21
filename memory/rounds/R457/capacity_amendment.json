@@ -1,0 +1,56 @@
+{
+    "capacity_sha256": "f49709d21028490ad15412e7b04aa45ed95c2108925b69e61c796bb354f3ecf4",
+    "current_sources": {
+        "advisory": {
+            "path": "paper/yang_md_decoupling_marl/working/vsg_failure_math_advisory_20260820/problems/M2_critic_divergence_causality.md",
+            "sha256": "33158ca7190391183a15edece92e6400929eb596eec11f4d496e552e7f536c1b"
+        },
+        "head_popart": {
+            "path": "src/andes_rl_kundur/agents/cd_matd3_head_popart.py",
+            "sha256": "7a479062aca84815df03b0b7ad1e739d226e093ae2935575ce35820b0c5347f1"
+        },
+        "head_popart_tests": {
+            "path": "tests/test_cd_matd3_head_popart.py",
+            "sha256": "b52f50457025d150867c4edfdec131177663e7c2bd8ee8e04aa124de4f50afdb"
+        },
+        "legacy_learner": {
+            "path": "src/andes_rl_kundur/agents/cd_matd3_critic_norm.py",
+            "sha256": "cd809326d24bdcc2fbd7b5d4129f3b6ee6cd191d05843d91b187efb299d14097"
+        },
+        "legacy_runner": {
+            "path": "scripts/run_r427_critic_target_normalization.py",
+            "sha256": "fbc50876cf7ae44d36f25b35ecc87494ba40fb2b0c01672d1b8d59fe12625782"
+        },
+        "parent_runner": {
+            "path": "scripts/run_r425_guard_constraints_signfix.py",
+            "sha256": "b362d9b1e15d359432f7bb4afaae3cc9c2541532173824012a1dbe60750e7359"
+        },
+        "plan": {
+            "path": "memory/rounds/R457/plan.md",
+            "sha256": "5586f7d7cb65c0b5435c62b294db6a83d29aab9b3f155b39fda4772772c9b55f"
+        },
+        "runner": {
+            "path": "scripts/run_r457_m2_head_causality.py",
+            "sha256": "6b1b512304a8372e01c8ed441daa1e237af3f455e281cc65aeb1775411d601e3"
+        },
+        "runner_tests": {
+            "path": "tests/test_run_r457_m2_head_causality.py",
+            "sha256": "1ef456ac51adfdd4b61aa2baa6e902ae42c1e2bbbad88aa441dd83536a3a7380"
+        },
+        "scratch_launcher": {
+            "path": "scripts/andes_scratch.py",
+            "sha256": "bc5ed1a7978ca0f19d7cb053c32f59f46281dc91c1e2f68b730118e2b5b5fe62"
+        },
+        "shared_driver": {
+            "path": "scripts/soft_spot_shard_driver.py",
+            "sha256": "224ad49af6e6b093d46c91cd34b30e6c4e64011bece975f6b23661136805d50c"
+        }
+    },
+    "host_process_budget": 9,
+    "kind": "pre-seal capacity recording amendment",
+    "note": "The original fresh ladder remains immutable. Physical throughput increased through 16 workers, but fixed-replay learner throughput peaked at 8 and regressed at 12/16. The joint workload therefore selects 8 workers and 9 total WSL Python processes. Post-measurement edits only changed the plan/prepare process budget and scratch-wrapper detection; scientific cells, workloads, thresholds, and measured rows did not change.",
+    "readiness": "RUN-READY",
+    "round": "R457",
+    "selected_workers": 8,
+    "wsl_python_processes": 9
+}

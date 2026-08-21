@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "round": "R459",
+  "created_utc": "2026-08-21T07:07:20Z",
+  "original_rehearsal_sha256": "41eff7f1aed8797f2c54656fcce8dca3ee4f9e869ed1bc703ff7891851598321",
+  "correction": {
+    "incorrect_field": "runtime.thread_contract",
+    "recorded_value": {
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1"
+    },
+    "correct_value_from_resources_native_threads": {
+      "OMP_NUM_THREADS": 4,
+      "OPENBLAS_NUM_THREADS": 4,
+      "MKL_NUM_THREADS": 4,
+      "NUMEXPR_NUM_THREADS": 4
+    },
+    "cause": "runtime_manifest used a hard-coded documentation value while the independent resource sampler read the actual process environment",
+    "implementation_fix": "runtime_manifest now reads the four thread variables from os.environ"
+  },
+  "scientific_path_affected": false,
+  "scientific_reason": "Object construction, emitted arrays, independent identities, wall time, peak RSS, and the actual resource thread record are unchanged.",
+  "preservation": "The original rehearsal.json remains byte-for-byte unchanged and is bound above by SHA-256."
+}

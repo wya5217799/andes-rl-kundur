@@ -1,0 +1,130 @@
+{
+  "assembled_utc": "2026-08-19T15:50:09.340244+00:00",
+  "cap_workers": 10,
+  "host": {
+    "logical_processors": 32,
+    "physical_memory_bytes": null
+  },
+  "host_process_budget": 11,
+  "ladder_selected_workers": 16,
+  "memory_rule": "selected workers x 943718400 B RSS floor + 3 GiB OS floor <= WSL MemTotal 29423173632 B",
+  "native_threads_per_process": 1,
+  "os_floor_bytes": 3221225472,
+  "other_reserved_processes": 16,
+  "readiness": "RUN-READY",
+  "reuse_authorization": "R440 plan.md: capacity ladder or reuse R413 (same object, same hardware)",
+  "reuse_note": "R413 ladder measured 2026-08-17 on 32-core WSL with the half-memory rule; concurrent-load re-measure impractical while R438/R439 in flight",
+  "reused_from": "memory/rounds/R413/capacity_evidence.json",
+  "round": "R440",
+  "rung_decisions": [
+    {
+      "accepted": true,
+      "marginal_gain": null,
+      "throughput_jobs_per_second": 0.1347836163218512,
+      "workers": 1
+    },
+    {
+      "accepted": true,
+      "marginal_gain": 1.7124,
+      "throughput_jobs_per_second": 0.2308050302766923,
+      "workers": 2
+    },
+    {
+      "accepted": true,
+      "marginal_gain": 1.766,
+      "throughput_jobs_per_second": 0.4075988553830229,
+      "workers": 4
+    },
+    {
+      "accepted": true,
+      "marginal_gain": 1.7251,
+      "throughput_jobs_per_second": 0.7031672991096106,
+      "workers": 8
+    },
+    {
+      "accepted": true,
+      "marginal_gain": 1.229,
+      "throughput_jobs_per_second": 0.8641690940664692,
+      "workers": 12
+    },
+    {
+      "accepted": true,
+      "marginal_gain": 1.2466,
+      "throughput_jobs_per_second": 1.0772495505231612,
+      "workers": 16
+    }
+  ],
+  "rungs": [
+    {
+      "all_records_valid": true,
+      "failures": [],
+      "job_count": 32,
+      "maximum_worker_rss_bytes": 492650496,
+      "native_threads_per_worker": 1,
+      "throughput_jobs_per_second": 0.1347836163218512,
+      "valid_completions": 32,
+      "wall_seconds": 237.41757992000203,
+      "workers": 1
+    },
+    {
+      "all_records_valid": true,
+      "failures": [],
+      "job_count": 32,
+      "maximum_worker_rss_bytes": 492740608,
+      "native_threads_per_worker": 1,
+      "throughput_jobs_per_second": 0.2308050302766923,
+      "valid_completions": 32,
+      "wall_seconds": 138.64515847699658,
+      "workers": 2
+    },
+    {
+      "all_records_valid": true,
+      "failures": [],
+      "job_count": 32,
+      "maximum_worker_rss_bytes": 486256640,
+      "native_threads_per_worker": 1,
+      "throughput_jobs_per_second": 0.4075988553830229,
+      "valid_completions": 32,
+      "wall_seconds": 78.50856197800022,
+      "workers": 4
+    },
+    {
+      "all_records_valid": true,
+      "failures": [],
+      "job_count": 32,
+      "maximum_worker_rss_bytes": 483966976,
+      "native_threads_per_worker": 1,
+      "throughput_jobs_per_second": 0.7031672991096106,
+      "valid_completions": 32,
+      "wall_seconds": 45.50837338499696,
+      "workers": 8
+    },
+    {
+      "all_records_valid": true,
+      "failures": [],
+      "job_count": 32,
+      "maximum_worker_rss_bytes": 482349056,
+      "native_threads_per_worker": 1,
+      "throughput_jobs_per_second": 0.8641690940664692,
+      "valid_completions": 32,
+      "wall_seconds": 37.02978991000418,
+      "workers": 12
+    },
+    {
+      "all_records_valid": true,
+      "failures": [],
+      "job_count": 32,
+      "maximum_worker_rss_bytes": 476569600,
+      "native_threads_per_worker": 1,
+      "throughput_jobs_per_second": 1.0772495505231612,
+      "valid_completions": 32,
+      "wall_seconds": 29.705280438000045,
+      "workers": 16
+    }
+  ],
+  "schema_version": 1,
+  "selected_throughput_jobs_per_second": 1.0772495505231612,
+  "selected_workers": 10,
+  "training_worker_rss_anchor": 943718400,
+  "wsl_python_processes": 11
+}

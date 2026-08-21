@@ -1,0 +1,27 @@
+{
+  "created_utc": "2026-08-21T07:52:18.842875+00:00",
+  "input_bytes": 16718205,
+  "input_file_count": 77,
+  "physical_capacity_anchor": {
+    "orchestrator_processes": 1,
+    "selected_trajectory_workers": 15,
+    "source_round": "R460",
+    "throughput_gain_vs_8_workers_fraction": 0.5096
+  },
+  "resources": {
+    "cpu_logical": 32,
+    "gpu_query": "NVIDIA GeForce RTX 5070 Laptop GPU, 8151, 5733, 9",
+    "memory": null,
+    "native_threads_per_process": 1,
+    "platform": "Windows-11-10.0.26200-SP0",
+    "selected_processes": 1,
+    "selection_reason": "single dependency-ordered JSON reduction; parallel parsing duplicates I/O and serialization",
+    "wall_seconds": 0.35482039995258674
+  },
+  "round": "R461",
+  "selected_configuration": {
+    "native_threads_per_process": 1,
+    "processes": 1
+  },
+  "workload": "deterministic static reduction, no ANDES simulation"
+}

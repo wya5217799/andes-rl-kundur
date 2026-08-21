@@ -1,0 +1,285 @@
+{
+    "amendments": [
+        {
+            "kind": "execution-amendment",
+            "note": "plan_sha256 refreshed post-seal: added the required `## Theory intake` observable list (external_theory_intake_lint gate); the observables only label the already pre-registered Gate rules, and no scientific content, threshold, formula, source, or outcome changed."
+        }
+    ],
+    "authority": {
+        "active_line": true,
+        "active_plan": true,
+        "ceiling_release_law": true,
+        "cell_inventory": true,
+        "checkpoint_inventory": true,
+        "output_absence": true,
+        "parent_analysis": true,
+        "parent_reference": true,
+        "shard_inventory": true
+    },
+    "capacity_sha256": "2daede0b772edb85720d9f46a0b206fd950d0dd667d490faa0857a78f9fcdcef",
+    "checkpoints": [
+        {
+            "arm": "cd_matd3_no_message",
+            "path": "results/research_loop/r425_guard_constraints_signfix/train/cd_matd3_no_message/seed401/final.pt",
+            "seed": 401,
+            "sha256": "a38f7835bf86f88a5dbd947cbb0491816b182276530e0be57f79f2b29d2c0fda"
+        },
+        {
+            "arm": "cd_matd3_no_message",
+            "path": "results/research_loop/r425_guard_constraints_signfix/train/cd_matd3_no_message/seed402/final.pt",
+            "seed": 402,
+            "sha256": "8a2054c785edb5b1aa42208f3f6baa10aef8f243ae1608e591048abe9d3cdcdf"
+        },
+        {
+            "arm": "cd_matd3_no_message",
+            "path": "results/research_loop/r425_guard_constraints_signfix/train/cd_matd3_no_message/seed403/final.pt",
+            "seed": 403,
+            "sha256": "0cb383551721f66d36e97b630218e30864cbb6770a9562c409551e09c449f178"
+        },
+        {
+            "arm": "cd_matd3_message",
+            "path": "results/research_loop/r425_guard_constraints_signfix/train/cd_matd3_message/seed401/final.pt",
+            "seed": 401,
+            "sha256": "41e598f8457aa9a29562e6c3b88a921617ebc467a2f2d0fbc33c239a0de5cf80"
+        },
+        {
+            "arm": "cd_matd3_message",
+            "path": "results/research_loop/r425_guard_constraints_signfix/train/cd_matd3_message/seed402/final.pt",
+            "seed": 402,
+            "sha256": "657764c2c5f0583c02f06c3b814f01abd78213baf826d27c0c40baec94473b8b"
+        },
+        {
+            "arm": "cd_matd3_message",
+            "path": "results/research_loop/r425_guard_constraints_signfix/train/cd_matd3_message/seed403/final.pt",
+            "seed": 403,
+            "sha256": "78649dd5a051fe8b30483d8198e16eac98a03675a91a4b196cdc5560e89c4323"
+        }
+    ],
+    "contract_sha256": "a502ae65ace0cbeec2b072ffb03d312f3ca80ed81d65d94fb82ff692d45ffae1",
+    "created_utc": "2026-08-20T13:53:45.579632+00:00",
+    "formal_authority": true,
+    "launch": {
+        "evaluation_shards": 30,
+        "host_process_budget": 17,
+        "intervention_cells": 30,
+        "native_threads_per_process": 1,
+        "other_reserved_processes": 0,
+        "shared_driver_subcommand": "shard",
+        "state_shards": 6,
+        "wsl_python_processes": 17
+    },
+    "parent_inputs": [
+        {
+            "path": "results/research_loop/r425_guard_constraints_signfix/reference_action_stats.json",
+            "sha256": "a48ec36faf161dc9a5aa28bb95bfd6017c2e71a0026061c592ef503318a6dd1c"
+        },
+        {
+            "path": "results/research_loop/r425_guard_constraints_signfix/formal_analysis.json",
+            "sha256": "080b6e2f6c7ffafe9f1bb95634773834458cadb9bcc1d53d50559e2b47e5831e"
+        },
+        {
+            "path": "results/research_loop/r425_guard_constraints_signfix/train/cd_matd3_no_message/seed401/manifest.json",
+            "sha256": "5aab1953fc9cac50e78709f086bb86ba480f97b096097b731640d1cccc0754b2"
+        },
+        {
+            "path": "results/research_loop/r425_guard_constraints_signfix/train/cd_matd3_no_message/seed402/manifest.json",
+            "sha256": "340d79b6d0bf953951bea83c1518468a96f35c01abb3ad76d24c8f9a465050d0"
+        },
+        {
+            "path": "results/research_loop/r425_guard_constraints_signfix/train/cd_matd3_no_message/seed403/manifest.json",
+            "sha256": "ff3e8ba062e90d7e6d0c57d22fb8f10a454beb5ddeb7575d1e7cf015940dccfc"
+        },
+        {
+            "path": "results/research_loop/r425_guard_constraints_signfix/train/cd_matd3_message/seed401/manifest.json",
+            "sha256": "54f33870c632403727cc482c65fa635ca44ddf00e2c957d1b5e8ec6694b82d8b"
+        },
+        {
+            "path": "results/research_loop/r425_guard_constraints_signfix/train/cd_matd3_message/seed402/manifest.json",
+            "sha256": "88ee218306864379bd82a73154fe2ea94737b0039ebbf926f07f2efe8ec75373"
+        },
+        {
+            "path": "results/research_loop/r425_guard_constraints_signfix/train/cd_matd3_message/seed403/manifest.json",
+            "sha256": "267bffd098f5c3e946b3ac511e94fd1f0c4bf763314dd5049013f24d369ea37c"
+        },
+        {
+            "path": "results/research_loop/r425_guard_constraints_signfix/eval/local_neighbour_md_km2_kd2/deterministic/canary_eval_a.json",
+            "sha256": "40bf5b5e8c9c58bad1297d5860323f598ae21102802ae575d4533ddaa51c8404"
+        },
+        {
+            "path": "results/research_loop/r425_guard_constraints_signfix/eval/local_neighbour_md_km2_kd2/deterministic/canary_eval_b.json",
+            "sha256": "fe47396a136d54f424ca6391351edb20b1b75ed5934ef8a8e0e09f2bb5cf3128"
+        },
+        {
+            "path": "results/research_loop/r425_guard_constraints_signfix/eval/local_neighbour_md_km2_kd2/deterministic/canary_eval_c.json",
+            "sha256": "28b1fe7b909866fb46cba2c5de3b6e195538a465912742f6d422aeb306bd8a95"
+        },
+        {
+            "path": "results/research_loop/r425_guard_constraints_signfix/eval/local_neighbour_md_km2_kd2/deterministic/canary_eval_d.json",
+            "sha256": "403336388d1b1ff142233a6c7e782ecd48e90a42b48cd55e2b174c3801a2061d"
+        },
+        {
+            "path": "results/research_loop/r425_guard_constraints_signfix/eval/cd_matd3_no_message/seed401/canary_eval_a.json",
+            "sha256": "33256721a459b314e47cf58b75ea02957011776bff7b7a40b7530e81bb4a5575"
+        },
+        {
+            "path": "results/research_loop/r425_guard_constraints_signfix/eval/cd_matd3_no_message/seed401/canary_eval_b.json",
+            "sha256": "437518cb08521d432196ba95466949475848d3bf72048e97e9dd1933167c8847"
+        },
+        {
+            "path": "results/research_loop/r425_guard_constraints_signfix/eval/cd_matd3_no_message/seed401/canary_eval_c.json",
+            "sha256": "82221e2aa773a5e4720fcea572ae5a4877483894600a088baecc5329a6abf81a"
+        },
+        {
+            "path": "results/research_loop/r425_guard_constraints_signfix/eval/cd_matd3_no_message/seed401/canary_eval_d.json",
+            "sha256": "715df58474d1a8c51cc05e711991e2effdc89028fd4b07975db2383386479b0a"
+        },
+        {
+            "path": "results/research_loop/r425_guard_constraints_signfix/eval/cd_matd3_no_message/seed402/canary_eval_a.json",
+            "sha256": "0b2f2a6bd45728bb97633948ad1f6b70b9baeaa14543c201430578556efb87c1"
+        },
+        {
+            "path": "results/research_loop/r425_guard_constraints_signfix/eval/cd_matd3_no_message/seed402/canary_eval_b.json",
+            "sha256": "f32cc40dd33bca263bff42e30057a1ae4e8b0501d0457905a31abd55d61524c9"
+        },
+        {
+            "path": "results/research_loop/r425_guard_constraints_signfix/eval/cd_matd3_no_message/seed402/canary_eval_c.json",
+            "sha256": "fd7e76515eb0c0ad47bab4dede4abe69a9d5a8e3af73512a78c9a1eb5a0f7eb9"
+        },
+        {
+            "path": "results/research_loop/r425_guard_constraints_signfix/eval/cd_matd3_no_message/seed402/canary_eval_d.json",
+            "sha256": "c42ec68034a40ffd5ac4c48cb88440b730ff600e23db5f9a55501e81f027b13a"
+        },
+        {
+            "path": "results/research_loop/r425_guard_constraints_signfix/eval/cd_matd3_no_message/seed403/canary_eval_a.json",
+            "sha256": "bcb98b03e7a3ae47907618e72aa3b24af01cc2d91cfb6eb5446b8615006d8dcf"
+        },
+        {
+            "path": "results/research_loop/r425_guard_constraints_signfix/eval/cd_matd3_no_message/seed403/canary_eval_b.json",
+            "sha256": "f78736419e80fe2a827d5ff768ba707d06292637da5d5394754e9d7a2c443f1d"
+        },
+        {
+            "path": "results/research_loop/r425_guard_constraints_signfix/eval/cd_matd3_no_message/seed403/canary_eval_c.json",
+            "sha256": "4241abf50f19a13a6f9a6a052c4b6abd6f2eb7d5a704889e7b45975caa3fcf69"
+        },
+        {
+            "path": "results/research_loop/r425_guard_constraints_signfix/eval/cd_matd3_no_message/seed403/canary_eval_d.json",
+            "sha256": "d48a36f089e5e2c7bb979dffccc9280bad8bdaf95e78f8a70be56f6496b9b847"
+        },
+        {
+            "path": "results/research_loop/r425_guard_constraints_signfix/eval/cd_matd3_message/seed401/canary_eval_a.json",
+            "sha256": "798faa4e0a1456d5119e50fc8b6976b87721e8a1e23dce5de27498e0476a8b04"
+        },
+        {
+            "path": "results/research_loop/r425_guard_constraints_signfix/eval/cd_matd3_message/seed401/canary_eval_b.json",
+            "sha256": "6edc5aa7643b924aba4a352ecf353b85775c37f05a9a20a7f986fe3d7599b4d9"
+        },
+        {
+            "path": "results/research_loop/r425_guard_constraints_signfix/eval/cd_matd3_message/seed401/canary_eval_c.json",
+            "sha256": "fb5b2215e35ff4dedd1d66f6908f2018f37e3b68e817a27d28bc6c3d607179fb"
+        },
+        {
+            "path": "results/research_loop/r425_guard_constraints_signfix/eval/cd_matd3_message/seed401/canary_eval_d.json",
+            "sha256": "33e3fcdf9096b8cfc952270b9f192e3b16a8c7628882e4e15e8053b7d839b9f3"
+        },
+        {
+            "path": "results/research_loop/r425_guard_constraints_signfix/eval/cd_matd3_message/seed402/canary_eval_a.json",
+            "sha256": "83ee79cac7982d9b89a13b751fe1baba8c79f4bbc8ebb56e004a569e54bdbfe4"
+        },
+        {
+            "path": "results/research_loop/r425_guard_constraints_signfix/eval/cd_matd3_message/seed402/canary_eval_b.json",
+            "sha256": "edba01cb9c1d138f7f9c3d08361788c9fa804455bd05de0feb9c6c8a97b1898d"
+        },
+        {
+            "path": "results/research_loop/r425_guard_constraints_signfix/eval/cd_matd3_message/seed402/canary_eval_c.json",
+            "sha256": "b61ee75569ad81f5c3b3eab9d9943dd28b0e39e96745711b78becd67952dfaf8"
+        },
+        {
+            "path": "results/research_loop/r425_guard_constraints_signfix/eval/cd_matd3_message/seed402/canary_eval_d.json",
+            "sha256": "71af29d4c005c7b26036a022b68d0fec866e0fce4de8b9779059ee22daf7c6ac"
+        },
+        {
+            "path": "results/research_loop/r425_guard_constraints_signfix/eval/cd_matd3_message/seed403/canary_eval_a.json",
+            "sha256": "b48b3d5cb81fb68668879e51bf3be18f144b6c1735efe387846ab56b13d8137d"
+        },
+        {
+            "path": "results/research_loop/r425_guard_constraints_signfix/eval/cd_matd3_message/seed403/canary_eval_b.json",
+            "sha256": "bbd03e737fe0b99fdc570f65a39604eb2aa8d769a77dd188801ec319e66e1493"
+        },
+        {
+            "path": "results/research_loop/r425_guard_constraints_signfix/eval/cd_matd3_message/seed403/canary_eval_c.json",
+            "sha256": "3bd1f542585845e35982e1b4152817e1eaf28a242e987ba1cb47f54f49e61db3"
+        },
+        {
+            "path": "results/research_loop/r425_guard_constraints_signfix/eval/cd_matd3_message/seed403/canary_eval_d.json",
+            "sha256": "399ee9153d0193e3f7ffa77d1f996f4d7bec855e81892823f513420175961a56"
+        }
+    ],
+    "plan_sha256": "f4aa18ea3b85a3ae1b9109be4dcb692ed6e7e0919692e4fa9e87f96ad336ba6c",
+    "rehearsal_sha256": "54f2eb75af851a3932e1e551577656ae02536f6716453e5aa23e9dd520af3e96",
+    "round": "R456",
+    "runtime": {
+        "andes_module": "/home/wya/andes_venv/lib/python3.12/site-packages/andes/__init__.py",
+        "andes_version": "2.0.0",
+        "case_path": "/home/wya/andes_venv/lib/python3.12/site-packages/andes/cases/kundur/kundur_full.xlsx",
+        "case_sha256": "f725e03ba12d8207616f68acdd606bbd35e7c4a68f13e66d7db43925adac2ed8",
+        "python": "3.12.3 (main, Jun 19 2026, 12:46:00) [GCC 13.3.0]"
+    },
+    "schema_version": 1,
+    "single_engineering_change": "expose the shared driver's fixed `shard <id>` interface and dispatch two-field ids to state shards, three-field ids to evaluation shards",
+    "sources": {
+        "base_learner": {
+            "path": "src/andes_rl_kundur/agents/cd_matd3.py",
+            "sha256": "bd924733fe4d71ac42d9c14f22dd678cdaad9fac375c660ca450160b747ca814"
+        },
+        "diagnostic_module": {
+            "path": "src/andes_rl_kundur/agents/cd_matd3_dual_factorial.py",
+            "sha256": "8d48bb4a1030c2e1b71279670d772d53399184d79bde1d28e56738c312d6d809"
+        },
+        "environment": {
+            "path": "src/andes_rl_kundur/env/andes/andes_vsg_env_v4.py",
+            "sha256": "6377aef227f85ffcbde32eaf1657041366ebd8f9f801d690fe6c7324e78c0823"
+        },
+        "module_tests": {
+            "path": "tests/test_cd_matd3_dual_factorial.py",
+            "sha256": "6e02594fa661e0ccf631e3d0162449d090f8633a1763b02cc14be74e6418a753"
+        },
+        "parent_learner": {
+            "path": "src/andes_rl_kundur/agents/cd_matd3_guard_constraints_vfix.py",
+            "sha256": "f4bac33eb405bfe7816fe8a495ef8030b9be667e5f64b2c081b38c480b423839"
+        },
+        "parent_runner": {
+            "path": "scripts/run_r425_guard_constraints_signfix.py",
+            "sha256": "b362d9b1e15d359432f7bb4afaae3cc9c2541532173824012a1dbe60750e7359"
+        },
+        "scientific_runner": {
+            "path": "scripts/run_r455_m1_dual_saturation.py",
+            "sha256": "bad23e0ac9d4e43b5fc855dc9c68e65c527b6349f59233a8a4aec48ada5d8afd"
+        },
+        "scientific_runner_tests": {
+            "path": "tests/test_run_r455_m1_dual_saturation.py",
+            "sha256": "0f6eea433ba233c8307f632ec0c5d24704a16d91622fcc3f2c6e88fb962819bd"
+        },
+        "scratch_launcher": {
+            "path": "scripts/andes_scratch.py",
+            "sha256": "bc5ed1a7978ca0f19d7cb053c32f59f46281dc91c1e2f68b730118e2b5b5fe62"
+        },
+        "shard_driver": {
+            "path": "scripts/soft_spot_shard_driver.py",
+            "sha256": "224ad49af6e6b093d46c91cd34b30e6c4e64011bece975f6b23661136805d50c"
+        },
+        "successor_runner": {
+            "path": "scripts/run_r456_m1_dual_saturation.py",
+            "sha256": "08ea2d979312fef381a787df2a243f3e47b8a8450f9874bd5bb897efdd4a1442"
+        },
+        "successor_tests": {
+            "path": "tests/test_run_r456_m1_dual_saturation.py",
+            "sha256": "d5e7a99e01b3af6731447e149a61e74cb68e35b6494141ef5529d2867b6f0b54"
+        },
+        "summariser": {
+            "path": "src/andes_rl_kundur/evaluation/md_decoupling_headroom.py",
+            "sha256": "bb5cb7aafe4b03b556dbeca24773cfecc4d31955e4e6eb7e94b379107a6bb87c"
+        }
+    },
+    "successor_of": "R455",
+    "training_executed": false
+}

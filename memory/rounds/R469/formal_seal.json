@@ -1,0 +1,72 @@
+{
+  "alphas": [
+    0.0,
+    0.25,
+    0.5,
+    1.0
+  ],
+  "authority": {
+    "active_line": true,
+    "active_plan": true,
+    "checker_present": true,
+    "formal_output_absent": true,
+    "linux_runtime": true,
+    "one_native_thread": true,
+    "r405_present": true,
+    "r459_verified": true,
+    "r468_present": true,
+    "request_present": true,
+    "solution_present": true
+  },
+  "capacity_sha256": "3633e5b61d0b621533727fcc9c375b82941c200b2b9baa9d586038b1975640eb",
+  "created_utc": "2026-08-21T09:27:31.560522+00:00",
+  "formal_output": "results/research_loop/r469_u8_separation_bound",
+  "frequency_points": 1025,
+  "full_state_projector": "prohibited-unverified",
+  "horizon": 30,
+  "native_threads_per_process": 1,
+  "rehearsal_sha256": "d3cbc683fe9fd2c6742bdb12ed435b546ea3bb7cfbfc1f419ebcbbc3748a4c73",
+  "retry_policy": "none",
+  "round": "R469",
+  "sources": {
+    "checker": {
+      "path": "probes/r469_u8_independent_check.py",
+      "sha256": "d80a72519f7894e2ac8de5c4ba37f8bd2ea59ee18b88ac35548209b8b3352a08"
+    },
+    "implementation": {
+      "path": "src/andes_rl_kundur/evaluation/u8_separation_bound.py",
+      "sha256": "4555b9491c9b49c568a953870611a1d31b081c9898206440e46706e5887dbaf6"
+    },
+    "plan": {
+      "path": "memory/rounds/R469/plan.md",
+      "sha256": "70477eee9a8e23c1050de7ae6d27a3fd8089dbae7dd8a7bfb537e81c16cce23b"
+    },
+    "r405_profiles": {
+      "path": "results/research_loop/r405_homogenization_gate/linearization_matrices.json",
+      "sha256": "6206dbeb27e7a8979090eb76935f97bfba5e5910f86efe278cdcacf91c96e96d"
+    },
+    "r459_verification": {
+      "path": "results/research_loop/r459_u1_u8_shared_export/checks/verification_report.json",
+      "sha256": "f27fac1b114a6495e49f92e9d8f1e832ec559b2b3610a690eef4e99ad571b5c7"
+    },
+    "r468_verification": {
+      "path": "results/research_loop/r468_u7_local_taylor/checks/verification_report.json",
+      "sha256": "564a2fa7c66c6f3a8b20fe01fe2f78854715582c11406c4591004679569c222b"
+    },
+    "request": {
+      "path": "paper/yang_md_decoupling_marl/working/gpt_pro_additional_data_request_20260821/05_acceptance_tests_and_stop_rules.md",
+      "sha256": "e0254ce4627954e82730f08993a65526c97b81e0bde308bc972fc504e6927753"
+    },
+    "runner": {
+      "path": "scripts/run_r469_u8_separation_bound.py",
+      "sha256": "52c2b4d4355d93da3b100ee40dc5d6ba6ed35615100b485c784658b73e1881de"
+    },
+    "solution": {
+      "path": "paper/yang_md_decoupling_marl/working/gpt_pro_unresolved_math_solution_20260821/01_complete_solution.md",
+      "sha256": "b198f9ed8bda2d22302b6aacca9e0eae2750383980dfb01cf3189bcfb242f577"
+    }
+  },
+  "unique_jobs": 32,
+  "workers": 15,
+  "wsl_python_processes": 16
+}

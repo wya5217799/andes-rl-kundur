@@ -1,0 +1,81 @@
+{
+  "capacity_canary": null,
+  "capacity_trace_role": "non_claim_bearing_excluded_from_evidence",
+  "created_utc": "2026-08-15T11:32:04Z",
+  "empirical_anchor": {
+    "all_records_valid": true,
+    "concurrent_workers": 9,
+    "launcher_processes": 1,
+    "native_threads_per_worker": 1,
+    "simulator_workers": 8,
+    "source": "R407 measured capacity ladder rungs 1/2/4/8: rung 8 = 8 concurrent bandpass jobs plus launcher, all ok, throughput 0.6453 jobs/s"
+  },
+  "formal_authority": false,
+  "host": {
+    "logical_processors": 32,
+    "physical_memory_bytes": 33518587904
+  },
+  "host_process_budget": 9,
+  "installed_runtime": {
+    "andes_version": "2.0.0",
+    "case_path": "/home/wya/andes_venv/lib/python3.12/site-packages/andes/cases/kundur/kundur_full.xlsx",
+    "case_sha256": "f725e03ba12d8207616f68acdd606bbd35e7c4a68f13e66d7db43925adac2ed8",
+    "python": "3.12.3"
+  },
+  "native_threads_per_process": 1,
+  "other_processes": [],
+  "other_reserved_processes": 0,
+  "projection_scope": "execute workload = 5 K points x 18 records = 90 jobs; at 0.6453 jobs/s with 8 workers the wall estimate is ~2.5 min",
+  "round": "R407",
+  "rung_decisions": "rung 8 (8 concurrent bandpass jobs plus the launcher) is the successful empirical anchor; frozen budget 9 stays at it",
+  "rungs": [
+    {
+      "all_ok": true,
+      "jobs": 1,
+      "throughput_jobs_per_second": 0.098,
+      "wall_seconds": 10.2,
+      "workers": 1
+    },
+    {
+      "all_ok": true,
+      "jobs": 2,
+      "throughput_jobs_per_second": 0.2044,
+      "wall_seconds": 9.785,
+      "workers": 2
+    },
+    {
+      "all_ok": true,
+      "jobs": 4,
+      "throughput_jobs_per_second": 0.3698,
+      "wall_seconds": 10.816,
+      "workers": 4
+    },
+    {
+      "all_ok": true,
+      "jobs": 8,
+      "throughput_jobs_per_second": 0.6453,
+      "wall_seconds": 12.398,
+      "workers": 8
+    }
+  ],
+  "schema_version": 1,
+  "scientific_classification_inspected": false,
+  "selected_throughput_jobs_per_second": 0.6453,
+  "selected_workers": 8,
+  "sources": {
+    "plan": {
+      "path": "memory/rounds/R406/plan.md"
+    },
+    "runner": {
+      "note": "ladder measured by --measure-capacity through scripts/andes_scratch.py",
+      "path": "scripts/run_r405_homogenization_gate.py"
+    }
+  },
+  "stage": "pre-seal-capacity-freeze (same-day same-host ladder as R405/R406)",
+  "training_executed": false,
+  "whole_host_python_process_budget": 9,
+  "wsl": {
+    "memory_available_bytes": 17195048960
+  },
+  "wsl_python_processes": 9
+}

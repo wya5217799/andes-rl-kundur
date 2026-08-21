@@ -1,0 +1,84 @@
+{
+  "authority": {
+    "active_line": true,
+    "active_plan": true,
+    "formal_output_absent": true,
+    "linux_runtime": true,
+    "one_native_thread": true,
+    "qualification_present": true,
+    "r444_present": true,
+    "r446_present": true,
+    "r459_verified": true,
+    "request_present": true
+  },
+  "base_steps": [
+    4.0,
+    4.0,
+    4.0,
+    4.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0
+  ],
+  "capacity_sha256": "47fb50a7329c17349ead57b9f2e9ce15a9f0d13a473d436a745436de0086ac42",
+  "created_utc": "2026-08-21T09:14:34.469875+00:00",
+  "formal_output": "results/research_loop/r468_u7_local_taylor",
+  "horizon": 30,
+  "levels": [
+    1.0,
+    0.5,
+    0.25
+  ],
+  "native_threads_per_process": 1,
+  "parameter_names": [
+    "M_1",
+    "M_2",
+    "M_3",
+    "M_4",
+    "D_1",
+    "D_2",
+    "D_3",
+    "D_4"
+  ],
+  "rehearsal_sha256": "43808e3e523603527951500cf66cbe2cbd1b6d2772b9cb15e53fa55104d3a195",
+  "retry_policy": "none",
+  "round": "R468",
+  "sources": {
+    "implementation": {
+      "path": "src/andes_rl_kundur/evaluation/u7_local_taylor.py",
+      "sha256": "16811664dcd3f71fa9fc1ec3587d1c4ef2bf373660f8ab3edd80e1c50482bfa4"
+    },
+    "plan": {
+      "path": "memory/rounds/R468/plan.md",
+      "sha256": "5d9b2072eb82a2392ae7a37dd67d0a7e543f8fbba3637201cfc98c6874018107"
+    },
+    "qualification": {
+      "path": "paper/yang_md_decoupling_marl/working/gpt_pro_unresolved_math_solution_20260821/SOURCE_VERIFICATION.md",
+      "sha256": "f7cc101c75ce4cf9ac2fd715942dc0cab45eb32f5fc7d01cb1094cf5654dc29d"
+    },
+    "r444_amplitudes": {
+      "path": "results/research_loop/r444_signed_probe_order/formal_analysis.json",
+      "sha256": "244998adb3ba421da7dd31ce47aa6912033262b181b77c2c0b577ed3bb5781ab"
+    },
+    "r446_authority": {
+      "path": "results/research_loop/r446_md_authority_fd/formal_analysis.json",
+      "sha256": "742a0816bbc0792222793e25aa56f921408772e6063d9f09ecd1eb3263a217f2"
+    },
+    "r459_verification": {
+      "path": "results/research_loop/r459_u1_u8_shared_export/checks/verification_report.json",
+      "sha256": "f27fac1b114a6495e49f92e9d8f1e832ec559b2b3610a690eef4e99ad571b5c7"
+    },
+    "request": {
+      "path": "paper/yang_md_decoupling_marl/working/gpt_pro_additional_data_request_20260821/05_acceptance_tests_and_stop_rules.md",
+      "sha256": "e0254ce4627954e82730f08993a65526c97b81e0bde308bc972fc504e6927753"
+    },
+    "runner": {
+      "path": "scripts/run_r468_u7_local_taylor.py",
+      "sha256": "81b393d44c209e366e1ff2d7cdde2b62997de3debc8d385e4b3ff29a566d053e"
+    }
+  },
+  "unique_jobs": 49,
+  "workers": 15,
+  "wsl_python_processes": 16
+}

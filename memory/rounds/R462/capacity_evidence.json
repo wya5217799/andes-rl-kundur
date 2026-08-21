@@ -1,0 +1,19 @@
+{
+  "cpu_logical": 32,
+  "created_utc": "2026-08-21T07:55:09.130685+00:00",
+  "input_bytes": 16718205,
+  "input_file_count": 77,
+  "physical_capacity_anchor": {
+    "orchestrator_processes": 1,
+    "selected_trajectory_workers": 15,
+    "source_round": "R460",
+    "throughput_gain_vs_8_workers_fraction": 0.5096
+  },
+  "round": "R462",
+  "selected_configuration": {
+    "native_threads_per_process": 1,
+    "processes": 1
+  },
+  "wall_seconds": 0.32360180001705885,
+  "workload": "strict-JSON static reduction, no ANDES simulation"
+}

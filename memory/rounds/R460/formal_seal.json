@@ -1,0 +1,108 @@
+{
+  "authority": {
+    "active_line": true,
+    "active_plan": true,
+    "formal_output_absent": true,
+    "r431_checkpoint_present": true,
+    "request_verified": true
+  },
+  "capacity_sha256": "fbc3467f42e55a0989476b535623a3f874d6c041d5ff8c5bb42a401f9def0171",
+  "completion": {
+    "output_root": "results/research_loop/r460_u3_execution_semantics",
+    "required_verdict": "EXECUTION-SEMANTICS-VALID",
+    "trajectory_count": 24
+  },
+  "contract_sha256": "da935454b3caa481a014dde9a0349e269ab7601608821d870b759dbff35dbfe3",
+  "created_utc": "2026-08-21T07:35:16.485901+00:00",
+  "formal_allocation": {
+    "formal_unique_jobs": 24,
+    "gpu_processes": 0,
+    "host_process_budget": 17,
+    "orchestrator_processes": 1,
+    "threads_per_process": 1,
+    "trajectory_workers": 15,
+    "waves": [
+      15,
+      9
+    ],
+    "wsl_python_processes": 16
+  },
+  "formal_authority": true,
+  "original_rehearsal_sha256": "be13fcda849c2ccf8cddc51ee4986dc3d61e82b8d7fe2164c0ccf5ad51aae557",
+  "plan_sha256": "896e4a4dcf9d6916581e33544646de85ae16e7c98ad32c07f9a957c8ff60d104",
+  "preseal_runtime_amendment_sha256": "a77cde69672ee16f0c04d0568d3b9c6e898d8e98d8049352e85827dc9d575400",
+  "r431_checkpoint_sha256": "6ab4188892808825d38b8ed9cab2ef3ff6da17e68cf3182820b52bca4e52b924",
+  "rehearsal_amendment_sha256": "5612a91a8d5421c3ae1842a85a60f96e6b4b220316392b3a97b4fe4a5ed9074f",
+  "rehearsal_sha256": "b966cf99ee89c6e4be7718726474d3155fb9274f1f4579b7a6e214269a31bae3",
+  "request_sha256sums_sha256": "ccdb015d86362e8c043c2935bbd474d88b15fc281825f710669088b13ab3344a",
+  "round": "R460",
+  "runtime": {
+    "andes": "2.0.0",
+    "andes_module": "/home/wya/andes_venv/lib/python3.12/site-packages/andes/__init__.py",
+    "case_path": "/home/wya/andes_venv/lib/python3.12/site-packages/andes/cases/kundur/kundur_full.xlsx",
+    "case_sha256": "f725e03ba12d8207616f68acdd606bbd35e7c4a68f13e66d7db43925adac2ed8",
+    "created_utc": "2026-08-21T07:35:18.683195+00:00",
+    "numpy": "2.4.3",
+    "python": "3.12.3 (main, Jun 19 2026, 12:46:00) [GCC 13.3.0]",
+    "python_executable": "/home/wya/andes_venv/bin/python",
+    "threads": {
+      "MKL_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1"
+    },
+    "torch": "2.10.0+cu128"
+  },
+  "schema_version": 1,
+  "sources": {
+    "environment": {
+      "path": "src/andes_rl_kundur/env/andes/base_env.py",
+      "sha256": "1797c658aa52a788a5e26782fc2c7fa71b7dccfac3c2dc5de7d6ce6e4432fe34"
+    },
+    "executed_action_sac": {
+      "path": "src/andes_rl_kundur/agents/executed_action_sac.py",
+      "sha256": "aab0c7b22eedb1bc59df536c24b9fc7bdfe0324387e2deb86d1a8ef1c60f38e0"
+    },
+    "executed_action_sac_tests": {
+      "path": "tests/test_executed_action_sac.py",
+      "sha256": "7d6ef89231767e19d2d17e24aea0ffd370e0c7a345a1d5b1342a558499b8673c"
+    },
+    "historical_r431_runner": {
+      "path": "scripts/run_r431_sac_slew.py",
+      "sha256": "355cf1916463ab7da81e80a028dc2a6a5c3bf746ba5ea3d9fcc3c448011b872d"
+    },
+    "historical_replay": {
+      "path": "src/andes_rl_kundur/agents/replay_buffer.py",
+      "sha256": "09f8866c4dd4800d7ff8abe07201dd6ec407fa22558b7e6056d7dae69ffa2b1b"
+    },
+    "historical_sac": {
+      "path": "src/andes_rl_kundur/agents/sac.py",
+      "sha256": "5c444faeec7210730d86998adfa898aaee325651d74505ed74636d087432294b"
+    },
+    "plan": {
+      "path": "memory/rounds/R460/plan.md",
+      "sha256": "896e4a4dcf9d6916581e33544646de85ae16e7c98ad32c07f9a957c8ff60d104"
+    },
+    "preseal_runtime_amendment": {
+      "path": "memory/rounds/R460/preseal_runtime_amendment.json",
+      "sha256": "a77cde69672ee16f0c04d0568d3b9c6e898d8e98d8049352e85827dc9d575400"
+    },
+    "runner": {
+      "path": "scripts/run_r460_u3_execution_semantics.py",
+      "sha256": "253b977de03c113774e7b9b70c78d60bcb688f75270d4d8092ed5711a7025edd"
+    },
+    "runtime_projector": {
+      "path": "src/andes_rl_kundur/control/per_vsg_md.py",
+      "sha256": "830122cbc2c4cbba96bd892197f95a5991e3f4c4e514d2c28d370ca589a29c5d"
+    },
+    "scratch_launcher": {
+      "path": "scripts/andes_scratch.py",
+      "sha256": "bc5ed1a7978ca0f19d7cb053c32f59f46281dc91c1e2f68b730118e2b5b5fe62"
+    },
+    "shard_driver": {
+      "path": "scripts/soft_spot_shard_driver.py",
+      "sha256": "224ad49af6e6b093d46c91cd34b30e6c4e64011bece975f6b23661136805d50c"
+    }
+  },
+  "training_executed": false
+}

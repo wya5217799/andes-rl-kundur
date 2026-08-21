@@ -1,0 +1,19 @@
+{
+  "authority": {
+    "active_line": true,
+    "active_plan": true,
+    "formal_output_absent": true,
+    "model_present": true,
+    "r459_verified": true
+  },
+  "checks": {
+    "bezout_pass": true,
+    "column_pass": true,
+    "gauge_pass": true,
+    "prospective_verdict": "INFEASIBLE-QY10-WITH-VERIFIED-DUAL-BOUND",
+    "solver_terminal": true
+  },
+  "created_utc": "2026-08-21T08:16:47.920748+00:00",
+  "round": "R464",
+  "wall_seconds": 51.38126731902594
+}

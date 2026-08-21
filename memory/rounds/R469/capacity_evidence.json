@@ -1,0 +1,17 @@
+{
+  "capacity_anchor": "R460 measured 15 workers plus one orchestrator at 50.96% greater throughput than eight workers",
+  "created_utc": "2026-08-21T09:27:25.379101+00:00",
+  "gpu_reason": "No CUDA ANDES path and small dense response matrices",
+  "gpu_selected": false,
+  "host_process_budget": 17,
+  "native_threads_per_process": 1,
+  "orchestrator_processes": 1,
+  "other_reserved_processes": 0,
+  "readiness": "RUN-READY",
+  "rehearsal_wall_seconds_for_two_serial_points": 2.1715153100085445,
+  "round": "R469",
+  "selected_workers": 15,
+  "unique_jobs": 32,
+  "wsl_available_memory_bytes": 21155586048,
+  "wsl_python_processes": 16
+}

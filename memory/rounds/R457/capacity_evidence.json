@@ -1,0 +1,255 @@
+{
+    "amendments": [
+        {
+            "kind": "recording-amendment",
+            "capacity_sha256_before": "4f319593b250a63762cf0a8fd27ae7aabd6af93ccbf73211e1255a5297f7aa3e",
+            "note": "Added the omitted host resource object and empirical anchor required by round_preflight. Values bind the already executed 8-worker selected rung plus one launcher; no measured row, workload, threshold, or selection changed."
+        }
+    ],
+    "empirical_anchor": {
+        "all_records_valid": true,
+        "concurrent_workers": 9,
+        "native_threads_per_worker": 1,
+        "source": "fresh R457 selected 8-worker physical and learner rungs plus one launcher"
+    },
+    "host": {
+        "logical_processors": 32,
+        "physical_memory_bytes": 33518587904
+    },
+    "authority": {
+        "active_line": true,
+        "active_plan": true,
+        "cell_inventory": true,
+        "output_absence": true,
+        "parent_r425_reference": true,
+        "parent_r427_analysis": true,
+        "shard_inventory": true
+    },
+    "created_utc": "2026-08-20T14:34:13.301006+00:00",
+    "host_process_budget": 9,
+    "learner_rungs": [
+        {
+            "accepted": true,
+            "all_valid": true,
+            "marginal_gain": null,
+            "throughput_jobs_per_second": 3.8565813412260908,
+            "wall_seconds": 8.297504232032225,
+            "workers": 1
+        },
+        {
+            "accepted": true,
+            "all_valid": true,
+            "marginal_gain": 1.7510243054855268,
+            "throughput_jobs_per_second": 6.752967664568857,
+            "wall_seconds": 4.738657371024601,
+            "workers": 2
+        },
+        {
+            "accepted": true,
+            "all_valid": true,
+            "marginal_gain": 1.6072334045056902,
+            "throughput_jobs_per_second": 10.853595210041844,
+            "wall_seconds": 2.948331809020601,
+            "workers": 4
+        },
+        {
+            "accepted": true,
+            "all_valid": true,
+            "marginal_gain": 1.1888683278334415,
+            "throughput_jobs_per_second": 12.903495588343498,
+            "wall_seconds": 2.4799481490044855,
+            "workers": 8
+        },
+        {
+            "accepted": false,
+            "all_valid": true,
+            "marginal_gain": 0.9740981753856436,
+            "throughput_jobs_per_second": 12.569271508702103,
+            "wall_seconds": 2.545891381043475,
+            "workers": 12
+        },
+        {
+            "accepted": false,
+            "all_valid": true,
+            "marginal_gain": 0.9622024066218422,
+            "throughput_jobs_per_second": 12.415774508938437,
+            "wall_seconds": 2.577366396028083,
+            "workers": 16
+        }
+    ],
+    "native_threads_per_process": 1,
+    "os_floor_bytes": 3221225472,
+    "other_python_processes": [],
+    "other_reserved_processes": 0,
+    "physical_rungs": [
+        {
+            "accepted": true,
+            "all_valid": true,
+            "marginal_gain": null,
+            "memory_safe": true,
+            "throughput_trajectories_per_second": 0.29371068343084783,
+            "wall_seconds": 108.95075257803546,
+            "workers": 1
+        },
+        {
+            "accepted": true,
+            "all_valid": true,
+            "marginal_gain": 1.6838166742411376,
+            "memory_safe": true,
+            "throughput_trajectories_per_second": 0.4945549461636218,
+            "wall_seconds": 64.70464050199371,
+            "workers": 2
+        },
+        {
+            "accepted": true,
+            "all_valid": true,
+            "marginal_gain": 1.659377224971839,
+            "memory_safe": true,
+            "throughput_trajectories_per_second": 0.8206532141610879,
+            "wall_seconds": 38.99332805600716,
+            "workers": 4
+        },
+        {
+            "accepted": true,
+            "all_valid": true,
+            "marginal_gain": 1.7151343415984166,
+            "memory_safe": true,
+            "throughput_trajectories_per_second": 1.407530510150802,
+            "wall_seconds": 22.734853539033793,
+            "workers": 8
+        },
+        {
+            "accepted": false,
+            "all_valid": true,
+            "marginal_gain": 1.2043918921652839,
+            "memory_safe": true,
+            "throughput_trajectories_per_second": 1.6952183344008918,
+            "wall_seconds": 18.876624533033464,
+            "workers": 12
+        },
+        {
+            "accepted": false,
+            "all_valid": true,
+            "marginal_gain": 1.404485687966243,
+            "memory_safe": true,
+            "throughput_trajectories_per_second": 1.9768564568826263,
+            "wall_seconds": 16.18731592199765,
+            "workers": 16
+        }
+    ],
+    "readiness": "LOAD-CHECK-REVIEW",
+    "round": "R457",
+    "rungs": [
+        {
+            "accepted": true,
+            "all_valid": true,
+            "marginal_gain": null,
+            "memory_safe": true,
+            "throughput_trajectories_per_second": 0.29371068343084783,
+            "wall_seconds": 108.95075257803546,
+            "workers": 1
+        },
+        {
+            "accepted": true,
+            "all_valid": true,
+            "marginal_gain": 1.6838166742411376,
+            "memory_safe": true,
+            "throughput_trajectories_per_second": 0.4945549461636218,
+            "wall_seconds": 64.70464050199371,
+            "workers": 2
+        },
+        {
+            "accepted": true,
+            "all_valid": true,
+            "marginal_gain": 1.659377224971839,
+            "memory_safe": true,
+            "throughput_trajectories_per_second": 0.8206532141610879,
+            "wall_seconds": 38.99332805600716,
+            "workers": 4
+        },
+        {
+            "accepted": true,
+            "all_valid": true,
+            "marginal_gain": 1.7151343415984166,
+            "memory_safe": true,
+            "throughput_trajectories_per_second": 1.407530510150802,
+            "wall_seconds": 22.734853539033793,
+            "workers": 8
+        },
+        {
+            "accepted": false,
+            "all_valid": true,
+            "marginal_gain": 1.2043918921652839,
+            "memory_safe": true,
+            "throughput_trajectories_per_second": 1.6952183344008918,
+            "wall_seconds": 18.876624533033464,
+            "workers": 12
+        },
+        {
+            "accepted": false,
+            "all_valid": true,
+            "marginal_gain": 1.404485687966243,
+            "memory_safe": true,
+            "throughput_trajectories_per_second": 1.9768564568826263,
+            "wall_seconds": 16.18731592199765,
+            "workers": 16
+        }
+    ],
+    "schema_version": 1,
+    "selected_workers": 8,
+    "sources": {
+        "advisory": {
+            "path": "paper/yang_md_decoupling_marl/working/vsg_failure_math_advisory_20260820/problems/M2_critic_divergence_causality.md",
+            "sha256": "33158ca7190391183a15edece92e6400929eb596eec11f4d496e552e7f536c1b"
+        },
+        "head_popart": {
+            "path": "src/andes_rl_kundur/agents/cd_matd3_head_popart.py",
+            "sha256": "7a479062aca84815df03b0b7ad1e739d226e093ae2935575ce35820b0c5347f1"
+        },
+        "head_popart_tests": {
+            "path": "tests/test_cd_matd3_head_popart.py",
+            "sha256": "e6d520aa76529c9b974ab5b9013216976e2245483c02b0bb7a78405031a044c2"
+        },
+        "legacy_learner": {
+            "path": "src/andes_rl_kundur/agents/cd_matd3_critic_norm.py",
+            "sha256": "cd809326d24bdcc2fbd7b5d4129f3b6ee6cd191d05843d91b187efb299d14097"
+        },
+        "legacy_runner": {
+            "path": "scripts/run_r427_critic_target_normalization.py",
+            "sha256": "fbc50876cf7ae44d36f25b35ecc87494ba40fb2b0c01672d1b8d59fe12625782"
+        },
+        "parent_runner": {
+            "path": "scripts/run_r425_guard_constraints_signfix.py",
+            "sha256": "b362d9b1e15d359432f7bb4afaae3cc9c2541532173824012a1dbe60750e7359"
+        },
+        "plan": {
+            "path": "memory/rounds/R457/plan.md",
+            "sha256": "a3570fe7dce0037b45ac5e2dcd3efbef5e8d032b907205b9ce3f655e940c4eef"
+        },
+        "runner": {
+            "path": "scripts/run_r457_m2_head_causality.py",
+            "sha256": "ef4c23cafbbb7118b482fac088eab1215fb39f5a30fdbf834e9d58679a21776b"
+        },
+        "runner_tests": {
+            "path": "tests/test_run_r457_m2_head_causality.py",
+            "sha256": "6a3cf3e7c6ea473dd0c56cf823b460fdb6eeb178bb53bb85b0431df7d6169348"
+        },
+        "scratch_launcher": {
+            "path": "scripts/andes_scratch.py",
+            "sha256": "bc5ed1a7978ca0f19d7cb053c32f59f46281dc91c1e2f68b730118e2b5b5fe62"
+        },
+        "shared_driver": {
+            "path": "scripts/soft_spot_shard_driver.py",
+            "sha256": "224ad49af6e6b093d46c91cd34b30e6c4e64011bece975f6b23661136805d50c"
+        }
+    },
+    "tasks_per_rung": 32,
+    "whole_host_python_process_budget": 9,
+    "worker_rss_floor_bytes": 944214016,
+    "wsl": {
+        "memory_available_bytes": 21034352640
+    },
+    "wsl_mem_available_bytes": 21034352640,
+    "wsl_mem_total_bytes": 29423173632,
+    "wsl_python_processes": 9
+}

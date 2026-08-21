@@ -1,0 +1,18 @@
+{
+  "authority": {
+    "active_line": true,
+    "active_plan": true,
+    "formal_output_absent": true,
+    "r462_aborted": true,
+    "r462_output_preserved": true,
+    "r462_seal_present": true
+  },
+  "checks": {
+    "all_15_ledgers_truthfully_missing": true,
+    "all_parent_checks_pass": true,
+    "ledger_checker_pass": true,
+    "zero_recorded_ledgers": true
+  },
+  "created_utc": "2026-08-21T07:58:04.296999+00:00",
+  "round": "R463"
+}

@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "round": "R453",
+  "created_utc": "2026-08-20T12:22:56.167878+00:00",
+  "rehearsal_ok": true,
+  "formal_output_absent": true,
+  "parent": {
+    "seal_sha256": "888ef0a93994d3a36fbef7a9bbf2d43c8d5da68bd3667dde6ace91c4b8e998e7",
+    "audit_sha256": "6d692e72a8e0d160fc3bcd69eb16e0412c4d0a69c86f2d7d4e5a9dc48b07d723",
+    "contract_sha256": "0a5535cd28aa60bc87950737ee5e3ac7dbaf7d7458b7acdec2aebb2ad3b917a4",
+    "execution_shards": 68,
+    "total_trajectories": 8424
+  },
+  "source_sha256": "c34ee446c242ff80c5de4da0a7f1f83b9565f8687dd4374b5d0d9e20aa1226e6",
+  "probes": {
+    "invalid_endpoint_only_true": true,
+    "invalid_valid_endpoint_false": true,
+    "valid_endpoint_true": true,
+    "pareto_tie_ids": [
+      "a",
+      "b"
+    ]
+  }
+}

@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "round": "R409",
+  "created_utc": "2026-08-15T17:08:11Z",
+  "formal_authority": false,
+  "capacity_trace_role": "non_claim_bearing_excluded_from_evidence",
+  "training_executed": false,
+  "scientific_classification_inspected": false,
+  "host_process_budget": 9,
+  "whole_host_python_process_budget": 9,
+  "wsl_python_processes": 9,
+  "native_threads_per_process": 1,
+  "other_reserved_processes": 0,
+  "other_processes": [],
+  "host": {
+    "logical_processors": 32,
+    "physical_memory_bytes": 33518587904
+  },
+  "wsl": {
+    "memory_available_bytes": 24178999296,
+    "memory_total_bytes": 25195302912
+  },
+  "installed_runtime": {
+    "python": "3.12.3",
+    "andes_version": "2.0.0",
+    "case_path": "/home/wya/andes_venv/lib/python3.12/site-packages/andes/cases/kundur/kundur_full.xlsx",
+    "case_sha256": "f725e03ba12d8207616f68acdd606bbd35e7c4a68f13e66d7db43925adac2ed8"
+  },
+  "rungs": [
+    {
+      "all_ok": true,
+      "jobs": 1,
+      "throughput_jobs_per_second": 0.1009,
+      "wall_seconds": 9.908,
+      "workers": 1
+    },
+    {
+      "all_ok": true,
+      "jobs": 2,
+      "throughput_jobs_per_second": 0.1918,
+      "wall_seconds": 10.428,
+      "workers": 2
+    },
+    {
+      "all_ok": true,
+      "jobs": 4,
+      "throughput_jobs_per_second": 0.3461,
+      "wall_seconds": 11.558,
+      "workers": 4
+    },
+    {
+      "all_ok": true,
+      "jobs": 8,
+      "throughput_jobs_per_second": 0.6228,
+      "wall_seconds": 12.845,
+      "workers": 8
+    }
+  ],
+  "rung_decisions": "rung 8 (8 concurrent held-out jobs plus the launcher) is the successful empirical anchor; frozen budget 9 stays at it",
+  "selected_workers": 8,
+  "selected_throughput_jobs_per_second": 0.6228,
+  "empirical_anchor": {
+    "all_records_valid": true,
+    "concurrent_workers": 9,
+    "launcher_processes": 1,
+    "simulator_workers": 8,
+    "native_threads_per_worker": 1,
+    "source": "R409 measured capacity ladder rungs 1/2/4/8: rung 8 = 8 concurrent held-out jobs plus launcher, all ok, throughput 0.6228 jobs/s"
+  },
+  "capacity_canary": null,
+  "projection_scope": "execute workload = 3 arms x 10 records = 30 jobs; at 0.6228 jobs/s with 8 workers the wall estimate is ~1 min",
+  "sources": {
+    "plan": {
+      "path": "memory/rounds/R409/plan.md"
+    },
+    "runner": {
+      "note": "ladder run via scripts/andes_scratch.py scripts/run_r409_heldout_gate.py --measure-capacity"
+    }
+  }
+}

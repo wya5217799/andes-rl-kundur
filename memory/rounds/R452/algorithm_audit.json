@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "round": "R452",
+  "audit_kind": "post_aggregate_semantic_contract_audit",
+  "created_utc": "2026-08-20T12:20:00Z",
+  "formal_analysis": {
+    "path": "results/research_loop/r452_m5_all_candidate_pareto/formal_analysis.json",
+    "sha256": "0eda2608fc2f2b411ba4b97d0db3512ea0bde144f5f14efea6b3fa861f7df200"
+  },
+  "finding": {
+    "severity": "fatal_for_round_authority",
+    "classification": "CANARY-INVALID",
+    "summary": "The aggregate field joint_endpoint_eligible_count and the conditional-minimum population apply an unregistered valid=true filter, while the sealed plan defines joint endpoint eligibility only by the two >=5% endpoint improvements.",
+    "implementation": {
+      "path": "scripts/run_r452_m5_all_candidate_pareto.py",
+      "function": "_summarize_profile_rows",
+      "cause": "eligible includes row[guards][valid] before row[guards][joint_endpoint_eligible], and minimum() reuses that filtered population"
+    },
+    "stored_valid_and_endpoint_counts": {
+      "eval_a": 45,
+      "eval_b": 25,
+      "eval_c": 29,
+      "eval_d": 13
+    },
+    "recomputed_endpoint_only_counts": {
+      "eval_a": 45,
+      "eval_b": 47,
+      "eval_c": 29,
+      "eval_d": 16
+    }
+  },
+  "bounded_impact": {
+    "execution_integrity": {
+      "shards": 68,
+      "candidate_rows": 1400,
+      "candidate_trajectories": 8400,
+      "static_trajectories": 24,
+      "errors": 0,
+      "all_payload_hashes_match": true
+    },
+    "independent_recomputation": {
+      "joint_guard_feasible_ids_match": true,
+      "pareto_fronts_match": true,
+      "conditional_minimum_ids_happen_to_match_without_the_extra_filter": true,
+      "primary_profile_classification_happens_to_match": true
+    },
+    "authority": "The coincidentally unchanged primary classification does not cure the prospective field-semantics violation; R452 cannot register a scientific claim. A successor may reuse the immutable verified shards and must reseal corrected offline aggregation semantics."
+  },
+  "training_executed": false
+}

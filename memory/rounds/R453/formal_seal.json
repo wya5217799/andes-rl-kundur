@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "round": "R453",
+  "created_utc": "2026-08-20T12:23:18.629960+00:00",
+  "formal_authority": true,
+  "training_executed": false,
+  "physical_execution_reused_from": "R452",
+  "plan_sha256": "1d748daa4ac5944f18f2cf8c1f9e1e9bd3a47d21b6456598e1fc5ceacb8053db",
+  "rehearsal_sha256": "3c8dbe2b2c34407735400bb2dac661b47776c30fe693cfca1b9e5f746d4f5c9a",
+  "parent_seal_sha256": "888ef0a93994d3a36fbef7a9bbf2d43c8d5da68bd3667dde6ace91c4b8e998e7",
+  "parent_audit_sha256": "6d692e72a8e0d160fc3bcd69eb16e0412c4d0a69c86f2d7d4e5a9dc48b07d723",
+  "sources": {
+    "runner": {
+      "path": "scripts\\run_r453_m5_aggregate_repair.py",
+      "sha256": "c34ee446c242ff80c5de4da0a7f1f83b9565f8687dd4374b5d0d9e20aa1226e6"
+    },
+    "runner_test": {
+      "path": "tests\\test_run_r453_m5_aggregate_repair.py",
+      "sha256": "6760fb28eb0aa3278221fecb8683244cb823b84b9c2fb509f841f36f92f38cc7"
+    }
+  }
+}

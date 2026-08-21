@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "round": "R460",
+  "created_utc": "2026-08-21T07:34:00Z",
+  "formal_authority": false,
+  "training_executed": false,
+  "original_rehearsal": "memory/rounds/R460/rehearsal.json",
+  "original_rehearsal_sha256": "be13fcda849c2ccf8cddc51ee4986dc3d61e82b8d7fe2164c0ccf5ad51aae557",
+  "issue": "The first pre-seal rehearsal correctly exercised the executed-action semantics, but its human-readable reward-component ledger used the paper Eq. 17 physical denominators while the recorded R431 successor reward total came from the topology-adapted normalized-action reward. The total stored reward was correct; only the component labels and arithmetic reconstruction were inconsistent.",
+  "correction": "Use the exact R431 adapted reward contract: delta-M and delta-D denominators 600, include the absolute-frequency component, emit calculated_total, and require calculated_minus_stored <= 1e-6 in the corrected rehearsal.",
+  "formal_result_created": false,
+  "formal_seal_created": false,
+  "scientific_policy_or_environment_changed": false,
+  "trace_accounting_changed": true,
+  "original_preserved": true,
+  "corrected_rehearsal": "memory/rounds/R460/rehearsal_v2.json",
+  "disposition": "The original non-authoritative rehearsal remains immutable. Only the corrected rehearsal_v2 may be bound into the formal seal."
+}

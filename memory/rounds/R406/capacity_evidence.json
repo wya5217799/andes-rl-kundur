@@ -1,0 +1,74 @@
+{
+  "capacity_canary": null,
+  "capacity_trace_role": "non_claim_bearing_excluded_from_evidence",
+  "created_utc": "2026-08-15T11:32:04Z",
+  "empirical_anchor": {
+    "all_records_valid": true,
+    "concurrent_workers": 4,
+    "launcher_processes": 1,
+    "native_threads_per_worker": 1,
+    "simulator_workers": 2,
+    "source": "R405 measured capacity ladder rungs 1/2/4: rung 4 = 4 concurrent representative jobs, all ok, throughput 0.2254 jobs/s, children max RSS 204 MB"
+  },
+  "formal_authority": false,
+  "host": {
+    "logical_processors": 32,
+    "physical_memory_bytes": 33518587904
+  },
+  "host_process_budget": 3,
+  "installed_runtime": {
+    "andes_version": "2.0.0",
+    "case_path": "/home/wya/andes_venv/lib/python3.12/site-packages/andes/cases/kundur/kundur_full.xlsx",
+    "case_sha256": "f725e03ba12d8207616f68acdd606bbd35e7c4a68f13e66d7db43925adac2ed8",
+    "python": "3.12.3"
+  },
+  "native_threads_per_process": 1,
+  "other_processes": [],
+  "other_reserved_processes": 0,
+  "projection_scope": "execute workload ~72 linearization jobs + 144 scenario jobs; at 0.12 jobs/s with 2 workers the wall estimate is ~30 min, within budget",
+  "round": "R406",
+  "rung_decisions": "rung 4 (4 concurrent jobs) is the successful empirical anchor; frozen budget 3 = launcher + 2 simulator workers stays under it",
+  "rungs": [
+    {
+      "children_max_rss_kb": 201972,
+      "jobs": 1,
+      "throughput_jobs_per_second": 0.0706,
+      "wall_seconds": 14.171,
+      "workers": 1
+    },
+    {
+      "children_max_rss_kb": 203312,
+      "jobs": 2,
+      "throughput_jobs_per_second": 0.1201,
+      "wall_seconds": 16.653,
+      "workers": 2
+    },
+    {
+      "children_max_rss_kb": 204020,
+      "jobs": 4,
+      "throughput_jobs_per_second": 0.2254,
+      "wall_seconds": 17.749,
+      "workers": 4
+    }
+  ],
+  "schema_version": 1,
+  "scientific_classification_inspected": false,
+  "selected_throughput_jobs_per_second": 0.1201,
+  "selected_workers": 2,
+  "sources": {
+    "plan": {
+      "path": "memory/rounds/R406/plan.md"
+    },
+    "runner": {
+      "note": "ladder measured by --measure-capacity through scripts/andes_scratch.py",
+      "path": "scripts/run_r405_homogenization_gate.py"
+    }
+  },
+  "stage": "pre-seal-capacity-freeze (same-day same-host ladder as R405)",
+  "training_executed": false,
+  "whole_host_python_process_budget": 3,
+  "wsl": {
+    "memory_available_bytes": 17195048960
+  },
+  "wsl_python_processes": 3
+}

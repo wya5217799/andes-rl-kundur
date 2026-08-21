@@ -1,0 +1,42 @@
+{
+  "alpha_grid": [
+    0.675,
+    0.625,
+    0.65,
+    0.7,
+    0.725,
+    0.75,
+    0.8,
+    0.85
+  ],
+  "capacity_evidence_sha256": "874e7f209a0b0cbace79e9c7f80af2430509081d912a0cf4a5a2d290cccc8f26",
+  "created_utc": "2026-08-15T12:19:29.631291+00:00",
+  "held_out_accessed": false,
+  "launch": {
+    "host_process_budget": 3,
+    "native_threads_per_process": 1,
+    "other_reserved_processes": 0,
+    "wsl_python_processes": 3
+  },
+  "manuscript_line": "paralleled-vsg-marl",
+  "plan_sha256": "1a0a80cfdd8c3f40d8bd8c85d1505aced4610781e8d94cf8f872b1231a7117b3",
+  "rehearsal": {
+    "alpha": 0.675,
+    "pre_attempt": {
+      "contract_round": "R406",
+      "output_absence": true
+    },
+    "scenario": {
+      "identity_ok": true,
+      "rows": 50,
+      "tds_failed": false
+    }
+  },
+  "round": "R406",
+  "schema_version": 1,
+  "thresholds": {
+    "differential_ratio_max": 0.95,
+    "probe_cross_ratio_max": 1.1
+  },
+  "training_authorized": false
+}

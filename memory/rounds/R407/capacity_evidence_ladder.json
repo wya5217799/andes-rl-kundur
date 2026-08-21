@@ -1,0 +1,32 @@
+{
+  "rungs": [
+    {
+      "all_ok": true,
+      "jobs": 1,
+      "throughput_jobs_per_second": 0.1079,
+      "wall_seconds": 9.266,
+      "workers": 1
+    },
+    {
+      "all_ok": true,
+      "jobs": 2,
+      "throughput_jobs_per_second": 0.2044,
+      "wall_seconds": 9.785,
+      "workers": 2
+    },
+    {
+      "all_ok": true,
+      "jobs": 4,
+      "throughput_jobs_per_second": 0.3698,
+      "wall_seconds": 10.816,
+      "workers": 4
+    },
+    {
+      "all_ok": true,
+      "jobs": 8,
+      "throughput_jobs_per_second": 0.6453,
+      "wall_seconds": 12.398,
+      "workers": 8
+    }
+  ]
+}

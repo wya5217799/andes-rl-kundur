@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "round": "R449",
+  "created_utc": "2026-08-20T07:14:32Z",
+  "commit": "9b64e6e4a4f6eb5367a69a037b84bf0c2a08bee5",
+  "plan_sha256": "8b22715d914b9d74a015f52e496558c7e0fe222697a20cd61003f5f34f6991a2",
+  "formal_artifacts_create_only": true,
+  "retry_authorized": false,
+  "launch": {
+    "host_process_budget": 1,
+    "wsl_python_processes": 1,
+    "native_threads_per_process": 1,
+    "other_reserved_processes": 0
+  },
+  "rehearsal": {
+    "passed": true,
+    "state_dim": 102,
+    "d_logD_state_matrix_max_abs": 1.7918176709578404,
+    "formal_output_absent": true,
+    "scratch_dir": "tmp/andes/run_r449_p1_sensitivity-20260820T071424.856331Z-290"
+  },
+  "installed_runtime": {
+    "python": "/home/wya/andes_venv/bin/python",
+    "andes_version": "2.0.0",
+    "andes_module": "/home/wya/andes_venv/lib/python3.12/site-packages/andes/__init__.py",
+    "case_path": "/home/wya/andes_venv/lib/python3.12/site-packages/andes/cases/kundur/kundur_full.xlsx",
+    "case_sha256": "f725e03ba12d8207616f68acdd606bbd35e7c4a68f13e66d7db43925adac2ed8"
+  },
+  "sources": {
+    "runner": {"path": "scripts/run_r449_p1_sensitivity.py", "sha256": "2c4cdc4117e57480678b99753cd127b749f2573266938cbd1565bb7ddea302da"},
+    "parent_runner": {"path": "scripts/run_r448_p1_sensitivity.py", "sha256": "91f3a11972fb2f60a0dabdda8fc284d2bad987bc98c09c574d58af11f669c1ec"},
+    "runner_tests": {"path": "tests/test_run_r449_p1_sensitivity.py", "sha256": "435594c2b3575b59d2290d091eaef94b56cd47678e3e4d8d2f33a3684ec15423"},
+    "scratch_launcher": {"path": "scripts/andes_scratch.py", "sha256": "bc5ed1a7978ca0f19d7cb053c32f59f46281dc91c1e2f68b730118e2b5b5fe62"},
+    "v4_environment": {"path": "src/andes_rl_kundur/env/andes/andes_vsg_env_v4.py", "sha256": "6377aef227f85ffcbde32eaf1657041366ebd8f9f801d690fe6c7324e78c0823"},
+    "v4_config": {"path": "src/andes_rl_kundur/env/andes/v4_config.py", "sha256": "d371629bf0c05d4532e8c569c9a4fedb0bebfa432caba0ccd165699c1a4fd394"},
+    "energy_port_environment": {"path": "src/andes_rl_kundur/env/andes/vsg_energy_port_env.py", "sha256": "1668a04e6638aa72cb568b7305d24fd4318491072530601486f5ee1ed2c30d5e"},
+    "source_adapter": {"path": "src/andes_rl_kundur/evaluation/vsg_energy_port_source_adapter.py", "sha256": "ef92fdabfc6d1ecbb005c2354f3b632a2df479448e47ffab470cd7f68552ed34"},
+    "source_bridge": {"path": "src/andes_rl_kundur/evaluation/vsg_energy_port_source_bridge.py", "sha256": "5f29c481cfc1b4ed7ef8a2a32be1aa8b67c270c816146414aad26488fbead2f7"},
+    "source_model": {"path": "src/andes_rl_kundur/evaluation/vsg_energy_port_source_model.py", "sha256": "f03646b9e1dc489b9cc7852d04ec13621bc8d3a9e29207716d7345cc8cc395a6"},
+    "active_power": {"path": "src/andes_rl_kundur/control/active_power.py", "sha256": "9a8f113b7da792aa5a32e5fdccfc031beb7cbb3cab7bf8f2a9deda850d5de991"},
+    "bandpass": {"path": "src/andes_rl_kundur/control/ring_bandpass_damping.py", "sha256": "b498702cf7a5dc582ab651e1df29bbae7735fb2a1bb7d43e5e6b07a13040a498"}
+  }
+}

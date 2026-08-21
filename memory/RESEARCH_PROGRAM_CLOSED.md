@@ -1133,3 +1133,51 @@
     stop_when:
       - Stage 1 yields PASS, authority/modeling NO-GO, or invalid execution with immutable provenance.
       - The working conference title receives only an evidence-coverage checkpoint.
+
+
+  # Archived 2026-08-14: Q-0106 closed-negative @ R388 by CLM-1085.
+  - id: Q-0106
+    rank: 1
+    phase: P0_converter_vsg_object_authority
+    objective: >-
+      Register and complete one separately sealed integrity-only successor to
+      R387 that retains the exact 17-arm scientific contract and corrects only
+      trace identity, explicit initial capture, and advanced partial-termination
+      classification.
+    required_reading:
+      - paper/converter_vsg_pq_decoupling/LINE.md
+      - paper/converter_vsg_pq_decoupling/working/R387_diagnosis.md
+      - memory/questions/Q-0106.md
+    verification:
+      - Canonical JSON round-trip must preserve exact bus identity independent of mapping order.
+      - The record must bind pre-run time and complete initial signals separately from native stored post-start samples.
+      - Advanced partial TDS termination with native nonconvergence must be a schema-valid scientific STOP candidate; malformed partial traces remain invalid.
+      - Every topology, REGCV1 card, arm, step, horizon, threshold, electrical guard, serial resource, and no-training field must equal R387.
+    scope_limits:
+      - No R387 artifact edit or retry, no threshold/card/step/horizon change, and no controller, training, topology, or model substitution.
+    stop_when:
+      - Close Q-0106 positive only on a valid signed-authority pass, or negative on a valid scientific STOP; preserve another integrity failure without in-round retry.
+
+  # Archived 2026-08-14: Q-0107 closed-negative @ R389 by CLM-1090.
+  - id: Q-0107
+    rank: 1
+    phase: P0_converter_vsg_object_authority
+    objective: >-
+      Determine whether four installed-default stock REGF2 VSM devices can
+      replace the four controlled Kundur sources one-for-one and complete
+      structurally clean native initialization plus one 0.2-second trajectory
+      with no exogenous post-init action or disturbance.
+    required_reading:
+      - paper/converter_vsg_pq_decoupling/LINE.md
+      - paper/converter_vsg_pq_decoupling/working/REGF2_successor_route_audit.md
+      - memory/questions/Q-0107.md
+    verification:
+      - Bind exact installed REGF1/REGF2 source and packaged/derived static-case hashes.
+      - Require four REGF2 devices with exact mapping, parameter cards, PLL inventory, and no retained legacy dynamic/event equations.
+      - Capture complete references, initialization residuals and clamps, finite values, native solver flags, and an identity-complete 0.2-second trace.
+      - Enforce the prospectively frozen stationarity and broad electrical envelopes without post-init action, disturbance, retry, controller, or training.
+    scope_limits:
+      - Exact ANDES 2.0.0 phasor-domain object, unchanged Kundur topology, one operating point, installed-default card, and one short trajectory only.
+      - No Paux/Qaux authority, deterministic control, learning, topology-generalization, stability, safety, EMT/HIL, or deployment claim.
+    stop_when:
+      - Close positive only if every object, initialization, finite-value, solver, electrical, and stationarity gate passes; otherwise close negative on a valid scientific STOP.

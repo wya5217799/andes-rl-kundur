@@ -1,0 +1,19 @@
+{
+  "capacity_anchor": "R459 four native threads for linear algebra; R460 15 physical workers plus one orchestrator 50.96% faster than eight workers",
+  "created_utc": "2026-08-21T08:56:17.155255+00:00",
+  "gpu_reason": "149-by-149 dense eigenproblems and ANDES TDS are CPU-bound; no measured GPU path",
+  "gpu_selected": false,
+  "host_process_budget": 17,
+  "native_threads_per_nonlinear_process": 1,
+  "nonlinear_unique_jobs_max": 90,
+  "nonlinear_workers": 15,
+  "orchestrator_processes": 1,
+  "other_reserved_processes": 0,
+  "pole_scan_native_threads": 4,
+  "pole_scan_processes": 1,
+  "readiness": "RUN-READY",
+  "rehearsal_wall_seconds": 15.803870452975389,
+  "round": "R467",
+  "wsl_available_memory_bytes": 21162496000,
+  "wsl_python_processes_nonlinear": 16
+}

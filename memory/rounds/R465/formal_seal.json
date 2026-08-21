@@ -1,0 +1,60 @@
+{
+  "authority": {
+    "active_line": true,
+    "active_plan": true,
+    "formal_output_absent": true,
+    "linux_runtime": true,
+    "one_native_thread": true,
+    "r449_present": true,
+    "r459_verified": true
+  },
+  "capacity_sha256": "bec9d87ea560c467bc90f9e9f87cc5be303a53a7e8b8a7733e4b42cd105210aa",
+  "created_utc": "2026-08-21T08:33:37.183094+00:00",
+  "formal_output": "results/research_loop/r465_u5_total_sensitivity",
+  "native_threads_per_process": 1,
+  "rehearsal_sha256": "1c39e21c66283aaa2cf2fd6fff0ecc610917f72b20367e457ac829ad47657e47",
+  "retry_policy": "none",
+  "rho_grid": [
+    0.0,
+    -0.04,
+    0.04,
+    -0.02,
+    0.02,
+    -0.01,
+    0.01
+  ],
+  "round": "R465",
+  "sources": {
+    "implementation": {
+      "path": "src/andes_rl_kundur/evaluation/u5_total_sensitivity.py",
+      "sha256": "032bb07c18933a6b8d1ec3837ed279248be669f73bf7e328db2a18bfc4c7a8cf"
+    },
+    "plan": {
+      "path": "memory/rounds/R465/plan.md",
+      "sha256": "a4de06d5fef7d0c77182759b0b10b25940a5dd887ff1b60aaa410a4ba96e99f2"
+    },
+    "r449_partial": {
+      "path": "results/research_loop/r449_p1_sensitivity/formal_analysis.json",
+      "sha256": "621cae2c4cf527fea8fc848f23995ef0a8c4b616be56dbc98ebdd4522ed2fb7d"
+    },
+    "r459_continuous": {
+      "path": "results/research_loop/r459_u1_u8_shared_export/model_exports/object_b/continuous_reduced_model.npz",
+      "sha256": "43c65bdfe6e4afb8d2a982fd2967b760a5ff28585bf714020b7a8fb418afe492"
+    },
+    "r459_model": {
+      "path": "results/research_loop/r459_u1_u8_shared_export/model_exports/object_b/sampled_model.npz",
+      "sha256": "27cdac41254c3c0a77b40101769a84d05e2f94054d557c1979cac8854aa94b40"
+    },
+    "r459_verification": {
+      "path": "results/research_loop/r459_u1_u8_shared_export/checks/verification_report.json",
+      "sha256": "f27fac1b114a6495e49f92e9d8f1e832ec559b2b3610a690eef4e99ad571b5c7"
+    },
+    "runner": {
+      "path": "scripts/run_r465_u5_total_sensitivity.py",
+      "sha256": "f210875be57026c5a3ca49621e22f6e4407a23c5972cbf2d81893a9e82d797dd"
+    }
+  },
+  "unique_jobs": 13,
+  "workers": 13,
+  "wsl_python_processes": 14
+}

@@ -1,0 +1,101 @@
+{
+  "assembled_utc": "2026-08-19T15:47:53.305452+00:00",
+  "cap_workers": 4,
+  "host": {
+    "logical_processors": 32,
+    "physical_memory_bytes": null
+  },
+  "host_process_budget": 5,
+  "ladder_selected_workers": 16,
+  "memory_rule": "selected workers x 943718400 B RSS floor + 3 GiB OS floor <= WSL MemTotal 29423173632 B",
+  "native_threads_per_process": 1,
+  "os_floor_bytes": 3221225472,
+  "other_reserved_processes": 11,
+  "readiness": "RUN-READY",
+  "rung_decisions": [
+    {
+      "accepted": true,
+      "marginal_gain": null,
+      "throughput_jobs_per_second": 0.1785,
+      "workers": 1
+    },
+    {
+      "accepted": true,
+      "marginal_gain": 1.6168,
+      "throughput_jobs_per_second": 0.2886,
+      "workers": 2
+    },
+    {
+      "accepted": true,
+      "marginal_gain": 1.7942,
+      "throughput_jobs_per_second": 0.5178,
+      "workers": 4
+    },
+    {
+      "accepted": true,
+      "marginal_gain": 1.7248,
+      "throughput_jobs_per_second": 0.8931,
+      "workers": 8
+    },
+    {
+      "accepted": true,
+      "marginal_gain": 1.3268,
+      "throughput_jobs_per_second": 1.185,
+      "workers": 12
+    },
+    {
+      "accepted": true,
+      "marginal_gain": 1.2199,
+      "throughput_jobs_per_second": 1.4456,
+      "workers": 16
+    }
+  ],
+  "rungs": [
+    {
+      "all_ok": true,
+      "jobs": 4,
+      "throughput_jobs_per_second": 0.1785,
+      "wall_seconds": 22.413,
+      "workers": 1
+    },
+    {
+      "all_ok": true,
+      "jobs": 8,
+      "throughput_jobs_per_second": 0.2886,
+      "wall_seconds": 27.718,
+      "workers": 2
+    },
+    {
+      "all_ok": true,
+      "jobs": 16,
+      "throughput_jobs_per_second": 0.5178,
+      "wall_seconds": 30.902,
+      "workers": 4
+    },
+    {
+      "all_ok": true,
+      "jobs": 32,
+      "throughput_jobs_per_second": 0.8931,
+      "wall_seconds": 35.828,
+      "workers": 8
+    },
+    {
+      "all_ok": true,
+      "jobs": 48,
+      "throughput_jobs_per_second": 1.185,
+      "wall_seconds": 40.507,
+      "workers": 12
+    },
+    {
+      "all_ok": true,
+      "jobs": 64,
+      "throughput_jobs_per_second": 1.4456,
+      "wall_seconds": 44.271,
+      "workers": 16
+    }
+  ],
+  "selected_throughput_jobs_per_second": 1.4456,
+  "selected_workers": 4,
+  "training_worker_rss_anchor": 943718400,
+  "wsl_python_processes": 5
+}

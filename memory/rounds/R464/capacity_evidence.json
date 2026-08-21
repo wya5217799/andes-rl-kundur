@@ -1,0 +1,11 @@
+{
+  "capacity_anchor": "R459 measured 1/4/8 native-thread ladder selected 4",
+  "cpu_logical": 32,
+  "created_utc": "2026-08-21T08:16:47.937933+00:00",
+  "gpu_selected": false,
+  "native_threads": 4,
+  "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+  "round": "R464",
+  "selected_processes": 1,
+  "wall_seconds": 51.38126731902594
+}

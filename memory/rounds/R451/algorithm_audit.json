@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "round": "R451",
+  "created_utc": "2026-08-20T10:56:39.9967138Z",
+  "classification": "CANARY-INVALID",
+  "formal_training": {
+    "terminated": true,
+    "completed_training_manifests": 0,
+    "formal_analysis_created": false,
+    "empty_run_directories_retained": 20
+  },
+  "sealed_inputs": {
+    "runner_path": "scripts/run_r451_m3_message_factorial.py",
+    "runner_sha256": "ee70954a0ee3790205b09fe1760fa62b986d7853925f8d3cef1bc6d8148f682b",
+    "formal_seal_path": "memory/rounds/R451/formal_seal.json",
+    "formal_seal_sha256": "a0c720c6176b959de8cce8a0237388d15409622f9d6885137e1e7c188499e789"
+  },
+  "confirmed_findings": [
+    {
+      "id": "R451-AUDIT-01",
+      "severity": "fatal",
+      "finding": "The shift-by-two placebo preserves every agent's semantic neighbour set on the registered four-node ring. Agents 0 and 2 receive byte-identical neighbour blocks; agents 1 and 3 receive the same two true neighbours with slot order reversed. It is not an irrelevant-neighbour placebo."
+    },
+    {
+      "id": "R451-AUDIT-02",
+      "severity": "fatal",
+      "finding": "train_arm_seed constructs all agents before calling torch.manual_seed(seed), so network initialization is neither reproducible nor paired by the registered seed across arms. Paired bootstrap inference and anchor reproducibility are invalid."
+    },
+    {
+      "id": "R451-AUDIT-03",
+      "severity": "high",
+      "finding": "The environment executes the slew-projected action while replay stores raw_action. The critic is therefore fit to an action that did not generate the recorded reward and next state. This mismatch is inherited from R431 but remains an algorithmic limitation of the R451 learner."
+    },
+    {
+      "id": "R451-AUDIT-04",
+      "severity": "fatal",
+      "finding": "The registered true-versus-no-message and shuffled-versus-no-message comparisons use a1_c1_r1 versus a0_c0_r0, changing the neighbour-dependent reward objective together with actor and critic access. Those contrasts cannot identify observation information value or observation-induced finite learning cost."
+    }
+  ],
+  "interpretation_limits": [
+    "The random 80/20 split is drawn from one replay buffer and uses independently sampled stochastic SAC targets; it is an in-buffer TD-fit diagnostic, not held-out generalization evidence.",
+    "The active-feature condition-number comparison changes active dimension between no-message and message arms and is descriptive, not a unique attribution of finite estimation cost."
+  ],
+  "reproduction": {
+    "topology_semantic_pairing_changed": [false, false, false, false],
+    "source_invariants": {
+      "seed_before_agent_init": false,
+      "replay_stores_executed_action": false,
+      "information_baseline_reward_matched": false,
+      "finite_cost_baseline_reward_matched": false
+    }
+  },
+  "disposition": "Preserve the sealed attempt and logs, stop all R451 execution, create no scientific classification, and do not patch or retry inside R451. Any repaired experiment requires a separately authorized successor round with a new plan, rehearsal, and seal."
+}
