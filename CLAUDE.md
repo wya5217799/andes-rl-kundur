@@ -205,6 +205,10 @@ canonical，不再要求另建 Note 索引。
   `python memory/tools/feed_check.py <feed>`.
 - **文档预算** — 每轮 prose 默认只有 plan/feed/claim/verdict. 审核明细留
   对话或 `tmp/`; 只有成为既有 schema / ADR / issue / 注册手稿资产才持久化.
+- **无泄漏写作** — feed/claim/verdict 技术骨架视角 = 仓库非会话; 禁死设计
+  会话引用、变更叙述、评审编排、hedge; 精简 cap 时保命题不删事实. 判定
+  `skills/kundur-round/references/prose-leakage.md`, probe
+  `cot_leakage_lint.py`.
 - **数据归档清点** — 结论承载 JSON 必须有 `.sha256`；R291+ 的本轮 results
   必须先登记进 `results/MANIFEST.md` 才能通过 feed/close gate。未登记私有
   第二副本时只能标 `LOCAL-ONLY`，不能称为已耐久归档。results 内不另建解释性
@@ -295,6 +299,9 @@ canonical，不再要求另建 Note 索引。
 - 引用外部数学/理论解答的 round 收尾前必跑
   `external_theory_intake_lint.py R<N>`（外部理论吸收门，R422/R424/R432
   教训；机制预测须有可观测清单或 not-pursued 登记）.
+- 写 feed/claim/verdict 后跑 `cot_leakage_lint.py R<N>`（无泄漏 recall
+  battery，advisory 不阻塞；判定与处置见
+  `skills/kundur-round/references/prose-leakage.md`）.
 - 打分复用: `scripts/score_run.py` (paper-grade ranker).
 - 门生命周期: `gate_lifecycle.py list|audit|provisional|ratify|grant|demote|flag` —
   治理规则降级/免批路径/回升 (ADR-0020). 想放松某条硬门先 `audit`.

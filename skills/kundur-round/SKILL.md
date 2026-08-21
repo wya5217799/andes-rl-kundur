@@ -144,6 +144,9 @@ recovery gate**。它把全部已发现 route episode 逐条归入五个技术�
    d2. 外部理论吸收门 (R422/R424/R432 教训): 本轮 plan 引用外部数学/理论
       解答时跑 `python memory/tools/external_theory_intake_lint.py R<N>`
       (exit 1 = BLOCK)。
+   d3. 无泄漏 probe (advisory): 写 feed/claim/verdict 后跑
+      `python memory/tools/cot_leakage_lint.py R<N>`; HINT 逐条语义判定
+      (`references/prose-leakage.md`), 不阻塞。
    e. verdict 骨架 (模板 `memory/rounds/_TEMPLATE_VERDICT.md`)
    f. programme 问题若关闭: 块归档 `memory/RESEARCH_PROGRAM_CLOSED.md`,
       `priority_questions` 回 []
@@ -232,6 +235,8 @@ fork, 删掉。
 
 - 指针优先: 事实已住在 claim / verdict / results 里就指, 重述即 fork。
 - 写陈述不写叙述: 无动机散文、无过渡、无简报腔。
+- 无 CoT/设计会话泄漏 (视角 = 仓库非会话): 判定与精简保命题见
+  `references/prose-leakage.md`; 收尾跑 `cot_leakage_lint.py` 当 probe (advisory)。
 - 密度帽两页; 超了说明抄了数据, 回到指针。
 
 ### 完成判据
@@ -323,5 +328,7 @@ Question 或当前手稿 `LINE.md`。
   五家族穷尽盘点、覆盖校验与唯一后续路线门
 - `skills/kundur-round/references/external-theory-intake.md` — 外部数学/理论
   解答的三分吸收契约 (代数恒等式/机制预测/论文级数学命题)
+- `skills/kundur-round/references/prose-leakage.md` — 无泄漏写作 + 精简保命题
+  契约 (feed/claim/verdict/plan)
 - `paper/<line>/LINE.md` — 各手稿线自己的状态与作用域
 - `paper/<line>/ARTIFACTS.json` — 各手稿线的持久文档生命周期清单
