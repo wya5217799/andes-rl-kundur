@@ -16,12 +16,20 @@ script (`_r166_sweep.py`, `_r171_sweep.py`). Now there's a stable CLI:
 
 Operates only on plan.md frontmatter; preserves body verbatim. Atomic
 re-write (tempfile + rename) so partial writes do not corrupt files.
+
+Git commit contract (workflow 2026-08-22): after a successful close the CLI
+commits the whole working tree by default (`--no-commit` to skip) so each
+round ends with one atomic commit and the workspace stays clean. The round
+close itself is always applied even if the commit fails; a failed commit
+reports the reason and exits 3. Keep unrelated work out of the tree before
+closing a round, or pass --no-commit and split the commit manually.
 """
 from __future__ import annotations
 
 import argparse
 import datetime as dt
 import re
+import subprocess
 import sys
 import tempfile
 from pathlib import Path
@@ -108,6 +116,49 @@ def _validate_completed_feed(
             f"{finding.code}: {finding.message}" for finding in findings
         )
         raise ValueError(f"{round_name} feed publication gate failed: {detail}")
+
+
+def _git_commit(repo_root: Path, message: str) -> bool:
+    """Commit the whole working tree after a round close.
+
+    Returns True on success (or when the tree is already clean), False on
+    failure. Never raises: git absence and commit errors degrade to a False
+    return plus a printed reason, so round closing is never blocked by the
+    version-control layer.
+    """
+    def _run(*args: str) -> tuple[int, str]:
+        try:
+            proc = subprocess.run(
+                args, cwd=str(repo_root), capture_output=True, text=True,
+                encoding="utf-8", errors="replace", timeout=120,
+            )
+        except (OSError, subprocess.SubprocessError) as exc:
+            return 127, f"git unavailable: {exc}"
+        out = (proc.stdout or "") + (proc.stderr or "")
+        return proc.returncode, out.strip()
+
+    code, out = _run("git", "rev-parse", "--is-inside-work-tree")
+    if code != 0:
+        print(f"WARNING: skip git commit ({out or 'not a git work tree'})",
+              file=sys.stderr)
+        return False
+    code, out = _run("git", "status", "--porcelain")
+    if code != 0:
+        print(f"WARNING: skip git commit (git status failed: {out})",
+              file=sys.stderr)
+        return False
+    if not out.strip():
+        print("working tree already clean; nothing to commit")
+        return True
+    if _run("git", "add", "-A")[0] != 0:
+        print("ERROR: git add -A failed", file=sys.stderr)
+        return False
+    code, out = _run("git", "commit", "-m", message)
+    if code != 0:
+        print(f"ERROR: git commit failed: {out}", file=sys.stderr)
+        return False
+    print(out.splitlines()[-1] if out else f"committed: {message}")
+    return True
 
 
 def close_round(
@@ -233,6 +284,13 @@ def main() -> int:
     p.add_argument("--rounds-dir", type=Path,
                    default=base / "rounds",
                    help="path to memory/rounds/")
+    p.add_argument("--commit", dest="commit", action="store_true",
+                   default=True,
+                   help="commit the working tree after closing (default)")
+    p.add_argument("--no-commit", dest="commit", action="store_false",
+                   help="skip the post-close git commit")
+    p.add_argument("--commit-message", default=None,
+                   help="override the default commit message")
     args = p.parse_args()
 
     try:
@@ -247,6 +305,11 @@ def main() -> int:
         print(f"ERROR: {e}", file=sys.stderr)
         return 2
     print(msg)
+    if args.commit:
+        repo_root = args.rounds_dir.resolve().parent.parent
+        message = args.commit_message or f"round {args.round}: close {args.state}"
+        if not _git_commit(repo_root, message):
+            return 3
     return 0
 
 

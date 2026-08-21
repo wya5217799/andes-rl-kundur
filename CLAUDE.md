@@ -46,6 +46,13 @@
 - **教训 codify 进 infra** — session 出失败 → 写 validator/linter/tool 防再犯.
   `memory/handoffs/` 里记笔记不算 codify, 进 `memory/tools/` + CLAUDE.md 才算.
 - **plan-first for non-trivial** — 跨 file / 跨 layer / 改 contract 先 plan 后写.
+- **门生命周期 (ADR-0020)** — 硬门分 locked (科学/复现/人话层, 永不降级)
+  与 soft (模型能力守卫). soft 门 clean 轮数 ≥ threshold 可降级
+  hard→warn→advisory. 永久降级要 operator 批准; 长任务免批走
+  `provisional` (一步, TTL 自动过期, 可 ratify) 或提前 `grant` 预授权.
+  降级 = 授权随后的治理编辑放松该规则, 本身不改 CLAUDE.md; 复发 `flag`
+  自动回升 hard 并清 provisional. registry:
+  `docs/repo-hygiene/gate-registry.json`, 勿手改.
 
 ## Read first (会话启动)
 
@@ -77,6 +84,19 @@ Agent-facing issue states use the repository's five canonical labels. See
 This is a single-context repository: domain language lives in `CONTEXT.md`
 and architecture decisions live in `docs/adr/`. See `docs/agents/domain.md`.
 
+### Engineering flow and bug-finding
+
+Scoped code work — feature, refactor, bug — not a research round, routes
+through two peer engineering routers, never the round/claim/feed ledger:
+
+- Build / spec / multi-file change → `ask-matt`: idea → spec → tickets →
+  `/implement` (drives `/tdd` + `/code-review`). Default for a non-trivial
+  `scratch` slice.
+- Broken / flaky / regressed → `diagnosing-bugs`: tight red loop first, then
+  fix + regression test.
+
+Boundary and invocation: `docs/repo-hygiene/external-skills.md`.
+
 ### External skills
 
 External skills are adapters with no independent authority over project
@@ -91,6 +111,18 @@ packages must not copy them.
 
 Repository-governance type-check scope and the time-bounded legacy exception
 are recorded in `docs/repo-hygiene/type-checking.md`.
+
+### External theory intake
+
+外部数学/理论解答 (GPT Pro / theory-audit / 外部 solver) 进项目先三分 —
+代数恒等式 / 机制预测 / 论文级命题 — 各走不同路径 (R422/R424/R432 教训:
+机制结论只吸收一半、事后补算)。**任何机制预测/假设 — 无论来自外部解答
+还是内部诊断推导 (R435 教训) —** 强制: plan 写可观测清单 (进 seal 或登记
+`not-pursued`) + feed 写回裁决 (`supported`/`refuted`/`undecidable`)。
+evidence 收尾前跑 `python memory/tools/external_theory_intake_lint.py R<N>`
+(与 `objective_semantics_lint.py` 同级)。契约全文 (三分执行、清单模板、
+论文级四证、裁决格式) 见
+`skills/kundur-round/references/external-theory-intake.md`。
 
 ## 记忆系统 (R39+)
 
@@ -208,6 +240,12 @@ canonical，不再要求另建 Note 索引。
   `manuscript-refresh`；只有把最新 feed 绑定进 `evidence_refs`、核对 LINE
   当前动作与受影响 artifact 输入后才能刷新哈希，禁止只更新 hash 值。
   LINE 与冷启动集合不得超过 `docs/repo-hygiene/contract.json` 的导航预算。
+- **草稿批次更新契约**: 草稿本体只在批次节点更新 — manuscript lane 轮 /
+  manuscript-refresh / 提交冻结; feed 收尾不改稿 (SKILL.md §2-g)。feed 的
+  `Manuscript mapping` 段 = 草稿待更新清单单一真源 (feed_check 强制), 批次
+  更新时逐条对照, 不另建清单副本; mapping 断言与草稿现有文字冲突时 feed
+  当场标 `CONFLICT` 防漏改。草稿滞后于最新 feed = 正常状态; 证据权威在
+  feed/claim, 草稿只是出口。
 
 模板: `memory/rounds/_TEMPLATE_VERDICT.md`. 历史 verdict 正文不回填改写.
 
@@ -243,12 +281,27 @@ canonical，不再要求另建 Note 索引。
   `skills/kundur-round/SKILL.md` §2.
 - 查 baseline: `baselines.py --match <ref_run>` (measured, 别估).
 - 看状态: `status.py`; 查 claim: `query.py --tag / --best`; 关轮:
-  `close_round.py RNN completed|superseded|aborted`.
+  `close_round.py RNN completed|superseded|aborted` (关轮后默认提交工作区,
+  `--no-commit` 跳过; 每轮两个提交点 = seal 后 `round R<N>: seal` +
+  关轮自动提交, render 后 STATE.md 有变补 `ledger: refresh STATE.md render`,
+  见 `skills/kundur-round/SKILL.md` §2 步骤 4/5).
 - 跨 round/job/artifact/scratch 的非权威控制视图用
   `research_control.py`; 它不启动科研命令、不提升证据，契约见
   `docs/repo-hygiene/research-control.md`.
 - reward-ablation claim 后必跑 `dual_metric_lint.py`.
+- 改目标/loss/reward 加项的 round 收尾前必跑
+  `objective_semantics_lint.py R<N>`（语义门，R424 教训：plan 带
+  `penalty_direction_probe` 标记 + rehearsal 留梯度方向探针记录）.
+- 引用外部数学/理论解答的 round 收尾前必跑
+  `external_theory_intake_lint.py R<N>`（外部理论吸收门，R422/R424/R432
+  教训；机制预测须有可观测清单或 not-pursued 登记）.
 - 打分复用: `scripts/score_run.py` (paper-grade ranker).
+- 门生命周期: `gate_lifecycle.py list|audit|provisional|ratify|grant|demote|flag` —
+  治理规则降级/免批路径/回升 (ADR-0020). 想放松某条硬门先 `audit`.
+- GPT Pro 数学问题打包: 用户输入「提取数学问题」(或近似, 如「数学问题数据
+  压缩包」) → `python memory/tools/gpt_pro_pack.py` 打包 open+partial 问题 +
+  相关数据 → 交付 zip 路径 + 内附 README/SHA256SUMS。问题清单/状态/相关
+  数据只改 `memory/tools/gpt_pro_manifest.json`, 不改工具。
 
 ## 代码约定
 
@@ -257,30 +310,64 @@ canonical，不再要求另建 Note 索引。
 - **ANDES 工作目录隔离**: 维护中的训练/评估/round 入口统一经
   `scripts/andes_scratch.py` 启动, 保留 scratch 于 `tmp/andes/`; 禁止直接
   在仓库根运行并留下 `kundur_full_out.*`.
+- **长命令后台跑**: 预计 >5min 的 ANDES/train/eval 命令必须后台 job, 禁止
+  同步阻塞 (harness code-run 有 10min wall-clock ceiling, 撞了就白跑)。
+  后台后不轮询、等 job 完成通知再续 (轮询烧 token)。启动多小时仿真前先
+  确认它确为当前 round 所需 —— 误判长任务 = 最大浪费。
 - **默认 env: `andes_vsg_env_v4`** (paper-faithful, ZERO_G4_INERTIA=True).
   V5 (REGCA1) 是 paper-deviation, opt-in only (ADR-0004).
 - **改 env / train.py 前**必读 `docs/eng-notes/NOTES_ANDES.md`.
   `OBS_AREA_MEAN_FREQ_AUG` 默认关: 开启改 obs_dim, 与历史 ckpt 不兼容.
 - **V4 regression**: `tests/test_v4_env_regression.py` 1e-9 tol 必须绿.
 - **No Simulink 1:1 chase** (ADR-0005). ANDES = single platform of record.
-- 并行预算: 不设固定 WSL Python 进程数。R339+ 的正式 plan 必须在 seal 前用
-  当前机器的容量证据冻结 `host_process_budget`，声明本任务完整
-  `wsl_python_processes`（including child and process-pool workers，并计入 launcher）和其他正在执行
-  手稿线的 `other_reserved_processes`；两者之和不得超过整机预算。预算一经
-  封存不得按结果改动。正式并行时每个进程的 native numerical-library
-  threads fixed to one；分区、拟合与验证等封存边界仍串行。正式 ANDES 执行的
-  rehearsal/封存顺序见 `kundur-round` evidence lane。已冻结的旧轮次保持其原
-  进程数，不追溯改写。
+- 并行预算: 不设固定 WSL Python 进程数。Owner 常设授权 (2026-08-17 晚):
+  硬件有富余即并行 —— 同线并发 round 是默认姿态; 富余判据 = 实测并发
+  负载阶梯 (rungs 1/2/4/8/12/16, 对方负载在场下重测) + 总内存记账
+  (全部并发活训练 RSS + 3 GiB OS 底 ≤ WSL MemTotal), 不是固定常数。
+  R339+ 的正式 plan 必须在 seal 前用当前机器的容量证据冻结
+  `host_process_budget`，声明本任务完整 `wsl_python_processes`（including
+  child and process-pool workers，并计入 launcher）和全部在飞轮的
+  `other_reserved_processes`；两者之和不得超过整机预算。预算一经封存不得
+  按结果改动；在飞轮被新轮声明后其环境不得被静默再改。正式并行时每个
+  进程的 native numerical-library threads fixed to one；分区、拟合与验证等
+  封存边界仍串行。正式 ANDES 执行的 rehearsal/封存顺序见 `kundur-round`
+  evidence lane。已冻结的旧轮次保持其原进程数，不追溯改写。
 - 布局: `src/andes_rl_kundur/` 包结构, 见 `docs/adr/0001-src-layout.md`.
 - Issue/triage/agent 文档约定: `docs/agents/`.
 
 ## 活跃研究规则 (现状)
 
 - **AI-only compactness**: new/edited AI rules/state = caveman short clauses + pointers + one fact/one home (fact allocation -> `kundur-round` §3).
+- **AI-facing writing default**: agent-reader docs (`AGENTS.md`, `CLAUDE.md`,
+  `skills/`, `docs/agents/`, `docs/repo-hygiene/`, ledger templates) are
+  written per the global `writing-for-agents` skill — load it before creating
+  or editing one. Schema-enforced ledger contracts keep their `validate.py`
+  shapes; boundary: `docs/repo-hygiene/external-skills.md`.
 - plan 与 verdict 技术骨架可用紧凑中文；question/claim/feed 用英文。
   给 PI 的正文必须用完整、自然、无术语的中文，不能用 caveman 省略句。
+- **说人话 (交互层)**: 与 owner 提问/解释/汇报时, 完整自然中文、一次只问
+  一个问题、不堆术语缩写; 技术复盘只进 plan/feed/claim, 对话只讲人话。
+- **owner 要效率 = 免批授权**: owner 说「拉满硬件/别管规则/为效率改规则」
+  时, 走 `gate_lifecycle.py` grant/provisional 免批路径或按 owner 明示直接
+  执行, 别硬顶规则拒绝 — 规则挡 owner 意图是摩擦, 记进 session_friction 复盘。
 - **Plateau (R86)**: algo dim 结构性 plateau 已证, 别起 algo SOTA-hunt rounds.
+- **Research priority (fallback only)**: correctness and objective validity →
+  residual mechanism → topology generalisation → safety/stability →
+  cross-simulator/HIL → manuscript.
 - **新架构 (R82)**: TD3-Transformer / TD3-LSTM2 ≤ R72_w4 baseline
   (CLM-0144/0145); Transformer deterministic-eval collapse 是 known issue.
 - 当前论文目标只由本次 `session_context.py --line <id>` 的结果决定。
   `priority` 只供未指定论文时回退，不代表长期唯一主线。
+- **工作流优化触发**: 用户输入「优化工作流」(或近似表达) 时, 复盘聊天历史
+  找出用着不舒服的工作流 (反复手工步骤 / 被绕过的规则 / 事后补救 /
+  返工 / 靠报错兜底), 按根因启动优化 — 教训 codify 进 infra (工具 / lint /
+  规则进 CLAUDE.md + memory/tools), 不记笔记。复盘用
+  `python memory/tools/session_friction.py` (DSH 会话 zstd 日志 → 摩擦信号
+  排名 + owner 纠正引语), 再按根因 codify。报告: 找到的痛点 + 根因 +
+  优化了什么。
+- **harness 层优化**: 摩擦根因在 agent 组合层 (工具集 / persona / 呈现 /
+  压缩) 时, 改专属预设 `~/.dsh/.agent-presets/kundur/` 而非 memory/tools。
+  该预设 standard 基底 + 原生呈现 (非 PTC; bind-fail 按会话折算 PTC 更高,
+  证据与摩擦→杠杆映射表见该目录 README.md), persona 锚三条高频摩擦
+  (read-before-write / 长命令后台不轮询 / 说人话)。改前 `session_friction.py
+  --all` 复测, 改后 owner 开新会话验证工具清单与 persona 生效。

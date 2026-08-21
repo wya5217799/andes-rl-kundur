@@ -9,7 +9,7 @@ description: andes-rl-kundur 仓库流程 canonical — 一轮研究从选题到
 
 本文件是 andes-rl-kundur 研究流程的唯一过程真源。仓库事实（schema、
 工具目录、代码约定、模板）留在 CLAUDE.md 与各模板文件，本文件只持
-**过程**并用指针取细节。仓库根: `C:\Users\27443\Desktop\andes-rl-kundur`。
+**过程**并用指针取细节。
 
 词汇: **round** = 一次可证伪调查 (plan + verdict); **feed** = 实验实质
 的唯一完整写处; **ledger** = claims / questions / rounds 骨架三件套。
@@ -21,7 +21,8 @@ description: andes-rl-kundur 仓库流程 canonical — 一轮研究从选题到
    查, 不把整个 ledger 塞进上下文。
 3. `mode=resume-round` → 先闭环 active round; `mode=research` → 用输出的
    原文 objective / verification / stop_when; `mode=manuscript` → 按当前
-   LINE.md 入口完成手稿动作; `mode=idle` → 不自行开实验。
+   LINE.md 入口完成手稿动作; `mode=manuscript-refresh` → 先清 artifact
+   新鲜度告警再起草/审稿; `mode=idle` → 不自行开实验。
 4. 改代码或仓库治理前必须读 `CLAUDE.md`, 即使当前 manuscript 入口没有把
    它列入最小阅读集。
 5. 使用全局研究、写作或审稿 skill 时，先读
@@ -51,7 +52,9 @@ recovery gate**。它把全部已发现 route episode 逐条归入五个技术�
   定向测试才进 `src/`、`probes/`、`scripts/`、`tests/`。
 - **`manuscript`**：只用现有 evidence 做当前手稿线内的写作、审稿、图或
   venue 动作。只写所选 `LINE.md` 的 `write_roots`，不领研究 round；若动作
-  发现新 evidence 缺口，先停并另行升级。
+  发现新 evidence 缺口，先停并另行升级。草稿本体只在 manuscript lane 批次
+  更新，按各 feed `Manuscript mapping` 段逐条对照（契约见 CLAUDE.md 手稿线
+  生命周期）。
 - **`evidence`**：新 ANDES、训练或其他物理执行；新的 holdout/comparator
   freeze；标题、摘要、claim 或 question 的支持/处置；修改 sealed evidence、
   paper-cited 资产或正式判定逻辑。任一触发即先 prospectively 领 round、写
@@ -75,12 +78,20 @@ recovery gate**。它把全部已发现 route episode 逐条归入五个技术�
 1. **领号**: manuscript evidence uses
    `reserve_round.py --strict-no-active --line <line-id> --write-plan-stub`;
    the recorded `manuscript_line` permits one active round per line while an
-   explicit `null` remains a repository-global lock. 收尾前
+   explicit `null` remains a repository-global lock. Owner 常设并发授权
+   (CLAUDE.md 并行预算条目): 硬件有富余时间线并发是默认姿态 —— 并发新轮
+   不用 `--strict-no-active`, plan 声明全部在飞轮的
+   `other_reserved_processes` 并走并发负载阶梯 + 总内存记账。 收尾前
    `reserve_claim.py --round R<N>` — claim id 必须先于 feed 存在
    (feed 内联数字要挂它)。ID 永不手挑。
 2. **plan**: `memory/rounds/R<N>/plan.md` — 冻结契约 (什么变/什么固定)、
    预注册判定树、scope_limits、资产保护清单。caveman Chinese。生命周期
    状态只住 YAML frontmatter 的 `state`; R291+ 禁止在正文再写 `Status`。
+   引用外部数学/理论解答时按
+   `references/external-theory-intake.md` 三分吸收; 机制预测必须写
+   `## Theory intake` 可观测清单，缺口用
+   `python probes/theory_observable_gap.py --results <results_dir>` 从密封
+   数据机器化导出。
 3. **preflight**: `python memory/tools/round_preflight.py R<N>` —
    exit 2 = BLOCK, 修完再跑。
 4. **执行**: 影响结论的识别/筛选/判定逻辑全部进 `probes/`; 可复用
@@ -107,6 +118,17 @@ recovery gate**。它把全部已发现 route episode 逐条归入五个技术�
    所对应源码必须进入 seal。seal 后若仍在 formal attempt 创建前失败，本轮
    只能 aborted；修复必须领后继 round、重新 preflight 与重新 seal，不能原地
    补丁后重试。
+   **seal 提交点**: seal 落地后、正式执行前提交一次
+   (`git add -A && git commit -m "round R<N>: seal"`)，让冻结点进版本库；
+   长任务中断后恢复不依赖未提交工作区 (R471 教训)。results/ 训练产物不进
+   git (白名单制)，提交只含代码与 ledger。
+   **目标语义门 (R424 教训, 2026-08-18)**: 任何往 loss/objective/reward
+   加项的 round，plan 必须写**精确公式**（不是散文；每个新项的符号、单位、
+   aggregation 逐字给出），rehearsal 必须在真实 learner 上跑**梯度方向
+   探针**（新项梯度对统计量的对齐方向，惩罚 = 下降、奖励 = 上升）并把结果
+   写进 rehearsal JSON，定向测试必须钉同一方向。R424 的符号缺陷穿过全部
+   机械检查（测试/排练/封存全绿）是因为没有任何一层检查目标语义——语义门
+   补上这一层。
 5. **收尾** (严格顺序):
    a. 结果归档清点: 每个结论承载 JSON 有 `.sha256`; 在
       `results/MANIFEST.md` 登记 result root、决策文件摘要与 archive
@@ -119,6 +141,9 @@ recovery gate**。它把全部已发现 route episode 逐条归入五个技术�
       (`path` + RFC 6901 `locator` + whole-file `sha256` + `role`)。
    d. `feed_check.py`：claim 卡已经收敛到审核允许的措辞并回指 feed 后，运行
       `python memory/tools/feed_check.py <feed>`
+   d2. 外部理论吸收门 (R422/R424/R432 教训): 本轮 plan 引用外部数学/理论
+      解答时跑 `python memory/tools/external_theory_intake_lint.py R<N>`
+      (exit 1 = BLOCK)。
    e. verdict 骨架 (模板 `memory/rounds/_TEMPLATE_VERDICT.md`)
    f. programme 问题若关闭: 块归档 `memory/RESEARCH_PROGRAM_CLOSED.md`,
       `priority_questions` 回 []
@@ -126,13 +151,25 @@ recovery gate**。它把全部已发现 route episode 逐条归入五个技术�
       `evidence_refs`，刷新当前动作，更新受影响的 `ARTIFACTS.json` 输入；
       feed 不得进入 `required_reading`，实验数字和结论不得复制进 LINE。
       确认语义同步后才刷新 `line-state` 对 feed 目录的哈希。该步不顺手写
-      LaTeX/正文/图。
+      LaTeX/正文/图；草稿更新只在批次节点（manuscript lane /
+      manuscript-refresh / 提交冻结），清单 = 各 feed 的
+      `Manuscript mapping` 段（CLAUDE.md 手稿线生命周期）。
    h. `repo_health.py check --no-baseline` 绿；新增或改动 feed 必须先触发
       `DOCUMENT_INPUT_DRIFT`，然后经 g 的显式 acknowledgement 清除
    i. `close_round.py R<N> completed`；R281+ 会重新执行 feed gate，不能只改
       `plan.md`。R291+ 只要 feed 指向本轮 results，还会要求 MANIFEST 条目。
+      关轮后默认自动提交整个工作区 (`round R<N>: close <state>`，
+      `--no-commit` 跳过)。收尾前工作区应只含本轮产物；若混入其他轮/
+      其他线未提交文件，用 `--no-commit` 关轮后手工拆分提交。
    j. `validate.py` 绿 → `render.py` → `"$DAIMON_USER_PYTHON" -m pytest tests -q` 绿
-   k. **给 PI 的话原文贴进对话** (ADR-0003/0011); 从 R317 起只贴三段
+       j2. 门禁校准 (R411+ 自进化): 收尾记一行——本轮哪道门太硬/太软/刚好 +
+        调整方案; 写入该线 `working/gate_calibration_log.md` (登记于
+        ARTIFACTS)。太硬 = 建议放宽并给出暂停点替代; 太软 = 建议补检查;
+        调整落地走 CLAUDE.md/SKILL.md 小改或新 issue/ADR, 不即兴松门。
+       j3. close_round 的自动提交发生在 render 前; render 若重写了 STATE.md,
+        补一个提交 `ledger: refresh STATE.md render after close R<N>`，
+        再确认 `git status --porcelain` 为空。
+k. **给 PI 的话原文贴进对话** (ADR-0003/0011); 从 R317 起只贴三段
       完整人话，不在前后追加技术复盘；指向文件不算交付
 
 完成判据: validate 绿、round state=completed、三段人话已出现在对话里、
@@ -165,8 +202,8 @@ fork, 删掉。
 
 ### 位置与语言
 
-- 有手稿线: `paper/<line>/reports/<slug>.md` (当前线
-  `paper/sci_upgrade_survey/reports/`); 无手稿线: `results/<run>/FEED.md`。
+- 有手稿线: `paper/<line>/reports/<slug>.md`;
+  无手稿线: `results/<run>/FEED.md`。
 - 英文 (喂英文论文); 用户显式语言要求优先。
 
 ### 节契约 (按序)
@@ -220,6 +257,9 @@ Question 或当前手稿 `LINE.md`。
 
 ## 4. 护栏 (硬; 操作清单 — rationale 各见其源)
 
+- 门禁 = 提醒 + 暂停点; 冲突时人在暂停点裁决, 门禁不自动加工作
+  (R410 教训: 规则服务于结论正确性, 不当太上皇)。
+
 - 先 probe 后训练; 用 kill/pivot 门避免纯算力搜索 (政策:
   `memory/RESEARCH_PROGRAM.md` "Autonomous research policy" / "Kill and
   pivot rules")。
@@ -233,6 +273,11 @@ Question 或当前手稿 `LINE.md`。
   contract 必须计入 launcher、child 与 process-pool worker，不能只写逻辑 shard
   数。每个进程的原生数值库线程固定为一；不同资料分区、拟合/验证或其他封存
   边界仍串行。
+- 对比可识别性 (R411+, R410 教训): 与历史轮数字对比前, plan 必须逐条列出
+  环境因素 (projector/adapter/线程固定/依赖/ban) 的差异并证明唯一科学因素;
+  确定性参照 bit-identical 是环境不变的强证据, 策略值漂移先查环境再查代码。
+- 容量阶梯抗噪 (R411+, R410 教训): 每 rung 代表性任务 ≥32; 边际吞吐落在
+  5%±2pp 内 → 复测一次取均值再定 rung, 拒绝单次噪声定预算。
 - 语言: plan 与 verdict 技术骨架可用紧凑中文；question/claim/feed 用英文。
   从 R317 起，PI 话只写“发生了什么、这说明什么、下一步做什么”三段完整
   自然中文。禁英文、缩写、仓库编号、文件名、代码名和明显专业词；数字只在
@@ -276,5 +321,7 @@ Question 或当前手稿 `LINE.md`。
   skill 在本项目中的唯一适配层
 - `skills/kundur-round/references/technical-route-census.md` — 方向不清时的
   五家族穷尽盘点、覆盖校验与唯一后续路线门
+- `skills/kundur-round/references/external-theory-intake.md` — 外部数学/理论
+  解答的三分吸收契约 (代数恒等式/机制预测/论文级数学命题)
 - `paper/<line>/LINE.md` — 各手稿线自己的状态与作用域
 - `paper/<line>/ARTIFACTS.json` — 各手稿线的持久文档生命周期清单
