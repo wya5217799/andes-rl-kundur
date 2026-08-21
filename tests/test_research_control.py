@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import subprocess
@@ -123,6 +124,19 @@ def test_snapshot_emits_unknown_and_inconsistent_with_blockers(tmp_path: Path) -
         "material-output-without-formal-seal"
     ]
 
+    store = OperationalEventStore(tmp_path)
+    store.register_job(
+        job_id="cannot-mask",
+        round_id="R7",
+        command="python run.py",
+        output_root="results/r7",
+        process_budget=1,
+    )
+    store.append_event("cannot-mask", "running", {})
+    still_inconsistent = build_control_snapshot(tmp_path)
+    assert still_inconsistent["rounds"][0]["phase"] == "inconsistent"
+    assert still_inconsistent["rounds"][0]["job_event"] == "running"
+
 
 def test_snapshot_keeps_valid_rounds_when_one_plan_is_malformed(tmp_path: Path) -> None:
     _write_round(tmp_path)
@@ -206,6 +220,45 @@ def test_operational_job_events_are_hash_linked_and_terminal(tmp_path: Path) -> 
         store.append_event("r7-formal", "heartbeat", {})
 
 
+def test_persisted_job_chain_replays_transition_rules(tmp_path: Path) -> None:
+    _write_round(tmp_path, body="Create-only root `results/r7`.")
+    store = OperationalEventStore(tmp_path)
+    store.register_job(
+        job_id="history",
+        round_id="R7",
+        command="python run.py",
+        output_root="results/r7",
+        process_budget=1,
+    )
+    store.append_event("history", "running", {})
+    store.append_event("history", "succeeded", {})
+    event_path = (
+        tmp_path
+        / "tmp"
+        / "research-control"
+        / "jobs"
+        / "history"
+        / "events"
+        / "00000003.json"
+    )
+    event = json.loads(event_path.read_text(encoding="utf-8"))
+    event["event"] = "registered"
+    unhashed = {key: value for key, value in event.items() if key != "sha256"}
+    event["sha256"] = hashlib.sha256(
+        json.dumps(
+            unhashed,
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
+            allow_nan=False,
+        ).encode("utf-8")
+    ).hexdigest()
+    event_path.write_text(json.dumps(event), encoding="utf-8")
+
+    with pytest.raises(ResearchControlError, match="transition"):
+        store.verify_chain("history")
+
+
 def test_snapshot_projects_job_events_without_promoting_authority(tmp_path: Path) -> None:
     _write_round(tmp_path, body="Create-only root `results/research_loop/r7_demo`.")
     store = OperationalEventStore(tmp_path)
@@ -256,7 +309,7 @@ def test_snapshot_aggregates_parallel_jobs_instead_of_using_job_id_order(
 
 
 def test_submitted_job_is_not_reported_as_observed_execution(tmp_path: Path) -> None:
-    _write_round(tmp_path)
+    _write_round(tmp_path, body="Create-only root `results/r7`.")
     store = OperationalEventStore(tmp_path)
     store.register_job(
         job_id="queued",
@@ -273,7 +326,7 @@ def test_submitted_job_is_not_reported_as_observed_execution(tmp_path: Path) -> 
 
 
 def test_event_wait_is_bounded_and_returns_only_new_events(tmp_path: Path) -> None:
-    _write_round(tmp_path)
+    _write_round(tmp_path, body="Create-only root `results/r7`.")
     store = OperationalEventStore(tmp_path)
     store.register_job(
         job_id="job-1",
@@ -304,7 +357,7 @@ def test_event_wait_is_bounded_and_returns_only_new_events(tmp_path: Path) -> No
 def test_job_metadata_is_bound_to_the_event_chain_and_stale_lock_is_recoverable(
     tmp_path: Path,
 ) -> None:
-    _write_round(tmp_path)
+    _write_round(tmp_path, body="Create-only root `results/r7`.")
     store = OperationalEventStore(tmp_path)
     registered = store.register_job(
         job_id="bound",
@@ -328,7 +381,7 @@ def test_job_metadata_is_bound_to_the_event_chain_and_stale_lock_is_recoverable(
 
 
 def test_snapshot_isolates_one_corrupt_operational_job(tmp_path: Path) -> None:
-    _write_round(tmp_path)
+    _write_round(tmp_path, body="Create-only root `results/r7`.")
     store = OperationalEventStore(tmp_path)
     for job_id in ("good", "bad"):
         store.register_job(
@@ -350,8 +403,20 @@ def test_snapshot_isolates_one_corrupt_operational_job(tmp_path: Path) -> None:
     )
 
 
+def test_job_registration_requires_a_round_declared_output_root(tmp_path: Path) -> None:
+    _write_round(tmp_path, body="Create-only root `results/r7`.")
+    with pytest.raises(ResearchControlError, match="not declared by round"):
+        OperationalEventStore(tmp_path).register_job(
+            job_id="wrong-root",
+            round_id="R7",
+            command="python run.py",
+            output_root="results/r8",
+            process_budget=1,
+        )
+
+
 def test_job_commands_share_the_json_control_seam(tmp_path: Path) -> None:
-    _write_round(tmp_path)
+    _write_round(tmp_path, body="Create-only root `results/r7`.")
     tool = str(REPO_ROOT / "memory" / "tools" / "research_control.py")
     registered = subprocess.run(
         [
@@ -567,6 +632,25 @@ def test_artifact_trace_and_reproduction_block_drifted_seal_and_claim_hashes(
     assert reproduction["declared_command"] is None
 
 
+def test_reproduction_rejects_an_empty_formal_seal(tmp_path: Path) -> None:
+    round_dir = _write_round(
+        tmp_path,
+        body=(
+            "Create-only root `results/r7`.\n"
+            "- formal_entry: `python run.py formal`\n"
+        ),
+    )
+    artifact = tmp_path / "results" / "r7" / "decision.json"
+    _write_json(artifact, {"decision": "STOP"})
+    digest = sha256_file(artifact)
+    Path(f"{artifact}.sha256").write_text(f"{digest}  {artifact.name}\n", encoding="ascii")
+    _write_json(round_dir / "formal_seal.json", {"formal_authority": True})
+
+    reproduction = build_reproduction_plan(tmp_path, artifact)
+    assert "formal-seal-reference-missing" in reproduction["blockers"]
+    assert reproduction["declared_command"] is None
+
+
 def test_artifact_commands_share_the_json_control_seam(tmp_path: Path) -> None:
     _write_round(
         tmp_path,
@@ -716,7 +800,7 @@ def test_operational_writes_reject_a_symlinked_scratch_root(tmp_path: Path) -> N
     outside = tmp_path / "outside"
     repo.mkdir()
     outside.mkdir()
-    _write_round(repo)
+    _write_round(repo, body="Create-only root `results/r7`.")
     control_root = repo / "tmp" / "research-control"
     control_root.mkdir(parents=True)
     try:
@@ -737,6 +821,77 @@ def test_operational_writes_reject_a_symlinked_scratch_root(tmp_path: Path) -> N
         ScratchFrontier(repo).initialize(
             frontier_id="escape", max_candidates=1, compute_budget=1.0
         )
+
+
+def test_operational_reads_and_locks_reject_symlinked_subpaths(tmp_path: Path) -> None:
+    repo = tmp_path / "repo"
+    outside = tmp_path / "outside"
+    repo.mkdir()
+    outside.mkdir()
+    _write_round(repo, body="Create-only root `results/r7`.")
+    store = OperationalEventStore(repo)
+
+    store.register_job(
+        job_id="event-dir",
+        round_id="R7",
+        command="python run.py",
+        output_root="results/r7",
+        process_budget=1,
+    )
+    job_dir = repo / "tmp" / "research-control" / "jobs" / "event-dir"
+    external_events = outside / "job-events"
+    (job_dir / "events").rename(external_events)
+    try:
+        os.symlink(external_events, job_dir / "events", target_is_directory=True)
+    except OSError as exc:
+        pytest.skip(f"symlinks unavailable: {exc}")
+    with pytest.raises(ResearchControlError, match="escapes repository"):
+        store.list_events("event-dir")
+
+    store.register_job(
+        job_id="event-file",
+        round_id="R7",
+        command="python run.py",
+        output_root="results/r7",
+        process_budget=1,
+    )
+    file_dir = repo / "tmp" / "research-control" / "jobs" / "event-file"
+    event_file = file_dir / "events" / "00000001.json"
+    external_event = outside / "event.json"
+    event_file.replace(external_event)
+    os.symlink(external_event, event_file)
+    with pytest.raises(ResearchControlError, match="escapes repository"):
+        store.list_events("event-file")
+
+    store.register_job(
+        job_id="lock-file",
+        round_id="R7",
+        command="python run.py",
+        output_root="results/r7",
+        process_budget=1,
+    )
+    lock_dir = repo / "tmp" / "research-control" / "jobs" / "lock-file"
+    lock_path = lock_dir / ".events.lock"
+    lock_path.unlink()
+    external_lock = outside / "lock"
+    external_lock.write_bytes(b"\0")
+    os.symlink(external_lock, lock_path)
+    with pytest.raises(ResearchControlError, match="escapes repository"):
+        store.append_event("lock-file", "running", {})
+
+    frontier = ScratchFrontier(repo)
+    frontier.initialize(frontier_id="event-dir", max_candidates=1, compute_budget=1.0)
+    frontier.add_candidate("event-dir", "one", {}, estimated_cost=1.0)
+    frontier_dir = repo / "tmp" / "research-control" / "frontiers" / "event-dir"
+    external_frontier_events = outside / "frontier-events"
+    (frontier_dir / "events").rename(external_frontier_events)
+    os.symlink(
+        external_frontier_events,
+        frontier_dir / "events",
+        target_is_directory=True,
+    )
+    with pytest.raises(ResearchControlError, match="escapes repository"):
+        frontier.rank("event-dir")
 
 
 def test_scratch_frontier_enforces_capacity_inside_the_append_lock(tmp_path: Path) -> None:
@@ -891,6 +1046,36 @@ def test_research_bench_fails_when_the_public_control_action_regresses(
     report = run_research_bench(cases, responses)
     assert report["metrics"]["interface_replay_accuracy"] < 1.0
     assert report["passed"] is False
+
+
+def test_research_bench_detects_round_authority_mutation(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    cases = REPO_ROOT / "tests" / "research_bench" / "cases"
+    responses = json.loads(
+        (REPO_ROOT / "tests" / "research_bench" / "reference_responses.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    original = research_control.run_control_action
+
+    def mutating(
+        repo_root: Path, action: str, parameters: dict[str, object]
+    ) -> dict[str, object]:
+        observation = original(repo_root, action, parameters)
+        if action == "trace":
+            seal = repo_root / "memory" / "rounds" / "R7" / "formal_seal.json"
+            seal.parent.mkdir(parents=True, exist_ok=True)
+            seal.write_text('{"formal_authority":false}\n', encoding="utf-8")
+        return observation
+
+    monkeypatch.setattr(research_control, "run_control_action", mutating)
+    report = run_research_bench(cases, responses)
+    assert report["metrics"]["interface_replay_accuracy"] < 1.0
+    assert any(
+        "protected-root-mutated" in value["interface_replay"]["failures"]
+        for value in report["results"]
+    )
 
 
 def test_research_bench_cli_uses_explicit_cases_and_responses() -> None:

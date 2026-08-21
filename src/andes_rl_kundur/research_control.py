@@ -13,6 +13,7 @@ import json
 import math
 import os
 import re
+import stat
 import tempfile
 import time
 from collections.abc import Callable, Mapping
@@ -67,15 +68,28 @@ def _utc_now() -> str:
 
 
 def _ensure_repository_write_path(repo_root: Path, target: Path) -> None:
-    """Reject writes whose nearest existing ancestor resolves outside the repo."""
+    """Reject writes through links or ancestors that resolve outside the repo."""
 
     candidate = target
-    while not candidate.exists() and candidate != candidate.parent:
-        candidate = candidate.parent
-    try:
-        candidate.resolve(strict=True).relative_to(repo_root.resolve())
-    except (OSError, ValueError) as exc:
-        raise ResearchControlError(f"write path escapes repository: {target}") from exc
+    while True:
+        try:
+            metadata = os.lstat(candidate)
+        except FileNotFoundError:
+            if candidate == candidate.parent:
+                raise ResearchControlError(f"write path escapes repository: {target}")
+            candidate = candidate.parent
+            continue
+        except OSError as exc:
+            raise ResearchControlError(f"write path escapes repository: {target}") from exc
+        reparse_flag = getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0)
+        file_attributes = getattr(metadata, "st_file_attributes", 0)
+        if stat.S_ISLNK(metadata.st_mode) or file_attributes & reparse_flag:
+            raise ResearchControlError(f"write path escapes repository: {target}")
+        try:
+            candidate.resolve(strict=True).relative_to(repo_root.resolve())
+        except (OSError, ValueError) as exc:
+            raise ResearchControlError(f"write path escapes repository: {target}") from exc
+        return
 
 
 def _fsync_directory(path: Path) -> None:
@@ -192,6 +206,7 @@ class OperationalEventStore:
 
     def _read_job(self, job_id: str) -> dict[str, Any]:
         path = self._job_dir(job_id) / "job.json"
+        _ensure_repository_write_path(self.repo_root, path)
         try:
             payload = json.loads(path.read_text(encoding="utf-8"))
         except FileNotFoundError as exc:
@@ -245,13 +260,23 @@ class OperationalEventStore:
 
         if _ROUND_ID_RE.fullmatch(round_id) is None:
             raise ResearchControlError(f"invalid round id: {round_id}")
-        if not (self.repo_root / "memory" / "rounds" / round_id / "plan.md").is_file():
+        plan_path = self.repo_root / "memory" / "rounds" / round_id / "plan.md"
+        if not plan_path.is_file():
             raise ResearchControlError(f"job round has no authoritative plan: {round_id}")
         if not isinstance(process_budget, int) or isinstance(process_budget, bool) or process_budget < 1:
             raise ResearchControlError("process budget must be a positive integer")
         if not command.strip():
             raise ResearchControlError("command must be non-empty")
         normalized_output = _relative_path(output_root, prefixes=("results/", "tmp/"))
+        _, plan_body = _read_plan(plan_path)
+        declared_roots = _declared_result_roots(plan_body)
+        if not any(
+            normalized_output == root or normalized_output.startswith(f"{root}/")
+            for root in declared_roots
+        ):
+            raise ResearchControlError(
+                f"job output root is not declared by round {round_id}: {normalized_output}"
+            )
         job_dir = self._job_dir(job_id)
         _ensure_repository_write_path(self.repo_root, job_dir)
         try:
@@ -290,11 +315,13 @@ class OperationalEventStore:
 
     def _read_events(self, job_id: str) -> list[dict[str, Any]]:
         events_dir = self._job_dir(job_id) / "events"
+        _ensure_repository_write_path(self.repo_root, events_dir)
         if not events_dir.is_dir():
             return []
         events: list[dict[str, Any]] = []
         paths = sorted(events_dir.glob("[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9].json"))
         for index, path in enumerate(paths, start=1):
+            _ensure_repository_write_path(self.repo_root, path)
             try:
                 value = json.loads(path.read_text(encoding="utf-8"))
             except (OSError, json.JSONDecodeError) as exc:
@@ -311,6 +338,7 @@ class OperationalEventStore:
     def _verify_events(self, job_id: str, events: list[dict[str, Any]]) -> None:
         job = self._read_job(job_id)
         previous: str | None = None
+        previous_event: str | None = None
         for sequence, event in enumerate(events, start=1):
             required_types = {
                 "schema": str,
@@ -333,6 +361,19 @@ class OperationalEventStore:
                 not in {*_EVENT_TRANSITIONS, *_TERMINAL_EVENTS, "heartbeat", "collecting"}
             ):
                 raise ResearchControlError(f"event schema mismatch for {job_id}")
+            event_name = str(event["event"])
+            if previous_event is None:
+                if event_name != "registered":
+                    raise ResearchControlError(
+                        f"invalid operational transition for {job_id}: first -> {event_name}"
+                    )
+            else:
+                allowed = _EVENT_TRANSITIONS.get(previous_event, frozenset())
+                if previous_event in _TERMINAL_EVENTS or event_name not in allowed:
+                    raise ResearchControlError(
+                        f"invalid operational transition for {job_id}: "
+                        f"{previous_event} -> {event_name}"
+                    )
             if event.get("sequence") != sequence:
                 raise ResearchControlError(f"event sequence mismatch for {job_id}")
             if event.get("previous_sha256") != previous:
@@ -345,6 +386,7 @@ class OperationalEventStore:
             if sequence == 1 and event.get("details", {}).get("job_sha256") != job["sha256"]:
                 raise ResearchControlError(f"event chain does not bind job metadata: {job_id}")
             previous = actual
+            previous_event = event_name
 
     def _append_event_locked(
         self,
@@ -355,6 +397,7 @@ class OperationalEventStore:
         job_dir = self._job_dir(job_id)
         _ensure_repository_write_path(self.repo_root, job_dir)
         lock = job_dir / ".events.lock"
+        _ensure_repository_write_path(self.repo_root, lock)
         with _PortableFileLock(lock, f"operational job is busy: {job_id}"):
             events = self._read_events(job_id)
             self._verify_events(job_id, events)
@@ -567,6 +610,7 @@ class ScratchFrontier:
 
     def _read_frontier(self, frontier_id: str) -> dict[str, Any]:
         path = self._frontier_dir(frontier_id) / "frontier.json"
+        _ensure_repository_write_path(self.repo_root, path)
         try:
             payload = json.loads(path.read_text(encoding="utf-8"))
         except FileNotFoundError as exc:
@@ -599,6 +643,7 @@ class ScratchFrontier:
     def _read_events(self, frontier_id: str) -> list[dict[str, Any]]:
         frontier = self._read_frontier(frontier_id)
         events_dir = self._frontier_dir(frontier_id) / "events"
+        _ensure_repository_write_path(self.repo_root, events_dir)
         if not events_dir.is_dir():
             return []
         events: list[dict[str, Any]] = []
@@ -606,6 +651,7 @@ class ScratchFrontier:
         previous: str | None = None
         candidate_states: dict[str, tuple[str, float]] = {}
         for sequence, path in enumerate(paths, start=1):
+            _ensure_repository_write_path(self.repo_root, path)
             try:
                 event = json.loads(path.read_text(encoding="utf-8"))
             except (OSError, json.JSONDecodeError) as exc:
@@ -729,6 +775,7 @@ class ScratchFrontier:
         frontier_dir = self._frontier_dir(frontier_id)
         _ensure_repository_write_path(self.repo_root, frontier_dir)
         lock = frontier_dir / ".events.lock"
+        _ensure_repository_write_path(self.repo_root, lock)
         with _PortableFileLock(lock, f"scratch frontier is busy: {frontier_id}"):
             frontier = self._read_frontier(frontier_id)
             events = self._read_events(frontier_id)
@@ -1043,7 +1090,7 @@ def _materialize_bench_files(workspace: Path, files: object) -> None:
 
 def _bench_tree_manifest(workspace: Path) -> dict[str, str]:
     values: dict[str, str] = {}
-    for root_name in ("memory/claims", "paper", "results"):
+    for root_name in ("memory/claims", "memory/rounds", "paper", "results"):
         root = workspace / root_name
         if not root.is_dir():
             continue
@@ -1434,7 +1481,11 @@ def _claim_bindings(repo_root: Path, target_path: str) -> list[dict[str, Any]]:
     return refs
 
 
-def _formal_seal_validation(repo_root: Path, round_dir: Path) -> dict[str, Any]:
+def _formal_seal_validation(
+    repo_root: Path,
+    round_dir: Path,
+    target_artifact: str,
+) -> dict[str, Any]:
     seal = round_dir / "formal_seal.json"
     if not seal.is_file():
         return {"status": "missing", "path": seal.relative_to(repo_root).as_posix(), "bindings": []}
@@ -1470,11 +1521,17 @@ def _formal_seal_validation(repo_root: Path, round_dir: Path) -> dict[str, Any]:
         relative = target.relative_to(repo_root).as_posix()
         resolved = _resolve_binding(repo_root, relative, payload.get(key))
         bindings.append({"locator": f"/{key}", **resolved})
-    status = (
-        "verified"
-        if all(value["status"] == "verified" for value in bindings)
-        else "drift"
+    target_anchor = any(value["artifact"] == target_artifact for value in bindings)
+    metadata_locators = {value["locator"] for value in bindings}
+    prospective_anchor = {"/plan_sha256", "/rehearsal_sha256"}.issubset(
+        metadata_locators
     )
+    if not target_anchor and not prospective_anchor:
+        status = "incomplete"
+    elif all(value["status"] == "verified" for value in bindings):
+        status = "verified"
+    else:
+        status = "drift"
     return {
         "status": status,
         "path": seal.relative_to(repo_root).as_posix(),
@@ -1562,9 +1619,15 @@ def build_reproduction_plan(
         blockers.append("owner-round-ambiguous")
     else:
         owner = owners[0]
-        seal_validation = _formal_seal_validation(root, owner["round_dir"])
+        seal_validation = _formal_seal_validation(
+            root,
+            owner["round_dir"],
+            trace["artifact"],
+        )
         if seal_validation["status"] == "missing":
             blockers.append("formal-seal-missing")
+        elif seal_validation["status"] == "incomplete":
+            blockers.append("formal-seal-reference-missing")
         elif seal_validation["status"] != "verified":
             blockers.append("formal-seal-reference-drift")
         if command is None:
@@ -1760,7 +1823,11 @@ def build_control_snapshot(
             aggregate_event = None
         value["job_event"] = aggregate_event
         value["job_events"] = sorted(job_events)
-        if value["ledger_state"] != "active" or value["phase"] == "close-out":
+        if value["ledger_state"] != "active" or value["phase"] in {
+            "close-out",
+            "unknown",
+            "inconsistent",
+        }:
             continue
         if aggregate_event == "running":
             value["phase"] = "running"
