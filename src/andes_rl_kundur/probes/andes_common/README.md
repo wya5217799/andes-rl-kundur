@@ -150,7 +150,7 @@ if __name__ == "__main__":
 
 ## 上游导航
 
-- 跑 probe 前先读: `scenarios/kundur/NOTES_ANDES.md` "修代码前必读" §
+- 跑 probe 前先读: `docs/eng-notes/NOTES_ANDES.md` "修代码前必读" §
 - ANDES 修代码前必 probe: `CLAUDE.md` "修模型前必读 NOTES" §
 - Forensic 闭环: `quality_reports/handoff/2026-05-07_andes_path_closure.md` (R10-R17 RE-OPEN)
 - 6-axis evaluator: `evaluation/paper_grade_axes.py`

@@ -77,8 +77,27 @@ class LocalMDActionProjector:
         target = np.asarray(target_action, dtype=np.float32)
         if target.shape != (2,) or not np.all(np.isfinite(target)):
             raise ValueError("target action must be a finite vector with shape (2,)")
-        slew = np.float32(self.action_slew_limit)
-        action = np.clip(target, self.previous_action - slew, self.previous_action + slew)
+        # R402 slew-representation repair: compute the slew clip in float64 and
+        # snap the stored float32 one ulp toward the previous action whenever
+        # rounding would let the recorded delta exceed the exact slew bound.
+        # The physical clip is unchanged; only the stored representation is
+        # made conservative so the frozen <=0.25 recorded-slew guard holds.
+        previous = self.previous_action
+        slew64 = float(self.action_slew_limit)
+        prev64 = previous.astype(np.float64)
+        delta = np.clip(target.astype(np.float64) - prev64, -slew64, slew64)
+        action64 = prev64 + delta
+        action = np.clip(action64, -1.0, 1.0).astype(np.float32)
+        overshoot = (action.astype(np.float64) - prev64) > slew64
+        undershoot = (action.astype(np.float64) - prev64) < -slew64
+        if np.any(overshoot):
+            action[overshoot] = np.nextafter(
+                action[overshoot], np.float32(-np.inf)
+            )
+        if np.any(undershoot):
+            action[undershoot] = np.nextafter(
+                action[undershoot], np.float32(np.inf)
+            )
         action = np.clip(action, -1.0, 1.0).astype(np.float32)
         self.previous_action = action.copy()
         return action

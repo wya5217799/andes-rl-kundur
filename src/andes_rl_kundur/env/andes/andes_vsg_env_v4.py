@@ -55,8 +55,11 @@ warnings.filterwarnings("ignore")
 class AndesMultiVSGEnvV4(AndesBaseEnv):
     """ANDES Kundur 4-VSG environment, paper-faithful baseline.
 
-    Self-contained: does not inherit from V1/V2/V3. All class attributes
-    and overridden methods are visible in this file alone.
+    Does not inherit from the legacy V1/V2/V3 chain (kept in
+    ``_legacy/env/andes/`` for historical reference); the sole retained
+    base class is ``AndesBaseEnv`` — a degenerate single-adapter seam
+    (AD-01 residual, see Q-0004). Methods and attributes not defined
+    in this file are inherited from ``AndesBaseEnv``.
     """
 
     # ─── Topology ─────────────────────────────────────────────────────
