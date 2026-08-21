@@ -1,12 +1,28 @@
 """Operate the repository's non-authoritative research control plane.
 
-This command emits versioned JSON.  It does not reserve rounds, authorize
-scientific execution, register claims, or edit sealed evidence.
+Motivation
+----------
+Expose lifecycle, operational jobs, provenance, safe reproduction planning,
+bounded scratch search, and incident replay through one versioned JSON seam.
+The tool never reserves rounds, authorizes or launches scientific execution,
+registers claims, or edits sealed evidence.
 
-Usage::
-
+Usage
+-----
     python memory/tools/research_control.py state
+    python memory/tools/research_control.py job-events --job-id <id>
+    python memory/tools/research_control.py trace --artifact results/.../file.json
+    python memory/tools/research_control.py reproduce --artifact results/.../file.json
+    python memory/tools/research_control.py frontier-rank --frontier-id <id>
+    python memory/tools/research_control.py bench --cases <dir> --responses <json>
     python memory/tools/research_control.py --root C:\\repo state
+
+Failure modes
+-------------
+Invalid schemas, paths outside the repository, metadata or hash drift, illegal
+state transitions, exhausted scratch budgets, and non-finite waits exit 4 with
+``andes-research-control/error.v1`` JSON on stderr.  A blocked reproduction is
+a successful advisory response with ``execute=false``; it never runs a command.
 """
 
 from __future__ import annotations
@@ -21,14 +37,12 @@ SRC = ROOT / "src"
 if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
+from session_context import ContextError, build_session_context  # noqa: E402
+
 from andes_rl_kundur.research_control import (  # noqa: E402
-    OperationalEventStore,
     ResearchControlError,
-    ScratchFrontier,
-    build_control_snapshot,
-    build_reproduction_plan,
+    run_control_action,
     run_research_bench,
-    trace_artifact,
 )
 
 
@@ -100,67 +114,106 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     try:
-        store = OperationalEventStore(args.root)
-        frontier = ScratchFrontier(args.root)
         if args.action == "state":
-            payload = build_control_snapshot(args.root)
+            try:
+                context = build_session_context(args.root)
+                payload = run_control_action(
+                    args.root, "state", {"session_mode": context.mode}
+                )
+            except ContextError as exc:
+                payload = run_control_action(
+                    args.root,
+                    "state",
+                    {"session_mode": "unknown"},
+                )
+                payload["blockers"].insert(0, f"session-context-error:{str(exc)[:200]}")
         elif args.action == "job-register":
-            payload = store.register_job(
-                job_id=args.job_id,
-                round_id=args.round_id,
-                command=args.job_command,
-                output_root=args.output_root,
-                process_budget=args.process_budget,
+            payload = run_control_action(
+                args.root,
+                "job-register",
+                {
+                    "job_id": args.job_id,
+                    "round_id": args.round_id,
+                    "command": args.job_command,
+                    "output_root": args.output_root,
+                    "process_budget": args.process_budget,
+                },
             )
         elif args.action == "job-event":
             details = json.loads(args.details_json)
             if not isinstance(details, dict):
                 raise ResearchControlError("event details must be a JSON object")
-            payload = store.append_event(args.job_id, args.event, details)
+            payload = run_control_action(
+                args.root,
+                "job-event",
+                {"job_id": args.job_id, "event": args.event, "details": details},
+            )
         elif args.action == "job-events":
-            payload = {
-                "schema": "andes-research-control/events.v1",
-                "job_id": args.job_id,
-                "events": store.list_events(args.job_id),
-            }
+            payload = run_control_action(
+                args.root, "job-events", {"job_id": args.job_id}
+            )
         elif args.action == "job-verify":
-            payload = store.verify_chain(args.job_id)
+            payload = run_control_action(
+                args.root, "job-verify", {"job_id": args.job_id}
+            )
         elif args.action == "job-wait":
-            payload = store.wait(
-                args.job_id,
-                after_sequence=args.after,
-                timeout_seconds=args.timeout,
+            payload = run_control_action(
+                args.root,
+                "job-wait",
+                {
+                    "job_id": args.job_id,
+                    "after_sequence": args.after,
+                    "timeout_seconds": args.timeout,
+                },
             )
         elif args.action == "trace":
-            payload = trace_artifact(args.root, args.artifact)
+            payload = run_control_action(
+                args.root, "trace", {"artifact": args.artifact}
+            )
         elif args.action == "reproduce":
-            payload = build_reproduction_plan(args.root, args.artifact)
+            payload = run_control_action(
+                args.root, "reproduce", {"artifact": args.artifact}
+            )
         elif args.action == "frontier-init":
-            payload = frontier.initialize(
-                frontier_id=args.frontier_id,
-                max_candidates=args.max_candidates,
-                compute_budget=args.compute_budget,
+            payload = run_control_action(
+                args.root,
+                "frontier-init",
+                {
+                    "frontier_id": args.frontier_id,
+                    "max_candidates": args.max_candidates,
+                    "compute_budget": args.compute_budget,
+                },
             )
         elif args.action == "frontier-add":
             proposal = json.loads(args.proposal_json)
             if not isinstance(proposal, dict):
                 raise ResearchControlError("proposal must be a JSON object")
-            payload = frontier.add_candidate(
-                args.frontier_id,
-                args.candidate_id,
-                proposal,
-                estimated_cost=args.estimated_cost,
+            payload = run_control_action(
+                args.root,
+                "frontier-add",
+                {
+                    "frontier_id": args.frontier_id,
+                    "candidate_id": args.candidate_id,
+                    "proposal": proposal,
+                    "estimated_cost": args.estimated_cost,
+                },
             )
         elif args.action == "frontier-record":
-            payload = frontier.record_result(
-                args.frontier_id,
-                args.candidate_id,
-                outcome=args.outcome,
-                actual_cost=args.actual_cost,
-                score=args.score,
+            payload = run_control_action(
+                args.root,
+                "frontier-record",
+                {
+                    "frontier_id": args.frontier_id,
+                    "candidate_id": args.candidate_id,
+                    "outcome": args.outcome,
+                    "actual_cost": args.actual_cost,
+                    "score": args.score,
+                },
             )
         elif args.action == "frontier-rank":
-            payload = frontier.rank(args.frontier_id)
+            payload = run_control_action(
+                args.root, "frontier-rank", {"frontier_id": args.frontier_id}
+            )
         elif args.action == "bench":
             cases_path = (
                 args.cases.resolve()
@@ -185,7 +238,18 @@ def main(argv: list[str] | None = None) -> int:
         else:  # pragma: no cover - argparse owns command validation
             parser.error(f"unsupported command: {args.action}")
     except (json.JSONDecodeError, OSError, ResearchControlError, ValueError) as exc:
-        print(f"ERROR: {exc}", file=sys.stderr)
+        json.dump(
+            {
+                "schema": "andes-research-control/error.v1",
+                "error": {
+                    "code": "research-control-error",
+                    "message": str(exc),
+                },
+            },
+            sys.stderr,
+            ensure_ascii=False,
+        )
+        sys.stderr.write("\n")
         return 4
 
     json.dump(payload, sys.stdout, ensure_ascii=False, indent=2)

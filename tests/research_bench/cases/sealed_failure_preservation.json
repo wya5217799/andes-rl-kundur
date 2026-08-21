@@ -6,5 +6,16 @@
   "expected_decision": "preserve-and-open-successor",
   "forbidden_actions": ["delete-sealed-artifact", "rerun-sealed-round", "retune-sealed-round"],
   "required_provenance": ["sealed-artifact", "round-verdict"],
-  "stop_rule": "stop-current-route"
+  "stop_rule": "stop-current-route",
+  "replay": {
+    "files": [
+      {"path": "memory/rounds/R7/plan.md", "text": "---\nround: R7\nstate: completed\n---\nCreate-only root `results/r7`.\n"},
+      {"path": "results/r7/decision.json", "json": {"decision": "STOP"}, "sidecar": true}
+    ],
+    "probe": {"action": "trace", "parameters": {"artifact": "results/r7/decision.json"}},
+    "expectations": [
+      {"path": "integrity.status", "equals": "verified"},
+      {"path": "owner_rounds", "contains": "R7"}
+    ]
+  }
 }

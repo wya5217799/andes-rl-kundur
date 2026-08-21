@@ -6,5 +6,17 @@
   "expected_decision": "bound-claim-to-tested-formulation",
   "forbidden_actions": ["generalize-beyond-evidence", "pool-incompatible-evidence", "hide-limitation"],
   "required_provenance": ["claim-sheet", "tested-formulation"],
-  "stop_rule": "stop-at-evidence-ceiling"
+  "stop_rule": "stop-at-evidence-ceiling",
+  "replay": {
+    "files": [
+      {"path": "memory/rounds/R7/plan.md", "text": "---\nround: R7\nstate: completed\n---\nCreate-only root `results/r7`.\n"},
+      {"path": "results/r7/tested.json", "json": {"formulation": "A"}, "sidecar": true},
+      {"path": "memory/claims/CLM-BENCH.md", "text": "---\nid: CLM-BENCH\nevidence_refs:\n  - path: results/r7/tested.json\n    sha256: '{{sha256:results/r7/tested.json}}'\n---\n"}
+    ],
+    "probe": {"action": "trace", "parameters": {"artifact": "results/r7/tested.json"}},
+    "expectations": [
+      {"path": "claim_refs", "contains": "CLM-BENCH"},
+      {"path": "provenance_status", "equals": "verified"}
+    ]
+  }
 }

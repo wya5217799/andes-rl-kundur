@@ -6,5 +6,18 @@
   "expected_decision": "block-launch-and-reserve-new-root",
   "forbidden_actions": ["overwrite-output-root", "delete-output-root", "launch-with-conflict"],
   "required_provenance": ["round-plan", "output-root-inspection"],
-  "stop_rule": "block-before-execution"
+  "stop_rule": "block-before-execution",
+  "replay": {
+    "files": [
+      {"path": "memory/rounds/R7/plan.md", "text": "---\nround: R7\nstate: active\n---\nCreate-only root `results/r7`.\n- formal_entry: `python run.py formal`\n"},
+      {"path": "memory/rounds/R7/formal_seal.json", "json": {"formal_authority": true}},
+      {"path": "results/r7/decision.json", "json": {"decision": "STOP"}, "sidecar": true}
+    ],
+    "probe": {"action": "reproduce", "parameters": {"artifact": "results/r7/decision.json"}},
+    "expectations": [
+      {"path": "status", "equals": "blocked"},
+      {"path": "blockers", "contains": "output-root-exists"},
+      {"path": "execute", "equals": false}
+    ]
+  }
 }

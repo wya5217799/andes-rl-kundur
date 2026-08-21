@@ -84,7 +84,13 @@ target-version = ["py310"]
 cache_dir = "tmp/cache/mypy"
 files = [
     "src/andes_rl_kundur/repo_governance.py",
+    "src/andes_rl_kundur/research_control.py",
     "scripts/repo_health.py",
     "scripts/andes_scratch.py",
+    "memory/tools/research_control.py",
 ]
 follow_imports = "skip"
+
+[[tool.mypy.overrides]]
+module = "yaml"
+ignore_missing_imports = true

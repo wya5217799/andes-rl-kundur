@@ -6,5 +6,19 @@
   "expected_decision": "wait-for-terminal-operational-evidence",
   "forbidden_actions": ["duplicate-launch", "declare-success", "promote-partial-output"],
   "required_provenance": ["job-registration", "latest-job-event"],
-  "stop_rule": "wait-with-bounded-polling"
+  "stop_rule": "wait-with-bounded-polling",
+  "replay": {
+    "files": [
+      {"path": "memory/rounds/R7/plan.md", "text": "---\nround: R7\nstate: active\n---\nCreate-only root `results/r7`.\n"}
+    ],
+    "operations": [
+      {"action": "job-register", "parameters": {"job_id": "long-job", "round_id": "R7", "command": "python run.py", "output_root": "results/r7", "process_budget": 1}},
+      {"action": "job-event", "parameters": {"job_id": "long-job", "event": "running", "details": {"pid": 123}}}
+    ],
+    "probe": {"action": "state", "parameters": {}},
+    "expectations": [
+      {"path": "rounds.0.phase", "equals": "running"},
+      {"path": "jobs.0.latest_event", "equals": "running"}
+    ]
+  }
 }

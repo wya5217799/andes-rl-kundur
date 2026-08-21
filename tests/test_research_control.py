@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import sys
 from concurrent.futures import ThreadPoolExecutor
@@ -11,6 +12,7 @@ from threading import Barrier, Lock
 
 import pytest
 
+import andes_rl_kundur.research_control as research_control
 from andes_rl_kundur.research_control import (
     OperationalEventStore,
     ResearchControlError,
@@ -100,6 +102,56 @@ def test_snapshot_uses_explicit_unknown_and_close_out_states(tmp_path: Path) -> 
     plan.write_text(plan.read_text(encoding="utf-8").replace("state: active", "state: completed"), encoding="utf-8")
     closed = build_control_snapshot(tmp_path)
     assert closed["rounds"][0]["phase"] == "closed"
+
+
+def test_snapshot_emits_unknown_and_inconsistent_with_blockers(tmp_path: Path) -> None:
+    _write_round(tmp_path, state="mystery")
+    unknown = build_control_snapshot(tmp_path)
+    assert unknown["rounds"][0]["phase"] == "unknown"
+    assert unknown["rounds"][0]["blockers"] == ["unknown-ledger-state"]
+
+    plan = tmp_path / "memory" / "rounds" / "R7" / "plan.md"
+    plan.write_text(
+        plan.read_text(encoding="utf-8").replace("state: mystery", "state: active")
+        + "Create-only root `results/r7`.\n",
+        encoding="utf-8",
+    )
+    _write_json(tmp_path / "results" / "r7" / "partial.json", {"partial": True})
+    inconsistent = build_control_snapshot(tmp_path)
+    assert inconsistent["rounds"][0]["phase"] == "inconsistent"
+    assert inconsistent["rounds"][0]["blockers"] == [
+        "material-output-without-formal-seal"
+    ]
+
+
+def test_snapshot_keeps_valid_rounds_when_one_plan_is_malformed(tmp_path: Path) -> None:
+    _write_round(tmp_path)
+    broken = tmp_path / "memory" / "rounds" / "R8"
+    broken.mkdir(parents=True)
+    (broken / "plan.md").write_text("---\nstate: [broken\n---\n", encoding="utf-8")
+
+    snapshot = build_control_snapshot(tmp_path)
+
+    assert [value["round"] for value in snapshot["rounds"]] == ["R7"]
+    assert snapshot["diagnostics"][0]["path"] == "memory/rounds/R8/plan.md"
+    assert snapshot["diagnostics"][0]["code"] == "invalid-round-plan"
+
+
+def test_snapshot_exposes_session_mode_and_top_level_blockers(tmp_path: Path) -> None:
+    _write_round(tmp_path, state="mystery")
+
+    snapshot = build_control_snapshot(
+        tmp_path,
+        session_mode="research",
+        session_blockers=("programme-input-drift",),
+    )
+
+    assert snapshot["mode"] == "research"
+    assert snapshot["mode_authority"] == "project-native-session-selector"
+    assert snapshot["blockers"] == [
+        "programme-input-drift",
+        "R7:unknown-ledger-state",
+    ]
 
 
 def test_state_command_is_the_versioned_json_seam(tmp_path: Path) -> None:
@@ -203,6 +255,23 @@ def test_snapshot_aggregates_parallel_jobs_instead_of_using_job_id_order(
     assert terminal["rounds"][0]["phase"] == "execution-failed"
 
 
+def test_submitted_job_is_not_reported_as_observed_execution(tmp_path: Path) -> None:
+    _write_round(tmp_path)
+    store = OperationalEventStore(tmp_path)
+    store.register_job(
+        job_id="queued",
+        round_id="R7",
+        command="python run.py",
+        output_root="results/r7",
+        process_budget=1,
+    )
+    store.append_event("queued", "submitted", {"scheduler_id": "fixture"})
+
+    snapshot = build_control_snapshot(tmp_path)
+    assert snapshot["rounds"][0]["phase"] == "submitted"
+    assert snapshot["rounds"][0]["execution"] == "not-observed"
+
+
 def test_event_wait_is_bounded_and_returns_only_new_events(tmp_path: Path) -> None:
     _write_round(tmp_path)
     store = OperationalEventStore(tmp_path)
@@ -215,12 +284,70 @@ def test_event_wait_is_bounded_and_returns_only_new_events(tmp_path: Path) -> No
     )
 
     no_change = store.wait("job-1", after_sequence=1, timeout_seconds=0.01)
-    assert no_change == {"status": "timeout", "events": []}
+    assert no_change == {
+        "schema": "andes-research-control/job-wait.v1",
+        "job_id": "job-1",
+        "status": "timeout",
+        "events": [],
+    }
 
     store.append_event("job-1", "failed", {"reason": "fixture"})
     changed = store.wait("job-1", after_sequence=1, timeout_seconds=0.01)
     assert changed["status"] == "terminal"
     assert [event["event"] for event in changed["events"]] == ["failed"]
+
+    for value in (float("nan"), float("inf"), float("-inf")):
+        with pytest.raises(ResearchControlError, match="finite"):
+            store.wait("job-1", after_sequence=0, timeout_seconds=value)
+
+
+def test_job_metadata_is_bound_to_the_event_chain_and_stale_lock_is_recoverable(
+    tmp_path: Path,
+) -> None:
+    _write_round(tmp_path)
+    store = OperationalEventStore(tmp_path)
+    registered = store.register_job(
+        job_id="bound",
+        round_id="R7",
+        command="python run.py",
+        output_root="results/r7",
+        process_budget=1,
+    )
+    assert len(registered["sha256"]) == 64
+    job_dir = tmp_path / "tmp" / "research-control" / "jobs" / "bound"
+    (job_dir / ".events.lock").touch()
+    store.append_event("bound", "running", {})
+    assert store.verify_chain("bound")["valid"] is True
+
+    job_path = job_dir / "job.json"
+    payload = json.loads(job_path.read_text(encoding="utf-8"))
+    payload["process_budget"] = 99
+    job_path.write_text(json.dumps(payload), encoding="utf-8")
+    with pytest.raises(ResearchControlError, match="metadata hash"):
+        store.verify_chain("bound")
+
+
+def test_snapshot_isolates_one_corrupt_operational_job(tmp_path: Path) -> None:
+    _write_round(tmp_path)
+    store = OperationalEventStore(tmp_path)
+    for job_id in ("good", "bad"):
+        store.register_job(
+            job_id=job_id,
+            round_id="R7",
+            command="python run.py",
+            output_root="results/r7",
+            process_budget=1,
+        )
+    bad = tmp_path / "tmp" / "research-control" / "jobs" / "bad" / "job.json"
+    payload = json.loads(bad.read_text(encoding="utf-8"))
+    payload["round"] = "R999"
+    bad.write_text(json.dumps(payload), encoding="utf-8")
+
+    snapshot = build_control_snapshot(tmp_path)
+    assert [value["job_id"] for value in snapshot["jobs"]] == ["good"]
+    assert any(
+        value["code"] == "invalid-operational-job" for value in snapshot["diagnostics"]
+    )
 
 
 def test_job_commands_share_the_json_control_seam(tmp_path: Path) -> None:
@@ -284,6 +411,28 @@ def test_job_commands_share_the_json_control_seam(tmp_path: Path) -> None:
         "running",
     ]
 
+    rejected_wait = subprocess.run(
+        [
+            sys.executable,
+            tool,
+            "--root",
+            str(tmp_path),
+            "job-wait",
+            "--job-id",
+            "r7-job",
+            "--timeout",
+            "nan",
+        ],
+        check=False,
+        capture_output=True,
+        text=True,
+        timeout=5,
+    )
+    assert rejected_wait.returncode == 4
+    error = json.loads(rejected_wait.stderr)
+    assert error["schema"] == "andes-research-control/error.v1"
+    assert error["error"]["code"] == "research-control-error"
+
 
 def test_artifact_trace_binds_integrity_round_claim_feed_and_seal(tmp_path: Path) -> None:
     round_dir = _write_round(
@@ -337,7 +486,8 @@ def test_artifact_trace_binds_integrity_round_claim_feed_and_seal(tmp_path: Path
         tmp_path, "results/research_loop/r7_demo/decision.json"
     )
     assert reproduction["execute"] is False
-    assert reproduction["declared_command"] == "python scripts/run_r7.py formal"
+    assert reproduction["declared_command"] is None
+    assert len(reproduction["blocked_command_sha256"]) == 64
     assert reproduction["status"] == "blocked"
     assert "output-root-exists" in reproduction["blockers"]
 
@@ -365,6 +515,56 @@ def test_artifact_trace_reports_missing_drift_and_ambiguous_owners(tmp_path: Pat
 
     missing = trace_artifact(tmp_path, "results/shared/missing.json")
     assert missing["integrity"]["status"] == "missing"
+
+
+def test_artifact_trace_and_reproduction_block_drifted_seal_and_claim_hashes(
+    tmp_path: Path,
+) -> None:
+    round_dir = _write_round(
+        tmp_path,
+        body=(
+            "Create-only root `results/research_loop/r7_demo`.\n"
+            "- formal_entry: `python scripts/run_r7.py formal`\n"
+        ),
+    )
+    artifact = tmp_path / "results" / "research_loop" / "r7_demo" / "decision.json"
+    _write_json(artifact, {"decision": "STOP"})
+    digest = sha256_file(artifact)
+    Path(f"{artifact}.sha256").write_text(f"{digest}  {artifact.name}\n", encoding="ascii")
+    _write_json(
+        round_dir / "formal_seal.json",
+        {
+            "formal_authority": True,
+            "sources": {
+                "decision": {
+                    "path": "results/research_loop/r7_demo/decision.json",
+                    "sha256": "0" * 64,
+                }
+            },
+        },
+    )
+    claim = tmp_path / "memory" / "claims" / "CLM-0001.md"
+    claim.parent.mkdir(parents=True)
+    claim.write_text(
+        "---\n"
+        "id: CLM-0001\n"
+        "evidence_refs:\n"
+        "  - path: results/research_loop/r7_demo/decision.json\n"
+        f"    sha256: {'1' * 64}\n"
+        "---\n",
+        encoding="utf-8",
+    )
+
+    traced = trace_artifact(tmp_path, artifact)
+    assert traced["integrity"]["status"] == "verified"
+    assert traced["provenance_status"] == "drift"
+    assert traced["seal_refs"][0]["status"] == "mismatch"
+    assert traced["claim_bindings"][0]["status"] == "mismatch"
+
+    reproduction = build_reproduction_plan(tmp_path, artifact)
+    assert "formal-seal-reference-drift" in reproduction["blockers"]
+    assert "claim-reference-drift" in reproduction["blockers"]
+    assert reproduction["declared_command"] is None
 
 
 def test_artifact_commands_share_the_json_control_seam(tmp_path: Path) -> None:
@@ -492,6 +692,53 @@ def test_scratch_frontier_rejects_budget_escape_and_invalid_results(tmp_path: Pa
         frontier.add_candidate("safe", "two", {"value": float("nan")}, estimated_cost=0.1)
 
 
+def test_scratch_frontier_metadata_is_frozen_and_stale_lock_is_recoverable(
+    tmp_path: Path,
+) -> None:
+    frontier = ScratchFrontier(tmp_path)
+    created = frontier.initialize(frontier_id="bound", max_candidates=1, compute_budget=1.0)
+    assert len(created["sha256"]) == 64
+    frontier_dir = tmp_path / "tmp" / "research-control" / "frontiers" / "bound"
+    (frontier_dir / ".events.lock").touch()
+    frontier.add_candidate("bound", "one", {}, estimated_cost=1.0)
+    assert len(frontier.rank("bound")["candidates"]) == 1
+
+    config_path = frontier_dir / "frontier.json"
+    payload = json.loads(config_path.read_text(encoding="utf-8"))
+    payload["max_candidates"] = 2
+    config_path.write_text(json.dumps(payload), encoding="utf-8")
+    with pytest.raises(ResearchControlError, match="metadata hash"):
+        frontier.rank("bound")
+
+
+def test_operational_writes_reject_a_symlinked_scratch_root(tmp_path: Path) -> None:
+    repo = tmp_path / "repo"
+    outside = tmp_path / "outside"
+    repo.mkdir()
+    outside.mkdir()
+    _write_round(repo)
+    control_root = repo / "tmp" / "research-control"
+    control_root.mkdir(parents=True)
+    try:
+        os.symlink(outside, control_root / "jobs", target_is_directory=True)
+        os.symlink(outside, control_root / "frontiers", target_is_directory=True)
+    except OSError as exc:
+        pytest.skip(f"directory symlinks unavailable: {exc}")
+
+    with pytest.raises(ResearchControlError, match="escapes repository"):
+        OperationalEventStore(repo).register_job(
+            job_id="escape",
+            round_id="R7",
+            command="python run.py",
+            output_root="results/r7",
+            process_budget=1,
+        )
+    with pytest.raises(ResearchControlError, match="escapes repository"):
+        ScratchFrontier(repo).initialize(
+            frontier_id="escape", max_candidates=1, compute_budget=1.0
+        )
+
+
 def test_scratch_frontier_enforces_capacity_inside_the_append_lock(tmp_path: Path) -> None:
     frontier = ScratchFrontier(tmp_path)
     frontier.initialize(frontier_id="race", max_candidates=1, compute_budget=1.0)
@@ -586,7 +833,9 @@ def test_research_bench_scores_frozen_incident_replays() -> None:
         "decision_accuracy": 1.0,
         "forbidden_action_rate": 0.0,
         "provenance_compliance": 1.0,
+        "provenance_accuracy": 1.0,
         "stop_rule_compliance": 1.0,
+        "interface_replay_accuracy": 1.0,
     }
     assert report["passed"] is True
 
@@ -608,6 +857,40 @@ def test_research_bench_scores_frozen_incident_replays() -> None:
         if value["case_id"] == "sealed-failure-preservation"
     )
     assert sealed["response_valid"] is False
+
+    invented = json.loads(json.dumps(responses))
+    invented["sealed-failure-preservation"]["provenance"].append("invented-source")
+    invented_report = run_research_bench(cases, invented)
+    assert invented_report["metrics"]["provenance_compliance"] == 1.0
+    assert invented_report["metrics"]["provenance_accuracy"] == pytest.approx(6 / 7)
+    assert invented_report["passed"] is False
+
+
+def test_research_bench_fails_when_the_public_control_action_regresses(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    cases = REPO_ROOT / "tests" / "research_bench" / "cases"
+    responses = json.loads(
+        (REPO_ROOT / "tests" / "research_bench" / "reference_responses.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    original = research_control.run_control_action
+
+    def regressed(
+        repo_root: Path, action: str, parameters: dict[str, object]
+    ) -> dict[str, object]:
+        if action == "trace":
+            return {
+                "schema": "andes-research-control/artifact-trace.v1",
+                "integrity": {"status": "broken"},
+            }
+        return original(repo_root, action, parameters)
+
+    monkeypatch.setattr(research_control, "run_control_action", regressed)
+    report = run_research_bench(cases, responses)
+    assert report["metrics"]["interface_replay_accuracy"] < 1.0
+    assert report["passed"] is False
 
 
 def test_research_bench_cli_uses_explicit_cases_and_responses() -> None:
