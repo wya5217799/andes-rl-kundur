@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "run_id": "REPLACE",
+  "created_utc": "REPLACE",
+  "repository": {
+    "git_commit": "REPLACE_OR_NULL",
+    "branch": "REPLACE_OR_NULL",
+    "dirty": null,
+    "diff_sha256": "REPLACE",
+    "submodules": []
+  },
+  "runtime": {
+    "python": "REPLACE",
+    "os": "REPLACE",
+    "kernel": "REPLACE",
+    "packages": {},
+    "blas_lapack": "REPLACE",
+    "hardware": {}
+  },
+  "randomness": {
+    "python_seed": null,
+    "numpy_seed": null,
+    "torch_seed": null,
+    "cuda_seeds": [],
+    "seeded_before_construction": null,
+    "deterministic_flags": {}
+  },
+  "objects": [],
+  "inputs": [],
+  "commands": [],
+  "outputs": [],
+  "limitations": []
+}

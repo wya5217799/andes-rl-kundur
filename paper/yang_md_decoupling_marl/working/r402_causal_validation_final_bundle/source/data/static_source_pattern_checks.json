@@ -1,0 +1,16 @@
+{
+  "actor_observation_dim_is_seven": true,
+  "deterministic_only_frequency_adapter": true,
+  "differential_cost_uses_absolute_p_es": true,
+  "external_stateful_projector": true,
+  "historical_memoryless_obs_default": true,
+  "learner_actor_uses_full_obs_slice": true,
+  "learner_target_uses_full_next_obs": true,
+  "observation_rows_omit_md_profile_time": true,
+  "physical_parameter_map_has_lower_only": true,
+  "registered_saturation_is_normalized_boundary": true,
+  "runner_masks_runtime_actor_input": true,
+  "runner_stores_unmasked_joint": true,
+  "scalar_penalty_uses_global_mean": true,
+  "target_action_has_no_slew_projection": true
+}

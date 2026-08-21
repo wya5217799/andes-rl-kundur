@@ -58,6 +58,8 @@ evidence_refs:
   - "CLM-1045 -> paper/paralleled_vsg_marl/reports/R380.md"
   - "CLM-1050 -> paper/paralleled_vsg_marl/reports/R381.md"
   - "CLM-1055 -> paper/paralleled_vsg_marl/reports/R382.md"
+  - "CLM-1185 -> paper/paralleled_vsg_marl/reports/R406.md"
+  - "CLM-1190 -> paper/paralleled_vsg_marl/reports/R407.md"
 required_reading:
   - paper/paralleled_vsg_marl/LINE.md
 verification:

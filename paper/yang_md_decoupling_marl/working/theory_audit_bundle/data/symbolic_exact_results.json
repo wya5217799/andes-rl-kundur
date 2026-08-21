@@ -1,0 +1,277 @@
+{
+  "notice": "Exact symbolic theorem/counterexample checks only; not manuscript experiment data.",
+  "task_A_laurent_coefficients": {
+    "coefficient_s_minus_1": [
+      [
+        "1/m1",
+        "0",
+        "0",
+        "0"
+      ],
+      [
+        "0",
+        "1/m2",
+        "0",
+        "0"
+      ],
+      [
+        "0",
+        "0",
+        "1/m3",
+        "0"
+      ],
+      [
+        "0",
+        "0",
+        "0",
+        "1/m4"
+      ]
+    ],
+    "coefficient_s_minus_2": [
+      [
+        "-d1/m1**2",
+        "0",
+        "0",
+        "0"
+      ],
+      [
+        "0",
+        "-d2/m2**2",
+        "0",
+        "0"
+      ],
+      [
+        "0",
+        "0",
+        "-d3/m3**2",
+        "0"
+      ],
+      [
+        "0",
+        "0",
+        "0",
+        "-d4/m4**2"
+      ]
+    ],
+    "Pd_c1_Pc_times_1": [
+      "-(m1*m2*m3 + m1*m2*m4 + m1*m3*m4 - 3*m2*m3*m4)/(4*m1*m2*m3*m4)",
+      "-(m1*m2*m3 + m1*m2*m4 - 3*m1*m3*m4 + m2*m3*m4)/(4*m1*m2*m3*m4)",
+      "-(m1*m2*m3 - 3*m1*m2*m4 + m1*m3*m4 + m2*m3*m4)/(4*m1*m2*m3*m4)",
+      "(3*m1*m2*m3 - m1*m2*m4 - m1*m3*m4 - m2*m3*m4)/(4*m1*m2*m3*m4)"
+    ],
+    "Pd_c2_Pc_times_1": [
+      "-(3*d1*m2**2*m3**2*m4**2 - d2*m1**2*m3**2*m4**2 - d3*m1**2*m2**2*m4**2 - d4*m1**2*m2**2*m3**2)/(4*m1**2*m2**2*m3**2*m4**2)",
+      "(d1*m2**2*m3**2*m4**2 - 3*d2*m1**2*m3**2*m4**2 + d3*m1**2*m2**2*m4**2 + d4*m1**2*m2**2*m3**2)/(4*m1**2*m2**2*m3**2*m4**2)",
+      "(d1*m2**2*m3**2*m4**2 + d2*m1**2*m3**2*m4**2 - 3*d3*m1**2*m2**2*m4**2 + d4*m1**2*m2**2*m3**2)/(4*m1**2*m2**2*m3**2*m4**2)",
+      "(d1*m2**2*m3**2*m4**2 + d2*m1**2*m3**2*m4**2 + d3*m1**2*m2**2*m4**2 - 3*d4*m1**2*m2**2*m3**2)/(4*m1**2*m2**2*m3**2*m4**2)"
+    ],
+    "interpretation": "Vanishing of the first vector makes 1/m_i equal; after that, vanishing of the second makes d_i equal.",
+    "right_c1_shape": [
+      4,
+      4
+    ],
+    "right_c2_shape": [
+      4,
+      4
+    ]
+  },
+  "task_A_directed_unbalanced": {
+    "L_times_1": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "1T_times_L": [
+      "-3",
+      "1",
+      "1",
+      "1"
+    ],
+    "right_common_invariance_symbolic": true,
+    "Pd_G1_Pc_is_zero": true,
+    "Pc_G1_Pd_is_zero": false,
+    "Pc_G1_Pd": [
+      [
+        "59/3000",
+        "-13/3000",
+        "-11/1500",
+        "-1/125"
+      ],
+      [
+        "59/3000",
+        "-13/3000",
+        "-11/1500",
+        "-1/125"
+      ],
+      [
+        "59/3000",
+        "-13/3000",
+        "-11/1500",
+        "-1/125"
+      ],
+      [
+        "59/3000",
+        "-13/3000",
+        "-11/1500",
+        "-1/125"
+      ]
+    ]
+  },
+  "task_A_rank_deficient_output": {
+    "Cd_adjugate_H_times_1": [
+      [
+        "0"
+      ]
+    ],
+    "Cd_G_Pc_rational_identity_is_zero": true,
+    "full_Pd_G1_Pc_is_zero": false,
+    "full_Pd_G1_Pc": [
+      [
+        "2011/130456",
+        "2011/130456",
+        "2011/130456",
+        "2011/130456"
+      ],
+      [
+        "2011/130456",
+        "2011/130456",
+        "2011/130456",
+        "2011/130456"
+      ],
+      [
+        "-1083/130456",
+        "-1083/130456",
+        "-1083/130456",
+        "-1083/130456"
+      ],
+      [
+        "-2939/130456",
+        "-2939/130456",
+        "-2939/130456",
+        "-2939/130456"
+      ]
+    ]
+  },
+  "task_A_single_frequency": {
+    "Pd_G1_Pc_is_zero": true,
+    "Pc_G1_Pd_is_zero": true,
+    "Pd_G2_Pc_is_zero": false,
+    "Pd_G2_Pc": [
+      [
+        "289/49832",
+        "289/49832",
+        "289/49832",
+        "289/49832"
+      ],
+      [
+        "69/49832",
+        "69/49832",
+        "69/49832",
+        "69/49832"
+      ],
+      [
+        "-107/49832",
+        "-107/49832",
+        "-107/49832",
+        "-107/49832"
+      ],
+      [
+        "-251/49832",
+        "-251/49832",
+        "-251/49832",
+        "-251/49832"
+      ]
+    ]
+  },
+  "task_A_nondiagonal_block_preserving": {
+    "M_commutes_with_Pc": true,
+    "D_commutes_with_Pc": true,
+    "K_commutes_with_Pc": true,
+    "M_is_scalar_identity": false,
+    "D_is_scalar_identity": false,
+    "cross_at_s_1_is_zero": true
+  },
+  "task_B_exact_jacobians": {
+    "multiplicative_jacobian_equals_A0": true,
+    "multiplicative_jacobian": [
+      [
+        "-9/10",
+        "1/5"
+      ],
+      [
+        "-1/10",
+        "-7/10"
+      ]
+    ],
+    "additive_jacobian_equals_A0_plus_BK": true,
+    "additive_jacobian": [
+      [
+        "-9/50",
+        "1/10"
+      ],
+      [
+        "-23/100",
+        "-6/25"
+      ]
+    ]
+  },
+  "task_C_decoder": {
+    "odd_component": "400*epsilon",
+    "even_component": "200*epsilon",
+    "positive_directional_gain": 600,
+    "negative_directional_gain": 200,
+    "Clarke_interval": [
+      200,
+      600
+    ]
+  },
+  "task_E_exact_DAE": {
+    "A_reduced": [
+      [
+        "-13/10",
+        "12/25"
+      ],
+      [
+        "3/10",
+        "-19/25"
+      ]
+    ],
+    "B_u_reduced": [
+      [
+        "-9/10"
+      ],
+      [
+        "3/10"
+      ]
+    ],
+    "B_u_reduced_is_nonzero_despite_f_u_zero": true,
+    "A_closed_loop_state_feedback": [
+      [
+        "-83/50",
+        "33/50"
+      ],
+      [
+        "21/50",
+        "-41/50"
+      ]
+    ],
+    "closed_algebraic_jacobian": [
+      [
+        "19/8"
+      ]
+    ],
+    "A_closed_loop_algebraic_measurement": [
+      [
+        "-721/475",
+        "537/950"
+      ],
+      [
+        "177/475",
+        "-749/950"
+      ]
+    ]
+  }
+}
+
+

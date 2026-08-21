@@ -1,0 +1,160 @@
+{
+  "source_boundary": "Numbers are transcribed from the supplied problem package; source hashes are metadata only unless source artifacts are supplied.",
+  "all_assertions_passed": true,
+  "counts": {
+    "learning_files": 36,
+    "deterministic_files": 4,
+    "total_files": 40,
+    "learning_trajectories": 216,
+    "deterministic_trajectories": 24,
+    "total_trajectories": 240,
+    "arm_seed_profile_blocks": 36,
+    "action_component_samples_per_arm_seed": 5760,
+    "total_interaction_steps": 388800,
+    "total_attempted_episodes": 12960
+  },
+  "arm_seed_median_endpoints": [
+    {
+      "arm": "scalar TD3",
+      "off_diagonal_response_energy": 0.001409921536,
+      "disturbance_differential_energy": 0.006457486365,
+      "cross_ratio_vs_det": 4.115303685276758,
+      "differential_ratio_vs_det": 2.9154826190741994
+    },
+    {
+      "arm": "CD-MATD3, no message",
+      "off_diagonal_response_energy": 0.00142594623,
+      "disturbance_differential_energy": 0.006924335662,
+      "cross_ratio_vs_det": 4.162076842924044,
+      "differential_ratio_vs_det": 3.1262598370498678
+    },
+    {
+      "arm": "CD-MATD3, message",
+      "off_diagonal_response_energy": 0.001744437851,
+      "disturbance_differential_energy": 0.007307441627,
+      "cross_ratio_vs_det": 5.091695767215069,
+      "differential_ratio_vs_det": 3.299227880509476
+    }
+  ],
+  "message_contrasts": [
+    {
+      "contrast": "message vs CD-MATD3, no message",
+      "metric": "cross",
+      "positive_means_message_improves_pct": -22.33545797866446,
+      "aggregation": "difference of three-seed arm medians divided by comparator median",
+      "seed": null
+    },
+    {
+      "contrast": "message vs CD-MATD3, no message",
+      "metric": "differential",
+      "positive_means_message_improves_pct": -5.532746875666986,
+      "aggregation": "difference of three-seed arm medians divided by comparator median",
+      "seed": null
+    },
+    {
+      "contrast": "message vs scalar TD3",
+      "metric": "cross",
+      "positive_means_message_improves_pct": -23.725881650764432,
+      "aggregation": "difference of three-seed arm medians divided by comparator median",
+      "seed": null
+    },
+    {
+      "contrast": "message vs scalar TD3",
+      "metric": "differential",
+      "positive_means_message_improves_pct": -13.162323758154775,
+      "aggregation": "difference of three-seed arm medians divided by comparator median",
+      "seed": null
+    },
+    {
+      "contrast": "message vs CD-MATD3, no message",
+      "metric": "cross",
+      "positive_means_message_improves_pct": -11.808625210222685,
+      "aggregation": "seedwise matched descriptive contrast",
+      "seed": 401
+    },
+    {
+      "contrast": "message vs CD-MATD3, no message",
+      "metric": "differential",
+      "positive_means_message_improves_pct": -27.655023325955927,
+      "aggregation": "seedwise matched descriptive contrast",
+      "seed": 401
+    },
+    {
+      "contrast": "message vs CD-MATD3, no message",
+      "metric": "cross",
+      "positive_means_message_improves_pct": -29.896674627555118,
+      "aggregation": "seedwise matched descriptive contrast",
+      "seed": 402
+    },
+    {
+      "contrast": "message vs CD-MATD3, no message",
+      "metric": "differential",
+      "positive_means_message_improves_pct": -15.257698898075162,
+      "aggregation": "seedwise matched descriptive contrast",
+      "seed": 402
+    },
+    {
+      "contrast": "message vs CD-MATD3, no message",
+      "metric": "cross",
+      "positive_means_message_improves_pct": 31.173343740305263,
+      "aggregation": "seedwise matched descriptive contrast",
+      "seed": 403
+    },
+    {
+      "contrast": "message vs CD-MATD3, no message",
+      "metric": "differential",
+      "positive_means_message_improves_pct": 24.20509652479055,
+      "aggregation": "seedwise matched descriptive contrast",
+      "seed": 403
+    }
+  ],
+  "guard_summary": {
+    "all_nine_per_run_worst_rows_exceed_every_displayed_ceiling": true,
+    "minimum_observed_ratio_by_guard": {
+      "common_iae_ratio": 1.145,
+      "worst_peak_ratio": 1.612,
+      "rocof_ratio": 1.461,
+      "action_rms_ratio": 1.327,
+      "action_tv_ratio": 2.06
+    }
+  },
+  "multiplier_tail": {
+    "aggregate_unprojected_delta_lambda_at_min_cost": -0.14881775,
+    "aggregate_unprojected_delta_lambda_at_median_cost": -0.048816600000000016,
+    "aggregate_unprojected_delta_lambda_at_max_cost": 0.16901410000000003,
+    "largest_tail_lambda_observed": 0.2193,
+    "largest_final_lambda": 0.1406,
+    "smallest_final_lambda": 0.0043,
+    "minimum_number_of_below_budget_cost_samples_per_run_implied_by_median": 10,
+    "minimum_number_across_six_runs": 60,
+    "important_limit": "Only marginal final-20 summaries are available; the full chronological path, cost/lambda pairing semantics, and actor-update alignment are unavailable."
+  },
+  "energy_port": {
+    "R408": {
+      "differential_ratio": 0.938947,
+      "cross_ratio": 0.539791,
+      "all_guards_pass": true,
+      "differential_improvement_pct": 6.105300000000002,
+      "cross_improvement_pct": 46.0209
+    },
+    "R409": {
+      "differential_ratio": 0.9382180714,
+      "cross_ratio": 0.7937304482,
+      "all_guards_pass": true,
+      "differential_improvement_pct": 6.178192859999998,
+      "cross_improvement_pct": 20.626955179999996
+    }
+  },
+  "unit_of_analysis_warnings": [
+    "The seed median has n=3 seeds per arm; trajectories are not independent seeds.",
+    "The 36 arm-seed-profile blocks are repeated conditions nested within nine trained policies.",
+    "The 5,760 action-component samples per arm-seed are serially and cross-sectionally dependent.",
+    "The 120 retained tail episodes are nested within six runs and are not 120 independent runs.",
+    "R408/R409 are separate fixed-controller objects and must not be pooled numerically with R402."
+  ],
+  "interpretive_limits": [
+    "The post-hoc differential reconstruction omits the T_d P_es term and is not the complete training objective.",
+    "A small multiplier does not imply a small lambda times Q_c value or action-gradient contribution.",
+    "The arithmetic checks do not verify repository hashes, simulator execution, or missing provenance files."
+  ]
+}

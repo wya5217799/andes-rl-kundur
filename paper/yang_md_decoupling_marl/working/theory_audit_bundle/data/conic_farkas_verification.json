@@ -1,0 +1,11 @@
+{
+  "valid": true,
+  "tolerance": 1e-10,
+  "stationarity_inf_norm": 0.0,
+  "dual_cone_membership": true,
+  "separation_value": -1.0,
+  "strict_separation_margin": 1.0,
+  "required": "stationarity <= tol, z in K*, separation < -tol"
+}
+
+

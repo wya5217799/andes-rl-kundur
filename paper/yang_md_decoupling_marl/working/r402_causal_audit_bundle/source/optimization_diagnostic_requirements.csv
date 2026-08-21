@@ -1,0 +1,7 @@
+Failure mode,Minimum diagnostic logs,Current status,What can be concluded
+Critic divergence/instability,"Per-update twin losses, Q values/targets, parameter and gradient norms, held-out Bellman residuals",Missing,Finite values alone do not establish stability or calibration.
+Overestimation/bias,"Twin-Q gap, target-versus-realized return, clipped-target statistics, held-out Monte Carlo calibration",Missing,Cannot tell whether actor follows biased Q gradients.
+Actor collapse/saturation,"Pre-tanh logits, action distributions by checkpoint/state, actor gradient norms, parameter-update norms, policy Jacobians",Incomplete post-hoc actions only,Large final actions do not reveal when or why collapse occurred.
+Replay/support failure,"State-action visitation by scenario/time, replay composition, density/OOD distance, TD error by region",Missing,Coverage insufficiency remains plausible.
+Premature budget termination,"Full learning curves, numerically ordered checkpoint metrics, stationarity/plateau criteria on development data",Missing/incomplete,"43,200 steps may be too few, enough, or excessive; no direction is identified."
+Final-checkpoint instability,Chronological checkpoint policies and pre-existing checkpoint evaluations; no best-checkpoint substitution,Snapshots exist but helper order is wrong,Can diagnose instability without changing the registered final-checkpoint result if existing outputs are read only.

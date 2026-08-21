@@ -14,7 +14,7 @@
         "paper/paralleled_vsg_marl/reports"
       ],
       "input_hashes": {
-        "paper/paralleled_vsg_marl/reports": "8b9645fd1995ba911fcbf34bf22d629f216801ca24aa1d99f783400830bc943a"
+        "paper/paralleled_vsg_marl/reports": "04bde9a969c003d110425ce26dc0789a9c90c465a3d2dcbd1e227b68abe38225"
       },
       "supersedes": [],
       "review_after": null
@@ -235,6 +235,23 @@
       "review_after": "2027-02-13"
     },
     {
+      "id": "three-report-future-experiment-route-synthesis",
+      "purpose": "research-synthesis",
+      "path": "paper/paralleled_vsg_marl/working/three_report_future_experiment_route_synthesis.md",
+      "status": "active",
+      "canonical": false,
+      "authoritative": false,
+      "producer": "academic-research-suite+experiment-agent",
+      "inputs": [
+        "paper/paralleled_vsg_marl/ROUTE.md",
+        "paper/paralleled_vsg_marl/reports/R382.md",
+        "paper/paralleled_vsg_marl/working/Decoupling-Oriented_Coordination_of_Paralleled_VSGs_with_MARL_deep-research.md",
+        "paper/paralleled_vsg_marl/working/when-learning-is-unnecessary-learning-readiness-deep-research.md"
+      ],
+      "supersedes": [],
+      "review_after": "2027-02-14"
+    },
+    {
       "id": "manuscript-argument-contract",
       "purpose": "manuscript-argument-contract",
       "path": "paper/paralleled_vsg_marl/working/manuscript_argument_contract.md",
@@ -310,6 +327,36 @@
       "inputs": [],
       "supersedes": [],
       "review_after": "2026-10-06"
+    },
+    {
+      "id": "route-decision-alpha-sweep",
+      "purpose": "research-route",
+      "path": "paper/paralleled_vsg_marl/working/route_decision_alpha_sweep_2026-08-16.md",
+      "status": "active",
+      "canonical": false,
+      "authoritative": false,
+      "producer": "owner-decision",
+      "inputs": [
+        "memory/claims/CLM-1040.md",
+        "tmp/yang_md_decoupling_marl/external_solution_assessment.md"
+      ],
+      "supersedes": [],
+      "review_after": null
+    },
+    {
+      "id": "route-decision-bandpass-b",
+      "purpose": "research-route",
+      "path": "paper/paralleled_vsg_marl/working/route_decision_bandpass_b_2026-08-16.md",
+      "status": "active",
+      "canonical": false,
+      "authoritative": false,
+      "producer": "owner-decision",
+      "inputs": [
+        "memory/claims/CLM-1180.md",
+        "memory/claims/CLM-1185.md"
+      ],
+      "supersedes": [],
+      "review_after": null
     }
   ]
 }

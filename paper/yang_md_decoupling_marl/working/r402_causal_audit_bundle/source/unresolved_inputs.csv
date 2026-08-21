@@ -1,0 +1,15 @@
+Required input/intervention,Status,Stronger conclusion enabled
+Canonical execution provenance (`formal_execution.json` or an explicit absence record),`UNAVAILABLE`,Independent execution/chain-of-custody statement
+"Reconciled R401/R402 round identity with paths, hashes, run IDs, timestamps, and generation lineage",`UNAVAILABLE`,Confidence that all formal outputs belong to the intended round
+"The named source artifacts, not only their hash strings",`UNAVAILABLE`,Independent hash verification and raw-result audit
+"Full 1,440-episode chronological $C_c$, returns, and $\lambda$ with exact pre/post-update semantics",`UNAVAILABLE`,Fraction of training or actor updates with low/zero common weighting
+"Every actor-update $Q_d,Q_c$, $\nabla_aQ_d$, $\nabla_aQ_c$, actor Jacobian/parameter gradients, and cosine",`UNAVAILABLE`,Bound on the common term’s actual actor-gradient contribution
+"Per-update twin critic losses, targets, Q gaps, held-out Bellman residuals, and Monte Carlo calibration",`UNAVAILABLE`,"Critic divergence, bias, or overestimation diagnosis"
+Replay-buffer state/action/scenario/time coverage and exploration-action distributions,`UNAVAILABLE`,Coverage/exploration diagnosis
+Complete $P_{es}$ evaluation trajectories and exact cost-normalization implementation,`UNAVAILABLE`,Reconstruction of the complete CD differential training objective
+"Per-step seven-slot pre-action observations, normalization/conversion values, pre-slew and post-slew actions, and checkpoint ID",`UNAVAILABLE`,Read-only message sensitivity and policy-use analysis
+Randomized true/zero/permuted/delayed message interventions with common exogenous disturbances on a fresh bank,`UNAVAILABLE`,Causal execution-time value of runtime messages
+"Actual operating-point $f_x,f_y,f_u,g_x,g_y,g_u$, disturbance/output Jacobians, $g_y$ conditioning, decoder branch/clamp status, and energy-port filter/headroom Jacobians",`UNAVAILABLE`,Matched DAE and finite-horizon authority comparison
+"Numerically ordered checkpoint diagnostics and pre-existing per-profile outputs, if they exist",`UNAVAILABLE`,Final-checkpoint instability and development/evaluation decomposition without reopening a bank
+Exact scalar-reward implementation and scale of its action-related terms relative to frequency terms,`UNAVAILABLE`,Strength of the scalar-arm counter-evidence on effort regularization
+"A preregistered matched successor experiment with fresh banks for any claimed action-basis, objective, budget, information, or credit-assignment cause",`UNAVAILABLE`,Causal ranking rather than bounded diagnosis

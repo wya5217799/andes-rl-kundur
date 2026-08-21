@@ -29,18 +29,8 @@ current.
 ### Selecting a manuscript line
 
 Several ongoing manuscripts may be `active` simultaneously. `active` is a
-lifecycle state; it does not select a repository-wide paper. Discover lines
-without loading research history:
-
-```powershell
-python memory/tools/session_context.py --json --list-lines
-```
-
-Select the paper named by the current request:
-
-```powershell
-python memory/tools/session_context.py --json --line <line-id>
-```
+lifecycle state; it does not select a repository-wide paper. Discover lines with `session_context.py --list-lines`; select the named
+paper with `session_context.py --line <id>` (command home: CLAUDE.md Tools).
 
 An explicit selection loads and validates only that line's navigation
 metadata. Its `write_roots` remain exclusive, while claims and results are
@@ -57,14 +47,11 @@ editing a feed therefore produces `DOCUMENT_INPUT_DRIFT` and cold-start mode
 `required_reading`, and every affected registered draft/review input; changing
 the hash alone is not an acknowledgement.
 
-`LINE.md` is a bounded navigation document. It declares at least one
-`decision_refs` entry using `path#locator` and binds current experimental
-evidence with `CLM-NNNN -> feed-path` entries in `evidence_refs`. The latest
-authoritative feed must be present in those bindings. Feed files may not appear
-in `required_reading`; consumers open one through its claim pointer only when a
-specific statement needs evidence. The exact line and total cold-start byte
-budgets live in `docs/repo-hygiene/contract.json` and are hard repository-health
-failures.
+`LINE.md` is a bounded navigation document: `decision_refs` use `path#locator`,
+`evidence_refs` bind `CLM-NNNN -> feed-path`, the latest authoritative feed
+must be present in those bindings, and feeds may not appear in
+`required_reading`. Exact line and cold-start byte budgets live in
+`docs/repo-hygiene/contract.json` and are hard repository-health failures.
 
 Deep Research and reviewer output remains under `tmp/<line>/` unless another
 session must rely on it. Promotion means updating the existing consolidated

@@ -1,0 +1,42 @@
+# M2 Ratio Sources
+
+Exact Markdown-view mirror of `m2_ratio_sources.json`. The raw JSON file is retained beside this document.
+
+```json
+{
+  "R421": {
+    "source_path": "results/research_loop/r421_diagnostics/diagnostic_readout.json",
+    "pointers": [
+      "/runs/cd_matd3_message|401/failure_flags/ratios/critic_loss_q4_over_q1",
+      "/runs/cd_matd3_message|402/failure_flags/ratios/critic_loss_q4_over_q1",
+      "/runs/cd_matd3_message|403/failure_flags/ratios/critic_loss_q4_over_q1",
+      "/runs/cd_matd3_no_message|401/failure_flags/ratios/critic_loss_q4_over_q1",
+      "/runs/cd_matd3_no_message|402/failure_flags/ratios/critic_loss_q4_over_q1",
+      "/runs/cd_matd3_no_message|403/failure_flags/ratios/critic_loss_q4_over_q1"
+    ]
+  },
+  "R432": [
+    "results/research_loop/r432_b3_diagnostics/train/cd_matd3_message/seed401/diagnostics_summary.json#/critic_loss_q1;#/critic_loss_q4",
+    "results/research_loop/r432_b3_diagnostics/train/cd_matd3_message/seed402/diagnostics_summary.json#/critic_loss_q1;#/critic_loss_q4",
+    "results/research_loop/r432_b3_diagnostics/train/cd_matd3_message/seed403/diagnostics_summary.json#/critic_loss_q1;#/critic_loss_q4",
+    "results/research_loop/r432_b3_diagnostics/train/cd_matd3_no_message/seed401/diagnostics_summary.json#/critic_loss_q1;#/critic_loss_q4",
+    "results/research_loop/r432_b3_diagnostics/train/cd_matd3_no_message/seed402/diagnostics_summary.json#/critic_loss_q1;#/critic_loss_q4",
+    "results/research_loop/r432_b3_diagnostics/train/cd_matd3_no_message/seed403/diagnostics_summary.json#/critic_loss_q1;#/critic_loss_q4"
+  ],
+  "R427": {
+    "source_path": "results/research_loop/r427_critic_target_normalization/formal_analysis.json",
+    "pointers": [
+      "/critic_loss_original_readout/cd_matd3_message|401/ratio",
+      "/critic_loss_original_readout/cd_matd3_message|402/ratio",
+      "/critic_loss_original_readout/cd_matd3_message|403/ratio",
+      "/critic_loss_original_readout/cd_matd3_no_message|401/ratio",
+      "/critic_loss_original_readout/cd_matd3_no_message|402/ratio",
+      "/critic_loss_original_readout/cd_matd3_no_message|403/ratio"
+    ]
+  },
+  "R427_guard_failures": {
+    "source_path": "results/research_loop/r427_critic_target_normalization/formal_analysis.json",
+    "pointer": "/classification/guard_failures"
+  }
+}
+```

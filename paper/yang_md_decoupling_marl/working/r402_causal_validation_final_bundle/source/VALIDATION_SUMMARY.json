@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "audit_date": "2026-08-16",
+  "input_package": {
+    "filename": "r402_causal_validation_v1.zip",
+    "sha256": "3876b06d735d181e77105bfecdf0ed7d594c85251921f3fd5810965d32d84332",
+    "extracted_file_count": 399,
+    "listed_hash_entries": 387,
+    "all_listed_hashes_pass": true,
+    "zip_crc_pass": true
+  },
+  "registered_recomputation": {
+    "evaluation_json_files": 40,
+    "trajectory_count": 240,
+    "learning_trajectories": 216,
+    "deterministic_trajectories": 24,
+    "learning_arm_seed_profile_blocks": 36,
+    "all_learning_blocks_common_guard_fail": true,
+    "all_learning_blocks_action_stress_guard_fail": true,
+    "maximum_absolute_endpoint_recomputation_difference": 1.734723475976807e-18
+  },
+  "critical_code_mechanical_findings": [
+    "The nominal no-message arm masks neighbour observations in behavior/evaluation but not in online-actor and target-actor replay updates.",
+    "All learned arms execute actions through a stateful slew projector while actor/target optimization uses unslewed targets and the seven-slot actor observation omits previous executed action."
+  ],
+  "causal_boundary": {
+    "historical_canary_failure_reproduced": true,
+    "dominant_root_cause_identified_by_paired_ANDES_intervention": false,
+    "message_interventions_executed": false,
+    "successor_paired_training_executed": false,
+    "full_update_level_training_logs_available": false,
+    "r402_specific_dae_ltv_authority_export_available": false
+  },
+  "deliverable_validation": {
+    "generated_data_files": 32,
+    "deterministic_regeneration_diff_empty": true,
+    "pytest_passed": 9,
+    "pytest_failed": 0,
+    "reference_patches_apply_sequentially_to_copied_source": true,
+    "patched_python_files_compile": true,
+    "json_csv_nonfinite_or_parse_issues": 0
+  },
+  "environment": {
+    "python": "3.13.5",
+    "numpy": "2.3.5",
+    "pandas": "2.2.3",
+    "pyyaml": "6.0.3",
+    "torch": "2.10.0+cpu",
+    "pytest": "9.0.2"
+  }
+}

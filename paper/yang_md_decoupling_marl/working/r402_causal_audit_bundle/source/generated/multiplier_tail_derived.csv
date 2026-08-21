@@ -1,0 +1,7 @@
+arm,seed,cc_min,cc_median,cc_max,lambda_min,lambda_max,lambda_final,min_unprojected_delta_lambda,median_unprojected_delta_lambda,max_unprojected_delta_lambda,tail_lambda_below_initial,tail_touches_zero,final_lambda_positive,median_cost_below_budget
+"CD-MATD3, message",401,0.0564,2.2869,6.2227,0.0,0.1869,0.1406,-0.14718,-0.03565499999999999,0.161135,True,True,True,True
+"CD-MATD3, message",402,0.0236,2.6994,6.3803,0.0,0.2193,0.1269,-0.14882,-0.01503000000000001,0.16901500000000003,True,True,True,True
+"CD-MATD3, message",403,0.0566,1.7809,3.7243,0.0,0.0362,0.0145,-0.14717,-0.06095500000000001,0.036215,True,True,True,True
+"CD-MATD3, no message",401,0.0353,1.8475,3.3123,0.0,0.0186,0.0043,-0.148235,-0.05762500000000001,0.015615000000000002,True,True,True,True
+"CD-MATD3, no message",402,0.0495,2.2146,5.3195,0.0,0.1721,0.0268,-0.147525,-0.039270000000000006,0.115975,True,True,True,True
+"CD-MATD3, no message",403,0.0267,1.6054,4.4655,0.0,0.0733,0.0485,-0.14866500000000002,-0.06973,0.07327499999999998,True,True,True,True

@@ -1,4 +1,11 @@
-# scenarios/kundur — ANDES 路径修代码必读 NOTES
+# ANDES 工程笔记 — 历史档案（2026-05-07 冻结）
+
+> **状态: 历史档案**。本文件记录 V1/V2/V3 env 时代的工程决策、PHI 调权与
+> 6-axis 失败归因；文中指向 `scenarios/kundur/`、`env/andes/`、
+> `quality_reports/`、`毕业论文/` 的路径是 2026-05-16 src-layout 重构前的旧结构，
+> 多数已不存在。**现行 env/train 规则在 CLAUDE.md 代码约定**，现行术语在
+> `CONTEXT.md`。改 env / train.py 前仍按 CLAUDE.md 要求读本文件，目的是拿历史
+> 上下文（V4 决策、PHI 调权、6-axis 历史），不是照旧路径执行。
 
 > **2026-05-07 修正**: 旧 "paper-level 复现" 声明 (基于 cum_rf 单维) **被 6-axis 推翻**.
 > 真实状态: 所有 ckpt overall score < 0.04 / 1.0. 5/6 axis 全 fail (max_df, final_df,

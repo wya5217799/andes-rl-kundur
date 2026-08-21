@@ -1,0 +1,27 @@
+{
+  "required_files": [
+    "01_FULL_MATHEMATICAL_ADVISORY.md",
+    "02_P1_P3_CAMERA_READY_MATHEMATICS.md",
+    "03_PAPER_READY_PARAGRAPHS_P1_P3.md",
+    "04_EXECUTIVE_SUMMARY_CN.md",
+    "05_ONE_PAGE_SUMMARY.md",
+    "06_LIMITATIONS_AND_MISSING_QUANTITIES.md",
+    "07_CLAIM_STRENGTH_MATRIX.md",
+    "08_HARD_FACT_INTERPRETATION_BOUNDARY.md",
+    "problems/P1_relaxed_plant_failure.md",
+    "problems/P2_delay_boundary.md",
+    "problems/P3_dae_first_order_authority.md",
+    "problems/M3_message_contrast_sign.md",
+    "problems/M5_headroom_pareto.md",
+    "problems/M4_residual_identity_collapse.md",
+    "problems/M1_dual_saturation.md",
+    "problems/M2_critic_divergence_causality.md",
+    "problems/C1_controller_class_certificate.md"
+  ],
+  "missing": [],
+  "empty": [],
+  "markdown_file_count": 50,
+  "problem_file_count": 9,
+  "verification_returncode": 0,
+  "passed": true
+}

@@ -204,10 +204,10 @@ The migration cost itself is mitigated by:
 
 ## References
 
-- `CONTEXT.md` § AD-09 — short form of this decision.
-- `CONTEXT.md` § AD-10 — `artifacts/` reorganization (companion decision).
-- `CONTEXT.md` § AD-12 — two-phase execution plan that makes this
+- `_legacy/CONTEXT_AD01-AD14.md` § AD-09 — short form of this decision.
+- `_legacy/CONTEXT_AD01-AD14.md` § AD-10 — `artifacts/` reorganization (companion decision).
+- `_legacy/CONTEXT_AD01-AD14.md` § AD-12 — two-phase execution plan that makes this
   migration safe.
-- `CONTEXT.md` § AD-14 — R37 documenting round for paper-cited file moves.
+- `_legacy/CONTEXT_AD01-AD14.md` § AD-14 — R37 documenting round for paper-cited file moves.
 - Python Packaging User Guide, *src layout vs flat layout*:
   https://packaging.python.org/en/latest/discussions/src-layout-vs-flat-layout/

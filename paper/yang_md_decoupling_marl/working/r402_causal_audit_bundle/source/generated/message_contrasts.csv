@@ -1,0 +1,11 @@
+contrast,metric,positive_means_message_improves_pct,aggregation,seed
+"message vs CD-MATD3, no message",cross,-22.33545797866446,difference of three-seed arm medians divided by comparator median,
+"message vs CD-MATD3, no message",differential,-5.532746875666986,difference of three-seed arm medians divided by comparator median,
+message vs scalar TD3,cross,-23.725881650764432,difference of three-seed arm medians divided by comparator median,
+message vs scalar TD3,differential,-13.162323758154775,difference of three-seed arm medians divided by comparator median,
+"message vs CD-MATD3, no message",cross,-11.808625210222685,seedwise matched descriptive contrast,401
+"message vs CD-MATD3, no message",differential,-27.655023325955927,seedwise matched descriptive contrast,401
+"message vs CD-MATD3, no message",cross,-29.896674627555118,seedwise matched descriptive contrast,402
+"message vs CD-MATD3, no message",differential,-15.257698898075162,seedwise matched descriptive contrast,402
+"message vs CD-MATD3, no message",cross,31.173343740305263,seedwise matched descriptive contrast,403
+"message vs CD-MATD3, no message",differential,24.20509652479055,seedwise matched descriptive contrast,403

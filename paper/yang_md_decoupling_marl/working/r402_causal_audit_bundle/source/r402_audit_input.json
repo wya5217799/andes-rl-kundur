@@ -1,0 +1,419 @@
+{
+  "metadata": {
+    "paper_title": "Decoupling-Oriented Coordination of Paralleled  VSGs With Multi-Agent Reinforcement Learning",
+    "target_venue": "ICEMS 2026",
+    "source_file": "gpt_pro_r402_failure_causal_audit.md",
+    "source_scope_note": "Numbers are transcribed from the supplied problem package; source hashes are metadata only unless source artifacts are supplied."
+  },
+  "design": {
+    "arms": [
+      "scalar_td3",
+      "cd_matd3_no_message",
+      "cd_matd3_message"
+    ],
+    "seeds": [
+      401,
+      402,
+      403
+    ],
+    "evaluation_profiles": 4,
+    "trajectories_per_profile": 6,
+    "deterministic_controllers": 1,
+    "steps_per_trajectory": 30,
+    "actors": 4,
+    "action_components_per_actor": 2,
+    "interaction_steps_per_run": 43200,
+    "attempted_episodes_per_run": 1440,
+    "number_of_runs": 9,
+    "controller_interval_s": 0.2,
+    "evaluation_window_s": 6.0
+  },
+  "registered_thresholds": {
+    "common_iae_ratio": 1.03,
+    "worst_peak_ratio": 1.03,
+    "rocof_ratio": 1.03,
+    "action_rms_ratio": 1.1,
+    "action_tv_ratio": 1.1
+  },
+  "deterministic_endpoints": {
+    "off_diagonal_response_energy": 0.00034260449381761277,
+    "disturbance_differential_energy": 0.0022148944818784584
+  },
+  "learning_endpoints": [
+    {
+      "arm": "scalar TD3",
+      "seed": 401,
+      "off_diagonal_response_energy": 0.00087277754,
+      "disturbance_differential_energy": 0.005283716452
+    },
+    {
+      "arm": "scalar TD3",
+      "seed": 402,
+      "off_diagonal_response_energy": 0.001574685117,
+      "disturbance_differential_energy": 0.006869835345
+    },
+    {
+      "arm": "scalar TD3",
+      "seed": 403,
+      "off_diagonal_response_energy": 0.001409921536,
+      "disturbance_differential_energy": 0.006457486365
+    },
+    {
+      "arm": "CD-MATD3, no message",
+      "seed": 401,
+      "off_diagonal_response_energy": 0.00142594623,
+      "disturbance_differential_energy": 0.005724366685
+    },
+    {
+      "arm": "CD-MATD3, no message",
+      "seed": 402,
+      "off_diagonal_response_energy": 0.001342942655,
+      "disturbance_differential_energy": 0.006924335662
+    },
+    {
+      "arm": "CD-MATD3, no message",
+      "seed": 403,
+      "off_diagonal_response_energy": 0.002802644244,
+      "disturbance_differential_energy": 0.008683936843
+    },
+    {
+      "arm": "CD-MATD3, message",
+      "seed": 401,
+      "off_diagonal_response_energy": 0.001594330876,
+      "disturbance_differential_energy": 0.007307441627
+    },
+    {
+      "arm": "CD-MATD3, message",
+      "seed": 402,
+      "off_diagonal_response_energy": 0.001744437851,
+      "disturbance_differential_energy": 0.007980829948
+    },
+    {
+      "arm": "CD-MATD3, message",
+      "seed": 403,
+      "off_diagonal_response_energy": 0.00192896632,
+      "disturbance_differential_energy": 0.006581981548
+    }
+  ],
+  "guard_ratios": [
+    {
+      "arm": "scalar TD3",
+      "seed": 401,
+      "common_iae_ratio": 1.304,
+      "worst_peak_ratio": 1.761,
+      "rocof_ratio": 2.119,
+      "action_rms_ratio": 1.327,
+      "action_tv_ratio": 2.06
+    },
+    {
+      "arm": "scalar TD3",
+      "seed": 402,
+      "common_iae_ratio": 1.375,
+      "worst_peak_ratio": 2.094,
+      "rocof_ratio": 4.906,
+      "action_rms_ratio": 2.627,
+      "action_tv_ratio": 3.524
+    },
+    {
+      "arm": "scalar TD3",
+      "seed": 403,
+      "common_iae_ratio": 1.3,
+      "worst_peak_ratio": 1.694,
+      "rocof_ratio": 1.461,
+      "action_rms_ratio": 3.033,
+      "action_tv_ratio": 7.165
+    },
+    {
+      "arm": "CD-MATD3, no message",
+      "seed": 401,
+      "common_iae_ratio": 1.2,
+      "worst_peak_ratio": 1.735,
+      "rocof_ratio": 2.681,
+      "action_rms_ratio": 3.583,
+      "action_tv_ratio": 3.594
+    },
+    {
+      "arm": "CD-MATD3, no message",
+      "seed": 402,
+      "common_iae_ratio": 1.233,
+      "worst_peak_ratio": 1.612,
+      "rocof_ratio": 4.288,
+      "action_rms_ratio": 3.659,
+      "action_tv_ratio": 4.805
+    },
+    {
+      "arm": "CD-MATD3, no message",
+      "seed": 403,
+      "common_iae_ratio": 1.145,
+      "worst_peak_ratio": 2.363,
+      "rocof_ratio": 7.381,
+      "action_rms_ratio": 5.759,
+      "action_tv_ratio": 5.036
+    },
+    {
+      "arm": "CD-MATD3, message",
+      "seed": 401,
+      "common_iae_ratio": 1.361,
+      "worst_peak_ratio": 2.214,
+      "rocof_ratio": 5.495,
+      "action_rms_ratio": 4.545,
+      "action_tv_ratio": 8.354
+    },
+    {
+      "arm": "CD-MATD3, message",
+      "seed": 402,
+      "common_iae_ratio": 1.483,
+      "worst_peak_ratio": 3.176,
+      "rocof_ratio": 4.157,
+      "action_rms_ratio": 4.682,
+      "action_tv_ratio": 5.441
+    },
+    {
+      "arm": "CD-MATD3, message",
+      "seed": 403,
+      "common_iae_ratio": 1.171,
+      "worst_peak_ratio": 1.737,
+      "rocof_ratio": 4.186,
+      "action_rms_ratio": 4.373,
+      "action_tv_ratio": 8.234
+    }
+  ],
+  "multiplier_tail": {
+    "budget": 3.0,
+    "step_size": 0.05,
+    "initial_lambda": 1.0,
+    "aggregate_common_cost": {
+      "n": 120,
+      "minimum": 0.023645,
+      "median": 2.023668,
+      "maximum": 6.380282
+    },
+    "runs": [
+      {
+        "arm": "CD-MATD3, message",
+        "seed": 401,
+        "cc_min": 0.0564,
+        "cc_median": 2.2869,
+        "cc_max": 6.2227,
+        "lambda_min": 0.0,
+        "lambda_max": 0.1869,
+        "lambda_final": 0.1406
+      },
+      {
+        "arm": "CD-MATD3, message",
+        "seed": 402,
+        "cc_min": 0.0236,
+        "cc_median": 2.6994,
+        "cc_max": 6.3803,
+        "lambda_min": 0.0,
+        "lambda_max": 0.2193,
+        "lambda_final": 0.1269
+      },
+      {
+        "arm": "CD-MATD3, message",
+        "seed": 403,
+        "cc_min": 0.0566,
+        "cc_median": 1.7809,
+        "cc_max": 3.7243,
+        "lambda_min": 0.0,
+        "lambda_max": 0.0362,
+        "lambda_final": 0.0145
+      },
+      {
+        "arm": "CD-MATD3, no message",
+        "seed": 401,
+        "cc_min": 0.0353,
+        "cc_median": 1.8475,
+        "cc_max": 3.3123,
+        "lambda_min": 0.0,
+        "lambda_max": 0.0186,
+        "lambda_final": 0.0043
+      },
+      {
+        "arm": "CD-MATD3, no message",
+        "seed": 402,
+        "cc_min": 0.0495,
+        "cc_median": 2.2146,
+        "cc_max": 5.3195,
+        "lambda_min": 0.0,
+        "lambda_max": 0.1721,
+        "lambda_final": 0.0268
+      },
+      {
+        "arm": "CD-MATD3, no message",
+        "seed": 403,
+        "cc_min": 0.0267,
+        "cc_median": 1.6054,
+        "cc_max": 4.4655,
+        "lambda_min": 0.0,
+        "lambda_max": 0.0733,
+        "lambda_final": 0.0485
+      }
+    ]
+  },
+  "action_diagnostics": [
+    {
+      "arm": "deterministic",
+      "seed": null,
+      "mean_abs_action": 0.07912,
+      "fraction_at_slew_limit": 0.00417
+    },
+    {
+      "arm": "scalar TD3",
+      "seed": 401,
+      "mean_abs_action": 0.10181,
+      "fraction_at_slew_limit": 0.00191
+    },
+    {
+      "arm": "scalar TD3",
+      "seed": 402,
+      "mean_abs_action": 0.17967,
+      "fraction_at_slew_limit": 0.03108
+    },
+    {
+      "arm": "scalar TD3",
+      "seed": 403,
+      "mean_abs_action": 0.19508,
+      "fraction_at_slew_limit": 0.14722
+    },
+    {
+      "arm": "CD-MATD3, no message",
+      "seed": 401,
+      "mean_abs_action": 0.29036,
+      "fraction_at_slew_limit": 0.06354
+    },
+    {
+      "arm": "CD-MATD3, no message",
+      "seed": 402,
+      "mean_abs_action": 0.31503,
+      "fraction_at_slew_limit": 0.10156
+    },
+    {
+      "arm": "CD-MATD3, no message",
+      "seed": 403,
+      "mean_abs_action": 0.48652,
+      "fraction_at_slew_limit": 0.15208
+    },
+    {
+      "arm": "CD-MATD3, message",
+      "seed": 401,
+      "mean_abs_action": 0.37032,
+      "fraction_at_slew_limit": 0.19115
+    },
+    {
+      "arm": "CD-MATD3, message",
+      "seed": 402,
+      "mean_abs_action": 0.36922,
+      "fraction_at_slew_limit": 0.125
+    },
+    {
+      "arm": "CD-MATD3, message",
+      "seed": 403,
+      "mean_abs_action": 0.37517,
+      "fraction_at_slew_limit": 0.16302
+    }
+  ],
+  "frequency_cost_reconstruction": [
+    {
+      "arm": "deterministic",
+      "seed": null,
+      "total_common_cost": 29.583,
+      "frequency_only_differential_total": 0.9463
+    },
+    {
+      "arm": "scalar TD3",
+      "seed": 401,
+      "total_common_cost": 50.6414,
+      "frequency_only_differential_total": 2.6066
+    },
+    {
+      "arm": "scalar TD3",
+      "seed": 402,
+      "total_common_cost": 57.0102,
+      "frequency_only_differential_total": 4.099
+    },
+    {
+      "arm": "scalar TD3",
+      "seed": 403,
+      "total_common_cost": 50.1612,
+      "frequency_only_differential_total": 3.4601
+    },
+    {
+      "arm": "CD-MATD3, no message",
+      "seed": 401,
+      "total_common_cost": 39.3268,
+      "frequency_only_differential_total": 2.9558
+    },
+    {
+      "arm": "CD-MATD3, no message",
+      "seed": 402,
+      "total_common_cost": 48.7599,
+      "frequency_only_differential_total": 4.5942
+    },
+    {
+      "arm": "CD-MATD3, no message",
+      "seed": 403,
+      "total_common_cost": 42.1967,
+      "frequency_only_differential_total": 5.5827
+    },
+    {
+      "arm": "CD-MATD3, message",
+      "seed": 401,
+      "total_common_cost": 52.4801,
+      "frequency_only_differential_total": 4.4146
+    },
+    {
+      "arm": "CD-MATD3, message",
+      "seed": 402,
+      "total_common_cost": 65.1755,
+      "frequency_only_differential_total": 5.9776
+    },
+    {
+      "arm": "CD-MATD3, message",
+      "seed": 403,
+      "total_common_cost": 42.4072,
+      "frequency_only_differential_total": 4.0915
+    }
+  ],
+  "message_no_message_action_correlations": [
+    {
+      "seed": 401,
+      "pearson": -0.1404
+    },
+    {
+      "seed": 402,
+      "pearson": 0.0373
+    },
+    {
+      "seed": 403,
+      "pearson": 0.1542
+    }
+  ],
+  "energy_port": {
+    "R408": {
+      "differential_ratio": 0.938947,
+      "cross_ratio": 0.539791,
+      "all_guards_pass": true
+    },
+    "R409": {
+      "differential_ratio": 0.9382180714,
+      "cross_ratio": 0.7937304482,
+      "all_guards_pass": true
+    }
+  },
+  "snapshot_episodes": [
+    240,
+    480,
+    720,
+    960,
+    1200,
+    1440
+  ],
+  "known_provenance_issues": {
+    "narrative_count": 264,
+    "formal_manifest_evaluation_records": 240,
+    "formal_analysis_internal_round": "R401",
+    "expected_round": "R402",
+    "formal_execution_json": "missing"
+  }
+}

@@ -1,0 +1,205 @@
+# Computed Aggregates
+
+Exact Markdown-view mirror of `computed_aggregates.json`. The raw JSON file is retained beside this document.
+
+```json
+{
+  "p1": [
+    {
+      "block": "conditions",
+      "M": 200.0,
+      "D_each": 100.0,
+      "r_d": 0.9322838738147555,
+      "r_cross": 0.9107861627806901,
+      "local_Ed": 0.0005433139119660554,
+      "candidate_Ed": 0.0005065227985451632,
+      "local_Ex": 1.6700581935778105e-06,
+      "candidate_Ex": 1.521065893749185e-06,
+      "relative_Ed_reduction": 0.06771612618524447,
+      "guards_pass": true,
+      "block_pass": true
+    },
+    {
+      "block": "relaxed",
+      "M": 170.0,
+      "D_each": 115.0,
+      "r_d": 0.9712251032133927,
+      "r_cross": 0.983344164722602,
+      "local_Ed": 0.00021018948180799598,
+      "candidate_Ed": 0.00020414130116334044,
+      "local_Ex": 1.2805241448865263e-06,
+      "candidate_Ex": 1.2591959456605654e-06,
+      "relative_Ed_reduction": 0.028774896786607274,
+      "guards_pass": true,
+      "block_pass": false
+    },
+    {
+      "block": "stiff",
+      "M": 230.0,
+      "D_each": 85.0,
+      "r_d": 0.907962726673478,
+      "r_cross": 0.7299998658362562,
+      "local_Ed": 0.00030010287872978,
+      "candidate_Ed": 0.0002724822280540511,
+      "local_Ex": 3.0574433159712675e-06,
+      "candidate_Ex": 2.2319332104609834e-06,
+      "relative_Ed_reduction": 0.092037273326522,
+      "guards_pass": true,
+      "block_pass": true
+    }
+  ],
+  "p2": [
+    {
+      "delay_steps": 1,
+      "r_d": 0.9502787849106537,
+      "r_cross": 0.6055328645068879,
+      "candidate_Ed": 0.00039037026048215306,
+      "local_Ed": 0.0004107955125177883,
+      "candidate_Ex": 1.7732041203914198e-06,
+      "local_Ex": 2.928336716844292e-06,
+      "r_d_excess_over_0p95": 0.0002787849106536955,
+      "guards_pass": true,
+      "passed": false
+    },
+    {
+      "delay_steps": 2,
+      "r_d": 0.9893270595363578,
+      "r_cross": 0.6405191344833928,
+      "candidate_Ed": 0.0004438716827728703,
+      "local_Ed": 0.0004486602064446596,
+      "candidate_Ex": 2.6203253030323907e-06,
+      "local_Ex": 4.090939929758382e-06,
+      "r_d_excess_over_0p95": 0.039327059536357845,
+      "guards_pass": true,
+      "passed": false
+    }
+  ],
+  "m5": [
+    {
+      "profile": "eval_a",
+      "winner_k": 3,
+      "winner_schedule": "[[3.0,3.0],[3.0,3.0],[3.0,3.0]]",
+      "static_Ed": 0.0002791253847750178,
+      "winner_Ed": 0.00024083143068874235,
+      "Ed_improvement": 0.13719266027037047,
+      "static_Ex": 7.295920820936132e-05,
+      "winner_Ex": 6.618780108921458e-05,
+      "Ex_improvement": 0.09281086358168435,
+      "static_action_rms": 0.10307352048325573,
+      "winner_action_rms": 0.1380582897878604,
+      "action_rms_increase": 0.3394156825203998,
+      "static_action_tv": 2.444925222797738,
+      "winner_action_tv": 2.8581138608832957,
+      "action_tv_increase": 0.16899847661301637,
+      "action_rms_guard": false,
+      "action_tv_guard": false,
+      "common_guards": "{\"common_frequency_iae_no_harm\":true,\"rocof_no_harm\":true,\"worst_peak_no_harm\":true}"
+    },
+    {
+      "profile": "eval_b",
+      "winner_k": 2,
+      "winner_schedule": "[[3.0,3.0],[3.0,3.0]]",
+      "static_Ed": 0.0009031183898968875,
+      "winner_Ed": 0.0008190212105343721,
+      "Ed_improvement": 0.09311866561826639,
+      "static_Ex": 8.806735602325909e-05,
+      "winner_Ex": 7.955214776344727e-05,
+      "Ex_improvement": 0.0966897230065917,
+      "static_action_rms": 0.1016969997567608,
+      "winner_action_rms": 0.13275706844343496,
+      "action_rms_increase": 0.3054177484189673,
+      "static_action_tv": 2.619051336003241,
+      "winner_action_tv": 2.9175780011117523,
+      "action_tv_increase": 0.11398274673152176,
+      "action_rms_guard": false,
+      "action_tv_guard": false,
+      "common_guards": "{\"common_frequency_iae_no_harm\":true,\"rocof_no_harm\":true,\"worst_peak_no_harm\":true}"
+    },
+    {
+      "profile": "eval_c",
+      "winner_k": 3,
+      "winner_schedule": "[[3.0,3.0],[3.0,3.0],[3.0,3.0]]",
+      "static_Ed": 0.0002894126799313988,
+      "winner_Ed": 0.0002478133859558697,
+      "Ed_improvement": 0.143736943334306,
+      "static_Ex": 7.081846212893744e-05,
+      "winner_Ex": 6.545355376247003e-05,
+      "Ex_improvement": 0.07575578747671269,
+      "static_action_rms": 0.12348496512872169,
+      "winner_action_rms": 0.16290746716904325,
+      "action_rms_increase": 0.31924940821117165,
+      "static_action_tv": 3.6610374915322303,
+      "winner_action_tv": 4.045101104562097,
+      "action_tv_increase": 0.10490567603259549,
+      "action_rms_guard": false,
+      "action_tv_guard": false,
+      "common_guards": "{\"common_frequency_iae_no_harm\":true,\"rocof_no_harm\":true,\"worst_peak_no_harm\":true}"
+    },
+    {
+      "profile": "eval_d",
+      "winner_k": 3,
+      "winner_schedule": "[[3.0,3.0],[3.0,3.0],[3.0,3.0]]",
+      "static_Ed": 0.0013176274294897092,
+      "winner_Ed": 0.0012389215112393543,
+      "Ed_improvement": 0.05973305995977649,
+      "static_Ex": 8.846530224089277e-05,
+      "winner_Ex": 7.79116790466491e-05,
+      "Ex_improvement": 0.11929675168582977,
+      "static_action_rms": 0.11870616926803891,
+      "winner_action_rms": 0.15240253577920332,
+      "action_rms_increase": 0.2838636502124663,
+      "static_action_tv": 3.3610042905475765,
+      "winner_action_tv": 3.842257968402997,
+      "action_tv_increase": 0.14318746310705066,
+      "action_rms_guard": false,
+      "action_tv_guard": false,
+      "common_guards": "{\"common_frequency_iae_no_harm\":true,\"rocof_no_harm\":true,\"worst_peak_no_harm\":true}"
+    }
+  ],
+  "m1": {
+    "R425": {
+      "rms_min": 1.1145563318348541,
+      "rms_median": 3.786856718685509,
+      "rms_max": 10.056334414179936,
+      "tv_min": 2.8535241133927607,
+      "tv_median": 4.313138369072675,
+      "tv_max": 6.744472047011522,
+      "all_mu_at_cap": true,
+      "n_runs": 6,
+      "n_residuals_each": 120
+    },
+    "R427": {
+      "rms_min": 0.9425266037414739,
+      "rms_median": 3.750649846553069,
+      "rms_max": 12.14764007163069,
+      "tv_min": 2.8400944051296677,
+      "tv_median": 4.292259382470758,
+      "tv_max": 6.6992488752983546,
+      "all_mu_at_cap": true,
+      "n_runs": 6,
+      "n_residuals_each": 120
+    }
+  },
+  "m2": {
+    "R421_min": 24.384446294632866,
+    "R421_max": 126.35909120645123,
+    "R432_min": 6.240889333128229,
+    "R432_max": 30.475773683344492,
+    "R427_min": 0.3164662177836716,
+    "R427_max": 1.7478648656959799,
+    "R427_guard_counts": {
+      "action_rms_no_harm": 0,
+      "action_variation_no_harm": 0,
+      "common_frequency_no_harm": 24,
+      "worst_peak_no_harm": 24,
+      "rocof_no_harm": 6
+    }
+  },
+  "m4": {
+    "M4-D01": "0.0008902254251293984",
+    "M4-D02": "0.002347966350935149",
+    "M4-D03": "0.0014429314998225529",
+    "M4-D04": "0.0011200990341657113"
+  }
+}
+```

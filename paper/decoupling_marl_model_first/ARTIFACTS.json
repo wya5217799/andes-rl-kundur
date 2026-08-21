@@ -6,7 +6,7 @@
       "id": "line-state",
       "purpose": "line-state",
       "path": "paper/decoupling_marl_model_first/LINE.md",
-      "status": "frozen",
+      "status": "active",
       "canonical": true,
       "authoritative": true,
       "producer": "project-governance",
@@ -110,6 +110,322 @@
       "inputs": [],
       "supersedes": [],
       "review_after": null
+    },
+    {
+      "id": "venue-decision-2026-08-14",
+      "purpose": "venue-decision",
+      "path": "paper/decoupling_marl_model_first/working/venue_decision_2026-08-14.md",
+      "status": "active",
+      "canonical": true,
+      "authoritative": false,
+      "producer": "research-supervisor",
+      "inputs": [],
+      "supersedes": [],
+      "review_after": "2026-10-01"
+    },
+    {
+      "id": "paper-thesis-evaluation-2026-08-14",
+      "purpose": "research-note",
+      "path": "paper/decoupling_marl_model_first/working/paper_thesis_evaluation_2026-08-14.md",
+      "status": "active",
+      "canonical": false,
+      "authoritative": false,
+      "producer": "idea-evaluator",
+      "inputs": [
+        "paper/decoupling_marl_model_first/working/venue_decision_2026-08-14.md"
+      ],
+      "supersedes": [],
+      "review_after": null
+    },
+    {
+      "id": "manuscript-argument-contract-2026-08-14",
+      "purpose": "manuscript-argument-contract",
+      "path": "paper/decoupling_marl_model_first/working/manuscript_argument_contract_2026-08-14.md",
+      "status": "active",
+      "canonical": true,
+      "authoritative": false,
+      "producer": "tech-paper-template",
+      "inputs": [
+        "paper/decoupling_marl_model_first/working/model_contract.md",
+        "paper/decoupling_marl_model_first/working/paper_thesis_evaluation_2026-08-14.md"
+      ],
+      "supersedes": [],
+      "review_after": null
+    },
+    {
+      "id": "methods-draft-2026-08-14",
+      "purpose": "manuscript-draft",
+      "path": "paper/decoupling_marl_model_first/draft/methods_sec3_4.md",
+      "status": "active",
+      "canonical": false,
+      "authoritative": false,
+      "producer": "paper-writer",
+      "inputs": [
+        "paper/decoupling_marl_model_first/working/manuscript_argument_contract_2026-08-14.md",
+        "paper/decoupling_marl_model_first/working/model_contract.md",
+        "paper/decoupling_marl_model_first/working/implemented_control_and_topology.md",
+        "paper/decoupling_marl_model_first/reports/R306.md",
+        "paper/decoupling_marl_model_first/reports/R312.md",
+        "paper/decoupling_marl_model_first/reports/R341.md",
+        "paper/decoupling_marl_model_first/reports/R344.md"
+      ],
+      "supersedes": [],
+      "review_after": null
+    },
+    {
+      "id": "results-draft-2026-08-14",
+      "purpose": "manuscript-draft",
+      "path": "paper/decoupling_marl_model_first/draft/results_sec5_6.md",
+      "status": "active",
+      "canonical": false,
+      "authoritative": false,
+      "producer": "paper-writer",
+      "inputs": [
+        "paper/decoupling_marl_model_first/working/manuscript_argument_contract_2026-08-14.md",
+        "paper/decoupling_marl_model_first/reports/R344.md",
+        "paper/decoupling_marl_model_first/reports/R350.md",
+        "paper/decoupling_marl_model_first/reports/R356.md",
+        "paper/decoupling_marl_model_first/reports/R358.md",
+        "paper/decoupling_marl_model_first/reports/R359.md",
+        "paper/decoupling_marl_model_first/reports/R360.md",
+        "paper/decoupling_marl_model_first/reports/R361.md",
+        "paper/decoupling_marl_model_first/reports/R362.md",
+        "paper/decoupling_marl_model_first/reports/R363.md"
+      ],
+      "supersedes": [],
+      "review_after": null
+    },
+    {
+      "id": "discussion-conclusion-draft-2026-08-14",
+      "purpose": "manuscript-draft",
+      "path": "paper/decoupling_marl_model_first/draft/discussion_conclusion_sec7_8.md",
+      "status": "active",
+      "canonical": false,
+      "authoritative": false,
+      "producer": "paper-writer",
+      "inputs": [
+        "paper/decoupling_marl_model_first/working/manuscript_argument_contract_2026-08-14.md",
+        "paper/decoupling_marl_model_first/reports/R344.md",
+        "paper/decoupling_marl_model_first/reports/R350.md",
+        "paper/decoupling_marl_model_first/reports/R356.md",
+        "paper/decoupling_marl_model_first/reports/R358.md",
+        "paper/decoupling_marl_model_first/reports/R359.md",
+        "paper/decoupling_marl_model_first/reports/R360.md",
+        "paper/decoupling_marl_model_first/reports/R361.md",
+        "paper/decoupling_marl_model_first/reports/R362.md",
+        "paper/decoupling_marl_model_first/reports/R363.md"
+      ],
+      "supersedes": [],
+      "review_after": null
+    },
+    {
+      "id": "abstract-title-draft-2026-08-14",
+      "purpose": "manuscript-draft",
+      "path": "paper/decoupling_marl_model_first/draft/abstract_title_candidates.md",
+      "status": "active",
+      "canonical": false,
+      "authoritative": false,
+      "producer": "paper-writer",
+      "inputs": [
+        "paper/decoupling_marl_model_first/working/manuscript_argument_contract_2026-08-14.md",
+        "paper/decoupling_marl_model_first/reports/R344.md",
+        "paper/decoupling_marl_model_first/reports/R350.md",
+        "paper/decoupling_marl_model_first/reports/R363.md"
+      ],
+      "supersedes": [],
+      "review_after": null
+    },
+    {
+      "id": "differentiation-memo-2026-08-14",
+      "purpose": "differentiation",
+      "path": "paper/decoupling_marl_model_first/working/differentiation_memo_2026-08-14.md",
+      "status": "active",
+      "canonical": true,
+      "authoritative": false,
+      "producer": "deep-research",
+      "inputs": [
+        "paper/decoupling_marl_model_first/working/hybrid_control_literature_note.md",
+        "paper/decoupling_marl_model_first/working/deep_research_title_method_headroom.md",
+        "paper/decoupling_marl_model_first/working/deep_research_neighbour_information_learnability.md"
+      ],
+      "supersedes": [],
+      "review_after": "2026-10-01"
+    },
+    {
+      "id": "related-work-draft-2026-08-14",
+      "purpose": "manuscript-draft",
+      "path": "paper/decoupling_marl_model_first/draft/related_work_sec2.md",
+      "status": "active",
+      "canonical": false,
+      "authoritative": false,
+      "producer": "paper-writer",
+      "inputs": [
+        "paper/decoupling_marl_model_first/working/manuscript_argument_contract_2026-08-14.md",
+        "paper/decoupling_marl_model_first/working/differentiation_memo_2026-08-14.md"
+      ],
+      "supersedes": [],
+      "review_after": null
+    },
+    {
+      "id": "introduction-draft-2026-08-14",
+      "purpose": "manuscript-draft",
+      "path": "paper/decoupling_marl_model_first/draft/introduction_sec1.md",
+      "status": "active",
+      "canonical": false,
+      "authoritative": false,
+      "producer": "intro-drafter",
+      "inputs": [
+        "paper/decoupling_marl_model_first/working/manuscript_argument_contract_2026-08-14.md",
+        "paper/decoupling_marl_model_first/working/differentiation_memo_2026-08-14.md"
+      ],
+      "supersedes": [],
+      "review_after": null
+    },
+    {
+      "id": "assembly-plan-2026-08-14",
+      "purpose": "manuscript-draft",
+      "path": "paper/decoupling_marl_model_first/draft/assembly_plan.md",
+      "status": "active",
+      "canonical": false,
+      "authoritative": false,
+      "producer": "research-supervisor",
+      "inputs": [
+        "paper/decoupling_marl_model_first/working/manuscript_argument_contract_2026-08-14.md",
+        "paper/decoupling_marl_model_first/working/venue_decision_2026-08-14.md"
+      ],
+      "supersedes": [],
+      "review_after": null
+    },
+    {
+      "id": "manuscript-figures-2026-08-14",
+      "purpose": "manuscript-figures",
+      "path": "paper/decoupling_marl_model_first/figures",
+      "status": "active",
+      "canonical": false,
+      "authoritative": false,
+      "producer": "figure-designer",
+      "inputs": [
+        "results/r312_model_first_stage1/analysis.json",
+        "results/r344_deterministic_bridge/formal_analysis.json",
+        "results/r350_smooth_convex_residual/analysis.json",
+        "results/r356_joint_endpoint_feasibility/analysis.json",
+        "results/r358_physical_joint_endpoint_qp/analysis.json",
+        "results/r359_neighbour_causal_residual/analysis.json",
+        "results/r360_flexible_neighbour_residual/analysis.json",
+        "results/r361_neighbour_message_residual/analysis.json",
+        "results/r362_shared_prediction_residual/analysis.json",
+        "results/r363_common_channel_qp/analysis.json"
+      ],
+      "supersedes": [],
+      "review_after": null
+    },
+    {
+      "id": "consolidated-review-2026-08-14",
+      "purpose": "consolidated-review",
+      "path": "paper/decoupling_marl_model_first/working/consolidated_review_2026-08-14.md",
+      "status": "active",
+      "canonical": true,
+      "authoritative": false,
+      "producer": "research-supervisor",
+      "inputs": [
+        "tmp/decoupling_marl_model_first/evidence_audit_2026-08-14.md",
+        "tmp/decoupling_marl_model_first/presubmission_review_2026-08-14.md"
+      ],
+      "supersedes": [],
+      "review_after": "2026-10-01"
+    },
+    {
+      "id": "submission-main-tex-2026-08-14",
+      "purpose": "submission-package",
+      "path": "paper/decoupling_marl_model_first/main.tex",
+      "status": "active",
+      "canonical": true,
+      "authoritative": false,
+      "producer": "paper-writer",
+      "inputs": [
+        "paper/decoupling_marl_model_first/draft/introduction_sec1.md",
+        "paper/decoupling_marl_model_first/draft/related_work_sec2.md",
+        "paper/decoupling_marl_model_first/draft/methods_sec3_4.md",
+        "paper/decoupling_marl_model_first/draft/results_sec5_6.md",
+        "paper/decoupling_marl_model_first/draft/discussion_conclusion_sec7_8.md",
+        "paper/decoupling_marl_model_first/draft/abstract_title_candidates.md",
+        "paper/decoupling_marl_model_first/working/differentiation_memo_2026-08-14.md",
+        "paper/decoupling_marl_model_first/figures"
+      ],
+      "supersedes": [],
+      "review_after": null
+    },
+    {
+      "id": "submission-references-bib-2026-08-14",
+      "purpose": "submission-package",
+      "path": "paper/decoupling_marl_model_first/references.bib",
+      "status": "active",
+      "canonical": false,
+      "authoritative": false,
+      "producer": "paper-writer",
+      "inputs": [
+        "paper/decoupling_marl_model_first/working/differentiation_memo_2026-08-14.md"
+      ],
+      "supersedes": [],
+      "review_after": null
+    },
+    {
+      "id": "submission-main-pdf-2026-08-14",
+      "purpose": "submission-package",
+      "path": "paper/decoupling_marl_model_first/main.pdf",
+      "status": "active",
+      "canonical": false,
+      "authoritative": false,
+      "producer": "paper-writer",
+      "inputs": [
+        "paper/decoupling_marl_model_first/main.tex",
+        "paper/decoupling_marl_model_first/references.bib"
+      ],
+      "supersedes": [],
+      "review_after": null
+    },
+    {
+      "id": "assembly-report-2026-08-14",
+      "purpose": "research-note",
+      "path": "paper/decoupling_marl_model_first/assembly_report.md",
+      "status": "active",
+      "canonical": false,
+      "authoritative": false,
+      "producer": "paper-writer",
+      "inputs": [
+        "paper/decoupling_marl_model_first/draft/assembly_plan.md"
+      ],
+      "supersedes": [],
+      "review_after": null
+    },
+    {
+      "id": "residual-headroom-gpt-problem-2026-08-14",
+      "purpose": "research-note",
+      "path": "paper/decoupling_marl_model_first/working/gpt_pro_residual_headroom_math_problem.md",
+      "status": "active",
+      "canonical": false,
+      "authoritative": false,
+      "producer": "research",
+      "inputs": [],
+      "supersedes": [],
+      "review_after": "2026-10-01"
+    },
+    {
+      "id": "residual-headroom-gpt-solution-2026-08-14",
+      "purpose": "research-note",
+      "path": "paper/decoupling_marl_model_first/working/robust_residual_headroom_solution_strict_revision.md",
+      "status": "active",
+      "canonical": false,
+      "authoritative": false,
+      "producer": "external-consultation",
+      "inputs": [
+        "paper/decoupling_marl_model_first/working/gpt_pro_residual_headroom_math_problem.md"
+      ],
+      "input_hashes": {
+        "paper/decoupling_marl_model_first/working/gpt_pro_residual_headroom_math_problem.md": "c4a4e6e686f2dd15e0f11f2cfbbebf0d060f6c941e939b442ed98769f3e64a9f"
+      },
+      "supersedes": [],
+      "review_after": "2026-10-01"
     }
   ]
 }

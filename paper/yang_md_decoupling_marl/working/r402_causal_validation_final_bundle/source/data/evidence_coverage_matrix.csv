@@ -1,0 +1,14 @@
+coverage_id,evidence_object,status,delivered_content,causal_consequence
+C1,Registered R402 trajectories/endpoints/guards,available,240 trajectories; 40 profile summaries; exact endpoint recomputation,Confirms CANARY-FAIL only
+C2,Final and periodic checkpoints,available,9 final + 54 periodic checkpoints,Supports coarse parameter/lambda diagnostics
+C3,Full 1440-episode cost/lambda history,absent,Only final 20 values plus six snapshot lambdas,Cannot characterize whole-run multiplier exposure
+C4,Actor/critic update logs and Q calibration,absent,"No losses, TD residuals, gradient decomposition, held-out returns",Optimization/convergence cause unavailable
+C5,Replay snapshots and support diagnostics,absent,In-memory ring discarded,Coverage/OOD cause unavailable
+C6,Complete evaluation P_es and cost decomposition,absent,Frequency/M/D/action retained; P_es not retained,Full differential training objective cannot be reconstructed
+C7,Raw observation and pre-slew action chain,absent,Only post-slew normalized action stored,Cannot replay exact actor inputs or projection counterfactuals
+C8,Frozen-policy M0-M7 interventions,not_executed,Manifest only,Runtime-message value remains unidentified
+C9,Successor S0-S5 paired training,not_executed,Contract only; no fresh seeds/banks,Multiplier/effort/alignment causal effects remain unidentified
+C10,R402-specific DAE/LTV authority export,absent,R405 matrices belong to a different object,Direct-M/D conditioning/headroom remains open
+C11,Copied source dependency closure,partial,agents/networks.py and scenarios/contract.py absent,Static audit possible; package not self-executing
+C12,Formal execution provenance,absent,formal_execution.json was never generated,Reporting/provenance limitation; no demonstrated policy-outcome cause
+C13,Learned-checkpoint evaluation on development profiles,absent,Only final-checkpoint held-out evaluation is retained,Cannot distinguish optimization failure on the training distribution from development-to-evaluation shift

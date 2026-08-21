@@ -1,0 +1,297 @@
+{
+  "version": 1,
+  "line_id": "converter-vsg-pq-decoupling",
+  "artifacts": [
+    {
+      "id": "line-state",
+      "purpose": "line-state",
+      "path": "paper/converter_vsg_pq_decoupling/LINE.md",
+      "status": "active",
+      "canonical": true,
+      "authoritative": true,
+      "producer": "project-governance",
+      "inputs": [
+        "paper/converter_vsg_pq_decoupling/working/route_contract.md",
+        "paper/converter_vsg_pq_decoupling/reports"
+      ],
+      "input_hashes": {
+        "paper/converter_vsg_pq_decoupling/working/route_contract.md": "dc98f25ad673b25db4465fa13ee90a0f4b7cfe968d6e7367a4de20087268a83e",
+        "paper/converter_vsg_pq_decoupling/reports": "10a0a00b295976f5169dfc17d7cd205f47e899aebec7a2cd45b6026838662e5f"
+      },
+      "supersedes": [],
+      "review_after": null
+    },
+    {
+      "id": "experiment-feeds",
+      "purpose": "experiment-feeds",
+      "path": "paper/converter_vsg_pq_decoupling/reports",
+      "status": "active",
+      "canonical": true,
+      "authoritative": true,
+      "producer": "kundur-round-feed",
+      "inputs": [
+        "memory/claims",
+        "memory/rounds"
+      ],
+      "supersedes": [],
+      "review_after": null
+    },
+    {
+      "id": "route-contract",
+      "purpose": "research-route",
+      "path": "paper/converter_vsg_pq_decoupling/working/route_contract.md",
+      "status": "active",
+      "canonical": true,
+      "authoritative": false,
+      "producer": "ask-research-supervisor+ask-matt+project-governance",
+      "inputs": [
+        "docs/adr/0016-separate-converter-vsg-pq-decoupling-line.md",
+        "docs/adr/0017-structural-absence-regcv1-successor.md",
+        "paper/converter_vsg_pq_decoupling/working/REGF2_successor_route_audit.md",
+        "paper/paralleled_vsg_marl/working/three_report_future_experiment_route_synthesis.md"
+      ],
+      "input_hashes": {
+        "docs/adr/0016-separate-converter-vsg-pq-decoupling-line.md": "834ce76a8cffa1600a00f154feaf64f116390d1f02f06eee8ec78797ad89c5ce",
+        "docs/adr/0017-structural-absence-regcv1-successor.md": "a83bce1dc9590bb6ecc76a1a8aadc27b7e3059e6b40a702299ce5f0e0f87769e",
+        "paper/converter_vsg_pq_decoupling/working/REGF2_successor_route_audit.md": "49c4d32e1c58e393cd44f93f5f6a6b97b6decd2d03fdca5e0db2593b5eb75376",
+        "paper/paralleled_vsg_marl/working/three_report_future_experiment_route_synthesis.md": "3032b9838889eef5dba4af2c901a8e68a58aa1773c0abb3bee17f7a5aa96248a"
+      },
+      "supersedes": [],
+      "review_after": null
+    },
+    {
+      "id": "regf2-successor-route-audit",
+      "purpose": "research-route-analysis",
+      "path": "paper/converter_vsg_pq_decoupling/working/REGF2_successor_route_audit.md",
+      "status": "active",
+      "canonical": true,
+      "authoritative": false,
+      "producer": "ask-research-supervisor+ask-matt",
+      "inputs": [
+        "memory/claims/CLM-1085.md",
+        "memory/rounds/R388/verdict.md",
+        "memory/claims/CLM-1090.md",
+        "memory/rounds/R389/verdict.md",
+        "memory/claims/CLM-1095.md",
+        "memory/rounds/R390/verdict.md",
+        "memory/claims/CLM-1100.md",
+        "memory/rounds/R391/verdict.md"
+      ],
+      "input_hashes": {
+        "memory/claims/CLM-1085.md": "3ff8a9a6a53f5d09d1bc68416fd069d653117cacb68575becfb6d04da4a37d7e",
+        "memory/rounds/R388/verdict.md": "9defc8ae3e17db9971c4bdf8726ccf062dbde4657b9fcbc865230bab26d55869",
+        "memory/claims/CLM-1090.md": "7e448000e58f0ad6bfc3106de510d2a1fabadf89c0be3dcfc80155c8cd20dc90",
+        "memory/rounds/R389/verdict.md": "d5bc5a05737e9039f4c6694218b7eeec2102dc7a1b93d59cd423eade50951117",
+        "memory/claims/CLM-1095.md": "d4b3b75ea53ce9a69bf6684dfd080aa611d3d6f626c442e15338d6c5079e2e28",
+        "memory/rounds/R390/verdict.md": "9dea3255817c47405d87a1ec90ce76a71bb4f5b2cdb6cea6225190f4bfc05ad7",
+        "memory/claims/CLM-1100.md": "dde17a7cf1651076019597a34e8491f1cc43ba81f9f1d93e6655a0b020230201",
+        "memory/rounds/R391/verdict.md": "783563039870384cdcff1c58ca7ab8a79b40d16651c643f06d72debcdd1c0f47"
+      },
+      "supersedes": [],
+      "review_after": null
+    },
+    {
+      "id": "r387-strict-diagnosis",
+      "purpose": "experiment-diagnosis",
+      "path": "paper/converter_vsg_pq_decoupling/working/R387_diagnosis.md",
+      "status": "superseded",
+      "canonical": true,
+      "authoritative": false,
+      "producer": "diagnosing-bugs+project-governance",
+      "inputs": [
+        "memory/rounds/R387/formal_seal.json",
+        "results/research_loop/r387_regcv1_signed_authority_gate/formal_execution.json",
+        "results/research_loop/r387_regcv1_signed_authority_gate/formal_analysis.json"
+      ],
+      "input_hashes": {
+        "memory/rounds/R387/formal_seal.json": "179165ea4b06995ca04ed3835c10a8917f99f57f59fe93a842eda8770e0cde26",
+        "results/research_loop/r387_regcv1_signed_authority_gate/formal_execution.json": "6bb8dea63a18ddb4c700831422aab4e3e8a9239e7ca3a2a2b72573615abc634e",
+        "results/research_loop/r387_regcv1_signed_authority_gate/formal_analysis.json": "b44586e182e0208683a1d4ed67056c23fb860b7d3aa0163cad417ce42403b12e"
+      },
+      "supersedes": [],
+      "review_after": null
+    },
+    {
+      "id": "r387-publication-audit",
+      "purpose": "evidence-domain-audit",
+      "path": "paper/converter_vsg_pq_decoupling/working/R387_publication_audit.md",
+      "status": "superseded",
+      "canonical": true,
+      "authoritative": false,
+      "producer": "audit-manuscript-evidence+review-power-systems-manuscript",
+      "inputs": [
+        "paper/converter_vsg_pq_decoupling/reports/R387.md",
+        "paper/converter_vsg_pq_decoupling/working/R387_diagnosis.md",
+        "memory/claims/CLM-1080.md"
+      ],
+      "input_hashes": {
+        "paper/converter_vsg_pq_decoupling/reports/R387.md": "ddbfa198f164279ee98c5476ef7cc7a0a58ddb84da196d105d0be8d37b776791",
+        "paper/converter_vsg_pq_decoupling/working/R387_diagnosis.md": "8e4c47e7682f8a8495a8a34cb31805d5ba8507593f3d8a70d522bf75ea68520f",
+        "memory/claims/CLM-1080.md": "74b46e61ed16de764a20c6f5560194db64e3f288675b9880456ee7dc7b2be8f0"
+      },
+      "supersedes": [],
+      "review_after": null
+    },
+    {
+      "id": "r388-strict-diagnosis",
+      "purpose": "experiment-diagnosis",
+      "path": "paper/converter_vsg_pq_decoupling/working/R388_diagnosis.md",
+      "status": "superseded",
+      "canonical": true,
+      "authoritative": false,
+      "producer": "diagnosing-bugs+project-governance",
+      "inputs": [
+        "memory/rounds/R388/formal_seal.json",
+        "results/research_loop/r388_regcv1_signed_authority_correction_gate/formal_execution.json",
+        "results/research_loop/r388_regcv1_signed_authority_correction_gate/formal_analysis.json"
+      ],
+      "input_hashes": {
+        "memory/rounds/R388/formal_seal.json": "f10d9add6746dda3fd8e0728d205bed17ab39fa9e9bb9be990e23bfc697b73b4",
+        "results/research_loop/r388_regcv1_signed_authority_correction_gate/formal_execution.json": "696602dfdff62898745260eb7c7f75061a8a78d124001a741f50e69be5c479e4",
+        "results/research_loop/r388_regcv1_signed_authority_correction_gate/formal_analysis.json": "466296010670018e05619e2bd98a378c46f21d04cf74d0b01a2f4042215a5c39"
+      },
+      "supersedes": [
+        "r387-strict-diagnosis"
+      ],
+      "review_after": null
+    },
+    {
+      "id": "r388-publication-audit",
+      "purpose": "evidence-domain-audit",
+      "path": "paper/converter_vsg_pq_decoupling/working/R388_publication_audit.md",
+      "status": "superseded",
+      "canonical": true,
+      "authoritative": false,
+      "producer": "audit-manuscript-evidence+review-power-systems-manuscript",
+      "inputs": [
+        "paper/converter_vsg_pq_decoupling/reports/R388.md",
+        "paper/converter_vsg_pq_decoupling/working/R388_diagnosis.md",
+        "memory/claims/CLM-1085.md"
+      ],
+      "input_hashes": {
+        "paper/converter_vsg_pq_decoupling/reports/R388.md": "e32a88fe7e7e39664a1a880e60b057cdc1405e641d998a23a143f8133b48ee81",
+        "paper/converter_vsg_pq_decoupling/working/R388_diagnosis.md": "38035f6f70fabec3c78998c582c66b2d828d070de4c44c3cc159bc234acdaa85",
+        "memory/claims/CLM-1085.md": "3ff8a9a6a53f5d09d1bc68416fd069d653117cacb68575becfb6d04da4a37d7e"
+      },
+      "supersedes": [
+        "r387-publication-audit"
+      ],
+      "review_after": null
+    },
+    {
+      "id": "r389-strict-diagnosis",
+      "purpose": "experiment-diagnosis",
+      "path": "paper/converter_vsg_pq_decoupling/working/R389_diagnosis.md",
+      "status": "superseded",
+      "canonical": true,
+      "authoritative": false,
+      "producer": "diagnosing-bugs+project-governance",
+      "inputs": [
+        "memory/rounds/R389/formal_seal.json",
+        "results/research_loop/r389_regf2_object_init_gate/formal_execution.json",
+        "results/research_loop/r389_regf2_object_init_gate/formal_analysis.json"
+      ],
+      "input_hashes": {
+        "memory/rounds/R389/formal_seal.json": "5d0a209f8f3ac92867bba48e24e66db8b2ad9e289a41c956963d4f5d50da8372",
+        "results/research_loop/r389_regf2_object_init_gate/formal_execution.json": "c6ac20a4ef8614eb74bb38752826407417ee64ab4e7d3c0c3634a58d73ab2ea4",
+        "results/research_loop/r389_regf2_object_init_gate/formal_analysis.json": "45d3a4cd7942ec509cf399b71bf4115417ac4a79985cdd250aad594f793d931e"
+      },
+      "supersedes": [
+        "r388-strict-diagnosis"
+      ],
+      "review_after": null
+    },
+    {
+      "id": "r390-strict-diagnosis",
+      "purpose": "experiment-diagnosis",
+      "path": "paper/converter_vsg_pq_decoupling/working/R390_diagnosis.md",
+      "status": "superseded",
+      "canonical": true,
+      "authoritative": false,
+      "producer": "diagnosing-bugs+project-governance",
+      "inputs": [
+        "memory/rounds/R390/formal_seal.json",
+        "results/research_loop/r390_regf2_equilibrium_eig_gate/formal_execution.json",
+        "results/research_loop/r390_regf2_equilibrium_eig_gate/formal_analysis.json"
+      ],
+      "input_hashes": {
+        "memory/rounds/R390/formal_seal.json": "99c0b3c9dd1cf792d2d5343a2e63664c56a09aadf10de351584a8fefffe080fc",
+        "results/research_loop/r390_regf2_equilibrium_eig_gate/formal_execution.json": "08cf8d8646bf1b65f017ddd3657f10449e434342f9b7df820ee56cef1f47340f",
+        "results/research_loop/r390_regf2_equilibrium_eig_gate/formal_analysis.json": "a6a0bd51dec900ac978993aeba86347b1535e6b1e8b3a76f3b70e60382523d0e"
+      },
+      "supersedes": [
+        "r389-strict-diagnosis"
+      ],
+      "review_after": null
+    },
+    {
+      "id": "r390-publication-audit",
+      "purpose": "evidence-domain-audit",
+      "path": "paper/converter_vsg_pq_decoupling/working/R390_publication_audit.md",
+      "status": "superseded",
+      "canonical": true,
+      "authoritative": false,
+      "producer": "audit-manuscript-evidence+review-power-systems-manuscript",
+      "inputs": [
+        "paper/converter_vsg_pq_decoupling/reports/R390.md",
+        "paper/converter_vsg_pq_decoupling/working/R390_diagnosis.md",
+        "memory/claims/CLM-1095.md"
+      ],
+      "input_hashes": {
+        "paper/converter_vsg_pq_decoupling/reports/R390.md": "17eb82df481f27afdc0fe933d777f55e91168fb2051137bbe47baf6caefb0f77",
+        "paper/converter_vsg_pq_decoupling/working/R390_diagnosis.md": "f18a50e9192e7910984aab36e180fbd2c21d8e4166f9ce35a5289ab409d3bb64",
+        "memory/claims/CLM-1095.md": "d4b3b75ea53ce9a69bf6684dfd080aa611d3d6f626c442e15338d6c5079e2e28"
+      },
+      "supersedes": [
+        "r388-publication-audit"
+      ],
+      "review_after": null
+    },
+    {
+      "id": "r391-strict-diagnosis",
+      "purpose": "experiment-diagnosis",
+      "path": "paper/converter_vsg_pq_decoupling/working/R391_diagnosis.md",
+      "status": "active",
+      "canonical": true,
+      "authoritative": false,
+      "producer": "diagnosing-bugs+project-governance",
+      "inputs": [
+        "memory/rounds/R391/formal_seal.json",
+        "results/research_loop/r391_regf2_equilibrium_eig_correction_gate/formal_execution.json",
+        "results/research_loop/r391_regf2_equilibrium_eig_correction_gate/formal_analysis.json"
+      ],
+      "input_hashes": {
+        "memory/rounds/R391/formal_seal.json": "59c480f793dc8974958496a0c7c4926b44aa6b2d242077fea23961df155a6cea",
+        "results/research_loop/r391_regf2_equilibrium_eig_correction_gate/formal_execution.json": "77231c9b95de877c83ed1d4a09710168b6bb249bb1c4b7c1d4e7561a9c7543d8",
+        "results/research_loop/r391_regf2_equilibrium_eig_correction_gate/formal_analysis.json": "170658c967798aced2f4b62b614dd2863d2a8445ea4e92fbc2ac05968731619e"
+      },
+      "supersedes": [
+        "r390-strict-diagnosis"
+      ],
+      "review_after": null
+    },
+    {
+      "id": "r391-publication-audit",
+      "purpose": "evidence-domain-audit",
+      "path": "paper/converter_vsg_pq_decoupling/working/R391_publication_audit.md",
+      "status": "active",
+      "canonical": true,
+      "authoritative": false,
+      "producer": "audit-manuscript-evidence+review-power-systems-manuscript",
+      "inputs": [
+        "paper/converter_vsg_pq_decoupling/reports/R391.md",
+        "paper/converter_vsg_pq_decoupling/working/R391_diagnosis.md",
+        "memory/claims/CLM-1100.md"
+      ],
+      "input_hashes": {
+        "paper/converter_vsg_pq_decoupling/reports/R391.md": "4e17ff2bddbcee6630a431447ca203d1b39f951beda26b8f2b040b595886d3f8",
+        "paper/converter_vsg_pq_decoupling/working/R391_diagnosis.md": "057bc8f2854bae1152807789dd4d5098d39643b251edcc70a159111aeca84a00",
+        "memory/claims/CLM-1100.md": "dde17a7cf1651076019597a34e8491f1cc43ba81f9f1d93e6655a0b020230201"
+      },
+      "supersedes": [
+        "r390-publication-audit"
+      ],
+      "review_after": null
+    }
+  ]
+}

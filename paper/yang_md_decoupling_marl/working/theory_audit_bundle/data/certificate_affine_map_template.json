@@ -1,0 +1,52 @@
+{
+  "metadata": {
+    "purpose": "Schema example for a convex bounded-class certificate.",
+    "warning": "Synthetic affine maps only. Replace every numerical array with maps generated from the audited VSG plant and a valid Youla/SLS parameterization.",
+    "affine_map_convention": "For each scenario: y_d=a_d+F_d q, y_cross=a_cross+F_cross q, u=a_u+F_u q, slew=a_slew+F_slew q."
+  },
+  "parameter_dimension": 2,
+  "constraints": {
+    "target_r_d": 0.95,
+    "target_r_cross": 1.10,
+    "u_max": 1.0,
+    "slew_max": 0.25
+  },
+  "equalities": {
+    "E": [[1.0, 1.0]],
+    "f": [0.0]
+  },
+  "inequalities": {
+    "G": [],
+    "h": []
+  },
+  "scenarios": [
+    {
+      "name": "synthetic_scenario_1",
+      "a_d": [1.2, 0.1],
+      "F_d": [[-1.0, 0.0], [0.0, 0.2]],
+      "a_cross": [0.9],
+      "F_cross": [[0.4, -0.1]],
+      "a_u": [0.0, 0.0],
+      "F_u": [[1.0, 0.0], [0.0, 1.0]],
+      "a_slew": [0.0, 0.0],
+      "F_slew": [[1.0, -1.0], [-1.0, 1.0]],
+      "denom_d": 1.0,
+      "denom_cross": 1.0
+    },
+    {
+      "name": "synthetic_scenario_2",
+      "a_d": [1.2, -0.1],
+      "F_d": [[1.0, 0.0], [0.0, -0.2]],
+      "a_cross": [0.9],
+      "F_cross": [[-0.4, 0.1]],
+      "a_u": [0.0, 0.0],
+      "F_u": [[1.0, 0.0], [0.0, 1.0]],
+      "a_slew": [0.0, 0.0],
+      "F_slew": [[1.0, -1.0], [-1.0, 1.0]],
+      "denom_d": 1.0,
+      "denom_cross": 1.0
+    }
+  ]
+}
+
+

@@ -1,0 +1,169 @@
+{
+  "schema_version": 1,
+  "authority": "scratch-independent-algebraic-and-repository-check",
+  "u1": {
+    "common_projector_rank": 1,
+    "differential_projector_rank": 3,
+    "differential_projector_eigenvalues": [
+      2.7755575615628914e-17,
+      0.9999999999999996,
+      1.0,
+      1.0
+    ],
+    "ten_tap_free_coefficients": 90,
+    "scope": "class dimension only; no DCF, lift, primal witness, or dual certificate"
+  },
+  "u2": {
+    "recipient_episode_cases": 20,
+    "all_semantic_donor_nodes_changed": true,
+    "pooled_node_episode_marginals_equal": {
+      "left": true,
+      "right": true
+    },
+    "not_established": [
+      "recipient-conditional equality",
+      "joint temporal independence",
+      "population intrinsic information value"
+    ]
+  },
+  "u3": {
+    "same_raw_action": 0.0,
+    "previous_executed": [
+      1.0,
+      -1.0
+    ],
+    "repo_executed_actions": [
+      0.75,
+      -0.75
+    ],
+    "transition_alias_exists_without_previous_executed": true
+  },
+  "u4": {
+    "per_record_assumption": "each 30-step scenario separately obeys the same undiscounted budget",
+    "bounds": {
+      "eval_a": {
+        "iae": 0.8099774344241963,
+        "peak": 0.02601309295084385,
+        "rocof": 0.0009421116622729003,
+        "all_three": 0.0009421116622729003
+      },
+      "eval_b": {
+        "iae": 0.5048785940937776,
+        "peak": 0.03317205008124198,
+        "rocof": 0.007089746919638597,
+        "all_three": 0.007089746919638597
+      },
+      "eval_c": {
+        "iae": 1.0390829863264173,
+        "peak": 0.04531374872202599,
+        "rocof": 0.0020749779667487726,
+        "all_three": 0.0020749779667487726
+      },
+      "eval_d": {
+        "iae": 0.6231689826547506,
+        "peak": 0.06401788670971749,
+        "rocof": 0.016083627829666127,
+        "all_three": 0.016083627829666127
+      }
+    },
+    "tightest_common_only_sufficient_budget": 0.0009421116622729003,
+    "registered_budget": 3.0,
+    "registered_to_tightest_ratio": 3184.335912754038,
+    "expectation_counterexample_expected_cost": 3.0,
+    "does_not_cover": [
+      "endpoint improvements",
+      "action RMS",
+      "action TV",
+      "saturation",
+      "validity"
+    ]
+  },
+  "u5": {
+    "random_mimo_dimensions": {
+      "state": 3,
+      "control": 2,
+      "disturbance": 2,
+      "output": 2
+    },
+    "total_derivative_relative_error_vs_centered_difference": 6.876840254159042e-10,
+    "scope": "generic identity only; no Object-B total derivative was computed"
+  },
+  "u6": {
+    "fractional_delay_seconds": 0.073,
+    "zoh_split_quadrature_max_abs_error": 9.603417181203167e-07,
+    "threshold_bracket_under_continuity_seconds": [
+      0.0,
+      0.2
+    ],
+    "linear_interpolation_seconds_descriptive_only": 0.19507978109301632,
+    "not_established": "pole-crossing or robust-stability delay margin"
+  },
+  "u7": {
+    "swing_proxy_pure_u_second_derivative": 0.0,
+    "swing_proxy_mixed_x_u_derivative": 0.09375000000020556,
+    "swing_proxy_expected_mixed_x_u_derivative": 0.09375,
+    "generic_counterexample": {
+      "f_u_at_equilibrium": 0.0,
+      "f_uu_at_equilibrium": 2.0
+    },
+    "required_added_assumption": "the equilibrium output/vector field remains zero for every nearby M/D command within one fixed smooth active mode, eliminating pure action terms"
+  },
+  "u8": {
+    "resolvent_commutator_max_abs_error": 2.0014830212433607e-16,
+    "heterogeneity_projector_norm": 44.721359549995796,
+    "population_standard_deviation": 44.721359549995796,
+    "scope": "identity and numerator only; no numerical R405 cross-transfer bound"
+  },
+  "u9": {
+    "actual_selection_branch": 1,
+    "actual_winner": {
+      "candidate_id": "k3_112",
+      "global_index": 137,
+      "k": 3,
+      "schedule": [
+        [
+          3.0,
+          3.0
+        ],
+        [
+          1.5,
+          1.5
+        ],
+        [
+          1.5,
+          1.5
+        ]
+      ]
+    },
+    "candidate_pool": {
+      "feasible_on_both": 1,
+      "feasible_on_none": 346,
+      "feasible_on_one": 3,
+      "total": 350
+    },
+    "branch_count_table": {
+      "1": {
+        "0": "NO-GUARD-CLEAN-TRANSFER",
+        "1": "GUARD-CLEAN-TRANSFER",
+        "2": "GUARD-CLEAN-TRANSFER",
+        "3": "GUARD-CLEAN-TRANSFER",
+        "4": "GUARD-CLEAN-TRANSFER"
+      },
+      "2": {
+        "0": "NO-GUARD-CLEAN-TRANSFER",
+        "1": "GUARD-CLEAN-TRANSFER",
+        "2": "GUARD-CLEAN-TRANSFER",
+        "3": "GUARD-CLEAN-TRANSFER",
+        "4": "GUARD-CLEAN-TRANSFER"
+      },
+      "3": {
+        "0": "FALLBACK-NO-WITNESS",
+        "1": "FALLBACK-NO-WITNESS",
+        "2": "FALLBACK-NO-WITNESS",
+        "3": "FALLBACK-NO-WITNESS",
+        "4": "FALLBACK-NO-WITNESS"
+      }
+    },
+    "statistical_unit": "one fixed profile guard decision; K of four fixed profiles is descriptive"
+  }
+}

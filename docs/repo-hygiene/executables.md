@@ -43,8 +43,8 @@ figure whose source data is not already a structured result consumes a reviewed
 evidence manifest containing the selected values, claim mapping, and source
 hashes; the builder rejects source drift before rendering.
 
-Maintained ANDES entrypoints are launched through
-`python scripts/andes_scratch.py <entrypoint> ...`. The adapter changes the
-child working directory, preserving ANDES scratch files under `tmp/andes/`.
-Known input/output path flags are anchored to the repository before launch, so
-relative checkpoint and result paths retain their direct-entrypoint semantics.
+Maintained ANDES entrypoints launch through
+`python scripts/andes_scratch.py <entrypoint> ...`; workdir isolation and the
+`tmp/andes/` scratch rule live in CLAUDE.md 代码约定. Known input/output path
+flags are anchored to the repository before launch, so relative checkpoint and
+result paths retain their direct-entrypoint semantics.

@@ -33,7 +33,7 @@ directories (`agents/`, `env/`, `scripts/`, `evaluation/`, ...) with
 no package boundary, no `pyproject.toml`, and a 4-level env
 inheritance chain (V1 → V2 → V3 → V4) that hid silent state. A
 `/grill-with-docs` session produced 14 architecture decisions
-(`CONTEXT.md` § AD-01 .. AD-14, `docs/adr/0001-src-layout.md`).
+(`_legacy/CONTEXT_AD01-AD14.md` § AD-01 .. AD-14, `docs/adr/0001-src-layout.md`).
 
 Phase 1 — logical cleanup — repaired the codebase without changing
 directory structure:

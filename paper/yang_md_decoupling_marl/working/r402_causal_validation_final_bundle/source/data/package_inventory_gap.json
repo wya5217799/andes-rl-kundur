@@ -1,0 +1,20 @@
+{
+  "actual_file_count": 399,
+  "manifest_declared_file_count": 387,
+  "manifest_entry_count": 387,
+  "unlisted_file_count": 12,
+  "unlisted_files": [
+    "SHA256SUMS",
+    "existing_r402/audit_bundle/source/SHA256SUMS",
+    "existing_r402/checkpoints/cd_matd3_message/seed401/manifest.json",
+    "existing_r402/checkpoints/cd_matd3_message/seed402/manifest.json",
+    "existing_r402/checkpoints/cd_matd3_message/seed403/manifest.json",
+    "existing_r402/checkpoints/cd_matd3_no_message/seed401/manifest.json",
+    "existing_r402/checkpoints/cd_matd3_no_message/seed402/manifest.json",
+    "existing_r402/checkpoints/cd_matd3_no_message/seed403/manifest.json",
+    "existing_r402/checkpoints/yang_scalar_td3/seed401/manifest.json",
+    "existing_r402/checkpoints/yang_scalar_td3/seed402/manifest.json",
+    "existing_r402/checkpoints/yang_scalar_td3/seed403/manifest.json",
+    "manifest.json"
+  ]
+}

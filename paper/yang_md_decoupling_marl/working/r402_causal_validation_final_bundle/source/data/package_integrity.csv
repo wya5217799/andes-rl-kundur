@@ -1,0 +1,6 @@
+check,status,checked,failed,detail
+top_level_SHA256SUMS,PASS,387,0,All listed files match
+manifest_entry_hashes,PASS,387,0,Hashes and sizes match for listed entries
+manifest_inventory_completeness,WARN,399,12,"Unlisted files: SHA256SUMS, existing_r402/audit_bundle/source/SHA256SUMS, existing_r402/checkpoints/cd_matd3_message/seed401/manifest.json, existing_r402/checkpoints/cd_matd3_message/seed402/manifest.json, existing_r402/checkpoints/cd_matd3_message/seed403/manifest.json, existing_r402/checkpoints/cd_matd3_no_message/seed401/manifest.json, existing_r402/checkpoints/cd_matd3_no_message/seed402/manifest.json, existing_r402/checkpoints/cd_matd3_no_message/seed403/manifest.json, existing_r402/checkpoints/yang_scalar_td3/seed401/manifest.json, existing_r402/checkpoints/yang_scalar_td3/seed402/manifest.json, existing_r402/checkpoints/yang_scalar_td3/seed403/manifest.json, manifest.json"
+filename_sha256_sidecars,PASS,136,0,All actual filename sidecars match
+zip_crc,PASS,399,0,source_zip_sha256=3876b06d735d181e77105bfecdf0ed7d594c85251921f3fd5810965d32d84332

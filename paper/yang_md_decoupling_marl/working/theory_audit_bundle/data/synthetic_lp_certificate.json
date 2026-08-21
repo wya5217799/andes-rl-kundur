@@ -1,0 +1,40 @@
+{
+  "notice": "Synthetic certificate demonstration; not a VSG feasibility result.",
+  "margin_lp_success": true,
+  "margin_lp_status": 0,
+  "q_star": -0.0,
+  "t_star_numeric": 1.263157894736842,
+  "t_star_exact": "24/19",
+  "target_t_le_1_farkas": {
+    "tolerance": 1e-10,
+    "y_nonnegative": true,
+    "yT_A_inf_norm": 0.0,
+    "yT_b": -0.5,
+    "strict_separation_margin": 0.5,
+    "valid": true
+  },
+  "exact_certificate": {
+    "A": [
+      [
+        -1
+      ],
+      [
+        1
+      ]
+    ],
+    "b": [
+      "-1/4",
+      "-1/4"
+    ],
+    "y": [
+      1,
+      1
+    ],
+    "yT_A": [
+      0
+    ],
+    "yT_b": "-1/2"
+  }
+}
+
+

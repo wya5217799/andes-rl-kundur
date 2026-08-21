@@ -1,0 +1,17 @@
+Forbidden statement,Status,Why forbidden,Safe replacement
+“MARL cannot decouple paralleled VSGs.”,`UNAVAILABLE`,One failed fixed canary does not establish a class impossibility.,“The frozen R402 MARL configurations failed the registered canary.”
+“Direct M/D control has no physical authority.”,`CONTRADICTED`,R399 deterministic direct-M/D improves both endpoints and passes guards.,"“Direct M/D has demonstrated finite-amplitude authority, but residual learnable headroom is unknown.”"
+“All finite-order LTI or all causal controllers are infeasible.”,`UNAVAILABLE`,The ideal-model separation theorem has narrow assumptions and is not a plant-wide impossibility theorem.,State only the theorem under its stated reduced-model assumptions.
+“The energy-port result proves that the direct-M/D action basis caused R402.”,`PLAUSIBLE-NOT-IDENTIFIED`,The two objects are unmatched.,“The result motivates a matched action-basis study.”
+"“The common constraint was absent throughout all 1,440 episodes.”",`CONTRADICTED`,"Only the final 20 episodes are retained, and final multipliers are positive.",“The multiplier was small and touched zero in the retained tail.”
+“The CD-MATD3 policies failed to converge.”,`UNAVAILABLE`,No convergence certificate or nonconvergence diagnostic exists.,“Optimization adequacy is unresolved.”
+“Runtime messages are intrinsically useless or harmful.”,`UNAVAILABLE`,The estimand is bundle-specific; seed 403 improves while two seeds degrade.,“No positive three-seed median increment was observed in this bundle.”
+“More training would necessarily fix/fail to fix the result.”,`UNAVAILABLE`,No budget intervention or full learning curve exists.,No directional claim about additional training.
+“The action-effort omission is the sole cause of endpoint failure.”,`UNAVAILABLE`,No matched penalty ablation; scalar TD3 is counter-evidence to a universal single-cause account.,“The omission is a plausible contributor to action stress.”
+"“The actual ANDES DAE has $B_{u,r}=0$ for direct M/D.”",`UNAVAILABLE`,Project Jacobians are not supplied.,Request and evaluate the actual reduced DAE matrices.
+“One fixed topology and one held-out bank establish topology generalization.”,`UNAVAILABLE`,Only one topology is tested.,“Generalization is limited to the stated held-out profiles on one topology.”
+“The frequency-only reconstruction equals the complete training differential objective.”,`CONTRADICTED`,The $T_dP_{es}$ term is omitted.,Use the exact diagnostic name.
+“Action/interface mismatch dominates optimization failure.”,`UNAVAILABLE`,Neither mechanism is isolated or ranked causally.,"“The evidence does not identify the relative contribution of objective, optimization, information, and action-channel mechanisms.”"
+“264 evaluation records were verified.”,`CONTRADICTED`,The exact design count is 240 trajectories.,Report 40 files/240 trajectories.
+“`convergence_diagnostics_valid=true` proves convergence.”,`CONTRADICTED`,The flag only records valid completion without a nonfinite-loss invalid reason.,Describe it as execution validity.
+“The 36 blocks are 36 independent trained-policy replications.”,`CONTRADICTED`,They are nested within nine trained policies and four fixed profiles.,Use seed as the trained-policy replication unit.

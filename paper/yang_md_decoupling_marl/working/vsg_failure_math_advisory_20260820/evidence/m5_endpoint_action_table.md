@@ -1,0 +1,10 @@
+# M5 Endpoint–Action Table
+
+Markdown mirror of the shipped CSV.
+
+| profile | winner_k | winner_schedule | static_Ed | winner_Ed | Ed_improvement | static_Ex | winner_Ex | Ex_improvement | static_action_rms | winner_action_rms | action_rms_increase | static_action_tv | winner_action_tv | action_tv_increase | action_rms_guard | action_tv_guard | common_guards |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| eval_a | 3 | [[3.0,3.0],[3.0,3.0],[3.0,3.0]] | 0.0002791253847750178 | 0.00024083143068874235 | 0.13719266027037047 | 7.295920820936132e-05 | 6.618780108921458e-05 | 0.09281086358168435 | 0.10307352048325573 | 0.1380582897878604 | 0.3394156825203998 | 2.444925222797738 | 2.8581138608832957 | 0.16899847661301637 | False | False | {"common_frequency_iae_no_harm":true,"rocof_no_harm":true,"worst_peak_no_harm":true} |
+| eval_b | 2 | [[3.0,3.0],[3.0,3.0]] | 0.0009031183898968875 | 0.0008190212105343721 | 0.09311866561826639 | 8.806735602325909e-05 | 7.955214776344727e-05 | 0.0966897230065917 | 0.1016969997567608 | 0.13275706844343496 | 0.3054177484189673 | 2.619051336003241 | 2.9175780011117523 | 0.11398274673152176 | False | False | {"common_frequency_iae_no_harm":true,"rocof_no_harm":true,"worst_peak_no_harm":true} |
+| eval_c | 3 | [[3.0,3.0],[3.0,3.0],[3.0,3.0]] | 0.0002894126799313988 | 0.0002478133859558697 | 0.143736943334306 | 7.081846212893744e-05 | 6.545355376247003e-05 | 0.07575578747671269 | 0.12348496512872169 | 0.16290746716904325 | 0.31924940821117165 | 3.6610374915322303 | 4.045101104562097 | 0.10490567603259549 | False | False | {"common_frequency_iae_no_harm":true,"rocof_no_harm":true,"worst_peak_no_harm":true} |
+| eval_d | 3 | [[3.0,3.0],[3.0,3.0],[3.0,3.0]] | 0.0013176274294897092 | 0.0012389215112393543 | 0.05973305995977649 | 8.846530224089277e-05 | 7.79116790466491e-05 | 0.11929675168582977 | 0.11870616926803891 | 0.15240253577920332 | 0.2838636502124663 | 3.3610042905475765 | 3.842257968402997 | 0.14318746310705066 | False | False | {"common_frequency_iae_no_harm":true,"rocof_no_harm":true,"worst_peak_no_harm":true} |

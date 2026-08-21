@@ -1,0 +1,203 @@
+{
+  "notice": "All values in this file are theorem checks, counterexamples, or synthetic diagnostics. They are not manuscript experiment results.",
+  "task_A_homogeneous_balanced": {
+    "max_norm_Pd_G_Pc": 2.591220510087265e-17,
+    "max_norm_Pc_G_Pd": 3.345813473843216e-17,
+    "expected": "both are numerical zero"
+  },
+  "task_A_directed_unbalanced": {
+    "L_times_1_norm": 0.0,
+    "1T_times_L_norm": 3.4641016151377544,
+    "max_norm_Pd_G_Pc": 1.9180268820674624e-17,
+    "max_norm_Pc_G_Pd": 0.06695554419149469,
+    "interpretation": "With scalar M,D and L1=0, common input remains common; lack of left balance allows differential input to leak into the common output."
+  },
+  "task_A_rank_deficient_output": {
+    "C_d_rank": 1,
+    "full_differential_dimension": 3,
+    "max_norm_Cd_G_Pc": 1.0389790954664444e-17,
+    "max_norm_Pd_G_Pc": 0.07802858356031665,
+    "interpretation": "The measured difference omega_1-omega_2 is exactly blind to heterogeneity in the permutation-symmetric hidden subspace."
+  },
+  "task_A_single_frequency_counterexample": {
+    "norm_Pd_G1_Pc": 1.4092960140259168e-17,
+    "norm_Pc_G1_Pd": 7.757919228897728e-18,
+    "norm_Pd_G2_Pc": 0.01619042163124233,
+    "norm_Pc_G2_Pd": 0.016190421631242333,
+    "M_diagonal": [
+      1.0,
+      2.0,
+      3.0,
+      4.0
+    ],
+    "D_diagonal": [
+      4.0,
+      3.0,
+      2.0,
+      1.0
+    ],
+    "interpretation": "At s=1, M_i+D_i is constant, so separation holds at that single frequency; it fails at s=2. A frequency grid is not the rational identity."
+  },
+  "task_A_nondiagonal_counterexample": {
+    "max_norm_Pd_G_Pc": 6.057110638116542e-17,
+    "max_norm_Pc_G_Pd": 8.940139411221186e-17,
+    "distance_M_from_scalar_I": 0.9526279441628824,
+    "distance_D_from_scalar_I": 1.0392304845413265,
+    "interpretation": "General dense M,D may be block diagonal in common/differential coordinates without being scalar multiples of I."
+  },
+  "task_A_high_frequency": {
+    "estimated_order_error_after_first_term": 2.029721869855226,
+    "estimated_order_error_after_second_term": 2.985344577812531,
+    "coefficient_1": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.5882352941176471,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.4166666666666667,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.3125
+      ]
+    ],
+    "coefficient_2": [
+      [
+        -0.6,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        -0.34602076124567477,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        -0.3125,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        -0.244140625
+      ]
+    ]
+  },
+  "task_E_approximate_separation_bound": {
+    "max_contraction_factor": 0.009846242949724218,
+    "all_cross_norms_below_bound": true,
+    "notice": "Numerical sanity check of the perturbation inequality, not plant data."
+  },
+  "task_B_first_order_authority": {
+    "continuous_multiplicative_error_norm": 0.0,
+    "continuous_additive_error_norm": 4.8074067159589095e-17,
+    "sampled_multiplicative_error_norm": 1.5853512473345908e-16,
+    "A_u0": [
+      [
+        -0.9,
+        0.2
+      ],
+      [
+        -0.1,
+        -0.7
+      ]
+    ],
+    "A_additive_closed_loop": [
+      [
+        -0.18000000000000005,
+        0.1
+      ],
+      [
+        -0.22999999999999998,
+        -0.23999999999999994
+      ]
+    ],
+    "sampled_A_u0": [
+      [
+        0.8349316262789717,
+        0.03408347922065845
+      ],
+      [
+        -0.01704173961032923,
+        0.8690151054996302
+      ]
+    ]
+  },
+  "task_C_signed_probe": {
+    "decoder_B_derivative_positive": 600.0,
+    "decoder_B_derivative_negative": 200.0,
+    "decoder_Clarke_generalized_Jacobian": [
+      200.0,
+      600.0
+    ],
+    "estimated_order_decoder_odd": 1.0,
+    "estimated_order_first_order_mode_odd": 0.9999999999999998,
+    "estimated_order_nonsmooth_quadratic_odd": 2.0,
+    "estimated_order_smooth_cubic_odd": 3.0,
+    "notice": "Synthetic functions illustrate orders only; they are not VSG outcomes."
+  },
+  "task_E_DAE": {
+    "sigma_min_g_y": 2.0,
+    "sigma_min_closed_algebraic_jacobian": 2.375,
+    "A_reduced": [
+      [
+        -1.3,
+        0.48
+      ],
+      [
+        0.30000000000000004,
+        -0.76
+      ]
+    ],
+    "B_u_reduced": [
+      [
+        -0.8999999999999999
+      ],
+      [
+        0.30000000000000004
+      ]
+    ],
+    "A_closed_loop_state_feedback": [
+      [
+        -1.6600000000000001,
+        0.6599999999999999
+      ],
+      [
+        0.42000000000000004,
+        -0.8200000000000001
+      ]
+    ],
+    "state_feedback_finite_difference_error_norm": 3.3766115072321297e-16,
+    "A_closed_loop_algebraic_measurement": [
+      [
+        -1.5178947368421052,
+        0.5652631578947367
+      ],
+      [
+        0.3726315789473684,
+        -0.7884210526315789
+      ]
+    ],
+    "algebraic_measurement_finite_difference_error_norm": 1.1102230246251565e-16,
+    "key_point": "Although f_u=0, g_u != 0 and f_y != 0 create nonzero additive first-order authority B_u,reduced = -f_y g_y^{-1} g_u. Direct y feedback additionally changes the closed algebraic Jacobian to g_y+g_u K_y."
+  }
+}
+

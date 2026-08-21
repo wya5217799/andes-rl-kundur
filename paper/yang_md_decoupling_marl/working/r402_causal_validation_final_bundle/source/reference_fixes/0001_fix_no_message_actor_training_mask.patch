@@ -1,0 +1,186 @@
+diff -ruN _patch_base/scripts/run_r402_cd_matd3_canary.py _patch_new/scripts/run_r402_cd_matd3_canary.py
+--- _patch_base/scripts/run_r402_cd_matd3_canary.py	2026-08-16 08:00:02.440435624 +0000
++++ _patch_new/scripts/run_r402_cd_matd3_canary.py	2026-08-16 08:00:03.420583728 +0000
+@@ -273,7 +273,11 @@
+     if arm_id == "yang_scalar_td3":
+         return YangScalarTD3(**kwargs)
+     if arm_id in ("cd_matd3_no_message", "cd_matd3_message"):
+-        return CDMATD3(lagrange_initial=1.0, **kwargs)
++        return CDMATD3(
++            lagrange_initial=1.0,
++            actor_neighbour_mask=(arm_id == "cd_matd3_no_message"),
++            **kwargs,
++        )
+     raise ValueError(f"unknown learning arm: {arm_id}")
+ 
+ 
+diff -ruN _patch_base/src/andes_rl_kundur/agents/cd_matd3.py _patch_new/src/andes_rl_kundur/agents/cd_matd3.py
+--- _patch_base/src/andes_rl_kundur/agents/cd_matd3.py	2026-08-16 08:00:02.435182524 +0000
++++ _patch_new/src/andes_rl_kundur/agents/cd_matd3.py	2026-08-16 08:00:03.420252403 +0000
+@@ -5,10 +5,10 @@
+ joint critic over the concatenated 4x7 observations and 4x2 actions, and
+ the two-component common/differential value pair with a Lagrangian
+ multiplier enforcing the frozen per-episode common budget.  The no-message
+-arm uses the same network with neighbour slots zeroed by the runner before
+-actor forward passes; critic storage always keeps the full joint rows
+-(training-only scope).  No ANDES import: this module is pure and testable
+-offline.  Historical checkpoints are never loaded here.
++arm masks neighbour slots inside every online-actor and target-actor forward;
++critic storage may still keep the full joint rows for centralized training.
++No ANDES import: this module is pure and testable offline.  Historical
++checkpoints are never loaded here.
+ """
+ 
+ from __future__ import annotations
+@@ -121,6 +121,7 @@
+         explore_noise: float = 0.1,
+         policy_delay: int = 2,
+         device: str = "cpu",
++        actor_neighbour_mask: bool = False,
+     ) -> None:
+         hidden = list(hidden_sizes or [256, 256])
+         self.out_dim = int(out_dim)
+@@ -132,6 +133,7 @@
+         self.noise_clip = float(noise_clip)
+         self.explore_noise = float(explore_noise)
+         self.policy_delay = int(policy_delay)
++        self.actor_neighbour_mask = bool(actor_neighbour_mask)
+         self.actors = nn.ModuleList(
+             [DeterministicMDActor(hidden) for _ in range(AGENT_COUNT)]
+         ).to(self.device)
+@@ -178,16 +180,31 @@
+     ) -> None:
+         self.buffer.add(obs, actions, rewards, next_obs, done)
+ 
++    def _actor_obs_row(
++        self, joint_obs: torch.Tensor, actor_index: int
++    ) -> torch.Tensor:
++        """Return one actor row under the arm's execution information pattern."""
++
++        start = actor_index * OBS_DIM
++        row = joint_obs[:, start:start + OBS_DIM]
++        if self.actor_neighbour_mask:
++            row = row.clone()
++            row[:, list(NEIGHBOUR_SLOTS)] = 0.0
++        return row
++
+     def act(
+         self,
+         actor_obs_joint: np.ndarray,
+         deterministic: bool = False,
+     ) -> np.ndarray:
+-        """Return the four-row joint action from the (masked) actor rows."""
++        """Return the four-row joint action under the configured actor mask."""
+ 
+         rows = np.asarray(actor_obs_joint, dtype=np.float32).reshape(
+             AGENT_COUNT, OBS_DIM
+         )
++        if self.actor_neighbour_mask:
++            rows = rows.copy()
++            rows[:, list(NEIGHBOUR_SLOTS)] = 0.0
+         actions = np.zeros((AGENT_COUNT, ACTION_DIM), dtype=np.float32)
+         with torch.no_grad():
+             for actor_index, actor in enumerate(self.actors):
+@@ -207,9 +224,7 @@
+         self, next_obs: torch.Tensor
+     ) -> torch.Tensor:
+         rows = [
+-            self.actor_targets[i](
+-                next_obs[:, i * OBS_DIM:(i + 1) * OBS_DIM]
+-            )
++            self.actor_targets[i](self._actor_obs_row(next_obs, i))
+             for i in range(AGENT_COUNT)
+         ]
+         target = torch.cat(rows, dim=-1)
+@@ -305,16 +320,14 @@
+         if self._update_count % self.policy_delay == 0:
+             with torch.no_grad():
+                 baseline_rows = [
+-                    self.actors[i](
+-                        batch["obs"][:, i * OBS_DIM:(i + 1) * OBS_DIM]
+-                    )
++                    self.actors[i](self._actor_obs_row(batch["obs"], i))
+                     for i in range(AGENT_COUNT)
+                 ]
+                 baseline = torch.cat(baseline_rows, dim=-1)
+             losses = []
+             for i, optimizer in enumerate(self.actor_optimizers):
+                 row = self.actors[i](
+-                    batch["obs"][:, i * OBS_DIM:(i + 1) * OBS_DIM]
++                    self._actor_obs_row(batch["obs"], i)
+                 )
+                 q1 = self._actor_objective(
+                     batch["obs"], i, row, baseline_actions=baseline
+@@ -406,16 +419,14 @@
+         if self._update_count % self.policy_delay == 0:
+             with torch.no_grad():
+                 baseline_rows = [
+-                    self.actors[i](
+-                        batch["obs"][:, i * OBS_DIM:(i + 1) * OBS_DIM]
+-                    )
++                    self.actors[i](self._actor_obs_row(batch["obs"], i))
+                     for i in range(AGENT_COUNT)
+                 ]
+                 baseline = torch.cat(baseline_rows, dim=-1)
+             losses = []
+             for i, optimizer in enumerate(self.actor_optimizers):
+                 row = self.actors[i](
+-                    batch["obs"][:, i * OBS_DIM:(i + 1) * OBS_DIM]
++                    self._actor_obs_row(batch["obs"], i)
+                 )
+                 q1 = self._actor_objective(
+                     batch["obs"], i, row, baseline_actions=baseline
+diff -ruN _patch_base/tests/test_cd_matd3_learner.py _patch_new/tests/test_cd_matd3_learner.py
+--- _patch_base/tests/test_cd_matd3_learner.py	2026-08-16 08:00:02.446283949 +0000
++++ _patch_new/tests/test_cd_matd3_learner.py	2026-08-16 08:00:03.420699123 +0000
+@@ -161,3 +161,38 @@
+     )
+     assert np.allclose(before, after, atol=0.0)
+ 
++
++
++def test_no_message_mask_is_enforced_inside_actor_update_paths():
++    agent = CDMATD3(
++        lagrange_initial=1.0,
++        actor_neighbour_mask=True,
++        **_tiny_kwargs(),
++    )
++    batch = torch.arange(
++        2 * JOINT_OBS_DIM, dtype=torch.float32
++    ).reshape(2, JOINT_OBS_DIM)
++    for actor_index in range(AGENT_COUNT):
++        row = agent._actor_obs_row(batch, actor_index)
++        assert torch.all(row[:, [3, 4, 5, 6]] == 0.0)
++        expected = batch[
++            :, actor_index * OBS_DIM:(actor_index + 1) * OBS_DIM
++        ]
++        assert torch.all(row[:, [0, 1, 2]] == expected[:, [0, 1, 2]])
++
++
++def test_message_arm_preserves_neighbour_slots_inside_update_paths():
++    agent = CDMATD3(
++        lagrange_initial=1.0,
++        actor_neighbour_mask=False,
++        **_tiny_kwargs(),
++    )
++    batch = torch.arange(
++        2 * JOINT_OBS_DIM, dtype=torch.float32
++    ).reshape(2, JOINT_OBS_DIM)
++    for actor_index in range(AGENT_COUNT):
++        row = agent._actor_obs_row(batch, actor_index)
++        expected = batch[
++            :, actor_index * OBS_DIM:(actor_index + 1) * OBS_DIM
++        ]
++        assert torch.equal(row, expected)
+diff -ruN _patch_base/tests/test_run_r402_cd_matd3_canary.py _patch_new/tests/test_run_r402_cd_matd3_canary.py
+--- _patch_base/tests/test_run_r402_cd_matd3_canary.py	2026-08-16 08:00:02.451731332 +0000
++++ _patch_new/tests/test_run_r402_cd_matd3_canary.py	2026-08-16 08:00:03.420779101 +0000
+@@ -39,6 +39,8 @@
+     assert scalar.out_dim == 1
+     assert no_message.out_dim == 2
+     assert message.out_dim == 2
++    assert no_message.actor_neighbour_mask is True
++    assert message.actor_neighbour_mask is False
+ 
+ 
+ def test_mask_applies_only_to_no_message_arm():

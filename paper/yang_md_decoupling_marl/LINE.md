@@ -1,0 +1,86 @@
+---
+line_id: yang-md-decoupling-marl
+status: active
+priority: 4
+stage: manuscript-drafting
+artifact_manifest: paper/yang_md_decoupling_marl/ARTIFACTS.json
+scope:
+  write_roots: [paper/yang_md_decoupling_marl]
+  shared_read_roots: [paper/paralleled_vsg_marl, paper/icems2026, paper/decoupling_marl_model_first, memory, results, docs/research, src/andes_rl_kundur]
+venue:
+  kind: conference
+  status: locked
+  primary: ICEMS 2026
+  decision_record: paper/yang_md_decoupling_marl/working/icems2026_official_requirements.md
+  official_source_status: current
+  last_checked: 2026-08-16
+  review_triggers: ["after evidence-bounded conference-draft review or any authorized topology-robustness gate", "before 2026-08-28 author registration and 2026-09-07 final-paper upload"]
+working_title: "Decoupling-Oriented Coordination of Paralleled  VSGs With Multi-Agent Reinforcement Learning"
+title_policy: "Fixed wording; same-object evidence per term; prospective till gate passes."
+objective: "Draft/audit an evidence-bounded ICEMS 2026 manuscript: direct-M/D MARL canary as bounded negative comparison; R408/R409 energy-port results as separately labelled constructive mechanism result. No new experiment/training/learner replacement/fresh bank/broader title claim, except the owner-authorized message-contrast repair round, soft-spot program, and VSG failure-math advisory resolution program; only verified outcomes may enter, before the final-paper freeze."
+decision_refs: ["paper/yang_md_decoupling_marl/working/route_owner_decision_v2_solving_2026-08-15.md#decision", "memory/claims/CLM-1165.md#statement", "paper/yang_md_decoupling_marl/working/route_successor_design_r403.md#decision", "docs/adr/0019-separate-yang-md-decoupling-marl-successor.md#decision", "paper/yang_md_decoupling_marl/working/route_owner_decision_message_repair_2026-08-16.md#decision", "paper/yang_md_decoupling_marl/working/route_owner_decision_soft_spot_program_2026-08-16.md#decision", "paper/yang_md_decoupling_marl/working/soft_spot_experiment_program.md#default-deck-run-in-order-then-stop", "paper/yang_md_decoupling_marl/working/route_owner_decision_advisory_unresolved_2026-08-21.md#decision", "paper/yang_md_decoupling_marl/working/gpt_pro_unresolved_math_solution_20260821/IMPORT_NOTE.md#manuscript-disposition"]
+evidence_refs:
+  - "CLM-1135 -> paper/yang_md_decoupling_marl/reports/R398.md"
+  - "CLM-1140 -> paper/yang_md_decoupling_marl/reports/R399.md"
+  - "CLM-1145 -> paper/yang_md_decoupling_marl/reports/R400.md"
+  - "CLM-1150 -> paper/yang_md_decoupling_marl/reports/R401.md"
+  - "CLM-1155 -> paper/yang_md_decoupling_marl/reports/R402.md"
+  - "CLM-1160 -> paper/yang_md_decoupling_marl/reports/R402.md"
+  - "CLM-1170 -> paper/yang_md_decoupling_marl/reports/R403.md"
+  - "CLM-1175 -> paper/yang_md_decoupling_marl/reports/R404.md"
+  - "CLM-1180 -> paper/yang_md_decoupling_marl/reports/R405.md"
+  - "CLM-1195 -> paper/yang_md_decoupling_marl/reports/R408.md"
+  - "CLM-1200 -> paper/yang_md_decoupling_marl/reports/R408.md"
+  - "CLM-1205 -> paper/yang_md_decoupling_marl/reports/R408.md"
+  - "CLM-1210 -> paper/yang_md_decoupling_marl/reports/R409.md"
+  - "CLM-1215 -> paper/yang_md_decoupling_marl/reports/R410.md"
+  - "CLM-1220 -> paper/yang_md_decoupling_marl/reports/R411.md"
+  - "CLM-1225 -> paper/yang_md_decoupling_marl/reports/R413.md"
+  - "CLM-1230 -> paper/yang_md_decoupling_marl/reports/R415.md"
+  - "CLM-1235 -> paper/yang_md_decoupling_marl/reports/R416.md"
+  - "CLM-1240 -> paper/yang_md_decoupling_marl/reports/R417.md"
+  - "CLM-1245 -> paper/yang_md_decoupling_marl/reports/R419.md"
+  - "CLM-1250 -> paper/yang_md_decoupling_marl/reports/R420.md"
+  - "CLM-1255 -> paper/yang_md_decoupling_marl/reports/R421.md"
+  - "CLM-1265 -> paper/yang_md_decoupling_marl/reports/R422.md"
+  - "CLM-1270 -> paper/yang_md_decoupling_marl/reports/R423.md"
+  - "CLM-1275 -> paper/yang_md_decoupling_marl/reports/R423.md"
+  - "CLM-1285 -> paper/yang_md_decoupling_marl/reports/R424.md"
+  - "CLM-1290 -> paper/yang_md_decoupling_marl/reports/R425.md"
+  - "CLM-1295 -> paper/yang_md_decoupling_marl/reports/R426.md"
+  - "CLM-1300 -> paper/yang_md_decoupling_marl/reports/R427.md"
+  - "CLM-1305 -> paper/yang_md_decoupling_marl/reports/R428.md"
+  - "CLM-1310 -> paper/yang_md_decoupling_marl/reports/R430.md"
+  - "CLM-1315 -> paper/yang_md_decoupling_marl/reports/R431.md"
+  - "CLM-1320 -> paper/yang_md_decoupling_marl/reports/R432.md"
+  - "CLM-1325 -> paper/yang_md_decoupling_marl/reports/R433.md"
+  - "CLM-1330 -> paper/yang_md_decoupling_marl/reports/R434.md"
+  - "CLM-1335 -> paper/yang_md_decoupling_marl/reports/R435.md"
+  - "CLM-1340 -> paper/yang_md_decoupling_marl/reports/R437.md"
+  - "CLM-1345 -> paper/yang_md_decoupling_marl/reports/R436.md"
+  - "CLM-1355 -> paper/yang_md_decoupling_marl/reports/R439.md"
+  - "CLM-1360 -> paper/yang_md_decoupling_marl/reports/R438.md"
+  - "CLM-1350 -> paper/yang_md_decoupling_marl/reports/R440.md"
+  - "CLM-1365 -> paper/yang_md_decoupling_marl/reports/R441.md"
+  - "CLM-1380 -> paper/yang_md_decoupling_marl/reports/R444.md"
+  - "CLM-1390 -> paper/yang_md_decoupling_marl/reports/R446.md"
+  - "CLM-1395 -> paper/yang_md_decoupling_marl/reports/R447.md"
+  - "CLM-1400 -> paper/yang_md_decoupling_marl/reports/R449.md"
+  - "CLM-1405 -> paper/yang_md_decoupling_marl/reports/R450.md"
+  - "CLM-1410 -> paper/yang_md_decoupling_marl/reports/R453.md"
+  - "CLM-1415 -> paper/yang_md_decoupling_marl/reports/R454.md"
+  - "CLM-1420 -> paper/yang_md_decoupling_marl/reports/R456.md"
+  - "CLM-1425 -> paper/yang_md_decoupling_marl/reports/R457.md"
+  - "CLM-1430 -> paper/yang_md_decoupling_marl/reports/R458.md"
+  - "CLM-1435 -> paper/yang_md_decoupling_marl/reports/R459.md"
+  - "CLM-1440 -> paper/yang_md_decoupling_marl/reports/R460.md"
+  - "CLM-1445 -> paper/yang_md_decoupling_marl/reports/R463.md"
+  - "CLM-1450 -> paper/yang_md_decoupling_marl/reports/R464.md"
+  - "CLM-1455 -> paper/yang_md_decoupling_marl/reports/R465.md"
+  - "CLM-1460 -> paper/yang_md_decoupling_marl/reports/R467.md"
+  - "CLM-1465 -> paper/yang_md_decoupling_marl/reports/R468.md"
+  - "CLM-1470 -> paper/yang_md_decoupling_marl/reports/R469.md"
+required_reading: [paper/yang_md_decoupling_marl/LINE.md]
+verification: ["One VSG proxy = one actor, one independently executed bounded delta-M/delta-D vector; decoupling = lower off-diagonal common/differential response + lower disturbance differential energy with common-mode no-harm; coordination = message-enabled execution beats a matched no-message arm; R399 = finite non-learning stop; historical values not evidence; direct-M/D vs energy-port ratios never pooled."]
+stop_when: ["No training/tuning/learner replacement/bank retry/fresh bank, except the owner-authorized message-contrast repair round, soft-spot program rounds, and VSG failure-math advisory resolution rounds (one per item, program order). Keep R404 values out of title-supporting Results; no universal MARL claim from the R402 canary failure; no successful-MARL claim from R409; keep direct-M/D and energy-port objects/estimators/banks/references separate."]
+---

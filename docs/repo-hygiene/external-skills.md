@@ -82,6 +82,24 @@ research skills with no project-write authority. The Tutor is read-only; the
 enrichment writer has one narrow, user-authorized teaching destination and no
 research authority.
 
+## Engineering routers
+
+Two peer engineering routers are reachable from the session skill catalog and
+serve scoped code work. Neither sits in the academic scope manifest and neither
+may mutate rounds, claims, questions, gates, feeds, or manuscript-line state;
+they return implementation artifacts only.
+
+- **`ask-matt`** — the engineering flow: idea → spec → tickets → `/implement`
+  (which drives `/tdd` + `/code-review`). Default for a non-trivial `scratch`
+  slice or a multi-file build.
+- **`diagnosing-bugs`** — the bug-finding discipline: build a tight red loop
+  before theorising, fix with a regression test, then post-mortem; hands off to
+  `/improve-codebase-architecture` when no correct seam exists.
+
+Selection is a peer engineering decision; the research supervisor does not
+discover or nested-route through them. `skills/kundur-round/SKILL.md` section 2
+and the current user authorization still decide the writable lane.
+
 ## Invocation and scope manifest
 
 `docs/repo-hygiene/research-skills.scope.json` is the single inventory of
@@ -114,3 +132,16 @@ High-cost judgment workflows such as Deep Research, Idea Evaluator, full
 drafting, and complete pre-submission review are explicit. Narrow presentation
 helpers and hard evidence/domain/submission gates may be selected implicitly
 when the task clearly matches.
+
+## Agent-facing writing standard
+
+`writing-for-agents` is the default writing reference for every repository
+document whose reader is an agent: `AGENTS.md`, `CLAUDE.md`, `skills/`,
+`docs/agents/`, `docs/repo-hygiene/`, and ledger templates. Load it before
+creating or editing such a document. It owns writing mechanics only — context
+pointers, the information hierarchy, steps with completion criteria, leading
+words, pruning, single source of truth. It has no authority over rounds,
+claims, gates, ledgers, or manuscript-line state, and project-specific
+research rules are never copied into it. Schema-enforced contracts (feed,
+claim, plan, and verdict forms) keep their `validate.py` shapes; the skill
+governs the prose around them, not the contracts.

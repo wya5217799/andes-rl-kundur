@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "claims": [
+    {
+      "claim_id": "REPLACE",
+      "scope": "REPLACE",
+      "evidence_level": "MATH|CODE-BOUND|MODEL-BOUND|BANK-BOUND|ALGO-BUDGET-BOUND|DISTRIBUTION-BOUND",
+      "status": "supported|refuted|unresolved|invalid",
+      "raw_inputs": [],
+      "derived_fields": [],
+      "scripts": [],
+      "independent_checks": [],
+      "authorized_wording": "REPLACE",
+      "prohibited_wording": [],
+      "limitations": []
+    }
+  ]
+}

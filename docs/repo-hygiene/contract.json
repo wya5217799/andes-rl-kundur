@@ -89,7 +89,7 @@
           "paper/icems2026/figures/paired_effects.pdf"
         ],
         "release": [
-          "output/pdf/icems2026_full_paper.pdf"
+          "_legacy/output/pdf/icems2026_full_paper.pdf"
         ],
         "reports": [
           "paper/icems2026/reports"
@@ -126,14 +126,21 @@
     {
       "id": "decoupling-marl-model-first",
       "kind": "manuscript",
-      "status": "frozen",
+      "status": "active",
       "root": "paper/decoupling_marl_model_first",
       "roles": {
         "canonical": [
-          "paper/decoupling_marl_model_first/LINE.md"
+          "paper/decoupling_marl_model_first/LINE.md",
+          "paper/decoupling_marl_model_first/ARTIFACTS.json",
+          "paper/decoupling_marl_model_first/main.tex",
+          "paper/decoupling_marl_model_first/references.bib"
         ],
         "support": [
           "paper/decoupling_marl_model_first/working/model_contract.md"
+        ],
+        "derived": [
+          "paper/decoupling_marl_model_first/figures",
+          "paper/decoupling_marl_model_first/main.pdf"
         ]
       }
     },
@@ -150,6 +157,40 @@
         ],
         "reports": [
           "paper/paralleled_vsg_marl/reports"
+        ]
+      }
+    },
+    {
+      "id": "converter-vsg-pq-decoupling",
+      "kind": "manuscript",
+      "status": "active",
+      "root": "paper/converter_vsg_pq_decoupling",
+      "roles": {
+        "canonical": [
+          "paper/converter_vsg_pq_decoupling/LINE.md",
+          "paper/converter_vsg_pq_decoupling/ARTIFACTS.json"
+        ],
+        "support": [
+          "paper/converter_vsg_pq_decoupling/working/route_contract.md"
+        ]
+      }
+    },
+    {
+      "id": "yang-md-decoupling-marl",
+      "kind": "manuscript",
+      "status": "active",
+      "root": "paper/yang_md_decoupling_marl",
+      "roles": {
+        "canonical": [
+          "paper/yang_md_decoupling_marl/LINE.md",
+          "paper/yang_md_decoupling_marl/ARTIFACTS.json"
+        ],
+        "support": [
+          "paper/yang_md_decoupling_marl/working/route_contract.md",
+          "paper/yang_md_decoupling_marl/working/vsg_failure_math_advisory_20260820"
+        ],
+        "reports": [
+          "paper/yang_md_decoupling_marl/reports"
         ]
       }
     },
@@ -204,19 +245,19 @@
       "id": "vsg-teaching",
       "kind": "teaching",
       "status": "frozen",
-      "root": "lessons",
+      "root": "_legacy/lessons",
       "roles": {
         "canonical": [
-          "MISSION.md",
-          "NOTES.md",
-          "RESOURCES.md"
+          "_legacy/MISSION.md",
+          "_legacy/NOTES.md",
+          "_legacy/RESOURCES.md"
         ],
         "derived": [
-          "lessons/0001-what-controls-the-vsg-now.html",
-          "reference/vsg-control-stack.html"
+          "_legacy/lessons/0001-what-controls-the-vsg-now.html",
+          "_legacy/reference/vsg-control-stack.html"
         ],
         "support": [
-          "assets/teaching.css"
+          "_legacy/assets/teaching.css"
         ]
       }
     },
@@ -335,6 +376,12 @@
       },
       {
         "pattern": "scripts/run_parallel_wsl_shards.py",
+        "role": "operation",
+        "state": "active",
+        "owner": "andes-runtime"
+      },
+      {
+        "pattern": "scripts/soft_spot_shard_driver.py",
         "role": "operation",
         "state": "active",
         "owner": "andes-runtime"
@@ -472,7 +519,7 @@
       "id": "icems2026-release-pdf",
       "canonical": "paper/icems2026/main.pdf",
       "derived": [
-        "output/pdf/icems2026_full_paper.pdf"
+        "_legacy/output/pdf/icems2026_full_paper.pdf"
       ],
       "relation": "byte-identical"
     }
@@ -483,6 +530,8 @@
     "allowed_markdown": [
       "plan.md",
       "verdict.md",
+      "formulas.md",
+      "execution_amendment_*.md",
       "stage_b_protocol.md",
       "stage_c_fast_controller_development_protocol.md",
       "stage_d_compact_controller_validation_protocol.md",
@@ -502,7 +551,7 @@
     "navigation_budgets": {
       "line_max_lines": 90,
       "line_max_bytes": 8192,
-      "required_reading_max_bytes": 24576
+      "required_reading_max_bytes": 32768
     },
     "venue_statuses": [
       "unassessed",
@@ -600,7 +649,7 @@
       ]
     },
     {
-      "adapter": "MEMORY.md",
+      "adapter": "_legacy/MEMORY.md",
       "must_reference": [
         "memory/RESEARCH_PROGRAM.md",
         "memory/STATE.md",

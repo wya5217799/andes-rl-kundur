@@ -1,0 +1,61 @@
+diff -ruN _adapter_base/scripts/run_r402_cd_matd3_canary.py _adapter_new/scripts/run_r402_cd_matd3_canary.py
+--- _adapter_base/scripts/run_r402_cd_matd3_canary.py	2026-08-16 08:00:26.756534899 +0000
++++ _adapter_new/scripts/run_r402_cd_matd3_canary.py	2026-08-16 08:00:27.589058316 +0000
+@@ -254,6 +254,12 @@
+     return np.concatenate(rows).astype(np.float32)
+ 
+ 
++def _physical_joint_obs(observation: Mapping[int, Any]) -> np.ndarray:
++    """Apply the frozen 50-to-60 Hz adapter before every learned actor path."""
++
++    return _joint_obs(adapt_v4_observations_to_physical(observation))
++
++
+ def _agent_for(arm_id: str, device: str) -> Any:
+     contract = build_contract()
+     learner = contract["learner_contract"]
+@@ -387,7 +393,7 @@
+         episode_common = 0.0
+         episode_scalar = 0.0
+         for _step_index in range(steps_per_episode):
+-            joint = _joint_obs(observation)
++            joint = _physical_joint_obs(observation)
+             actor_joint = _mask_actor_obs(arm_id, joint)
+             raw_action = agent.act(actor_joint, deterministic=False)
+             if not np.all(np.isfinite(raw_action)):
+@@ -408,7 +414,7 @@
+             )
+             previous_frequency = frequencies.copy()
+             tds_failed = bool(info["tds_failed"])
+-            next_joint = _joint_obs(observation)
++            next_joint = _physical_joint_obs(observation)
+             terminal = bool(done) or tds_failed
+             if arm_id == "yang_scalar_td3":
+                 scalar_reward = _scalar_step_reward(rewards)
+@@ -577,7 +583,7 @@
+                         adapt_v4_observations_to_physical(observation)
+                     )
+                 else:
+-                    joint = _joint_obs(observation)
++                    joint = _physical_joint_obs(observation)
+                     actor_joint = _mask_actor_obs(arm_id, joint)
+                     raw = agent.act(actor_joint, deterministic=True)
+                     action = projector.project(raw)
+diff -ruN _adapter_base/tests/test_run_r402_cd_matd3_canary.py _adapter_new/tests/test_run_r402_cd_matd3_canary.py
+--- _adapter_base/tests/test_run_r402_cd_matd3_canary.py	2026-08-16 08:00:26.762062352 +0000
++++ _adapter_new/tests/test_run_r402_cd_matd3_canary.py	2026-08-16 08:00:27.589218461 +0000
+@@ -86,3 +86,14 @@
+     assert seal["canary_work_units"]["evaluation_records"] == 240
+     assert runner.TOTAL_INTERACTION_STEPS == 43200
+ 
++
++
++def test_physical_joint_obs_applies_frequency_adapter_once():
++    observation = {
++        i: np.arange(7, dtype=np.float32) + 10.0 * i
++        for i in range(4)
++    }
++    raw = runner._joint_obs(observation).reshape(4, 7)
++    converted = runner._physical_joint_obs(observation).reshape(4, 7)
++    assert np.allclose(converted[:, 0], raw[:, 0])
++    assert np.allclose(converted[:, 1:], raw[:, 1:] * np.float32(60.0 / 50.0))

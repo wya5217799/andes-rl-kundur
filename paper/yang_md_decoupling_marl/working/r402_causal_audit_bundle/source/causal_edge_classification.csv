@@ -1,0 +1,29 @@
+From,To,Class,Basis
+Profile/scenario $S_k$,observation values $O_k$,C2,Operating point and disturbance determine measured local/neighbor signals.
+Runtime-message intervention $M$,message slots in $O_k$,C1,Message/no-message is the closest matched controlled change.
+$O_k$,raw actor action $A_k$,C2,The actor consumes the seven-slot row.
+Actor/critic parameters and optimization state $Z_k$,$A_k$,C2,Network parameters mechanically determine deterministic evaluation actions.
+$A_k$,decoder/slew/clamp output $U_k$,C2,Frozen asymmetric decoding and componentwise slew projection.
+$U_k$,direct-M/D plant channel $X_{k+1}$,C2,Decoded M/D parameters enter the simulator.
+$S_k$,$X_{k+1}$,C2,Plant response depends on profile and disturbance.
+$X_{k+1}$,"episode common cost $C_{c,k}$",C2,Frequency/RoCoF enter the stated cost definition.
+Reward/cost definition,"$C_{c,k}$ and critic targets",C2,The equations define training labels/objectives.
+"$C_{c,k}$",$\lambda_{k+1}$,C2,Projected update uses the episode common cost.
+Budget 3.0 and step 0.05,$\lambda_{k+1}$,C2,Both constants enter the update algebraically.
+$\lambda_{k+1}$,next actor update/optimization state $Z_{k+1}$,C2,The multiplier weights $Q_c$ in the actor objective.
+Actor/critic approximation,optimization adequacy,C4,"Function class can matter, but its contribution is not isolated."
+Replay coverage,optimization adequacy,C4,Coverage insufficiency is plausible; no coverage diagnostic is stored.
+Exploration noise,replay coverage,C2,Noise changes sampled actions and hence replay support.
+Exploration noise,optimization adequacy,C4,Its net benefit/harm is not identified.
+Training profile schedule,replay coverage,C2,Only four development profiles generate training experience.
+Final $Z$,evaluation action sequence,C2,Final-checkpoint deterministic evaluation.
+Evaluation scenario,common and differential endpoints,C2,Endpoint values are responses to fixed disturbances/operating points.
+Evaluation actions through direct M/D,common and differential endpoints,C2,Closed-loop plant mechanics.
+Evaluation action magnitude/TV,action-stress guard result,C2,Guard ratios are deterministic functions of stored actions and reference.
+Common/differential endpoints,physical guard/classification result,C2,Threshold logic is frozen and reward-independent.
+Message availability,endpoint total effect in this frozen bundle,C1,"Matched arm contrast; observed median increment is non-positive, but n=3 and seed signs are heterogeneous."
+Large actions/slew use,endpoint degradation,C3,They co-occur in arm–seed aggregates; no intervention or valid mediation analysis isolates the arrow.
+Missing action-effort term,large actions/slew use,C4,"Objective omission makes the pattern plausible, but no penalty ablation identifies the realized effect."
+Small retained-tail $\lambda$,negligible common actor gradient,C4,Requires unavailable $Q$ action gradients and actor Jacobians.
+Direct-M/D channel,zero physical authority,C5,Contradicted by the strong deterministic direct-M/D result.
+Energy-port success,R402 failure caused by action-basis mismatch,C4,"Objects are unmatched in actuator, estimator, bank, window, and reference."

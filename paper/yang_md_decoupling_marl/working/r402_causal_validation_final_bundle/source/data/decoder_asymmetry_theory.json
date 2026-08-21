@@ -1,0 +1,18 @@
+{
+  "decoder": {
+    "formula": "delta_q(a)=600*a for a>=0 and 200*a for a<0",
+    "negative_slope": 200.0,
+    "positive_slope": 600.0
+  },
+  "gaussian_example": {
+    "E_A_positive": 0.039894228040143274,
+    "E_delta_q_before_slew_clamp": 15.95769121605731,
+    "scope": "pre-slew/pre-clamp analytic reference only",
+    "sigma": 0.1,
+    "units": "same units as decoded Delta M or Delta D"
+  },
+  "symmetric_zero_mean_action_identity": {
+    "formula": "E[delta_q(A)] = 400 E[A_+] > 0 for any nondegenerate distribution symmetric about zero",
+    "interpretation": "zero-mean normalized exploration is not zero-mean in decoded physical parameter space"
+  }
+}

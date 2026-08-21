@@ -1,0 +1,31 @@
+{
+  "causal_evidence_availability": {
+    "full_training_logs": false,
+    "message_interventions": false,
+    "r402_specific_dae_authority": false,
+    "successor_S0_S5": false
+  },
+  "package_integrity": {
+    "all_listed_hashes_pass": true,
+    "inventory_completeness_warning": true
+  },
+  "post_hoc": {
+    "learning_trajectories_with_any_physical_lower_clamp": 179,
+    "learning_trajectories_with_reference_upper_box_excursion": 151,
+    "learning_trajectory_total": 216,
+    "maximum_observed_d": 745.0480346679688,
+    "maximum_observed_m": 859.978271484375,
+    "median_relative_actor_change_1200_to_1440": 0.2542447502164218,
+    "median_relative_critic_change_1200_to_1440": 0.18269676797664158,
+    "message_neighbour_to_local_weight_norm_ratio_mean": 1.306887198380079,
+    "no_message_neighbour_to_local_weight_norm_ratio_mean": 1.3147084933348487
+  },
+  "registered": {
+    "all_learning_blocks_action_guard_fail": true,
+    "all_learning_blocks_common_guard_fail": true,
+    "deterministic_trajectory_count": 24,
+    "learning_profile_block_count": 36,
+    "learning_trajectory_count": 216,
+    "trajectory_count": 240
+  }
+}

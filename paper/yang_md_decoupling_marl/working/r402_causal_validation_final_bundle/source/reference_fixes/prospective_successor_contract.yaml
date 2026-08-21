@@ -1,0 +1,196 @@
+schema_version: 1
+study_id: r402_causal_validation_v2
+status: prospective_not_executed
+purpose: >-
+  Restore implementation validity before estimating the causal contributions of
+  message information, slew interface, frequency scaling, componentwise effort,
+  multiplier calibration, and objective alignment.
+
+invariants:
+  simulator: ANDES 2.0.0
+  topology: modified_kundur_two_area_fixed_connectivity
+  devices: 4_vsg_proxies
+  controller_interval_s: 0.2
+  horizon_steps: 30
+  physical_frequency_hz: 60.0
+  action_components_per_agent: 2
+  action_bounds: [-1.0, 1.0]
+  decoder:
+    negative_slope: 200.0
+    positive_slope: 600.0
+    m_lower_clamp: 20.0
+    d_lower_clamp: 10.0
+  normalized_slew_per_step: 0.25
+  final_checkpoint_is_registered: true
+  deterministic_reference: local_neighbour_md_km2_kd2
+  endpoint_and_guard_implementation: frozen_r402_evaluator
+  no_best_checkpoint_selection: true
+  no_consumed_bank_reuse_for_tuning: true
+
+randomization:
+  paired_training_seeds: [501, 502, 503, 504, 505, 506]
+  minimum_seed_count: 6
+  common_random_numbers:
+    network_initialization: true
+    exploration_noise: true
+    replay_sampling: true
+    profile_schedule: true
+    disturbance_order: true
+    simulator_randomness: true
+  statistical_unit: paired_training_seed
+
+banks:
+  calibration_bank:
+    purpose: normalization_and_penalty_scale_only
+    excluded_from_primary_inference: true
+  training_bank:
+    fresh: true
+    structure: 4_profiles_x_6_signed_trajectories
+  diagnostic_bank:
+    fresh: true
+    checkpoint_selection_forbidden: true
+  heldout_primary_bank:
+    fresh: true
+    minimum_profiles: 4
+    one_use: true
+  heldout_replication_bank:
+    fresh: true
+    minimum_profiles: 4
+    one_use: true
+
+phases:
+  phase_0_instrumentation:
+    objective: reproduce_historical_code_with_logging_only
+    conditions:
+      E0:
+        code: historical_r402_unchanged
+        runtime_messages: [off, on]
+        budget_steps: 43200
+        new_logging_only: true
+    mandatory_outputs:
+      - full_episode_log_1440
+      - actor_update_log
+      - critic_update_log
+      - replay_snapshots
+      - checkpoint_eval_on_development_profiles
+      - checkpoint_eval_on_diagnostic_bank
+      - checkpoint_eval_on_heldout_primary_and_replication
+      - q_calibration
+      - raw_observation_chain
+      - raw_pre_slew_and_post_slew_action_chain
+      - complete_P_es_and_cost_decomposition
+    gate:
+      reproduce_registered_direction: true
+      all_hashes_and_schemas_pass: true
+
+  phase_1_code_validity:
+    prerequisite: phase_0_instrumentation_pass
+    conditions:
+      E1_mask_consistency:
+        sole_change: >-
+          Mask neighbour slots in every online actor and target actor forward
+          for the no-message arm; centralized critics may retain full state.
+        patch: 0001_fix_no_message_actor_training_mask.patch
+      E2_slew_markov:
+        sole_change: >-
+          Preserve the historical actor output as a normalized target action,
+          add previous executed own action to actor state, and use the same
+          differentiable target-to-executed slew map in behavior, target,
+          online actor, critic-action, and replay semantics. Do not bundle an
+          increment-command reparameterization; label that separately as E2b.
+        reference_code: slew_aware_td3_interface.py
+      E3_frequency_adapter:
+        sole_change: >-
+          Apply the frozen 50-to-60 observation conversion exactly once to all
+          learning and deterministic actor inputs.
+        patch: 0002_apply_frequency_adapter_consistently.patch
+    contrasts:
+      - E1_mask_consistency_minus_E0
+      - E2_slew_markov_minus_E0
+      - E3_frequency_adapter_minus_E0
+    gate:
+      no_message_actor_gradient_message_slot_norm_must_be_zero: true
+      actor_target_actions_must_satisfy_executable_slew_map: true
+      frequency_slots_must_have_one_conversion_only: true
+
+  phase_2_mechanism_identification:
+    prerequisite: phase_1_code_validity_pass
+    baseline: corrected_E1_E2_E3
+    conditions:
+      E4_effort_only:
+        sole_change: componentwise_executed_action_effort
+        reference_code: componentwise_effort_cost.py
+        cost_object: post_slew_executed_normalized_action
+        scale_frozen_on: calibration_bank
+      E5_multiplier_only:
+        sole_change: multiplier_rule
+        arms:
+          - projected_lambda_0_10_historical
+          - fixed_common_weight_1
+          - projected_lambda_1_10
+      E6_objective_alignment_only:
+        sole_change: training_surrogate
+        requirements:
+          - baseline_subtracted_P_es
+          - complete_P_es_logging
+          - signed_pair_compatible_diagnostic
+          - registered_reference_denominators_logged
+      E7_message_value:
+        sole_change: runtime_message_information
+        prerequisites:
+          - corrected_no_message_mask
+          - corrected_slew_interface
+        frozen_policy_interventions: [M0, M1, M2, M3, M4, M5, M6, M7]
+      E8_authority_export:
+        training: false
+        outputs:
+          - fx_fy_gx_gy_fu_gu_fw_gw
+          - one_sided_decoder_jacobians
+          - active_set_slew_and_clamp_jacobians
+          - 30_step_LTV_lifted_maps
+          - singular_values_and_condition_numbers
+          - constrained_reachable_sets
+          - local_headroom_from_deterministic_reference
+
+primary_outcomes:
+  lower_is_better:
+    - off_diagonal_response_energy
+    - localized_disturbance_differential_energy
+  guards:
+    common_iae_ratio_max: 1.03
+    worst_peak_ratio_max: 1.03
+    rocof_ratio_max: 1.03
+    action_rms_ratio_max: 1.10
+    action_tv_ratio_max: 1.10
+    normalized_boundary_saturation_required: 0.0
+  additional_diagnostics:
+    - physical_lower_clamp_fraction
+    - reference_upper_box_excursion_fraction
+    - lambda_actor_gradient_ratio
+    - q_calibration_rmse
+    - replay_ood_score
+    - pre_slew_post_slew_action_gap
+    - development_to_heldout_endpoint_gap
+    - per_actor_counterfactual_q_and_gradient_decomposition
+
+causal_decision_rules:
+  paired_effect_direction: baseline_minus_intervention_positive_is_better
+  report_each_seed: true
+  aggregate: paired_seed_median
+  exact_sign_test: true
+  confidence_interval: paired_bootstrap_over_seeds
+  mechanism_verified_only_if:
+    - implementation_or_gradient_manipulation_check_passes
+    - paired_physical_effect_is_directionally_consistent
+    - heldout_primary_and_replication_agree
+    - serious_alternative_explanation_is_not_equally_supported
+  more_seeds_alone_never_count_as_mechanism_identification: true
+
+prohibited_practices:
+  - algorithm_sweep
+  - outcome_dependent_penalty_scaling
+  - best_checkpoint_substitution
+  - tuning_on_heldout_primary_or_replication
+  - pooling_profile_or_time_rows_as_independent_seeds
+  - calling_message_contrast_causal_before_E1
+  - calling_optimization_failure_without_q_and_update_diagnostics

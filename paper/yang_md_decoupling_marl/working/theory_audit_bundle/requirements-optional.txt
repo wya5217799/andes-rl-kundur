@@ -1,0 +1,6 @@
+# Required only to solve the affine-map SOCP template.
+cvxpy>=1.4
+# Also install a conic solver that exposes reliable primal/dual information.
+# Independently verify every claimed lower bound or infeasibility certificate.
+
+

@@ -1,0 +1,4 @@
+seed,cross_message_minus_no_message,cross_percent_change_message_vs_no_message,differential_message_minus_no_message,differential_percent_change_message_vs_no_message,causal_interpretation_allowed,reason
+401,0.00016838464567127528,11.808625185292723,0.0015830749427553133,27.655023340545274,False,F1 no-message actor train-execution masking mismatch
+402,0.0004014951955145481,29.89667458823919,0.0010564942865805386,15.257698907257298,False,F1 no-message actor train-execution masking mismatch
+403,-0.0008736779232941889,-31.17334371837474,-0.0021019552950569554,-24.205096524584235,False,F1 no-message actor train-execution masking mismatch
