@@ -13,6 +13,7 @@ import json
 import math
 import os
 import re
+import shutil
 import stat
 import tempfile
 import time
@@ -60,7 +61,20 @@ def _canonical_json_bytes(payload: object) -> bytes:
 
 
 def _payload_sha256(payload: object) -> str:
-    return hashlib.sha256(_canonical_json_bytes(payload)).hexdigest()
+    """Hash one canonical JSON payload; normalize serialization failures.
+
+    Untrusted on-disk payloads can carry NaN or non-JSON objects, which
+    json.dumps rejects with TypeError/ValueError.  Callers treat
+    ResearchControlError as the module-wide "cannot produce a control view"
+    signal, so a bare TypeError/ValueError would escape isolation (for
+    example inside list_jobs_with_diagnostics) and crash the whole snapshot.
+    """
+
+    try:
+        canonical = _canonical_json_bytes(payload)
+    except (TypeError, ValueError) as exc:
+        raise ResearchControlError(f"payload is not canonical JSON: {exc}") from exc
+    return hashlib.sha256(canonical).hexdigest()
 
 
 def _utc_now() -> str:
@@ -297,19 +311,20 @@ class OperationalEventStore:
         try:
             _write_atomic_json(job_dir / "job.json", payload)
             self._append_event_locked(
-                job_id, "registered", {"job_sha256": payload["sha256"]}
+                job_id,
+                "registered",
+                {"job_sha256": payload["sha256"]},
+                allow_first=True,
             )
         except Exception:
             # A never-published directory is safe to clean before the method
             # returns. Once job.json exists and an event lands, later writes are
-            # append-only and no cleanup path is used.
+            # append-only and no cleanup path is used. Removal is best-effort:
+            # a crash may leave temporary files behind, so a bare rmdir() would
+            # fail and either mask the original error or brick the id on retry.
             events_dir = job_dir / "events"
             if not events_dir.is_dir() or not any(events_dir.glob("*.json")):
-                (job_dir / ".events.lock").unlink(missing_ok=True)
-                if events_dir.is_dir():
-                    events_dir.rmdir()
-                (job_dir / "job.json").unlink(missing_ok=True)
-                job_dir.rmdir()
+                shutil.rmtree(job_dir, ignore_errors=True)
             raise
         return payload
 
@@ -337,6 +352,8 @@ class OperationalEventStore:
 
     def _verify_events(self, job_id: str, events: list[dict[str, Any]]) -> None:
         job = self._read_job(job_id)
+        if not events:
+            raise ResearchControlError(f"operational job event chain is missing: {job_id}")
         previous: str | None = None
         previous_event: str | None = None
         for sequence, event in enumerate(events, start=1):
@@ -393,6 +410,8 @@ class OperationalEventStore:
         job_id: str,
         event_name: str,
         details: Mapping[str, Any],
+        *,
+        allow_first: bool = False,
     ) -> dict[str, Any]:
         job_dir = self._job_dir(job_id)
         _ensure_repository_write_path(self.repo_root, job_dir)
@@ -400,7 +419,10 @@ class OperationalEventStore:
         _ensure_repository_write_path(self.repo_root, lock)
         with _PortableFileLock(lock, f"operational job is busy: {job_id}"):
             events = self._read_events(job_id)
-            self._verify_events(job_id, events)
+            if events:
+                # An empty chain is only legal while the first "registered"
+                # event is being created; verified reads must reject it.
+                self._verify_events(job_id, events)
             previous_event = events[-1]["event"] if events else None
             if previous_event in _TERMINAL_EVENTS:
                 raise ResearchControlError(f"operational job is terminal: {job_id}")
@@ -413,6 +435,10 @@ class OperationalEventStore:
                     )
             elif event_name != "registered":
                 raise ResearchControlError(f"first event must be registered: {job_id}")
+            elif not allow_first:
+                # Only registration may create the first event; accepting it
+                # here would let an erased chain be silently rebuilt.
+                raise ResearchControlError(f"operational job has no event chain: {job_id}")
             event: dict[str, Any] = {
                 "schema": "andes-research-control/event.v1",
                 "job_id": job_id,
@@ -604,7 +630,7 @@ class ScratchFrontier:
         try:
             _write_atomic_json(frontier_dir / "frontier.json", payload)
         except Exception:
-            frontier_dir.rmdir()
+            shutil.rmtree(frontier_dir, ignore_errors=True)
             raise
         return payload
 
@@ -1676,6 +1702,9 @@ def _declared_result_roots(body: str) -> tuple[str, ...]:
     values: list[str] = []
     for match in _RESULT_ROOT_RE.finditer(body):
         value = match.group("path").rstrip(".,;:)]}`")
+        normalized = value.rstrip("/\\")
+        if normalized.startswith(("results/", "tmp/")):
+            value = normalized
         if value not in values:
             values.append(value)
     return tuple(values)

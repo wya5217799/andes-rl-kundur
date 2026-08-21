@@ -259,6 +259,29 @@ def test_persisted_job_chain_replays_transition_rules(tmp_path: Path) -> None:
         store.verify_chain("history")
 
 
+def test_erased_job_event_chain_is_rejected_not_valid(tmp_path: Path) -> None:
+    _write_round(tmp_path, body="Create-only root `results/r7`.")
+    store = OperationalEventStore(tmp_path)
+    store.register_job(
+        job_id="erased",
+        round_id="R7",
+        command="python run.py",
+        output_root="results/r7",
+        process_budget=1,
+    )
+    events_dir = tmp_path / "tmp" / "research-control" / "jobs" / "erased" / "events"
+    for path in events_dir.iterdir():
+        path.unlink()
+    events_dir.rmdir()
+
+    with pytest.raises(ResearchControlError, match="missing"):
+        store.verify_chain("erased")
+    with pytest.raises(ResearchControlError, match="missing"):
+        store.list_events("erased")
+    with pytest.raises(ResearchControlError, match="no event chain"):
+        store.append_event("erased", "registered", {})
+
+
 def test_snapshot_projects_job_events_without_promoting_authority(tmp_path: Path) -> None:
     _write_round(tmp_path, body="Create-only root `results/research_loop/r7_demo`.")
     store = OperationalEventStore(tmp_path)
@@ -380,6 +403,42 @@ def test_job_metadata_is_bound_to_the_event_chain_and_stale_lock_is_recoverable(
         store.verify_chain("bound")
 
 
+def test_non_serializable_event_details_raise_control_error(tmp_path: Path) -> None:
+    _write_round(tmp_path, body="Create-only root `results/r7`.")
+    store = OperationalEventStore(tmp_path)
+    store.register_job(
+        job_id="serialize",
+        round_id="R7",
+        command="python run.py",
+        output_root="results/r7",
+        process_budget=1,
+    )
+    with pytest.raises(ResearchControlError, match="canonical JSON"):
+        store.append_event("serialize", "running", {"bad": Path("C:/fixture/object")})
+
+
+def test_nan_corrupted_job_file_degrades_to_diagnostic(tmp_path: Path) -> None:
+    _write_round(tmp_path, body="Create-only root `results/r7`.")
+    store = OperationalEventStore(tmp_path)
+    store.register_job(
+        job_id="nan",
+        round_id="R7",
+        command="python run.py",
+        output_root="results/r7",
+        process_budget=1,
+    )
+    job_path = tmp_path / "tmp" / "research-control" / "jobs" / "nan" / "job.json"
+    payload = json.loads(job_path.read_text(encoding="utf-8"))
+    payload["registered_at"] = float("nan")
+    job_path.write_text(json.dumps(payload), encoding="utf-8")
+
+    values, diagnostics = store.list_jobs_with_diagnostics()
+    assert values == []
+    assert any(
+        value["code"] == "invalid-operational-job" for value in diagnostics
+    )
+
+
 def test_snapshot_isolates_one_corrupt_operational_job(tmp_path: Path) -> None:
     _write_round(tmp_path, body="Create-only root `results/r7`.")
     store = OperationalEventStore(tmp_path)
@@ -401,6 +460,48 @@ def test_snapshot_isolates_one_corrupt_operational_job(tmp_path: Path) -> None:
     assert any(
         value["code"] == "invalid-operational-job" for value in snapshot["diagnostics"]
     )
+
+
+def test_aborted_job_registration_does_not_mask_or_brick(tmp_path: Path, monkeypatch) -> None:
+    _write_round(tmp_path, body="Create-only root `results/r7`.")
+    store = OperationalEventStore(tmp_path)
+
+    def crash_after_tmp(path: Path, payload) -> None:
+        leftover = path.with_name(f".{path.name}.leftover.tmp")
+        leftover.write_text("partial", encoding="utf-8")
+        raise OSError("simulated disk full")
+
+    with monkeypatch.context() as patch:
+        patch.setattr(research_control, "_write_atomic_json", crash_after_tmp)
+        with pytest.raises(OSError, match="simulated disk full"):
+            store.register_job(
+                job_id="crashed",
+                round_id="R7",
+                command="python run.py",
+                output_root="results/r7",
+                process_budget=1,
+            )
+
+    registered = store.register_job(
+        job_id="crashed",
+        round_id="R7",
+        command="python run.py",
+        output_root="results/r7",
+        process_budget=1,
+    )
+    assert registered["job_id"] == "crashed"
+
+
+def test_job_registration_accepts_trailing_slash_plan_roots(tmp_path: Path) -> None:
+    _write_round(tmp_path, body="Create-only root `results/r7/`.")
+    registered = OperationalEventStore(tmp_path).register_job(
+        job_id="slash",
+        round_id="R7",
+        command="python run.py",
+        output_root="results/r7",
+        process_budget=1,
+    )
+    assert registered["output_root"] == "results/r7"
 
 
 def test_job_registration_requires_a_round_declared_output_root(tmp_path: Path) -> None:
@@ -497,6 +598,38 @@ def test_job_commands_share_the_json_control_seam(tmp_path: Path) -> None:
     error = json.loads(rejected_wait.stderr)
     assert error["schema"] == "andes-research-control/error.v1"
     assert error["error"]["code"] == "research-control-error"
+
+
+def test_cli_argument_failures_use_error_v1_and_exit_4(tmp_path: Path) -> None:
+    tool = str(REPO_ROOT / "memory" / "tools" / "research_control.py")
+    invocations = [
+        [
+            "job-register",
+            "--job-id",
+            "r7-job",
+            "--round",
+            "R7",
+            "--command",
+            "python run.py",
+            "--output-root",
+            "results/r7",
+            "--process-budget",
+            "abc",
+        ],
+        ["job-register"],
+        ["unknown-command"],
+    ]
+    for argv in invocations:
+        completed = subprocess.run(
+            [sys.executable, tool, "--root", str(tmp_path), *argv],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        assert completed.returncode == 4, completed.stderr
+        error = json.loads(completed.stderr)
+        assert error["schema"] == "andes-research-control/error.v1"
+        assert error["error"]["code"] == "research-control-error"
 
 
 def test_artifact_trace_binds_integrity_round_claim_feed_and_seal(tmp_path: Path) -> None:

@@ -31,6 +31,7 @@ import argparse
 import json
 import sys
 from pathlib import Path
+from typing import NoReturn
 
 ROOT = Path(__file__).resolve().parents[2]
 SRC = ROOT / "src"
@@ -46,8 +47,33 @@ from andes_rl_kundur.research_control import (  # noqa: E402
 )
 
 
+def _emit_error_v1(message: str) -> None:
+    """Write one contract-conformant error document to stderr."""
+
+    json.dump(
+        {
+            "schema": "andes-research-control/error.v1",
+            "error": {
+                "code": "research-control-error",
+                "message": message,
+            },
+        },
+        sys.stderr,
+        ensure_ascii=False,
+    )
+    sys.stderr.write("\n")
+
+
+class _ControlArgumentParser(argparse.ArgumentParser):
+    """ArgumentParser whose failures honour the exit-4/error.v1 contract."""
+
+    def error(self, message: str) -> NoReturn:
+        _emit_error_v1(message)
+        raise SystemExit(4)
+
+
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    parser = _ControlArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--root", type=Path, default=ROOT)
     subcommands = parser.add_subparsers(dest="action", required=True)
     subcommands.add_parser("state", help="emit the derived research lifecycle snapshot")
@@ -237,19 +263,8 @@ def main(argv: list[str] | None = None) -> int:
             payload = run_research_bench(cases_path, responses)
         else:  # pragma: no cover - argparse owns command validation
             parser.error(f"unsupported command: {args.action}")
-    except (json.JSONDecodeError, OSError, ResearchControlError, ValueError) as exc:
-        json.dump(
-            {
-                "schema": "andes-research-control/error.v1",
-                "error": {
-                    "code": "research-control-error",
-                    "message": str(exc),
-                },
-            },
-            sys.stderr,
-            ensure_ascii=False,
-        )
-        sys.stderr.write("\n")
+    except (json.JSONDecodeError, OSError, ResearchControlError, TypeError, ValueError) as exc:
+        _emit_error_v1(str(exc))
         return 4
 
     json.dump(payload, sys.stdout, ensure_ascii=False, indent=2)
