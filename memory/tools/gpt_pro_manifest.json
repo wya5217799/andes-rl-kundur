@@ -20,8 +20,8 @@
         "src/andes_rl_kundur/control/classical_edge_residual.py",
         "src/andes_rl_kundur/control/vector_inertia_residual.py"
       ],
-      "answer": "tmp/gpt_pro_math_solution_20260819.md",
-      "note": "SELECT-B (B3 reverse_limit beta) future-work candidate; algebra layer verified (probes/gpt_pro_solution_algebra_verify.py 11/11 PASS); mechanism M1 not-pursued in R445 (icems line frozen, ANDES dev-bank screening needs a writable successor line)"
+      "answer": "tmp/yang_md_decoupling_marl/gpt_pro_math_complete_outputs_20260822/generated/problem_solutions/02_icems_minimal_change.md",
+      "note": "SELECT-B (B3 reverse_limit beta) future-work candidate; algebra layer verified (probes/gpt_pro_solution_algebra_verify.py 11/11 PASS); mechanism M1 not-pursued in R445 (icems line frozen, ANDES dev-bank screening needs a writable successor line). 2026-08-22 complete-outputs disposal: SELECT-B confirmed by the lexicographic rule; route-A sign-cone bottleneck proved; 12/12 B3 algebra checks replayed repo-side; the performance gain still needs a prospective screen."
     },
     {
       "id": "residual-headroom",
@@ -54,8 +54,8 @@
         "results/r362_shared_prediction_residual/analysis.json",
         "results/r363_common_channel_qp/analysis.json"
       ],
-      "answer": "tmp/gpt_pro_math_solution_20260819.md",
-      "note": "ACTION-BASIS-LIMITED + 5 propositions (complete GPT Pro answer); verification complete: R445/CLM-1385 re-derived per-scenario eps* from sealed data (6/16 relaxed-infeasible for B_e reproduced; B_+ 16/16 physical), matrices G_s/y_s^0 archived under results/r445_gpt_pro_intake_verify/matrices/"
+      "answer": "tmp/yang_md_decoupling_marl/gpt_pro_math_complete_outputs_20260822/generated/problem_solutions/03_residual_headroom.md",
+      "note": "ACTION-BASIS-LIMITED + 5 propositions (complete GPT Pro answer); verification complete: R445/CLM-1385 re-derived per-scenario eps* from sealed data (6/16 relaxed-infeasible for B_e reproduced; B_+ 16/16 physical), matrices G_s/y_s^0 archived under results/r445_gpt_pro_intake_verify/matrices/. 2026-08-22 complete-outputs disposal: sealed R356/R358/R363 crosscheck re-verified repo-side (source hashes match; 6/16 vs 16/16 consistent with R445/CLM-1385); causal identifiability and robust trainability remain open."
     },
     {
       "id": "yang-theory-audit",
@@ -459,10 +459,63 @@
         "tests/test_run_r457_m2_head_causality.py",
         "tests/test_run_r458_dev_select_eval_validate.py",
         "skills/kundur-round/references/external-theory-intake.md",
-        "docs/adr/0019-separate-yang-md-decoupling-marl-successor.md"
+        "docs/adr/0019-separate-yang-md-decoupling-marl-successor.md",
+        "results/research_loop/r459_u1_u8_shared_export",
+        "results/research_loop/r460_u3_execution_semantics",
+        "results/research_loop/r461_u4_guard_audit",
+        "results/research_loop/r462_u4_guard_audit",
+        "results/research_loop/r463_u4_guard_audit",
+        "results/research_loop/r464_u1_qy10_certificate",
+        "results/research_loop/r465_u5_total_sensitivity",
+        "results/research_loop/r466_u6_fractional_delay",
+        "results/research_loop/r467_u6_fractional_delay",
+        "results/research_loop/r468_u7_local_taylor",
+        "results/research_loop/r469_u8_separation_bound",
+        "results/research_loop/r471_u2_source_factorial",
+        "results/research_loop/r472_u2_source_factorial",
+        "memory/rounds/R459",
+        "memory/rounds/R460",
+        "memory/rounds/R461",
+        "memory/rounds/R462",
+        "memory/rounds/R463",
+        "memory/rounds/R464",
+        "memory/rounds/R465",
+        "memory/rounds/R466",
+        "memory/rounds/R467",
+        "memory/rounds/R468",
+        "memory/rounds/R469",
+        "memory/rounds/R470",
+        "memory/rounds/R471",
+        "memory/rounds/R472",
+        "memory/claims/CLM-1435.md",
+        "memory/claims/CLM-1440.md",
+        "memory/claims/CLM-1445.md",
+        "memory/claims/CLM-1450.md",
+        "memory/claims/CLM-1455.md",
+        "memory/claims/CLM-1460.md",
+        "memory/claims/CLM-1465.md",
+        "memory/claims/CLM-1470.md",
+        "scripts/run_r459_u1_u8_shared_export.py",
+        "scripts/run_r460_u3_execution_semantics.py",
+        "scripts/run_r461_u4_guard_audit.py",
+        "scripts/run_r462_u4_guard_audit.py",
+        "scripts/run_r463_u4_guard_audit.py",
+        "scripts/run_r464_u1_qy10_certificate.py",
+        "scripts/run_r465_u5_total_sensitivity.py",
+        "scripts/run_r466_u6_fractional_delay.py",
+        "scripts/run_r467_u6_fractional_delay.py",
+        "scripts/run_r468_u7_local_taylor.py",
+        "scripts/run_r469_u8_separation_bound.py",
+        "scripts/run_r470_u2_source_factorial.py",
+        "scripts/run_r471_u2_source_factorial.py",
+        "scripts/run_r472_u2_source_factorial.py",
+        "scripts/run_r472_detached_pipeline.sh",
+        "tests/test_run_r470_u2_source_factorial.py",
+        "tests/test_run_r471_u2_source_factorial.py",
+        "tests/test_run_r472_u2_source_factorial.py"
       ],
-      "note": "External answer ingested under a conditional-pass audit. U1 closes only as non-identifiable from the archived data; U2 remains a design-only future route; U3-U6 and U8 are reusable only with the recorded scope and assumptions; U7 requires an additional equilibrium-family assumption or an explicit pure-action quadratic term; U9 is resolved empirically by sealed R458/CLM-1430 as a bounded two-of-four fixed-profile transfer witness.",
-      "answer": "paper/yang_md_decoupling_marl/working/gpt_pro_unresolved_math_solution_20260821/IMPORT_NOTE.md"
+      "note": "External answer ingested under a conditional-pass audit. U1 closes only as non-identifiable from the archived data; U2 was design-only at answer time and now executes as the detached-orchestration source factorial R470-R472 (R472 active); U3-U6 and U8 are reusable only with the recorded scope and assumptions; U7 requires an additional equilibrium-family assumption or an explicit pure-action quadratic term; U9 is resolved empirically by sealed R458/CLM-1430 as a bounded two-of-four fixed-profile transfer witness. U1-U8 data requests were executed and sealed in R459-R469 (CLM-1435/1440/1445/1450/1455/1460/1465/1470). 2026-08-22 GPT chat re-audit against the complete data package (U1_U9_audited_solution_20260822.md): U1 upgraded to a finite QY10-class infeasibility certificate (t*=0.0599381, replayable positive dual margin); U3/U5 algebraic identities; U4 non-inclusion plus 350-schedule finite infeasibility; U6 finite-grid pole certificate plus continuity-qualified r_d bracket [0,0.025]; U7 quadratic-leading mechanism with the pure-q^2 family-invariance test still outstanding; U8 algebraic Schur bounds with project instance; U9 2/4 fixed-profile transfer. The external verifier was replayed repo-side (tmp/yang_md_decoupling_marl/U1_U9_verification_repo_rerun_20260822.json), all checks pass. 2026-08-22 agent-results package absorbed (tmp/yang_md_decoupling_marl/gpt_pro_math_agent_results_20260822/, 8 files, SHA256SUMS verified): (1) U1 exact rational support certificate PROVED repo-side against sealed sidecars — every feasible point of the serialized binary64 QY10 SOCP has t >= 0.0599381277975427... > 0, no stored-point feasibility assumed; (2) U2 design gap confirmed against repo code — P rows read the exogenous random-policy donor bank while N rows read the contemporaneous controlled trajectory, and donor_marginal_audit is donor-internal only, so a completed R472 estimates the total effect of authentic-neighbour vs exogenous-donor source, not a pure semantic-neighbour effect; R472 verdict wording must carry this boundary. Second independent chat (complete-outputs package, tmp/yang_md_decoupling_marl/gpt_pro_math_complete_outputs_20260822/): packs A/B verified 2451/2451 + 642/642 SHA256 entries; 17-problem disposal consistent with the audited solution; repo-side reruns reproduced icems B3 algebra 12/12 and the advisory algebra probe 8/8; r472_progress_audit is a structural count only (32/108 hash-valid, no evaluation artifacts) and carries no partial-endpoint inference; its pytest gaps are pack-environment limits, not mathematical counterexamples. Third chat (deep-solutions package, tmp/yang_md_decoupling_marl/gpt_pro_math_deep_solutions_20260822/, 702 files, SHA256SUMS verified): its U1/U5/U8 INCOMPLETE labels reflect a markdown-only reading and are superseded by sealed R464/R465/R469 plus the exact-support certificate; its R472 seal-staleness note (formal_seal training_executed=false never updated after launch) is confirmed repo-side and recorded for the R472 close-out; repo-side reruns passed custom_math_audit (all three sections) and the C1 exact conic dual checker (hypothetical example only); R402 reference-fix patches are stored as design aids.",
+      "answer": "paper/yang_md_decoupling_marl/working/U1_U9_audited_solution_20260822.md"
     }
   ]
 }

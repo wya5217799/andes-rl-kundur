@@ -31,6 +31,11 @@ Usage:
     python memory/tools/gpt_pro_pack.py --output tmp/out.zip
     python memory/tools/gpt_pro_pack.py --manifest other_manifest.json
 
+    # chat-upload size split: if the zip exceeds N MB, build two standalone
+    # zips <stem>_a.zip / <stem>_b.zip (each a valid archive, NOT raw binary
+    # parts — raw splits cannot be opened by Windows or a chat UI)
+    python memory/tools/gpt_pro_pack.py --max-size-mb 512
+
 Output zip layout: README.md (index grouped by problem), manifest.json
 (provenance: status, per-file sha256, missing list), SHA256SUMS (GNU coreutils
 style), then every included file at its repo-relative path.
@@ -45,6 +50,7 @@ Failure modes:
 from __future__ import annotations
 
 import argparse
+import copy
 import datetime as dt
 import hashlib
 import json
@@ -266,6 +272,82 @@ def _render_readme(per_problem: list[dict], now: dt.datetime) -> str:
     return "\n".join(lines) + "\n"
 
 
+def _derived_manifest(problems: list[dict], partition: dict[str, str], label: str) -> dict:
+    """Derived packaging manifest: same problems, related_data restricted to one
+    partition side. Problem brief files stay on both sides. Never touches the
+    canonical registry; writes live under tmp/ only."""
+    out_problems = []
+    for p in problems:
+        c = copy.deepcopy(p)
+        raws = list(p.get("problem", [])) + list(p.get("related_data", []))
+        c["related_data"] = [r for r in raws if partition.get(r) == label]
+        c["note"] = (
+            f"CHAT PACK {label}: related-data partition {label} of a size-split "
+            "package; the sibling pack holds the other half. Canonical registry: "
+            f"memory/tools/gpt_pro_manifest.json. {c.get('note', '')}"
+        ).strip()
+        out_problems.append(c)
+    return {
+        "schema_version": 1,
+        "default_status_filter": ["open", "partial"],
+        "problems": out_problems,
+    }
+
+
+def _split_package(problems: list[dict], *, root: Path, output: Path,
+                   max_size_mb: int, status_label: str, now: dt.datetime) -> int:
+    """Build two standalone zips, each under max_size_mb, from one oversized
+    package. Returns the pack exit code convention (0 ok / 1 problem)."""
+    limit = max_size_mb * 1024 * 1024
+    # Path-level inventory: greedy partition on uncompressed bytes with a 60%
+    # target (observed deflate ratio is ~0.7 for this repo's data mix).
+    paths: list[tuple[str, int]] = []
+    for p in problems:
+        for raw in list(p.get("problem", [])) + list(p.get("related_data", [])):
+            files, _miss = expand_paths([raw], root)
+            size = sum(f.stat().st_size for f in files)
+            paths.append((raw, size))
+    paths.sort(key=lambda t: (-t[1], t[0]))
+    target_a = int(limit * 0.6)
+    partition: dict[str, str] = {}
+    a_bytes = 0
+    for raw, size in paths:
+        if raw in partition:
+            continue
+        if a_bytes + size <= target_a:
+            partition[raw] = "A"
+            a_bytes += size
+        else:
+            partition[raw] = "B"
+    manifest_a = _derived_manifest(problems, partition, "A")
+    manifest_b = _derived_manifest(problems, partition, "B")
+    base = output.with_suffix("")
+    stem = base.name
+    tmp_manifests = root / "tmp"
+    tmp_manifests.mkdir(parents=True, exist_ok=True)
+    ma_path = tmp_manifests / f"{stem}_chat_a_manifest.json"
+    mb_path = tmp_manifests / f"{stem}_chat_b_manifest.json"
+    ma_path.write_text(json.dumps(manifest_a, indent=2, ensure_ascii=False),
+                       encoding="utf-8")
+    mb_path.write_text(json.dumps(manifest_b, indent=2, ensure_ascii=False),
+                       encoding="utf-8")
+
+    bad = 0
+    for label, manifest_path in (("A", ma_path), ("B", mb_path)):
+        out = base.with_name(f"{stem}_{label.lower()}.zip")
+        build_package(
+            load_manifest(manifest_path)["problems"],
+            root=root, output=out, status_label=f"{status_label}-{label}", now=now)
+        size = out.stat().st_size
+        print(f"zip[{label}]: {out}")
+        print(f"  size: {size / (1024 * 1024):.2f} MB (limit {max_size_mb} MB)")
+        if size > limit:
+            print(f"  [OVER-LIMIT] part {label} exceeds {max_size_mb} MB; "
+                  "raise --max-size-mb or trim the manifest", file=sys.stderr)
+            bad += 1
+    return 1 if bad else 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--manifest", type=Path,
@@ -278,6 +360,9 @@ def main(argv: list[str] | None = None) -> int:
                         help="specific problem id (repeatable)")
     parser.add_argument("--line", default=None,
                         help="manuscript_line filter (e.g. yang_md_decoupling_marl)")
+    parser.add_argument("--max-size-mb", type=int, default=None,
+                        help="chat-upload size split: if the zip exceeds N MB, "
+                             "build two standalone zips <stem>_a.zip / <stem>_b.zip")
     parser.add_argument("--all", action="store_true", dest="include_all")
     parser.add_argument("--list", action="store_true", help="print selected problems only")
     parser.add_argument("--dry-run", action="store_true",
@@ -339,6 +424,14 @@ def main(argv: list[str] | None = None) -> int:
     for pid, miss in summary["missing"].items():
         for m in miss:
             print(f"  [MISSING] {pid}: {m}", file=sys.stderr)
+
+    if args.max_size_mb and output.stat().st_size > args.max_size_mb * 1024 * 1024:
+        print(f"zip exceeds {args.max_size_mb} MB; building two standalone parts")
+        split_rc = _split_package(problems, root=root, output=output,
+                                  max_size_mb=args.max_size_mb,
+                                  status_label=label, now=now)
+        if split_rc:
+            return split_rc
     return 1 if summary["missing_count"] else 0
 
 

@@ -318,7 +318,16 @@ canonical，不再要求另建 Note 索引。
 - GPT Pro 数学问题打包: 用户输入「提取数学问题」(或近似, 如「数学问题数据
   压缩包」) → `python memory/tools/gpt_pro_pack.py` 打包 open+partial 问题 +
   相关数据 → 交付 zip 路径 + 内附 README/SHA256SUMS。问题清单/状态/相关
-  数据只改 `memory/tools/gpt_pro_manifest.json`, 不改工具。
+  数据只改 `memory/tools/gpt_pro_manifest.json`, 不改工具。聊天上传限 512MB
+  用 `--max-size-mb 512`: 工具自动拆成两个**独立可解压** zip (禁手搓二进制
+  分卷 — Windows/聊天界面都打不开, 2026-08-22 返工教训)。
+- 外部答案包吸收: 用户给聊天空文件夹或说「吸收/这是结果」 →
+  `python memory/tools/external_answer_absorb.py --src <folder> --line <line>`
+  一次完成嵌套同名目录定位、ASCII 改名、SHA256SUMS 核对、重复检测与登记
+  片段生成 (REGISTER.md; 手搓三次的 2026-08-22 教训)。登记片段由 agent 抄入
+  ARTIFACTS/manifest/gate-log, 工具不自动改账本。每包结论必须对照仓库封存
+  证据裁决, 不照单全收 (deep-solutions 包把 U1/U5/U8 标 INCOMPLETE 是它只读
+  markdown 没读 npz, 以封存轮次为准)。
 
 ## 代码约定
 
@@ -375,6 +384,11 @@ canonical，不再要求另建 Note 索引。
   (CLM-0144/0145); Transformer deterministic-eval collapse 是 known issue.
 - 当前论文目标只由本次 `session_context.py --line <id>` 的结果决定。
   `priority` 只供未指定论文时回退，不代表长期唯一主线。
+- **实验设计护栏 (2026-08-22 三包吸收)**: 新实验 plan 写设计段前必查
+  `skills/kundur-round/references/experiment-design-guardrails.md` (来源干预
+  必须同拍 replica wiring 不许外生 donor; feasibility-before-training;
+  证书阶梯; 概率声称口径; 执行动作语义; 下一轮优先级)。偏离要 owner 授权
+  并写进 plan。
 - **工作流优化触发**: 用户输入「优化工作流」(或近似表达) 时, 复盘聊天历史
   找出用着不舒服的工作流 (反复手工步骤 / 被绕过的规则 / 事后补救 /
   返工 / 靠报错兜底), 按根因启动优化 — 教训 codify 进 infra (工具 / lint /

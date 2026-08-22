@@ -619,6 +619,24 @@
    ],
    "supersedes": [],
    "review_after": "2026-08-28"
+  },
+  {
+   "id": "gpt-pro-u1u9-audited-solution-2026-08-22",
+   "purpose": "external-question",
+   "path": "paper/yang_md_decoupling_marl/working/U1_U9_audited_solution_20260822.md",
+   "status": "active",
+   "canonical": false,
+   "authoritative": false,
+   "producer": "external-solver+project-governance",
+   "inputs": [
+    "tmp/yang_md_decoupling_marl/gpt_pro_unresolved_math_delta_20260821.md",
+    "tmp/yang_md_decoupling_marl/verify_u1_u9_artifacts.py",
+    "tmp/yang_md_decoupling_marl/U1_U9_verification_repo_rerun_20260822.json",
+    "tmp/yang_md_decoupling_marl/gpt_pro_math_agent_results_20260822/verification/u1_exact_support_certificate.json",
+    "tmp/yang_md_decoupling_marl/gpt_pro_math_agent_results_20260822/verification/u1_exact_support_certificate_repo_rerun_20260822.json"
+   ],
+   "supersedes": [],
+   "review_after": "2026-08-28"
   }
  ]
 }
