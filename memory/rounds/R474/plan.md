@@ -64,7 +64,9 @@ semantic information claim, no universal intrinsic claim).
 - **The single scientific change**: P rows are built from the SAME-TIME joint
   observation by the device permutation π(i)=(i+2) mod 4 (the unique
   permutation with no fixed point and no true-neighbour source on the 4-device
-  ring): `rows[i,3:5] = joint[(i+2)%4,1:3]` and `rows[i,5:7] = joint[(i+2)%4,1:3]`.
+  ring), channel-respecting per the env layout (cols 3,4 = d_omega block;
+  cols 5,6 = omega_dot block):
+  `rows[i,3]=rows[i,4]=joint[(i+2)%4,1]` and `rows[i,5]=rows[i,6]=joint[(i+2)%4,2]`.
   N reads the same contemporaneous state pool unpermuted; 0 zeroes slots 3:7.
   No pre-recorded donor trajectories are generated or consumed anywhere.
 - U3 executed-action semantics, network, optimizer, replay/update count,

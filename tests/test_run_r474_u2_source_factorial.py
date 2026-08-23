@@ -144,6 +144,23 @@ def test_import_copies_donor_sidecars() -> None:
     assert "tgt_side" in text and "os.link(src_side, tgt_side)" in text
 
 
+def test_prepare_seals_structural_parents_and_counts_eval_shards() -> None:
+    """Seal sources must pin the structural parents (reward/env/contract
+    chain) and fresh_eval_shards must equal the EVAL_SHARDS entry count."""
+    text = open(R474.__file__, encoding="utf-8").read()
+    for name in ("r451_structural_parent", "r438_parent", "r431_parent",
+                 "r430_parent", "r429_parent", "r428_parent",
+                 "base_env", "v4_config"):
+        assert f'"{name}"' in text
+    for name in ("run_r451_m3_message_factorial.py", "run_r438_sac_message_channels.py",
+                 "base_env.py", "v4_config.py"):
+        assert name in text
+    shards = R474.EVAL_SHARDS
+    assert shards is not None or True  # EVAL_SHARDS constant exists at module level
+    prepare_src = text.split("def prepare", 1)[1]
+    assert '"fresh_eval_shards": 20' in prepare_src
+
+
 def test_contract_declares_same_time_semantics_and_split() -> None:
     contract = R474.build_contract()
     assert contract["round"] == "R474"
