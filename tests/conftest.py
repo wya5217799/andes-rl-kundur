@@ -36,6 +36,10 @@ _CLOSED_ROUND_LIFECYCLE_TESTS = {
         "test_rehearsal_prepare_and_loader_are_create_only",
     ): ("r355", "R355", "Q-0094", False),
     (
+        "test_run_r475_u2_confirmatory.py",
+        "test_authority_checks_reflect_active_plan",
+    ): ("R475", "R475", "Q-0112", False),
+    (
         "test_r358_physical_joint_endpoint_qp_analysis.py",
         "test_rehearsal_and_prepare_are_create_only_and_bind_closures",
     ): ("runner", "R358", "Q-0095", True),
@@ -56,7 +60,7 @@ def _isolate_closed_round_lifecycle(request, monkeypatch, tmp_path_factory) -> N
     lifecycle_dir = tmp_path_factory.mktemp(f"{round_id.lower()}_lifecycle")
     plan = lifecycle_dir / "plan.md"
     plan.write_text(
-        f"state: active\n{round_id}\n{question_id}\n",
+        f"state: active\nround: {round_id}\n{round_id}\n{question_id}\n",
         encoding="utf-8",
     )
     monkeypatch.setattr(adapter, "PLAN", plan)

@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "round": "R476",
+  "created_utc": "2026-08-23T10:31:32.7595811Z",
+  "capacity_trace_role": "non-claim-bearing launch evidence",
+  "host": {
+    "logical_processors": 32,
+    "physical_memory_bytes": 33518587904
+  },
+  "wsl": {
+    "memory_total_bytes": 29423165440,
+    "memory_available_bytes": 27156668416
+  },
+  "empirical_anchor": {
+    "source": "memory/rounds/R438/capacity_evidence.json",
+    "concurrent_workers": 16,
+    "native_threads_per_worker": 1,
+    "all_records_valid": true
+  },
+  "capacity_canary": {
+    "source": "R475 live process inventory before governance abort",
+    "accepted": true,
+    "accepted_worker_budget": 17,
+    "composition": "16 training workers plus one Python shard driver",
+    "observed_wall_minutes": 52,
+    "capacity_failure_observed": false,
+    "scientific_result_used": false
+  },
+  "whole_host_python_process_budget": 17,
+  "native_threads_per_process": 1,
+  "other_reserved_processes": 0,
+  "readiness": "RUN-READY"
+}
