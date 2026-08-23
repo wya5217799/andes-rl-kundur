@@ -189,6 +189,18 @@ hardlinks (816 entries, zero additional data bytes, all-same-inode verified),
 the 12 missing `an_cn_r0`/`an_cn_r1` cells were trained fresh, and the full
 evaluation/aggregate ran under the byte-identical R472 protocol.
 
+R476 was aborted execution-incomplete: the pipeline exited after its first
+training wave because the driver wrote its result under the scratch tree while
+the pipeline searched the repository tree (driver fixed and regression-locked
+in commit ef85ebf). The 16 complete wave-1 shards are preserved under
+`results/research_loop/r476_u2_confirmatory/train/`; its frozen pipeline
+inventory is `tmp/andes/r476_pipeline_inventories/`. R477 is the create-only
+successor: those 16 shards enter by NTFS hardlinks after per-shard
+scientific-identity verification (provenance:
+`results/research_loop/r477_u2_confirmatory/r476_shard_import.json`), the
+remaining 32 cells train fresh, and the full evaluation/aggregate runs under
+the byte-identical R476 scientific protocol.
+
 R366 `analysis.json` and `analysis_v2.json` are preserved pre-audit static
 snapshots.  The first lacked one shared rowwise clip/slew seam; the second
 overstated full-comparison identifiability before learning capacity, training,
