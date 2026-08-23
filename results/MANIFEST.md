@@ -171,8 +171,9 @@ locator before calling these artifacts durably archived.
 | R467 | `results/research_loop/r467_u6_fractional_delay/` | `checks/verification_report.json` | `af91e07f85b4b6f3d5a90a713ac1556f4f70bc425346bead5f3c537c3105bd19` |
 | R468 | `results/research_loop/r468_u7_local_taylor/` | `checks/verification_report.json` | `564a2fa7c66c6f3a8b20fe01fe2f78854715582c11406c4591004679569c222b` |
 | R469 | `results/research_loop/r469_u8_separation_bound/` | `checks/verification_report.json` | `57050677549689b7aaa9cd85b566bd6a71adadb23dc2f4825b53747612e2de1e` |
+| R473 | `results/research_loop/r473_u2_source_factorial/` | `formal_analysis.json` | `b8786a5e9c3be3919ab4ca92e8b46747daaeb0e5405b4aa6b6e3d250bd333dda` |
 
-The one hundred and ten roots currently occupy 7,442,610,762 bytes. R286, R287, R291, R292,
+The one hundred and eleven roots currently occupy 8,581,672,997 bytes. R286, R287, R291, R292,
 R294, R295, R296, R297, R298, R299, and R300 raw traces remain ignored; their retained trace hashes are indexed by
 each round's decision and provenance artifacts.
 
@@ -180,6 +181,13 @@ R466 is a preserved 99,253,032-byte engineering-invalid predecessor: its
 complete linear export remains under `results/research_loop/r466_u6_fractional_delay/`,
 but cyclic raw-telemetry serialization prevented a completed formal root. R467
 is the create-only successor and does not pool R466's partial output.
+
+R472 was owner-ordered shutdown with 96/108 valid training shards; its frozen
+inventory is `tmp/yang_md_decoupling_marl/r472_shutdown_inventory_20260822.json`.
+R473 is the create-only successor: the 96 complete shards enter via NTFS
+hardlinks (816 entries, zero additional data bytes, all-same-inode verified),
+the 12 missing `an_cn_r0`/`an_cn_r1` cells were trained fresh, and the full
+evaluation/aggregate ran under the byte-identical R472 protocol.
 
 R366 `analysis.json` and `analysis_v2.json` are preserved pre-audit static
 snapshots.  The first lacked one shared rowwise clip/slew seam; the second
