@@ -1,12 +1,15 @@
 ---
 round: R475
-state: active
+state: aborted
 manuscript_line: yang-md-decoupling-marl
 opened: '2026-08-23'
-closed: null
-supersedes_rounds: [R474]
+closed: '2026-08-23'
+supersedes_rounds:
+- R474
 superseded_by_round: null
-abort_reason: null
+abort_reason: formal phases called the inherited R470 seal verifier; two reviewers
+  did not cover one identical final hash set; sealed test source drifted during execution;
+  no fresh training shard completed
 superseded_note: null
 ---
 # R475 plan — U2 confirmatory successor: row-permuted same-time placebo, all-fresh 2x2 factorial, direct materiality Holm
