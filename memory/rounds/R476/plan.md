@@ -1,12 +1,15 @@
 ---
 round: R476
-state: active
+state: aborted
 manuscript_line: yang-md-decoupling-marl
 opened: '2026-08-23'
-closed: null
+closed: '2026-08-23'
 supersedes_rounds: []
 superseded_by_round: null
-abort_reason: null
+abort_reason: 'execution incomplete: pipeline exited after training wave 1 because
+  the driver-result lookup searched the repository tree while the driver wrote under
+  its scratch dir; waves 2-3 and evaluation never started; 16 complete hash-valid
+  wave-1 training shards preserved for prospective reuse by a successor'
 superseded_note: null
 ---
 # R476 plan — R475 governance-correct successor for the all-fresh U2 confirmatory factorial
