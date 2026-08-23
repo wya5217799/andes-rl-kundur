@@ -69,9 +69,10 @@ def test_routing_check_passes_on_wide_synthetic_pool() -> None:
     joints = rng.normal(size=(64, 4, 7)).astype(np.float32)
     joints[:, :, 0] = 0.0
     result = R474.routing_check(joints)
-    # source-pool equality holds for ANY joint (P is a permutation of the same
-    # authentic pool); the realized-slot identity check needs real env wiring.
-    assert result["slot_feature_scenario_time_pools_equal"] is True
+    # channel-block pool equality holds for ANY joint (P is a permutation of
+    # the same authentic pool); the realized-slot identity check needs real
+    # env wiring.
+    assert result["channel_block_pools_equal"] is True
     assert result["every_source_tuple_changed"] is True
     assert result["no_p_source_is_true_neighbour"] is True
     assert result["same_contemporaneous_pool"] is True
@@ -80,9 +81,10 @@ def test_routing_check_passes_on_wide_synthetic_pool() -> None:
 
 
 def test_routing_check_realized_slots_on_env_wired_joints() -> None:
-    # Build joints with the real env neighbour wiring (COMM_ADJ = {i: [i+1,
-    # i-1]}): slot 3 = (i+1) d_omega, slot 4 = (i-1) d_omega, slot 5 = (i+1)
-    # omega_dot, slot 6 = (i-1) omega_dot.
+    # Build joints with the REAL env neighbour wiring (COMM_ADJ =
+    # {0:[1,3], 1:[0,2], 2:[1,3], 3:[2,0]}): slot 3 = d_omega of
+    # COMM_ADJ[i][0], slot 4 = d_omega of COMM_ADJ[i][1], slot 5 = omega_dot
+    # of COMM_ADJ[i][0], slot 6 = omega_dot of COMM_ADJ[i][1].
     rng = np.random.default_rng(7)
     joints = []
     for _ in range(8):
@@ -90,13 +92,14 @@ def test_routing_check_realized_slots_on_env_wired_joints() -> None:
         joint = np.zeros((4, 7), dtype=np.float32)
         joint[:, :3] = own
         for i in range(4):
-            joint[i, 3] = own[(i + 1) % 4, 1]
-            joint[i, 4] = own[(i - 1) % 4, 1]
-            joint[i, 5] = own[(i + 1) % 4, 2]
-            joint[i, 6] = own[(i - 1) % 4, 2]
+            adj0, adj1 = R474.COMM_ADJ[i]
+            joint[i, 3] = own[adj0, 1]
+            joint[i, 4] = own[adj1, 1]
+            joint[i, 5] = own[adj0, 2]
+            joint[i, 6] = own[adj1, 2]
         joints.append(joint)
     result = R474.routing_check(np.stack(joints), realized_slots=True)
-    assert result["slot_feature_scenario_time_pools_equal"] is True
+    assert result["channel_block_pools_equal"] is True
     assert result["every_source_tuple_changed"] is True
     assert result["no_p_source_is_true_neighbour"] is True
     assert result["realized_slot_identity_ok"] is True
@@ -108,16 +111,16 @@ def test_routing_check_realized_slots_flags_broken_wiring() -> None:
     # must fail the realized-slot identity check.
     joint = np.arange(4 * 7, dtype=np.float32).reshape(4, 7)
     result = R474.routing_check(joint[np.newaxis, ...], realized_slots=True)
-    assert result["slot_feature_scenario_time_pools_equal"] is True
+    assert result["channel_block_pools_equal"] is True
     assert result["realized_slot_identity_ok"] is False
 
 
 def test_routing_check_structural_properties_on_single_joint() -> None:
     joint = np.arange(4 * 7, dtype=np.float32).reshape(4, 7)
     result = R474.routing_check(joint[np.newaxis, ...])
-    assert result["slot_feature_scenario_time_pools_equal"] is True
-    # with a single joint the sorted source pools must still match per slot/feature
-    assert result["comparisons"] == 4
+    assert result["channel_block_pools_equal"] is True
+    # two feature-channel blocks (d_omega cols 3,4; omega_dot cols 5,6)
+    assert result["comparisons"] == 2
 
 
 def test_routing_check_rejects_wrong_shape() -> None:
@@ -130,6 +133,15 @@ def test_no_donor_bank_functions_reachable_in_runner() -> None:
     text = open(R474.__file__, encoding="utf-8").read()
     for forbidden in ("generate_donor_and_base", "_load_donor", "donor_marginal_audit"):
         assert forbidden not in text
+
+
+def test_import_copies_donor_sidecars() -> None:
+    """Import must hardlink the .sha256 sidecars of base_state.pt and
+    manifest.json, or every later _read_hashed_json / formal_manifest call
+    raises FileNotFoundError (reviewer-A blocker)."""
+    text = open(R474.__file__, encoding="utf-8").read()
+    assert 'for name in ("base_state.pt", "manifest.json")' in text
+    assert "tgt_side" in text and "os.link(src_side, tgt_side)" in text
 
 
 def test_contract_declares_same_time_semantics_and_split() -> None:

@@ -73,12 +73,22 @@ semantic information claim, no universal intrinsic claim).
 ### Falsification-first routing check (guardrails §A.2, BLOCKING)
 
 - Before any training shard: on real ANDES joint observations
-  (rehearsal three-step + a pre-train standalone check), verify per
-  slot/feature/scenario/time:
-  `sort(N over e,i) == sort(P over e,i)`; every source tuple changed; no P
-  source is a true neighbour of its recipient (structural: π(i)=i+2);
-  P and N read the same contemporaneous state pool. Any failure =
-  `FACTORIAL-INVALID`, no training starts.
+  (rehearsal three-step + a pre-train standalone check), verify per feature
+  channel (d_omega block = cols 3,4; omega_dot block = cols 5,6) per
+  scenario/time: `sort(N source pool) == sort(P source pool)` (both realize
+  each device exactly twice); every source tuple changed; no P source is a
+  true neighbour of its recipient (pi(i)=i+2 not in COMM_ADJ[i]); P and N
+  read the same contemporaneous state pool; realized slot content equals the
+  intended source feature (env COMM_ADJ wiring for N, permutation wiring for
+  P). Any failure = `FACTORIAL-INVALID`, no training starts.
+- **Operationalization record (guardrails preamble, 2026-08-23)**: the env's
+  neighbour order is asymmetric (`COMM_ADJ = {0:[1,3], 1:[0,2], 2:[1,3],
+  3:[2,0]`), so per-column/per-slot pool equality is not well-defined (the N
+  col-3 source multiset {1,0,1,2} contains a duplicate that no device
+  permutation can reproduce). The A.2 pool equality is therefore checked per
+  feature channel (combined neighbour block), where N and P each realize every
+  device exactly twice and the sorted pools are equal. The realized-slot
+  identity check still verifies per-column wiring against the real COMM_ADJ.
 - The check is implemented as a probe in the runner (`routing_check`) and
   recorded in rehearsal and in the formal pre-train gate output.
 

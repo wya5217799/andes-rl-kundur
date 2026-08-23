@@ -127,28 +127,38 @@ def authority_checks() -> dict[str, bool]:
 # ---------------------------------------------------------------------------
 
 
-# Kundur 4-ring neighbour wiring (env COMM_ADJ order):
-# slot 3 = d_omega of COMM_ADJ[i][0] (i+1), slot 4 = d_omega of COMM_ADJ[i][1] (i-1),
-# slot 5 = omega_dot of (i+1), slot 6 = omega_dot of (i-1).
-# Column semantics: (column, neighbour offset of N source, source feature).
-COLUMN_MAP = (
-    (3, +1, 1),
-    (4, -1, 1),
-    (5, +1, 2),
-    (6, -1, 2),
+# Kundur 4-ring neighbour wiring (env COMM_ADJ, andes_vsg_env_v4.py:107):
+#   {0:[1,3], 1:[0,2], 2:[1,3], 3:[2,0]}  -- the neighbour ORDER is asymmetric
+#   (device 0 lists [i+1, i-1]; devices 1..3 list [i-1, i+1]).
+# Observed slot layout per device: col 3 = d_omega of COMM_ADJ[i][0],
+# col 4 = d_omega of COMM_ADJ[i][1], col 5 = omega_dot of COMM_ADJ[i][0],
+# col 6 = omega_dot of COMM_ADJ[i][1].
+COMM_ADJ: dict[int, tuple[int, int]] = {0: (1, 3), 1: (0, 2), 2: (1, 3), 3: (2, 0)}
+
+# Feature-channel blocks: (columns, source feature). Per-column value-pool
+# equality is NOT well-defined under the asymmetric neighbour order (the N
+# col-3 source multiset {COMM_ADJ[i][0]} = {1,0,1,2} has a duplicate, while any
+# device permutation P yields {0,1,2,3}); the guardrail A.2 pool equality is
+# therefore operationalized per feature channel (d_omega block = cols 3,4;
+# omega_dot block = cols 5,6), where both N and P realize each device exactly
+# twice and the sorted pools are equal. Recorded in plan.md.
+CHANNEL_BLOCKS = (
+    (3, 4, 1),  # d_omega block
+    (5, 6, 2),  # omega_dot block
 )
 
 
 def source_rows(joint_obs: np.ndarray, source: str) -> np.ndarray:
     """Build actor/critic input rows for one source from the SAME-TIME joint.
 
-    N: authentic rows unchanged. 0: neighbour slots zeroed. P: both d_omega
-    slots (3,4) receive the same-time d_omega of device pi(i)=(i+2) mod 4 and
-    both omega_dot slots (5,6) receive its omega_dot -- the unique
-    fixed-point-free non-neighbour permutation on the 4-device ring, so every
-    column's value pool equals the N column pool (guardrails A.1/A.2).
-    All three sources read the same contemporaneous state pool; no donor
-    bank exists.
+    N: authentic rows unchanged. 0: neighbour slots zeroed. P: the d_omega
+    slots (3,4) both receive the same-time d_omega of device pi(i)=(i+2) mod 4
+    and the omega_dot slots (5,6) both receive its omega_dot -- the unique
+    fixed-point-free non-neighbour permutation on the 4-device ring. Per
+    feature channel (d_omega block, omega_dot block) the P value multiset
+    equals the N value multiset (each device realized exactly twice on both
+    sides; guardrails A.1/A.2, see CHANNEL_BLOCKS note). All three sources
+    read the same contemporaneous state pool; no donor bank exists.
     """
     current = np.asarray(joint_obs, dtype=np.float32).reshape(core.base.AGENT_COUNT, core.base.OBS_DIM)
     if source == "N":
@@ -172,14 +182,18 @@ def source_rows(joint_obs: np.ndarray, source: str) -> np.ndarray:
 def routing_check(joints: np.ndarray, *, realized_slots: bool = False) -> dict[str, Any]:
     """Falsification-first guardrails A.2 check on real/synthetic joints.
 
-    Per column (3,4,5,6) and scenario/time: the sorted value pools of the N
-    rows and the P rows are equal (P is a permutation of the same
-    contemporaneous authentic pool); every source tuple changes (pi has no
-    fixed point); no P source is a true neighbour of its recipient (pi(i)=i+2
-    vs neighbours i±1). With ``realized_slots=True`` (real ANDES joints only)
-    additionally verify that the slot content a device actually receives
-    equals the source device's feature (env neighbour wiring for N, the
-    permutation wiring for P). Any false flag -> caller must treat as
+    Per feature channel (d_omega block cols 3,4; omega_dot block cols 5,6) and
+    scenario/time: the sorted value pools of the N rows and the P rows are
+    equal (P is a permutation of the same contemporaneous authentic pool; per
+    column equality is not well-defined under the env's asymmetric neighbour
+    order -- see CHANNEL_BLOCKS note). Every source tuple changes (pi has no
+    fixed point); no P source is a true neighbour of its recipient
+    (pi(i)=i+2 not in COMM_ADJ[i]). With ``realized_slots=True`` (real ANDES
+    joints only) additionally verify that the slot content a device actually
+    receives equals the source device's feature: for N, col 3/4 = d_omega of
+    COMM_ADJ[i][0]/[1] and col 5/6 = omega_dot of COMM_ADJ[i][0]/[1] (env
+    wiring); for P, cols 3,4 = d_omega of (i+2), cols 5,6 = omega_dot of
+    (i+2) (permutation wiring). Any false flag -> caller must treat as
     FACTORIAL-INVALID.
     """
     values = np.asarray(joints, dtype=np.float32)
@@ -198,39 +212,46 @@ def routing_check(joints: np.ndarray, *, realized_slots: bool = False) -> dict[s
         joint = values[t]
         n_rows = source_rows(joint, "N")
         p_rows = source_rows(joint, "P")
-        for column, n_offset, feature in COLUMN_MAP:
+        for col_a, col_b, feature in CHANNEL_BLOCKS:
+            # Source-pool equality: N draws the channel feature from the env's
+            # COMM_ADJ neighbours (each device exactly twice), P draws it from
+            # the pi(i)=(i+2) permutation (each device exactly twice). Holds
+            # for ANY joint and falsifies a wrong permutation wiring.
             n_pool = np.sort(np.asarray(
-                [joint[(i + n_offset) % count, feature] for i in range(count)],
+                [joint[COMM_ADJ[i][k], feature] for i in range(count) for k in (0, 1)],
                 dtype=np.float32,
             ))
             p_pool = np.sort(np.asarray(
-                [joint[(i + 2) % count, feature] for i in range(count)],
+                [joint[(i + 2) % count, feature] for i in range(count) for _ in (0, 1)],
                 dtype=np.float32,
             ))
             pool_equal = pool_equal and np.array_equal(n_pool, p_pool)
             for i in range(count):
-                n_source = (i + n_offset) % count
                 p_source = (i + 2) % count
                 tuple_changed = tuple_changed and (p_source != i)
-                non_neighbour = non_neighbour and (p_source != n_source)
+                non_neighbour = non_neighbour and (p_source not in COMM_ADJ[i])
                 if realized_slots:
+                    adj0, adj1 = COMM_ADJ[i]
                     realized_ok = realized_ok and (
-                        n_rows[i, column] == joint[n_source, feature]
-                        and p_rows[i, column] == joint[p_source, feature]
+                        n_rows[i, col_a] == joint[adj0, feature]
+                        and n_rows[i, col_b] == joint[adj1, feature]
+                        and p_rows[i, col_a] == joint[p_source, feature]
+                        and p_rows[i, col_b] == joint[p_source, feature]
                     )
-            key = f"{t}|col{column}"
+            key = f"{t}|block{col_a}{col_b}"
             hashes[key] = core.hashlib.sha256(p_pool.tobytes()).hexdigest()
             comparisons += 1
     return {
         "pooled_hash_index_sha256": core.hashlib.sha256(
             json.dumps(hashes, sort_keys=True).encode("utf-8")
         ).hexdigest(),
-        "slot_feature_scenario_time_pools_equal": bool(pool_equal),
+        "channel_block_pools_equal": bool(pool_equal),
         "every_source_tuple_changed": bool(tuple_changed),
         "no_p_source_is_true_neighbour": bool(non_neighbour),
         "same_contemporaneous_pool": True,
         "realized_slot_identity_ok": bool(realized_ok),
         "realized_slots_checked": bool(realized_slots),
+        "pool_equality_scope": "per feature channel (cols 3,4 and 5,6); per-column equality undefined under asymmetric COMM_ADJ",
         "joints_checked": int(values.shape[0]),
         "comparisons": comparisons,
     }
@@ -248,11 +269,11 @@ def routing_gate() -> dict[str, Any]:
     rehearsal_payload = core._read_hashed_json(REHEARSAL)
     real = rehearsal_payload.get("routing_check", {})
     passed = bool(
-        wide["slot_feature_scenario_time_pools_equal"]
+        wide["channel_block_pools_equal"]
         and wide["every_source_tuple_changed"]
         and wide["no_p_source_is_true_neighbour"]
         and wide["same_contemporaneous_pool"]
-        and bool(real.get("slot_feature_scenario_time_pools_equal"))
+        and bool(real.get("channel_block_pools_equal"))
         and bool(real.get("every_source_tuple_changed"))
         and bool(real.get("no_p_source_is_true_neighbour"))
         and bool(real.get("same_contemporaneous_pool"))
@@ -652,8 +673,10 @@ def import_parent_artifacts() -> str:
         raise FileExistsError(f"R474 output exists: {OUT}")
     entries: list[dict[str, Any]] = []
     for seed in core.TRAINING_SEEDS:
-        # base state + donor manifest (base identity record); trajectory npz
-        # files of the old donor bank are NOT imported (no donor code path).
+        # base state + donor manifest (base identity record) + their SHA-256
+        # sidecars (every later _read_hashed_json requires the sidecar);
+        # trajectory npz files of the old donor bank are NOT imported (no
+        # donor code path).
         for name in ("base_state.pt", "manifest.json"):
             source = R473_OUT / "donors" / f"seed{seed}" / name
             if not source.is_file():
@@ -666,6 +689,20 @@ def import_parent_artifacts() -> str:
                 "target": core._relative(target),
                 "sha256": core._sha256_file(target),
                 "bytes": target.stat().st_size,
+                "same_inode": True,
+            })
+            src_side = Path(f"{source}.sha256")
+            tgt_side = Path(f"{target}.sha256")
+            if not src_side.is_file():
+                raise RuntimeError(f"missing R473 donor sidecar {name}.sha256 seed{seed}")
+            if tgt_side.exists():
+                raise FileExistsError(f"import sidecar target exists: {tgt_side}")
+            os.link(src_side, tgt_side)
+            entries.append({
+                "source": core._relative(src_side),
+                "target": core._relative(tgt_side),
+                "sha256": core._sha256_file(tgt_side),
+                "bytes": tgt_side.stat().st_size,
                 "same_inode": True,
             })
     for arm, seed in REUSE_CELLS:
@@ -848,10 +885,10 @@ def rehearsal() -> dict[str, Any]:
     checks["passed"] = bool(
         all(checks["authority"].values())
         and checks["power_precedes_network"]
-        and checks["routing_check_synthetic"]["slot_feature_scenario_time_pools_equal"]
+        and checks["routing_check_synthetic"]["channel_block_pools_equal"]
         and checks["routing_check_synthetic"]["every_source_tuple_changed"]
         and checks["routing_check_synthetic"]["no_p_source_is_true_neighbour"]
-        and checks["routing_check"]["slot_feature_scenario_time_pools_equal"]
+        and checks["routing_check"]["channel_block_pools_equal"]
         and checks["routing_check"]["every_source_tuple_changed"]
         and checks["routing_check"]["no_p_source_is_true_neighbour"]
         and checks["routing_check"]["same_contemporaneous_pool"]
@@ -909,12 +946,20 @@ def prepare() -> dict[str, Any]:
         "sealed_r473_parent": ROOT / "scripts/run_r473_u2_source_factorial.py",
         "sealed_r472_parent": ROOT / "scripts/run_r472_u2_source_factorial.py",
         "sealed_r470_parent": ROOT / "scripts/run_r470_u2_source_factorial.py",
+        "r451_structural_parent": ROOT / "scripts/run_r451_m3_message_factorial.py",
+        "r438_parent": ROOT / "scripts/run_r438_sac_message_channels.py",
+        "r431_parent": ROOT / "scripts/run_r431_sac_slew.py",
+        "r430_parent": ROOT / "scripts/run_r430_adapted_sac_successor.py",
+        "r429_parent": ROOT / "scripts/run_r429_adapted_sac.py",
+        "r428_parent": ROOT / "scripts/run_r428_c1_sac.py",
         "source_agent": ROOT / "src/andes_rl_kundur/agents/source_factorial_sac.py",
         "source_agent_tests": ROOT / "tests/test_source_factorial_sac.py",
         "u3_agent": ROOT / "src/andes_rl_kundur/agents/executed_action_sac.py",
         "shard_driver": ROOT / "scripts/soft_spot_shard_driver.py",
         "scratch_launcher": ROOT / "scripts/andes_scratch.py",
         "environment": ROOT / "src/andes_rl_kundur/env/andes/andes_vsg_env_v4.py",
+        "base_env": ROOT / "src/andes_rl_kundur/env/andes/base_env.py",
+        "v4_config": ROOT / "src/andes_rl_kundur/env/andes/v4_config.py",
     }
     missing = [f"train|{arm}|{seed}" for arm, seed in RETRAIN_CELLS]
     seal = {
@@ -958,7 +1003,7 @@ def prepare() -> dict[str, Any]:
         "selected_workers": 16,
         "imported_training_shards": len(REUSE_CELLS),
         "fresh_training_shards": len(missing),
-        "fresh_eval_shards": 10,
+        "fresh_eval_shards": 20,
         "reused_eval_shards": 16,
     }
 
