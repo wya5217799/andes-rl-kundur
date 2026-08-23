@@ -171,8 +171,17 @@ def test_contract_declares_same_time_semantics_and_split() -> None:
     assert len(contract["r474"]["reused_cells"]) == 48
 
 
-def test_authority_checks_reflect_active_plan() -> None:
+def test_authority_checks_reflect_round_binding() -> None:
+    """R474 is closed (aborted) since 2026-08-23; the runner must stay bound
+    to its own plan file (round id), not to an active-state requirement that
+    only holds while the round is open."""
     checks = R474.authority_checks()
-    assert checks["active_plan"] is True
     assert checks["active_line"] is True
     assert checks["contract_closed"] is True
+    plan = open(R474.PLAN, encoding="utf-8").read()
+    assert "round: R474" in plan
+    assert checks["active_plan"] is (plan_state_is_active(plan))
+
+
+def plan_state_is_active(plan: str) -> bool:
+    return "state: active" in plan

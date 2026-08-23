@@ -1,12 +1,15 @@
 ---
 round: R474
-state: active
+state: aborted
 manuscript_line: yang-md-decoupling-marl
 opened: '2026-08-23'
-closed: null
+closed: '2026-08-23'
 supersedes_rounds: []
 superseded_by_round: null
-abort_reason: null
+abort_reason: owner-ordered shutdown after external deep review proved the pi(i)=(i+2)
+  diagonal-copy P fails guardrail per-slot pool equality; batch mixing 2/3; materiality
+  test mismatch; successor R475 implements row-permuted P + all-fresh 2x2 + direct
+  materiality Holm
 superseded_note: null
 ---
 # R474 plan — U2 successor with same-time-permutation placebo (guardrails §A)
