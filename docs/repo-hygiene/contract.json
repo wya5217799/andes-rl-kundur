@@ -1,692 +1,694 @@
 {
-  "version": 1,
-  "baseline": "docs/repo-hygiene/baseline.json",
-  "root": {
-    "allowed": [
-      ".gitattributes",
-      ".gitignore",
-      ".github",
-      "AGENTS.md",
-      "CLAUDE.md",
-      "CONTEXT.md",
-      "LICENSE",
-      "MEMORY.md",
-      "MISSION.md",
-      "NOTES.md",
-      "README.md",
-      "RESOURCES.md",
-      "_legacy",
-      "assets",
-      "docs",
-      "learning",
-      "lessons",
-      "memory",
-      "output",
-      "paper",
-      "paper_review",
-      "probes",
-      "pyproject.toml",
-      "quality_reports",
-      "reference",
-      "results",
-      "scripts",
-      "skills",
-      "src",
-      "tests"
-    ],
-    "allowed_globs": [],
-    "tool_state": [
-      ".claude",
-      ".codesearch.db",
-      ".git",
-      ".understand-anything",
-      "tmp"
-    ]
-  },
-  "delivery_discovery": [
-    "paper/*",
-    "paper_review",
-    "quality_reports/*",
-    "docs/research/external_A报告",
-    "learning",
-    "lessons"
+ "version": 1,
+ "baseline": "docs/repo-hygiene/baseline.json",
+ "root": {
+  "allowed": [
+   ".gitattributes",
+   ".gitignore",
+   ".github",
+   "AGENTS.md",
+   "CLAUDE.md",
+   "CONTEXT.md",
+   "LICENSE",
+   "MEMORY.md",
+   "MISSION.md",
+   "NOTES.md",
+   "README.md",
+   "RESOURCES.md",
+   "_legacy",
+   "assets",
+   "docs",
+   "learning",
+   "lessons",
+   "memory",
+   "output",
+   "paper",
+   "paper_review",
+   "probes",
+   "pyproject.toml",
+   "quality_reports",
+   "reference",
+   "results",
+   "scripts",
+   "skills",
+   "src",
+   "tests"
   ],
-  "delivery_binary_extensions": [
-    ".bin",
-    ".ckpt",
-    ".docx",
-    ".gif",
-    ".gz",
-    ".jpeg",
-    ".jpg",
-    ".pdf",
-    ".png",
-    ".pptx",
-    ".pt",
-    ".pth",
-    ".xlsx",
-    ".zip"
-  ],
-  "delivery_lines": [
-    {
-      "id": "icems2026",
-      "kind": "manuscript",
-      "status": "frozen",
-      "root": "paper/icems2026",
-      "roles": {
-        "canonical": [
-          "paper/icems2026/LINE.md",
-          "paper/icems2026/ARTIFACTS.json",
-          "paper/icems2026/main.tex",
-          "paper/icems2026/references.bib",
-          "paper/icems2026/generated_results.tex",
-          "paper/icems2026/build_figures.py",
-          "paper/icems2026/figures/control_architecture.tex"
-        ],
-        "derived": [
-          "paper/icems2026/main.pdf",
-          "paper/icems2026/figures/dynamic_response.pdf",
-          "paper/icems2026/figures/paired_effects.pdf"
-        ],
-        "release": [
-          "_legacy/output/pdf/icems2026_full_paper.pdf"
-        ],
-        "reports": [
-          "paper/icems2026/reports"
-        ],
-        "support": [
-          "paper/icems2026/README.md",
-          "paper/icems2026/working/chapter_blueprint.md",
-          "paper/icems2026/working/dynamic_response_selection.json"
-        ]
-      }
-    },
-    {
-      "id": "sci-upgrade-survey",
-      "kind": "manuscript",
-      "status": "frozen",
-      "root": "paper/sci_upgrade_survey",
-      "roles": {
-        "canonical": [
-          "paper/sci_upgrade_survey/LINE.md",
-          "paper/sci_upgrade_survey/ARTIFACTS.json",
-          "paper/sci_upgrade_survey/JOURNAL_TARGET.md",
-          "paper/sci_upgrade_survey/DIFFERENTIATION_MEMO.md",
-          "paper/sci_upgrade_survey/REPORT.md",
-          "paper/sci_upgrade_survey/draft"
-        ],
-        "corpus": [
-          "paper/sci_upgrade_survey/corpus"
-        ],
-        "reports": [
-          "paper/sci_upgrade_survey/reports"
-        ]
-      }
-    },
-    {
-      "id": "decoupling-marl-model-first",
-      "kind": "manuscript",
-      "status": "active",
-      "root": "paper/decoupling_marl_model_first",
-      "roles": {
-        "canonical": [
-          "paper/decoupling_marl_model_first/LINE.md",
-          "paper/decoupling_marl_model_first/ARTIFACTS.json",
-          "paper/decoupling_marl_model_first/main.tex",
-          "paper/decoupling_marl_model_first/references.bib"
-        ],
-        "support": [
-          "paper/decoupling_marl_model_first/working/model_contract.md"
-        ],
-        "derived": [
-          "paper/decoupling_marl_model_first/figures",
-          "paper/decoupling_marl_model_first/main.pdf"
-        ]
-      }
-    },
-    {
-      "id": "paralleled-vsg-marl",
-      "kind": "manuscript",
-      "status": "active",
-      "root": "paper/paralleled_vsg_marl",
-      "roles": {
-        "canonical": [
-          "paper/paralleled_vsg_marl/LINE.md",
-          "paper/paralleled_vsg_marl/ARTIFACTS.json",
-          "paper/paralleled_vsg_marl/ROUTE.md"
-        ],
-        "reports": [
-          "paper/paralleled_vsg_marl/reports"
-        ]
-      }
-    },
-    {
-      "id": "converter-vsg-pq-decoupling",
-      "kind": "manuscript",
-      "status": "active",
-      "root": "paper/converter_vsg_pq_decoupling",
-      "roles": {
-        "canonical": [
-          "paper/converter_vsg_pq_decoupling/LINE.md",
-          "paper/converter_vsg_pq_decoupling/ARTIFACTS.json"
-        ],
-        "support": [
-          "paper/converter_vsg_pq_decoupling/working/route_contract.md"
-        ]
-      }
-    },
-    {
-      "id": "yang-md-decoupling-marl",
-      "kind": "manuscript",
-      "status": "active",
-      "root": "paper/yang_md_decoupling_marl",
-      "roles": {
-        "canonical": [
-          "paper/yang_md_decoupling_marl/LINE.md",
-          "paper/yang_md_decoupling_marl/ARTIFACTS.json"
-        ],
-        "support": [
-          "paper/yang_md_decoupling_marl/working/route_contract.md",
-          "paper/yang_md_decoupling_marl/working/vsg_failure_math_advisory_20260820"
-        ],
-        "reports": [
-          "paper/yang_md_decoupling_marl/reports"
-        ]
-      }
-    },
-    {
-      "id": "external-a-research-report",
-      "kind": "external-report",
-      "status": "frozen",
-      "root": "docs/research/external_A报告",
-      "roles": {
-        "canonical": [
-          "docs/research/external_A报告/强电领域研究方向深度调研报告_v2.md"
-        ],
-        "support": [
-          "docs/research/external_A报告/qiangdian.agent.final.md",
-          "docs/research/external_A报告/qiangdian.agent.outline.md"
-        ]
-      }
-    },
-    {
-      "id": "icems2026-ars-review",
-      "kind": "review",
-      "status": "frozen",
-      "root": "quality_reports/ars_icems2026_review",
-      "roles": {
-        "canonical": [
-          "quality_reports/ars_icems2026_review/00_synthesis.md"
-        ],
-        "reports": [
-          "quality_reports/ars_icems2026_review/01_eic.md",
-          "quality_reports/ars_icems2026_review/02_methodology.md",
-          "quality_reports/ars_icems2026_review/03_domain.md",
-          "quality_reports/ars_icems2026_review/04_perspective.md",
-          "quality_reports/ars_icems2026_review/05_devils_advocate.md"
-        ],
-        "support": [
-          "quality_reports/ars_icems2026_review/da_phase1_precommitment.md"
-        ]
-      }
-    },
-    {
-      "id": "repository-plans",
-      "kind": "plan",
-      "status": "archived",
-      "root": "quality_reports/plans",
-      "roles": {
-        "canonical": [
-          "quality_reports/plans/2026-06-03_branch-consolidation.md"
-        ]
-      }
-    },
-    {
-      "id": "vsg-teaching",
-      "kind": "teaching",
-      "status": "frozen",
-      "root": "_legacy/lessons",
-      "roles": {
-        "canonical": [
-          "_legacy/MISSION.md",
-          "_legacy/NOTES.md",
-          "_legacy/RESOURCES.md"
-        ],
-        "derived": [
-          "_legacy/lessons/0001-what-controls-the-vsg-now.html",
-          "_legacy/reference/vsg-control-stack.html"
-        ],
-        "support": [
-          "_legacy/assets/teaching.css"
-        ]
-      }
-    },
-    {
-      "id": "project-foundation-learning",
-      "kind": "teaching",
-      "status": "active",
-      "root": "learning",
-      "roles": {
-        "canonical": [
-          "learning/README.md",
-          "learning/project-map.md",
-          "learning/branches/power-system-and-control-foundations.md",
-          "learning/branches/modeling-and-evidence-foundations.md",
-          "learning/branches/control-and-learning-architecture.md"
-        ]
-      }
-    },
-    {
-      "id": "icems2026-review-digest",
-      "kind": "review",
-      "status": "frozen",
-      "root": "paper_review",
-      "roles": {
-        "canonical": [
-          "paper_review/ICEMS_2026_Digest.pdf"
-        ],
-        "support": [
-          "paper_review/check_refs.py"
-        ]
-      }
-    }
-  ],
-  "executables": {
-    "discover": [
-      "scripts/*.py",
-      "scripts/*.sh",
-      "memory/tools/session_context.py",
-      "memory/tools/feed_check.py",
-      "probes/**/*.py",
-      "probes/**/*.sh",
-      "memory/rounds/R*/**/*.py",
-      "memory/rounds/R*/**/*.sh",
-      "paper/*/build*.py",
-      "paper/*/figures/*.py"
-    ],
-    "classifiers": [
-      {
-        "pattern": "probes/r*.py",
-        "role": "round-probe",
-        "state": "frozen",
-        "owner": "round-from-filename"
-      },
-      {
-        "pattern": "probes/*.py",
-        "role": "round-probe",
-        "state": "frozen",
-        "owner": "legacy-provenance"
-      },
-      {
-        "pattern": "probes/*.sh",
-        "role": "round-runner",
-        "state": "frozen",
-        "owner": "legacy-provenance"
-      },
-      {
-        "pattern": "memory/rounds/R*/*.py",
-        "role": "round-runner",
-        "state": "frozen",
-        "owner": "round-from-path"
-      },
-      {
-        "pattern": "memory/rounds/R*/*.sh",
-        "role": "round-runner",
-        "state": "frozen",
-        "owner": "round-from-path"
-      },
-      {
-        "pattern": "paper/icems2026/build_figures.py",
-        "role": "figure-adapter",
-        "state": "frozen",
-        "owner": "icems2026",
-        "evidence": [
-          "results/r274_prospective_active_power_authority/active_power_authority_summary.json",
-          "results/r275_fast_md_authority/fast_md_authority_summary.json",
-          "results/r277_learning_gap_oracle/learning_gap_oracle_summary.json",
-          "results/r279_fresh_bank/formal_bank.json",
-          "results/r279_formal_evaluation/formal_summary.json",
-          "results/r279_formal_evaluation/traces",
-          "results/r280_r279_action_audit_correction/correction_summary.json"
-        ]
-      },
-      {
-        "pattern": "scripts/repo_health.py",
-        "role": "maintenance",
-        "state": "active",
-        "owner": "repo-governance"
-      },
-      {
-        "pattern": "memory/tools/session_context.py",
-        "role": "operation",
-        "state": "active",
-        "owner": "session-bootstrap"
-      },
-      {
-        "pattern": "memory/tools/feed_check.py",
-        "role": "maintenance",
-        "state": "active",
-        "owner": "publication-gate"
-      },
-      {
-        "pattern": "scripts/andes_scratch.py",
-        "role": "operation",
-        "state": "active",
-        "owner": "andes-runtime"
-      },
-      {
-        "pattern": "scripts/run_parallel_wsl_shards.py",
-        "role": "operation",
-        "state": "active",
-        "owner": "andes-runtime"
-      },
-      {
-        "pattern": "scripts/soft_spot_shard_driver.py",
-        "role": "operation",
-        "state": "active",
-        "owner": "andes-runtime"
-      },
-      {
-        "pattern": "scripts/score_run.py",
-        "role": "evaluation-adapter",
-        "state": "active",
-        "owner": "paper-grade-evaluation"
-      },
-      {
-        "pattern": "scripts/train.py",
-        "role": "training-adapter",
-        "state": "active",
-        "owner": "kundur-training"
-      },
-      {
-        "pattern": "scripts/eval_all_seeds.py",
-        "role": "evaluation-adapter",
-        "state": "active",
-        "owner": "paper-grade-evaluation"
-      },
-      {
-        "pattern": "scripts/eval_v2.py",
-        "role": "evaluation-adapter",
-        "state": "active",
-        "owner": "objective-controller-evaluation"
-      },
-      {
-        "pattern": "scripts/eval_ddic.py",
-        "role": "evaluation-adapter",
-        "state": "active",
-        "owner": "paper-grade-evaluation"
-      },
-      {
-        "pattern": "scripts/eval_ensemble.py",
-        "role": "evaluation-adapter",
-        "state": "active",
-        "owner": "paper-grade-evaluation"
-      },
-      {
-        "pattern": "scripts/eval_hybrid.py",
-        "role": "evaluation-adapter",
-        "state": "active",
-        "owner": "paper-grade-evaluation"
-      },
-      {
-        "pattern": "scripts/eval_no_control.py",
-        "role": "evaluation-adapter",
-        "state": "active",
-        "owner": "paper-grade-evaluation"
-      },
-      {
-        "pattern": "scripts/r[0-9]*.py",
-        "role": "round-probe",
-        "state": "frozen",
-        "owner": "round-from-filename"
-      },
-      {
-        "pattern": "scripts/_r[0-9]*.sh",
-        "role": "round-runner",
-        "state": "frozen",
-        "owner": "round-from-filename"
-      },
-      {
-        "pattern": "scripts/r[0-9]*.sh",
-        "role": "round-runner",
-        "state": "frozen",
-        "owner": "round-from-filename"
-      },
-      {
-        "pattern": "scripts/run_r[0-9]*.py",
-        "role": "round-runner",
-        "state": "frozen",
-        "owner": "round-from-filename"
-      },
-      {
-        "pattern": "scripts/run_r[0-9]*.sh",
-        "role": "round-runner",
-        "state": "frozen",
-        "owner": "round-from-filename"
-      },
-      {
-        "pattern": "scripts/*_r[0-9]*.py",
-        "role": "round-probe",
-        "state": "frozen",
-        "owner": "round-from-filename"
-      },
-      {
-        "pattern": "scripts/eval_*.py",
-        "role": "evaluation-adapter",
-        "state": "frozen",
-        "owner": "legacy-evaluation"
-      },
-      {
-        "pattern": "scripts/audit_*.py",
-        "role": "round-probe",
-        "state": "frozen",
-        "owner": "legacy-provenance"
-      },
-      {
-        "pattern": "scripts/diagnose_*.py",
-        "role": "round-probe",
-        "state": "frozen",
-        "owner": "legacy-provenance"
-      },
-      {
-        "pattern": "scripts/map_*.py",
-        "role": "round-probe",
-        "state": "frozen",
-        "owner": "legacy-provenance"
-      },
-      {
-        "pattern": "scripts/export_*.py",
-        "role": "operation",
-        "state": "frozen",
-        "owner": "legacy-provenance"
-      },
-      {
-        "pattern": "scripts/train_*.py",
-        "role": "training-adapter",
-        "state": "frozen",
-        "owner": "legacy-provenance"
-      },
-      {
-        "pattern": "scripts/run_reviewer_identifiability.py",
-        "role": "round-runner",
-        "state": "frozen",
-        "owner": "icems2026-review"
-      }
-    ]
-  },
-  "artifacts": [
-    {
-      "id": "icems2026-release-pdf",
-      "canonical": "paper/icems2026/main.pdf",
-      "derived": [
-        "_legacy/output/pdf/icems2026_full_paper.pdf"
-      ],
-      "relation": "byte-identical"
-    }
-  ],
-  "round_documents": {
-    "enforce_from": 287,
-    "ownership_enforce_from": 339,
-    "allowed_markdown": [
-      "plan.md",
-      "verdict.md",
-      "formulas.md",
-      "execution_amendment_*.md",
-      "stage_b_protocol.md",
-      "stage_c_fast_controller_development_protocol.md",
-      "stage_d_compact_controller_validation_protocol.md",
-      "stage_e_decentralized_execution_protocol.md"
-    ],
-    "allowed_paths": [
-      "R295/consensus_timescale_probe_protocol.md",
-      "R335/pre_execution_failure.md",
-      "R339/package_admissibility.md",
-      "R339/rehearsal_success_02.md",
-      "R339/rehearsal_success_03.md"
-    ]
-  },
-  "manuscript_lines": {
-    "entry_name": "LINE.md",
-    "manifest_name": "ARTIFACTS.json",
-    "navigation_budgets": {
-      "line_max_lines": 90,
-      "line_max_bytes": 8192,
-      "required_reading_max_bytes": 32768
-    },
-    "venue_statuses": [
-      "unassessed",
-      "shortlisted",
-      "locked",
-      "revalidate"
-    ],
-    "venue_kinds": [
-      "journal",
-      "conference",
-      "other"
-    ],
-    "official_source_statuses": [
-      "unverified",
-      "partial",
-      "current"
-    ],
-    "artifact_statuses": [
-      "active",
-      "frozen",
-      "stale",
-      "superseded"
-    ],
-    "time_sensitive_purposes": [
-      "venue-decision",
-      "literature-landscape",
-      "differentiation",
-      "consolidated-review"
-    ],
-    "transient_patterns": [
-      "**/__pycache__/**",
-      "**/*.aux",
-      "**/*.bbl",
-      "**/*.blg",
-      "**/*.fdb_latexmk",
-      "**/*.fls",
-      "**/*.log",
-      "**/*.out",
-      "**/*.synctex.gz",
-      "**/*.toc"
-    ]
-  },
-  "external_adapters": [
-    {
-      "id": "academic-research-suite",
-      "lock": "docs/repo-hygiene/external-skills.lock.json",
-      "authority": "explicit-adapter"
-    },
-    {
-      "id": "supervisor-skills",
-      "lock": "docs/repo-hygiene/supervisor-skills.lock.json",
-      "authority": "explicit-adapter"
-    }
-  ],
-  "research_skill_scope": "docs/repo-hygiene/research-skills.scope.json",
-  "navigation": [
-    {
-      "adapter": "AGENTS.md",
-      "must_reference": [
-        "memory/tools/session_context.py",
-        "CLAUDE.md",
-        "learning/README.md"
-      ]
-    },
-    {
-      "adapter": "CLAUDE.md",
-      "must_reference": [
-        "skills/kundur-round/SKILL.md",
-        "memory/tools/session_context.py",
-        "memory/tools/feed_check.py",
-        "skills/kundur-round/references/research-skill-adapter.md",
-        "docs/agents/issue-tracker.md",
-        "docs/agents/domain.md",
-        "docs/repo-hygiene/executables.md",
-        "docs/repo-hygiene/external-skills.md",
-        "docs/repo-hygiene/type-checking.md"
-      ]
-    },
-    {
-      "adapter": "README.md",
-      "must_reference": [
-        "docs/README.md",
-        "memory/STATE.md",
-        "memory/tools/session_context.py"
-      ],
-      "forbid_text": [
-        "Status (as of"
-      ]
-    },
-    {
-      "adapter": "CONTEXT.md",
-      "must_reference": [
-        "docs/adr/",
-        "memory/STATE.md"
-      ]
-    },
-    {
-      "adapter": "_legacy/MEMORY.md",
-      "must_reference": [
-        "memory/RESEARCH_PROGRAM.md",
-        "memory/STATE.md",
-        "memory/tools/session_context.py",
-        "skills/kundur-round/SKILL.md"
-      ]
-    },
-    {
-      "adapter": "docs/README.md",
-      "must_reference": [
-        "docs/adr/",
-        "docs/agents/",
-        "docs/eng-notes/",
-        "docs/repo-hygiene/",
-        "docs/research/",
-        "learning/README.md",
-        "memory/STATE.md",
-        "paper"
-      ]
-    },
-    {
-      "adapter": "skills/kundur-round/SKILL.md",
-      "must_reference": [
-        "CLAUDE.md",
-        "memory/tools/session_context.py",
-        "memory/tools/feed_check.py",
-        "docs/repo-hygiene/executables.md",
-        "skills/kundur-round/references/research-skill-adapter.md",
-        "skills/kundur-round/references/publication-gate.md"
-      ]
-    }
-  ],
-  "opaque_subtrees": [
-    ".claude",
-    ".codesearch.db",
-    ".understand-anything",
-    "_legacy",
-    "results"
+  "allowed_globs": [],
+  "tool_state": [
+   ".claude",
+   ".codesearch.db",
+   ".git",
+   ".understand-anything",
+   "tmp"
   ]
+ },
+ "delivery_discovery": [
+  "paper/*",
+  "paper_review",
+  "quality_reports/*",
+  "docs/research/external_A报告",
+  "learning",
+  "lessons"
+ ],
+ "delivery_binary_extensions": [
+  ".bin",
+  ".ckpt",
+  ".docx",
+  ".gif",
+  ".gz",
+  ".jpeg",
+  ".jpg",
+  ".pdf",
+  ".png",
+  ".pptx",
+  ".pt",
+  ".pth",
+  ".xlsx",
+  ".zip"
+ ],
+ "delivery_lines": [
+  {
+   "id": "icems2026",
+   "kind": "manuscript",
+   "status": "frozen",
+   "root": "paper/icems2026",
+   "roles": {
+    "canonical": [
+     "paper/icems2026/LINE.md",
+     "paper/icems2026/ARTIFACTS.json",
+     "paper/icems2026/main.tex",
+     "paper/icems2026/references.bib",
+     "paper/icems2026/generated_results.tex",
+     "paper/icems2026/build_figures.py",
+     "paper/icems2026/figures/control_architecture.tex"
+    ],
+    "derived": [
+     "paper/icems2026/main.pdf",
+     "paper/icems2026/figures/dynamic_response.pdf",
+     "paper/icems2026/figures/paired_effects.pdf"
+    ],
+    "release": [
+     "_legacy/output/pdf/icems2026_full_paper.pdf"
+    ],
+    "reports": [
+     "paper/icems2026/reports"
+    ],
+    "support": [
+     "paper/icems2026/README.md",
+     "paper/icems2026/working/chapter_blueprint.md",
+     "paper/icems2026/working/dynamic_response_selection.json"
+    ]
+   }
+  },
+  {
+   "id": "sci-upgrade-survey",
+   "kind": "manuscript",
+   "status": "frozen",
+   "root": "paper/sci_upgrade_survey",
+   "roles": {
+    "canonical": [
+     "paper/sci_upgrade_survey/LINE.md",
+     "paper/sci_upgrade_survey/ARTIFACTS.json",
+     "paper/sci_upgrade_survey/JOURNAL_TARGET.md",
+     "paper/sci_upgrade_survey/DIFFERENTIATION_MEMO.md",
+     "paper/sci_upgrade_survey/REPORT.md",
+     "paper/sci_upgrade_survey/draft"
+    ],
+    "corpus": [
+     "paper/sci_upgrade_survey/corpus"
+    ],
+    "reports": [
+     "paper/sci_upgrade_survey/reports"
+    ]
+   }
+  },
+  {
+   "id": "decoupling-marl-model-first",
+   "kind": "manuscript",
+   "status": "active",
+   "root": "paper/decoupling_marl_model_first",
+   "roles": {
+    "canonical": [
+     "paper/decoupling_marl_model_first/LINE.md",
+     "paper/decoupling_marl_model_first/ARTIFACTS.json",
+     "paper/decoupling_marl_model_first/main.tex",
+     "paper/decoupling_marl_model_first/references.bib"
+    ],
+    "support": [
+     "paper/decoupling_marl_model_first/working/model_contract.md"
+    ],
+    "derived": [
+     "paper/decoupling_marl_model_first/figures",
+     "paper/decoupling_marl_model_first/main.pdf"
+    ]
+   }
+  },
+  {
+   "id": "paralleled-vsg-marl",
+   "kind": "manuscript",
+   "status": "active",
+   "root": "paper/paralleled_vsg_marl",
+   "roles": {
+    "canonical": [
+     "paper/paralleled_vsg_marl/LINE.md",
+     "paper/paralleled_vsg_marl/ARTIFACTS.json",
+     "paper/paralleled_vsg_marl/ROUTE.md"
+    ],
+    "reports": [
+     "paper/paralleled_vsg_marl/reports"
+    ]
+   }
+  },
+  {
+   "id": "converter-vsg-pq-decoupling",
+   "kind": "manuscript",
+   "status": "active",
+   "root": "paper/converter_vsg_pq_decoupling",
+   "roles": {
+    "canonical": [
+     "paper/converter_vsg_pq_decoupling/LINE.md",
+     "paper/converter_vsg_pq_decoupling/ARTIFACTS.json"
+    ],
+    "support": [
+     "paper/converter_vsg_pq_decoupling/working/route_contract.md"
+    ]
+   }
+  },
+  {
+   "id": "yang-md-decoupling-marl",
+   "kind": "manuscript",
+   "status": "active",
+   "root": "paper/yang_md_decoupling_marl",
+   "roles": {
+    "canonical": [
+     "paper/yang_md_decoupling_marl/LINE.md",
+     "paper/yang_md_decoupling_marl/ARTIFACTS.json"
+    ],
+    "support": [
+     "paper/yang_md_decoupling_marl/working/route_contract.md",
+     "paper/yang_md_decoupling_marl/working/vsg_failure_math_advisory_20260820"
+    ],
+    "reports": [
+     "paper/yang_md_decoupling_marl/reports"
+    ]
+   }
+  },
+  {
+   "id": "external-a-research-report",
+   "kind": "external-report",
+   "status": "frozen",
+   "root": "docs/research/external_A报告",
+   "roles": {
+    "canonical": [
+     "docs/research/external_A报告/强电领域研究方向深度调研报告_v2.md"
+    ],
+    "support": [
+     "docs/research/external_A报告/qiangdian.agent.final.md",
+     "docs/research/external_A报告/qiangdian.agent.outline.md"
+    ]
+   }
+  },
+  {
+   "id": "icems2026-ars-review",
+   "kind": "review",
+   "status": "frozen",
+   "root": "quality_reports/ars_icems2026_review",
+   "roles": {
+    "canonical": [
+     "quality_reports/ars_icems2026_review/00_synthesis.md"
+    ],
+    "reports": [
+     "quality_reports/ars_icems2026_review/01_eic.md",
+     "quality_reports/ars_icems2026_review/02_methodology.md",
+     "quality_reports/ars_icems2026_review/03_domain.md",
+     "quality_reports/ars_icems2026_review/04_perspective.md",
+     "quality_reports/ars_icems2026_review/05_devils_advocate.md"
+    ],
+    "support": [
+     "quality_reports/ars_icems2026_review/da_phase1_precommitment.md"
+    ]
+   }
+  },
+  {
+   "id": "repository-plans",
+   "kind": "plan",
+   "status": "archived",
+   "root": "quality_reports/plans",
+   "roles": {
+    "canonical": [
+     "quality_reports/plans/2026-06-03_branch-consolidation.md"
+    ]
+   }
+  },
+  {
+   "id": "vsg-teaching",
+   "kind": "teaching",
+   "status": "frozen",
+   "root": "_legacy/lessons",
+   "roles": {
+    "canonical": [
+     "_legacy/MISSION.md",
+     "_legacy/NOTES.md",
+     "_legacy/RESOURCES.md"
+    ],
+    "derived": [
+     "_legacy/lessons/0001-what-controls-the-vsg-now.html",
+     "_legacy/reference/vsg-control-stack.html"
+    ],
+    "support": [
+     "_legacy/assets/teaching.css"
+    ]
+   }
+  },
+  {
+   "id": "project-foundation-learning",
+   "kind": "teaching",
+   "status": "active",
+   "root": "learning",
+   "roles": {
+    "canonical": [
+     "learning/README.md",
+     "learning/project-map.md",
+     "learning/branches/power-system-and-control-foundations.md",
+     "learning/branches/modeling-and-evidence-foundations.md",
+     "learning/branches/control-and-learning-architecture.md"
+    ]
+   }
+  },
+  {
+   "id": "icems2026-review-digest",
+   "kind": "review",
+   "status": "frozen",
+   "root": "paper_review",
+   "roles": {
+    "canonical": [
+     "paper_review/ICEMS_2026_Digest.pdf"
+    ],
+    "support": [
+     "paper_review/check_refs.py"
+    ]
+   }
+  }
+ ],
+ "executables": {
+  "discover": [
+   "scripts/*.py",
+   "scripts/*.sh",
+   "memory/tools/session_context.py",
+   "memory/tools/feed_check.py",
+   "probes/**/*.py",
+   "probes/**/*.sh",
+   "memory/rounds/R*/**/*.py",
+   "memory/rounds/R*/**/*.sh",
+   "paper/*/build*.py",
+   "paper/*/figures/*.py"
+  ],
+  "classifiers": [
+   {
+    "pattern": "probes/r*.py",
+    "role": "round-probe",
+    "state": "frozen",
+    "owner": "round-from-filename"
+   },
+   {
+    "pattern": "probes/*.py",
+    "role": "round-probe",
+    "state": "frozen",
+    "owner": "legacy-provenance"
+   },
+   {
+    "pattern": "probes/*.sh",
+    "role": "round-runner",
+    "state": "frozen",
+    "owner": "legacy-provenance"
+   },
+   {
+    "pattern": "memory/rounds/R*/*.py",
+    "role": "round-runner",
+    "state": "frozen",
+    "owner": "round-from-path"
+   },
+   {
+    "pattern": "memory/rounds/R*/*.sh",
+    "role": "round-runner",
+    "state": "frozen",
+    "owner": "round-from-path"
+   },
+   {
+    "pattern": "paper/icems2026/build_figures.py",
+    "role": "figure-adapter",
+    "state": "frozen",
+    "owner": "icems2026",
+    "evidence": [
+     "results/r274_prospective_active_power_authority/active_power_authority_summary.json",
+     "results/r275_fast_md_authority/fast_md_authority_summary.json",
+     "results/r277_learning_gap_oracle/learning_gap_oracle_summary.json",
+     "results/r279_fresh_bank/formal_bank.json",
+     "results/r279_formal_evaluation/formal_summary.json",
+     "results/r279_formal_evaluation/traces",
+     "results/r280_r279_action_audit_correction/correction_summary.json"
+    ]
+   },
+   {
+    "pattern": "scripts/repo_health.py",
+    "role": "maintenance",
+    "state": "active",
+    "owner": "repo-governance"
+   },
+   {
+    "pattern": "memory/tools/session_context.py",
+    "role": "operation",
+    "state": "active",
+    "owner": "session-bootstrap"
+   },
+   {
+    "pattern": "memory/tools/feed_check.py",
+    "role": "maintenance",
+    "state": "active",
+    "owner": "publication-gate"
+   },
+   {
+    "pattern": "scripts/andes_scratch.py",
+    "role": "operation",
+    "state": "active",
+    "owner": "andes-runtime"
+   },
+   {
+    "pattern": "scripts/run_parallel_wsl_shards.py",
+    "role": "operation",
+    "state": "active",
+    "owner": "andes-runtime"
+   },
+   {
+    "pattern": "scripts/soft_spot_shard_driver.py",
+    "role": "operation",
+    "state": "active",
+    "owner": "andes-runtime"
+   },
+   {
+    "pattern": "scripts/score_run.py",
+    "role": "evaluation-adapter",
+    "state": "active",
+    "owner": "paper-grade-evaluation"
+   },
+   {
+    "pattern": "scripts/train.py",
+    "role": "training-adapter",
+    "state": "active",
+    "owner": "kundur-training"
+   },
+   {
+    "pattern": "scripts/eval_all_seeds.py",
+    "role": "evaluation-adapter",
+    "state": "active",
+    "owner": "paper-grade-evaluation"
+   },
+   {
+    "pattern": "scripts/eval_v2.py",
+    "role": "evaluation-adapter",
+    "state": "active",
+    "owner": "objective-controller-evaluation"
+   },
+   {
+    "pattern": "scripts/eval_ddic.py",
+    "role": "evaluation-adapter",
+    "state": "active",
+    "owner": "paper-grade-evaluation"
+   },
+   {
+    "pattern": "scripts/eval_ensemble.py",
+    "role": "evaluation-adapter",
+    "state": "active",
+    "owner": "paper-grade-evaluation"
+   },
+   {
+    "pattern": "scripts/eval_hybrid.py",
+    "role": "evaluation-adapter",
+    "state": "active",
+    "owner": "paper-grade-evaluation"
+   },
+   {
+    "pattern": "scripts/eval_no_control.py",
+    "role": "evaluation-adapter",
+    "state": "active",
+    "owner": "paper-grade-evaluation"
+   },
+   {
+    "pattern": "scripts/r[0-9]*.py",
+    "role": "round-probe",
+    "state": "frozen",
+    "owner": "round-from-filename"
+   },
+   {
+    "pattern": "scripts/_r[0-9]*.sh",
+    "role": "round-runner",
+    "state": "frozen",
+    "owner": "round-from-filename"
+   },
+   {
+    "pattern": "scripts/r[0-9]*.sh",
+    "role": "round-runner",
+    "state": "frozen",
+    "owner": "round-from-filename"
+   },
+   {
+    "pattern": "scripts/run_r[0-9]*.py",
+    "role": "round-runner",
+    "state": "frozen",
+    "owner": "round-from-filename"
+   },
+   {
+    "pattern": "scripts/run_r[0-9]*.sh",
+    "role": "round-runner",
+    "state": "frozen",
+    "owner": "round-from-filename"
+   },
+   {
+    "pattern": "scripts/*_r[0-9]*.py",
+    "role": "round-probe",
+    "state": "frozen",
+    "owner": "round-from-filename"
+   },
+   {
+    "pattern": "scripts/eval_*.py",
+    "role": "evaluation-adapter",
+    "state": "frozen",
+    "owner": "legacy-evaluation"
+   },
+   {
+    "pattern": "scripts/audit_*.py",
+    "role": "round-probe",
+    "state": "frozen",
+    "owner": "legacy-provenance"
+   },
+   {
+    "pattern": "scripts/diagnose_*.py",
+    "role": "round-probe",
+    "state": "frozen",
+    "owner": "legacy-provenance"
+   },
+   {
+    "pattern": "scripts/map_*.py",
+    "role": "round-probe",
+    "state": "frozen",
+    "owner": "legacy-provenance"
+   },
+   {
+    "pattern": "scripts/export_*.py",
+    "role": "operation",
+    "state": "frozen",
+    "owner": "legacy-provenance"
+   },
+   {
+    "pattern": "scripts/train_*.py",
+    "role": "training-adapter",
+    "state": "frozen",
+    "owner": "legacy-provenance"
+   },
+   {
+    "pattern": "scripts/run_reviewer_identifiability.py",
+    "role": "round-runner",
+    "state": "frozen",
+    "owner": "icems2026-review"
+   }
+  ]
+ },
+ "artifacts": [
+  {
+   "id": "icems2026-release-pdf",
+   "canonical": "paper/icems2026/main.pdf",
+   "derived": [
+    "_legacy/output/pdf/icems2026_full_paper.pdf"
+   ],
+   "relation": "byte-identical"
+  }
+ ],
+ "round_documents": {
+  "enforce_from": 287,
+  "ownership_enforce_from": 339,
+  "allowed_markdown": [
+   "plan.md",
+   "verdict.md",
+   "formulas.md",
+   "execution_amendment_*.md",
+   "stage_b_protocol.md",
+   "stage_c_fast_controller_development_protocol.md",
+   "stage_d_compact_controller_validation_protocol.md",
+   "stage_e_decentralized_execution_protocol.md"
+  ],
+  "allowed_paths": [
+   "R295/consensus_timescale_probe_protocol.md",
+   "R335/pre_execution_failure.md",
+   "R339/package_admissibility.md",
+   "R339/rehearsal_success_02.md",
+   "R339/rehearsal_success_03.md",
+   "R474/code_review_a.md",
+   "R474/code_review_b.md"
+  ]
+ },
+ "manuscript_lines": {
+  "entry_name": "LINE.md",
+  "manifest_name": "ARTIFACTS.json",
+  "navigation_budgets": {
+   "line_max_lines": 90,
+   "line_max_bytes": 8192,
+   "required_reading_max_bytes": 32768
+  },
+  "venue_statuses": [
+   "unassessed",
+   "shortlisted",
+   "locked",
+   "revalidate"
+  ],
+  "venue_kinds": [
+   "journal",
+   "conference",
+   "other"
+  ],
+  "official_source_statuses": [
+   "unverified",
+   "partial",
+   "current"
+  ],
+  "artifact_statuses": [
+   "active",
+   "frozen",
+   "stale",
+   "superseded"
+  ],
+  "time_sensitive_purposes": [
+   "venue-decision",
+   "literature-landscape",
+   "differentiation",
+   "consolidated-review"
+  ],
+  "transient_patterns": [
+   "**/__pycache__/**",
+   "**/*.aux",
+   "**/*.bbl",
+   "**/*.blg",
+   "**/*.fdb_latexmk",
+   "**/*.fls",
+   "**/*.log",
+   "**/*.out",
+   "**/*.synctex.gz",
+   "**/*.toc"
+  ]
+ },
+ "external_adapters": [
+  {
+   "id": "academic-research-suite",
+   "lock": "docs/repo-hygiene/external-skills.lock.json",
+   "authority": "explicit-adapter"
+  },
+  {
+   "id": "supervisor-skills",
+   "lock": "docs/repo-hygiene/supervisor-skills.lock.json",
+   "authority": "explicit-adapter"
+  }
+ ],
+ "research_skill_scope": "docs/repo-hygiene/research-skills.scope.json",
+ "navigation": [
+  {
+   "adapter": "AGENTS.md",
+   "must_reference": [
+    "memory/tools/session_context.py",
+    "CLAUDE.md",
+    "learning/README.md"
+   ]
+  },
+  {
+   "adapter": "CLAUDE.md",
+   "must_reference": [
+    "skills/kundur-round/SKILL.md",
+    "memory/tools/session_context.py",
+    "memory/tools/feed_check.py",
+    "skills/kundur-round/references/research-skill-adapter.md",
+    "docs/agents/issue-tracker.md",
+    "docs/agents/domain.md",
+    "docs/repo-hygiene/executables.md",
+    "docs/repo-hygiene/external-skills.md",
+    "docs/repo-hygiene/type-checking.md"
+   ]
+  },
+  {
+   "adapter": "README.md",
+   "must_reference": [
+    "docs/README.md",
+    "memory/STATE.md",
+    "memory/tools/session_context.py"
+   ],
+   "forbid_text": [
+    "Status (as of"
+   ]
+  },
+  {
+   "adapter": "CONTEXT.md",
+   "must_reference": [
+    "docs/adr/",
+    "memory/STATE.md"
+   ]
+  },
+  {
+   "adapter": "_legacy/MEMORY.md",
+   "must_reference": [
+    "memory/RESEARCH_PROGRAM.md",
+    "memory/STATE.md",
+    "memory/tools/session_context.py",
+    "skills/kundur-round/SKILL.md"
+   ]
+  },
+  {
+   "adapter": "docs/README.md",
+   "must_reference": [
+    "docs/adr/",
+    "docs/agents/",
+    "docs/eng-notes/",
+    "docs/repo-hygiene/",
+    "docs/research/",
+    "learning/README.md",
+    "memory/STATE.md",
+    "paper"
+   ]
+  },
+  {
+   "adapter": "skills/kundur-round/SKILL.md",
+   "must_reference": [
+    "CLAUDE.md",
+    "memory/tools/session_context.py",
+    "memory/tools/feed_check.py",
+    "docs/repo-hygiene/executables.md",
+    "skills/kundur-round/references/research-skill-adapter.md",
+    "skills/kundur-round/references/publication-gate.md"
+   ]
+  }
+ ],
+ "opaque_subtrees": [
+  ".claude",
+  ".codesearch.db",
+  ".understand-anything",
+  "_legacy",
+  "results"
+ ]
 }
