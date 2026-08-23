@@ -127,13 +127,28 @@ def authority_checks() -> dict[str, bool]:
 # ---------------------------------------------------------------------------
 
 
+# Kundur 4-ring neighbour wiring (env COMM_ADJ order):
+# slot 3 = d_omega of COMM_ADJ[i][0] (i+1), slot 4 = d_omega of COMM_ADJ[i][1] (i-1),
+# slot 5 = omega_dot of (i+1), slot 6 = omega_dot of (i-1).
+# Column semantics: (column, neighbour offset of N source, source feature).
+COLUMN_MAP = (
+    (3, +1, 1),
+    (4, -1, 1),
+    (5, +1, 2),
+    (6, -1, 2),
+)
+
+
 def source_rows(joint_obs: np.ndarray, source: str) -> np.ndarray:
     """Build actor/critic input rows for one source from the SAME-TIME joint.
 
-    N: authentic rows unchanged. 0: neighbour slots zeroed. P: neighbour slots
-    replaced by the same-time authentic features of device pi(i)=(i+2) mod 4
-    (unique fixed-point-free non-neighbour permutation on the 4-device ring).
-    All three read the same contemporaneous state pool; no donor bank exists.
+    N: authentic rows unchanged. 0: neighbour slots zeroed. P: both d_omega
+    slots (3,4) receive the same-time d_omega of device pi(i)=(i+2) mod 4 and
+    both omega_dot slots (5,6) receive its omega_dot -- the unique
+    fixed-point-free non-neighbour permutation on the 4-device ring, so every
+    column's value pool equals the N column pool (guardrails A.1/A.2).
+    All three sources read the same contemporaneous state pool; no donor
+    bank exists.
     """
     current = np.asarray(joint_obs, dtype=np.float32).reshape(core.base.AGENT_COUNT, core.base.OBS_DIM)
     if source == "N":
@@ -146,24 +161,26 @@ def source_rows(joint_obs: np.ndarray, source: str) -> np.ndarray:
         raise ValueError(f"unknown source: {source}")
     count = core.base.AGENT_COUNT
     for i in range(count):
-        source_feature = current[(i + 2) % count, 1:3]
-        rows[i, 3:5] = source_feature
-        rows[i, 5:7] = source_feature
+        pivot = (i + 2) % count
+        rows[i, 3] = current[pivot, 1]
+        rows[i, 4] = current[pivot, 1]
+        rows[i, 5] = current[pivot, 2]
+        rows[i, 6] = current[pivot, 2]
     return rows
 
 
 def routing_check(joints: np.ndarray, *, realized_slots: bool = False) -> dict[str, Any]:
     """Falsification-first guardrails A.2 check on real/synthetic joints.
 
-    For every scenario/time/feature in both neighbour slots: the sorted source
-    pools of N rows (devices i-1 / i+1) and P rows (device i+2) are equal --
-    P is a permutation of the same contemporaneous authentic pool; every
-    source tuple changes (pi has no fixed point); no P source is a true
-    neighbour of its recipient (pi(i)=i+2). With ``realized_slots=True``
-    (real ANDES joints only) additionally verify that the slot content a
-    device actually receives equals the source device's feature (the env's
-    neighbour wiring and the permutation wiring). Any false flag -> caller
-    must treat as FACTORIAL-INVALID.
+    Per column (3,4,5,6) and scenario/time: the sorted value pools of the N
+    rows and the P rows are equal (P is a permutation of the same
+    contemporaneous authentic pool); every source tuple changes (pi has no
+    fixed point); no P source is a true neighbour of its recipient (pi(i)=i+2
+    vs neighbours i±1). With ``realized_slots=True`` (real ANDES joints only)
+    additionally verify that the slot content a device actually receives
+    equals the source device's feature (env neighbour wiring for N, the
+    permutation wiring for P). Any false flag -> caller must treat as
+    FACTORIAL-INVALID.
     """
     values = np.asarray(joints, dtype=np.float32)
     if values.ndim == 4 and values.shape[2:] == (core.base.AGENT_COUNT, core.base.OBS_DIM):
@@ -181,32 +198,29 @@ def routing_check(joints: np.ndarray, *, realized_slots: bool = False) -> dict[s
         joint = values[t]
         n_rows = source_rows(joint, "N")
         p_rows = source_rows(joint, "P")
-        for slot_lo, slot_name in ((3, "left"), (5, "right")):
-            n_offset = 1 if slot_name == "right" else -1
-            for feature in (1, 2):
-                n_pool = np.sort(np.asarray(
-                    [joint[(i + n_offset) % count, feature] for i in range(count)],
-                    dtype=np.float32,
-                ))
-                p_pool = np.sort(np.asarray(
-                    [joint[(i + 2) % count, feature] for i in range(count)],
-                    dtype=np.float32,
-                ))
-                pool_equal = pool_equal and np.array_equal(n_pool, p_pool)
-                for i in range(count):
-                    n_source = (i + n_offset) % count
-                    p_source = (i + 2) % count
-                    tuple_changed = tuple_changed and (p_source != i)
-                    non_neighbour = non_neighbour and (p_source != n_source)
-                    if realized_slots:
-                        slot_col = slot_lo + feature - 1
-                        realized_ok = realized_ok and (
-                            n_rows[i, slot_col] == joint[n_source, feature]
-                            and p_rows[i, slot_col] == joint[p_source, feature]
-                        )
-                key = f"{t}|{slot_name}|{feature}"
-                hashes[key] = core.hashlib.sha256(p_pool.tobytes()).hexdigest()
-                comparisons += 1
+        for column, n_offset, feature in COLUMN_MAP:
+            n_pool = np.sort(np.asarray(
+                [joint[(i + n_offset) % count, feature] for i in range(count)],
+                dtype=np.float32,
+            ))
+            p_pool = np.sort(np.asarray(
+                [joint[(i + 2) % count, feature] for i in range(count)],
+                dtype=np.float32,
+            ))
+            pool_equal = pool_equal and np.array_equal(n_pool, p_pool)
+            for i in range(count):
+                n_source = (i + n_offset) % count
+                p_source = (i + 2) % count
+                tuple_changed = tuple_changed and (p_source != i)
+                non_neighbour = non_neighbour and (p_source != n_source)
+                if realized_slots:
+                    realized_ok = realized_ok and (
+                        n_rows[i, column] == joint[n_source, feature]
+                        and p_rows[i, column] == joint[p_source, feature]
+                    )
+            key = f"{t}|col{column}"
+            hashes[key] = core.hashlib.sha256(p_pool.tobytes()).hexdigest()
+            comparisons += 1
     return {
         "pooled_hash_index_sha256": core.hashlib.sha256(
             json.dumps(hashes, sort_keys=True).encode("utf-8")

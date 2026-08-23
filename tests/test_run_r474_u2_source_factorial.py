@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
-
 import scripts.run_r474_u2_source_factorial as R474
 
 
@@ -51,12 +50,15 @@ def test_source_rows_n_zero_p_semantics() -> None:
     assert np.all(zero_rows[:, 3:7] == 0.0)
     assert np.array_equal(zero_rows[:, :3], joint[:, :3])
     p_rows = R474.source_rows(joint, "P")
-    # agent i receives the same-time features of device (i+2) mod 4 in both
-    # neighbour slots; everything else untouched.
+    # agent i receives the same-time features of device (i+2) mod 4 in the
+    # neighbour slots, matched by slot semantics: d_omega slots (3,4) get the
+    # pivot d_omega, omega_dot slots (5,6) get the pivot omega_dot.
     for i in range(4):
-        expected = joint[(i + 2) % 4, 1:3]
-        assert np.array_equal(p_rows[i, 3:5], expected)
-        assert np.array_equal(p_rows[i, 5:7], expected)
+        pivot = joint[(i + 2) % 4]
+        assert p_rows[i, 3] == pivot[1]
+        assert p_rows[i, 4] == pivot[1]
+        assert p_rows[i, 5] == pivot[2]
+        assert p_rows[i, 6] == pivot[2]
         assert np.array_equal(p_rows[i, :3], joint[i, :3])
     with pytest.raises(ValueError):
         R474.source_rows(joint, "X")
@@ -78,8 +80,9 @@ def test_routing_check_passes_on_wide_synthetic_pool() -> None:
 
 
 def test_routing_check_realized_slots_on_env_wired_joints() -> None:
-    # Build joints with the env neighbour wiring: slot 3:5 = device (i-1) 1:3,
-    # slot 5:7 = device (i+1) 1:3 (same convention as source_rows/NEIGHBOUR_SLICE).
+    # Build joints with the real env neighbour wiring (COMM_ADJ = {i: [i+1,
+    # i-1]}): slot 3 = (i+1) d_omega, slot 4 = (i-1) d_omega, slot 5 = (i+1)
+    # omega_dot, slot 6 = (i-1) omega_dot.
     rng = np.random.default_rng(7)
     joints = []
     for _ in range(8):
@@ -87,8 +90,10 @@ def test_routing_check_realized_slots_on_env_wired_joints() -> None:
         joint = np.zeros((4, 7), dtype=np.float32)
         joint[:, :3] = own
         for i in range(4):
-            joint[i, 3:5] = own[(i - 1) % 4, 1:3]
-            joint[i, 5:7] = own[(i + 1) % 4, 1:3]
+            joint[i, 3] = own[(i + 1) % 4, 1]
+            joint[i, 4] = own[(i - 1) % 4, 1]
+            joint[i, 5] = own[(i + 1) % 4, 2]
+            joint[i, 6] = own[(i - 1) % 4, 2]
         joints.append(joint)
     result = R474.routing_check(np.stack(joints), realized_slots=True)
     assert result["slot_feature_scenario_time_pools_equal"] is True
