@@ -1,0 +1,45 @@
+{
+ "schema_version": 1,
+ "round": "R475",
+ "created_utc": "2026-08-23T08:00:00+00:00",
+ "constructed_networks_before_analysis": false,
+ "source": "sealed R431 five paired held-out seed endpoints (same as R470/R473); materiality-targeted analysis",
+ "message_values": [
+  0.0003452579832837311,
+  0.0004401759671364734,
+  0.0004862583673155531,
+  0.0004151490540177757,
+  0.0004947102472466595
+ ],
+ "no_message_values": [
+  0.0005029430411188892,
+  0.0005627827823473297,
+  0.0006760100493633598,
+  0.0006482141507397221,
+  0.0006431272313845267
+ ],
+ "paired_log_ratios": [
+  0.37618501013659844,
+  0.24571915965448235,
+  0.32946783922309875,
+  0.44558349923873586,
+  0.2623703440977168
+ ],
+ "paired_log_ratio_sd": 0.0823901082580241,
+ "sd_95_chi2_interval": [
+  0.05349632313708618,
+  0.1954586451840692
+ ],
+ "materiality_log": 0.09531017980432493,
+ "alternative_log_1_20": 0.1823215567939546,
+ "alpha_familywise": 0.05,
+ "holm_tests": 2,
+ "first_holm_threshold": 0.025,
+ "signflip_grid_k_over_64": true,
+ "signflip_min_p": 0.015625,
+ "required_seeds_for_20pct_materiality": 8,
+ "selected_seeds": 6,
+ "power_at_20pct_under_materiality_null_n6": 0.7346434611843411,
+ "targets_materiality": true,
+ "design_label": "LOW-RESOLUTION-CONFIRMATORY: n=6 sign-flip p grid k/64; first Holm threshold 0.025 requires 1/64 (all six seeds above 10%); normal-approximation power to establish >10% at true 20% is about 73.5%, not 80%; no 80%-power claim"
+}

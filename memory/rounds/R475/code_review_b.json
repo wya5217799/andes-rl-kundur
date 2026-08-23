@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "round": "R475",
+  "reviewer": "reviewer-b-guardrail",
+  "reviewed_commit": "652d5de4c0b2669805dc61d49e2b49e5809d7350",
+  "reviewed_files": {
+    "scripts/run_r475_u2_confirmatory.py": "5ba3ca160b03908f93ceb8c99d865275441d35c69d7a339756a8243b2ad4e76f",
+    "tests/test_run_r475_u2_confirmatory.py": "d79cc8ccb8d92ae94bb16d5f1a2c2d6ccef71157c5f249688ad98de8276e2fc0"
+  },
+  "decision": "PASS",
+  "open_p0_count": 0,
+  "open_p1_count": 0,
+  "findings": [
+    {
+      "id": "B-01",
+      "severity": "P1",
+      "location": "scripts/run_r475_u2_confirmatory.py:306-323 (routing_check same_pool derivation)",
+      "description": "same_contemporaneous_pool is no longer hardcoded: routing_check now derives it from the data flow on the first joint (N rows == joint, P rows == joint with the neighbour block row-permuted and own columns intact, 0 rows == joint with neighbour slots zeroed), so no source can read any other time step or an exogenous bank. Verified empirically: valid design -> True; a stale-time-step/donor-style P (fixed donor matrix) -> False and also fails the per-joint drift gate.",
+      "resolved": true,
+      "resolution_note": "Confirmed fixed in the working tree. Same-pool flag is computed from source_rows outputs on the first joint; the per-joint actual_p_rows_match_declared_row_perm drift gate additionally runs on every joint, so an exogenous read on any joint is caught. py_compile OK; new negative test test_stale_time_step_source_fails_same_pool kills the donor-style mutation."
+    },
+    {
+      "id": "B-02",
+      "severity": "MINOR",
+      "location": "tests/test_run_r475_u2_confirmatory.py (mutation suite)",
+      "description": "The mandatory redesign spec section 3.3 lists five required negative/mutation classes; the original suite covered only three (aborted i+2 double-copy, true-neighbour, fixed-point). Missing dedicated tests for a single-slot swap and for a cross-time-step/donor-bank read.",
+      "resolved": true,
+      "resolution_note": "Confirmed fixed: test_single_slot_swap_fails_per_slot_pools and test_stale_time_step_source_fails_same_pool added; all five spec mutation classes are now covered and 19/19 tests pass. Verified empirically that the slot-swap mutation is killed (tuple multiset + drift gates fire) and the stale/donor mutation is killed (same_contemporaneous_pool + drift gates fire). Cosmetic nit only: the slot-swap test name says 'fails_per_slot_pools' while its assertions (and my probe) show per-slot pools stay equal for a within-column swap; the mutation is nonetheless genuinely killed by the tuple-multiset and drift gates."
+    },
+    {
+      "id": "B-03",
+      "severity": "MINOR",
+      "location": "scripts/run_r475_u2_confirmatory.py:221,283-286,333 (value-level collapse)",
+      "description": "The float-equality value-level collapse check could false-FAIL a valid design on degenerate joints; it was conflated with the authoritative source-ID structure proof.",
+      "resolved": true,
+      "resolution_note": "Confirmed fixed: the value-level check is now a separate reported field actual_row_value_collapse_absent, distinct from the authoritative ID-based no_within_tuple_source_collapse; both are required in routing_gate()'s required_flags and in rehearsal's passed conjunction. Verified: valid design -> both True; true-neighbour mutation -> value collapse False while ID structure stays True."
+    },
+    {
+      "id": "B-04",
+      "severity": "MINOR",
+      "location": "tests/test_run_r475_u2_confirmatory.py:149-182 (test_true_neighbour_source_fails_realized_slot_identity)",
+      "description": "The true-neighbour test's assertions now correctly target the realized-slot identity, declared-row-perm drift, and value-collapse gates (realized_slot_identity_ok False, actual_p_rows_match_declared_row_perm False, actual_row_value_collapse_absent False).",
+      "resolved": true,
+      "resolution_note": "Substantively fixed: assertions updated to the realized-slot/drift/value gates and verified to fire on the mutation. Residual cosmetic issue: the function docstring at lines 150-151 still reads 'must fail the non-neighbour structure check', which my probe shows does not fire (no_p_source_is_true_neighbour remains True because the structure proof is ID-based and immune to the source_rows monkeypatch). The stale wording does not affect test correctness or the gate; a one-line docstring edit would fully close it."
+    },
+    {
+      "id": "B-05",
+      "severity": "MINOR",
+      "location": "repository process (runner edited during review window)",
+      "description": "The runner was edited during the review window (p_source_semantics string corrected, donor-bank fields stripped from the contract, reward-hash check made real). Reviewed hashes above are of the final verified state.",
+      "resolved": true,
+      "resolution_note": "Confirmed: reviewed_files hashes in this updated review correspond to the final working-tree state that was re-verified (py_compile OK, 19/19 pytest passed). No further action."
+    }
+  ]
+}

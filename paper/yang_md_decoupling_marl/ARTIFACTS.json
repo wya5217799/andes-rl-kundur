@@ -3,6 +3,22 @@
  "line_id": "yang-md-decoupling-marl",
  "artifacts": [
   {
+   "id": "r474-placebo-review-deep-2026-08-23",
+   "purpose": "external-review",
+   "path": "paper/yang_md_decoupling_marl/working/gpt_pro_r474_placebo_review_deep_20260823",
+   "status": "active",
+   "canonical": true,
+   "authoritative": false,
+   "producer": "external-deep-review+project-governance",
+   "inputs": [
+    "memory/rounds/R474/plan.md",
+    "scripts/run_r474_u2_source_factorial.py",
+    "skills/kundur-round/references/experiment-design-guardrails.md"
+   ],
+   "supersedes": [],
+   "review_after": "2026-08-28"
+  },
+  {
    "id": "line-state",
    "purpose": "line-state",
    "path": "paper/yang_md_decoupling_marl/LINE.md",

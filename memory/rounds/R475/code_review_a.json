@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "round": "R475",
+  "reviewer": "reviewer-a-diff",
+  "reviewed_commit": "6794a5b199cb9da75d5f1149d5504573eaad7b3a",
+  "reviewed_files": {
+    "scripts/run_r475_u2_confirmatory.py": "7576c4dc239c8de242f9f88c36ff126db2da80b6749f885bbca7a9c41b90e423",
+    "tests/test_run_r475_u2_confirmatory.py": "4bb5add1cd212bb34b5bf3426cf6eb1139d8ab3379afe323d0dcdbc51a4c7b05"
+  },
+  "decision": "PASS",
+  "open_p0_count": 0,
+  "open_p1_count": 0,
+  "reverified_runner_sha256": "7576c4dc239c8de242f9f88c36ff126db2da80b6749f885bbca7a9c41b90e423",
+  "reverification_notes": "Re-verified on the fixed working tree: py_compile exit 0; pytest tests/test_run_r475_u2_confirmatory.py = 17 passed; rehearsal re-run passed=True with reward.matches_sealed_r473_reward_hash=True (reward source sha 085ad375... vs sealed R473 donor manifest hash); routing gate re-run passed=True; base audit 6/48/0; all gate sidecars hash-consistent.",
+  "findings": [
+    {
+      "id": "A-01",
+      "severity": "P1",
+      "location": "scripts/run_r475_u2_confirmatory.py:477 (train_arm_seed manifest)",
+      "description": "The per-shard training manifest still records \"p_source_semantics\": \"same-time permutation pi(i)=(i+2) mod 4\" -- the ABORTED R474 diagonal-copy design -- copied byte-identical from R474 (which correctly described its own design). R475 actually executes the row permutation rho(i)=(i+1) mod 4 (source_rows line 173), so every one of the 48 fresh training shards will carry a provenance record that misstates the executed treatment as the design this round exists to replace. aggregate() does not read this field (results unaffected), and the manifest is part of the R475 formal_manifest artifact set, so the wrong semantics string becomes a permanent record. Fix: update the string to the row-permutation description (matches build_contract line 102-105).",
+      "resolved": true,
+      "resolution": "Line 477 now records \"same-time row permutation rho(i)=(i+1) mod 4 of the authentic N neighbour 4-tuples (guardrails A.1/A.2); no exogenous donor bank\", consistent with build_contract. Confirmed by direct read on the working tree."
+    },
+    {
+      "id": "A-02",
+      "severity": "MINOR",
+      "location": "scripts/run_r475_u2_confirmatory.py:106-110 (build_contract)",
+      "description": "The r475 contract sub-dict retains inherited R470 fields placebo_left_node=\"i\" and placebo_right_node=\"(i+2) mod 4\" (plus donor_episodes=2 / donor_permutation=[1,0]) that still name the aborted placebo wiring; only p_source_semantics is overridden. The sealed contract_sha256 therefore encodes a stale description of the P semantics. Harmless to execution (no consumer reads these fields) but misleading in the sealed record; should be updated or removed alongside A-01.",
+      "resolved": true,
+      "resolution": "build_contract now pops placebo_left_node, placebo_right_node, donor_episodes and donor_permutation from the inherited sub-dict (with explanatory comment) before sealing as contract[\"r475\"]."
+    },
+    {
+      "id": "A-03",
+      "severity": "MINOR",
+      "location": "scripts/run_r475_u2_confirmatory.py:840-850,926 (rehearsal checks[\"passed\"] conjunction)",
+      "description": "Unregistered gate change vs R474: the rehearsal 'passed' conjunction now also requires objective_semantics_probe, a reward hash self-comparison, and the terminal_truth_table flags. The reward check `checks[\"reward\"][\"function_sha256\"] == checks[\"reward\"][\"function_sha256\"]` is a tautology (always True) and never verifies the required property that the reward function is byte-identical to R470/R473; terminal_truth_table values are hardcoded True (vacuous). Only objective_semantics_probe (frozen R470 core) adds real strictness, in the fail-safe direction. Tautology should be replaced by a comparison against the sealed R470/R473 reward hash or dropped; the added enforcement should be documented as part of the round.",
+      "resolved": true,
+      "resolution": "The tautology was replaced with a real check: rehearsal hashes core.legacy.step_rewards source and compares it against reward_function_sha256 read from the sealed R473 donor manifest (R473_OUT/donors/seed401/manifest.json); the result is recorded as checks[\"reward\"][\"matches_sealed_r473_reward_hash\"] and enforced in the passed conjunction (line 926). Re-run rehearsal.json shows passed=True and matches_sealed_r473_reward_hash=True."
+    },
+    {
+      "id": "A-04",
+      "severity": "MINOR",
+      "location": "scripts/run_r475_u2_confirmatory.py:1238 (aggregate classification)",
+      "description": "Dead ternary in training_dynamics classification: \"STABLE\" if dynamics_stable else (\"UNSTABLE\" if not dynamics_stable else \"NOT_ASSESSED\") -- the NOT_ASSESSED branch is unreachable. Cosmetic only; the emitted values are correct for the reachable cases.",
+      "resolved": true,
+      "resolution": "Dead ternary removed; line 1238 now reads \"training_dynamics\": \"STABLE\" if dynamics_stable else \"UNSTABLE\"."
+    }
+  ]
+}
