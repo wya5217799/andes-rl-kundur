@@ -309,6 +309,14 @@ canonical，不再要求另建 Note 索引。
 - 引用外部数学/理论解答的 round 收尾前必跑
   `external_theory_intake_lint.py R<N>`（外部理论吸收门，R422/R424/R432
   教训；机制预测须有可观测清单或 not-pursued 登记）.
+- 吸收外部审查包 (deep review) 的 round 收尾前必跑
+  `external_review_intake_lint.py R<N>`（外部审查吸收门，R474/R475 教训：
+  包须登记 ARTIFACTS + 哈希核验 + 逐 finding 处置 + feed 裁决；守卫 G.5）.
+- 写含 "Holm/materiality/超过10%" 措辞的 claim 后必跑
+  `materiality_statistics_lint.py <CLM-id>`（材料性统计口径门，R473 教训：
+  "Holm-controlled" 必须是边界处直接检验的 Holm，零效应 p + bootstrap CI
+  下限不算；守卫 G.3；R473 数据诊断 zero-null p=1/64 过而 materiality-null
+  p=2/64 不过）.
 - 写 feed/claim/verdict 后跑 `cot_leakage_lint.py R<N>`（无泄漏 recall
   battery，advisory 不阻塞；判定与处置见
   `skills/kundur-round/references/prose-leakage.md`）.

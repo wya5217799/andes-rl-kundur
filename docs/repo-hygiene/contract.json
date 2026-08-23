@@ -387,6 +387,12 @@
     "owner": "andes-runtime"
    },
    {
+    "pattern": "scripts/launch_detached.py",
+    "role": "operation",
+    "state": "active",
+    "owner": "andes-runtime"
+   },
+   {
     "pattern": "scripts/score_run.py",
     "role": "evaluation-adapter",
     "state": "active",

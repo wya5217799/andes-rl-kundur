@@ -99,6 +99,64 @@ verdict wording, not the running execution.
   certified; train a neural residual only after physics / information /
   family / robust margins are all strictly positive.
 
+## G. Guardrail-relaxation and review-role rules (R474 lesson, 2026-08-23)
+
+R474 was sealed and launched, then aborted same-day after an external deep
+review proved the design's guardrail relaxation unnecessary and the internal
+review's justification factually wrong ("per-slot pool equality is
+unsatisfiable" — a row permutation of the authentic N 4-tuples satisfies it).
+Codified here so the failure mode cannot repeat:
+
+1. **Relaxation requires a proof of infeasibility first.** Any plan that
+   relaxes a guardrail condition (per-slot -> per-channel, single-factor ->
+   pooled, etc.) must include a construction or enumeration showing the
+   original condition is genuinely unsatisfiable under the stated design
+   family, or an explicit owner authorization for the deviation. A claim of
+   "not well-defined / unsatisfiable" without a counterexample-free
+   construction is not sufficient; the counterexample search is part of the
+   plan, not of the review.
+2. **Reviewer roles split confirm-vs-adversarial.** Every two-reviewer code
+   gate must assign exactly one reviewer the adversarial role: attack the
+   PLAN's premises (guardrail compliance, estimand, batch purity), not just
+   verify the implementation matches the plan. The other reviewer keeps the
+   diff/data-flow role. If both reviewers only confirm the plan, the gate is
+   incomplete.
+3. **Materiality claims must be tested at the boundary.** Any claim worded
+   "Holm-controlled materiality", "materially supported", or "effect > 10%"
+   must be backed by a direct test of `H0: effect <= log(1.10)` (sign-flip /
+   randomization at the boundary), with Holm applied to the materiality
+   p-values themselves. A zero-null test plus a separate bootstrap CI lower
+   bound is NOT a Holm-controlled materiality test (R473 diagnostic:
+   zero-null p=1/64 passes, materiality-null p=2/64 fails). Bootstrap CIs
+   are descriptive sensitivity, never the multiplicity-controlled gate.
+4. **Batch purity is a design property, not a wording fix.** Reusing
+   training/eval artifacts across rounds for a confirmatory factorial mixes
+   batches into the main effects at a fixed coefficient; either retrain
+   all-fresh or provide a bridge/reproducibility experiment proving
+   counterfactual retrain equivalence. Wording ("total algorithm effect")
+   does not repair a contaminated contrast.
+5. **External review intake is a gated procedure.** An external deep-review
+   package must be: hash-verified against its source, registered in
+   ARTIFACTS.json, its findings classified (P0/P1/minor) with per-finding
+   disposition (fixed / deviation / not-pursued + reason), and the verdict
+   written into the round feed. `external_review_intake_lint.py R<N>` runs
+   at close-out. Predictions become falsifiable claims; the package's own
+   numbers (e.g. Monte Carlo approximations) are verified or superseded by
+   exact computation before being cited.
+6. **Stale-artifact refresh after code review fixes.** Rehearsal, routing
+   gate, and power artifacts are create-only. When a code-review finding
+   changes the runner/tests, the stale artifacts they produced are invalid:
+   explicitly delete the round's old rehearsal/routing/power JSONs (+
+   sidecars) and re-run them BEFORE prepare/seal. The create-only error is
+   the reminder, not the workflow; never hand-edit a sealed runner to soften
+   it (sealed runners stay byte-identical — R475 lesson: a message-string
+   edit to run_r470 was reverted because R475's seal pins it).
+7. **Reviewer scratch never lands in the round dir.** Subagent reviewers
+   (diff files, temp copies, working trees) write scratch under
+   `tmp/<round-id>/` or a temp dir, never inside `memory/rounds/<R>/`.
+   Clean any stray reviewer files before prepare; the round dir holds only
+   schema artifacts (plan/verdict/rehearsal/routing/seal/reviews/power).
+
 ## Provenance
 
 - U2 code facts: `scripts/run_r470_u2_source_factorial.py::{source_rows,
