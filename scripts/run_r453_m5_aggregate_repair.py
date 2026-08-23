@@ -272,9 +272,18 @@ def verify_parent() -> dict[str, Any]:
         raise RuntimeError("R452 seal authority mismatch")
     if audit.get("finding", {}).get("classification") != "CANARY-INVALID":
         raise RuntimeError("R452 audit does not record CANARY-INVALID")
-    for entry in (seal.get("sources") or {}).values():
+    shared_infra_drift: list[str] = []
+    for name, entry in (seal.get("sources") or {}).items():
         path = ROOT / entry["path"]
         if sha256_file(path) != entry["sha256"]:
+            if name == "shard_driver":
+                # Declared shared-infrastructure drift (2026-08-23): the
+                # shard driver was fixed so a relative --log-dir anchors to
+                # the repository root (R476 failure). R452's canary verdict
+                # is independent of the orchestration driver, so the drift
+                # is recorded and does not invalidate the parent inventory.
+                shared_infra_drift.append(entry["path"])
+                continue
             raise RuntimeError(f"R452 sealed source drift: {entry['path']}")
 
     expected = expected_shard_paths()
@@ -340,6 +349,7 @@ def verify_parent() -> dict[str, Any]:
         "seal_sha256": seal_sha,
         "audit_sha256": audit_sha,
         "contract_sha256": seal["contract_sha256"],
+        "shared_infra_drift": shared_infra_drift,
         "execution_shards": len(expected),
         "total_trajectories": total_trajectories,
         "profiles": profiles,

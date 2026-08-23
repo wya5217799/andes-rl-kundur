@@ -1,9 +1,9 @@
 ---
 round: R477
-state: active
+state: completed
 manuscript_line: yang-md-decoupling-marl
 opened: '2026-08-23'
-closed: null
+closed: '2026-08-24'
 supersedes_rounds: []
 superseded_by_round: null
 abort_reason: null

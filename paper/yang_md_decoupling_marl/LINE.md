@@ -81,6 +81,7 @@ evidence_refs:
   - "CLM-1465 -> paper/yang_md_decoupling_marl/reports/R468.md"
   - "CLM-1470 -> paper/yang_md_decoupling_marl/reports/R469.md"
   - "CLM-1475 -> paper/yang_md_decoupling_marl/reports/R473.md"
+  - "CLM-1480 -> paper/yang_md_decoupling_marl/reports/R477.md"
 required_reading: [paper/yang_md_decoupling_marl/LINE.md]
 verification: ["One VSG proxy = one actor, one independently executed bounded delta-M/delta-D vector; decoupling = lower off-diagonal common/differential response + lower disturbance differential energy with common-mode no-harm; coordination = message-enabled execution beats a matched no-message arm; R399 = finite non-learning stop; historical values not evidence; direct-M/D vs energy-port ratios never pooled."]
 stop_when: ["No training/tuning/learner replacement/bank retry/fresh bank, except the owner-authorized message-contrast repair round, soft-spot program rounds, and VSG failure-math advisory resolution rounds (one per item, program order). Keep R404 values out of title-supporting Results; no universal MARL claim from the R402 canary failure; no successful-MARL claim from R409; keep direct-M/D and energy-port objects/estimators/banks/references separate."]

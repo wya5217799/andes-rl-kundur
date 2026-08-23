@@ -19,10 +19,15 @@ def test_kundur_round_routes_work_before_reserving_a_round() -> None:
 def test_bootstrap_and_navigation_point_to_the_lane_gate() -> None:
     agents = (REPO_ROOT / "AGENTS.md").read_text(encoding="utf-8")
     claude = (REPO_ROOT / "CLAUDE.md").read_text(encoding="utf-8")
+    workflow = (REPO_ROOT / "skills/kundur-round/SKILL.md").read_text(
+        encoding="utf-8"
+    )
 
     assert "classify the work as `scratch`, `manuscript`, or `evidence`" in agents
     assert "先分流、再领 round" in claude
-    assert "scratch 每个 red-green slice 只跑定向测试" in claude
+    # Lane details live in the SKILL.md canonical (CLAUDE.md slimmed 2026-08-23
+    # to progressive disclosure; CLAUDE.md keeps only the lane pointer).
+    assert "scratch 每个 red-green slice 只跑定向测试" in workflow
 
 
 def test_global_workflow_recommendation_cannot_expand_project_write_scope() -> None:
@@ -117,5 +122,7 @@ def test_formal_execution_rules_require_launch_rehearsal_and_count_children() ->
     assert "Formal launch contract" in workflow
     assert "same pre-attempt verification path" in workflow_normalized
     assert "a scientific canary does not satisfy this rehearsal" in workflow_normalized
-    assert "including child and process-pool workers" in claude_normalized
+    # Process-budget counting lives in the SKILL.md canonical after the
+    # 2026-08-23 CLAUDE.md slim-down; CLAUDE.md keeps the pointer only.
+    assert "child 与 process-pool worker" in workflow_normalized
     assert "native numerical-library threads fixed to one" in claude_normalized

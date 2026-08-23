@@ -172,6 +172,7 @@ locator before calling these artifacts durably archived.
 | R468 | `results/research_loop/r468_u7_local_taylor/` | `checks/verification_report.json` | `564a2fa7c66c6f3a8b20fe01fe2f78854715582c11406c4591004679569c222b` |
 | R469 | `results/research_loop/r469_u8_separation_bound/` | `checks/verification_report.json` | `57050677549689b7aaa9cd85b566bd6a71adadb23dc2f4825b53747612e2de1e` |
 | R473 | `results/research_loop/r473_u2_source_factorial/` | `formal_analysis.json` | `b8786a5e9c3be3919ab4ca92e8b46747daaeb0e5405b4aa6b6e3d250bd333dda` |
+| R477 | `results/research_loop/r477_u2_confirmatory/` | `formal_analysis.json` | `7cd9129b404a7fd634fb6234034f36c065751c6a51b5be41ff2a2883fefc30e3` |
 
 The one hundred and eleven roots currently occupy 8,581,672,997 bytes. R286, R287, R291, R292,
 R294, R295, R296, R297, R298, R299, and R300 raw traces remain ignored; their retained trace hashes are indexed by
@@ -198,8 +199,9 @@ inventory is `tmp/andes/r476_pipeline_inventories/`. R477 is the create-only
 successor: those 16 shards enter by NTFS hardlinks after per-shard
 scientific-identity verification (provenance:
 `results/research_loop/r477_u2_confirmatory/r476_shard_import.json`), the
-remaining 32 cells train fresh, and the full evaluation/aggregate runs under
-the byte-identical R476 scientific protocol.
+remaining 32 cells were trained fresh, and the full evaluation/aggregate ran
+under the byte-identical R476 scientific protocol; classification
+`MATERIAL-EFFECT-NOT-ESTABLISHED` (see `formal_analysis.json`).
 
 R366 `analysis.json` and `analysis_v2.json` are preserved pre-audit static
 snapshots.  The first lacked one shared rowwise clip/slew seam; the second
