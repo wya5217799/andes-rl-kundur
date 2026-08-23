@@ -8,6 +8,7 @@ launcher/argv plumbing is exercised exactly as the WSL rounds use it.
 
 from __future__ import annotations
 
+import json
 import os
 import sys
 from pathlib import Path
@@ -135,3 +136,47 @@ def test_driver_result_records_runner_hash(tmp_path: Path) -> None:
     )
     assert payload["failed"] == []
     assert payload["runner_sha256"] == driver._sha256_file(runner)
+
+
+def test_main_relative_log_dir_anchors_to_repository_root(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """R476 regression: the driver runs with a scratch working directory
+    (andes_scratch launcher), so a relative --log-dir must anchor to the
+    repository root — otherwise driver_result.json lands under the scratch
+    tree and a detached pipeline looking from the repository root exits."""
+    repo = tmp_path / "repo"
+    scratch = tmp_path / "scratch"
+    (repo / "scripts").mkdir(parents=True)
+    (repo / "tmp" / "andes").mkdir(parents=True)
+    scratch.mkdir()
+    (repo / "scripts" / "fake_runner.py").write_text(
+        _FAKE_RUNNER, encoding="utf-8"
+    )
+    (repo / "tmp" / "andes" / "shards.json").write_text("[]\n", encoding="utf-8")
+    monkeypatch.setattr(driver, "ROOT", repo)
+    monkeypatch.chdir(scratch)
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "soft_spot_shard_driver.py",
+            "--runner", "scripts/fake_runner.py",
+            "--shards", "tmp/andes/shards.json",
+            "--workers", "1",
+            "--round", "R999",
+            "--log-dir", "tmp/andes/logs",
+        ],
+    )
+    assert driver.main() == 0
+    results = list((repo / "tmp" / "andes" / "logs").rglob("driver_result.json"))
+    assert len(results) == 1
+    payload = json.loads(results[0].read_text(encoding="utf-8"))
+    assert payload["shard_count"] == 0
+    assert not list(scratch.rglob("driver_result.json"))
+
+
+def test_log_root_anchors_relative_values(tmp_path: Path) -> None:
+    assert driver._log_root(None) == ROOT / "tmp" / "andes"
+    assert driver._log_root("tmp/andes/logs") == ROOT / "tmp/andes/logs"
+    assert driver._log_root(tmp_path / "x") == tmp_path / "x"

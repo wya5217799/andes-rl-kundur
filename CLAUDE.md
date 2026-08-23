@@ -98,7 +98,7 @@
 - **verdict.md 骨架** (validate.py 强制): `**Status**:` + `## TL;DR` (≤3 句) +
   Questions opened/closed/advanced 三节 + feed 指针在 `## 给 PI 的话` 之前 +
   给 PI 的话 (完整自然中文, 无编号/术语; R291+ verdict ≤80 非空行).
-- 分析 seam (probes/ vs src/ vs scripts/) 与生命周期: `docs/repo-hygiene/executables.md`.
+- 分析 seam (probes/ vs src/ vs scripts/) 与生命周期 + 流水线路径纪律: `docs/repo-hygiene/executables.md`.
 - 数据归档: 结论承载 JSON 必须有 `.sha256`; R291+ 本轮 results 先登记
   `results/MANIFEST.md`; 未登记第二副本只能标 `LOCAL-ONLY`.
 - 无泄漏写作: `skills/kundur-round/references/prose-leakage.md`; probe `cot_leakage_lint.py`.

@@ -48,3 +48,20 @@ Maintained ANDES entrypoints launch through
 `tmp/andes/` scratch rule live in CLAUDE.md 代码约定. Known input/output path
 flags are anchored to the repository before launch, so relative checkpoint and
 result paths retain their direct-entrypoint semantics.
+
+## Detached pipeline path discipline
+
+The driver-result handoff has two coupled invariants (R476 lost its later
+waves on the driver half):
+
+- The shard driver anchors a relative `--log-dir` to the repository root
+  before writing, so logs and `driver_result.json` land under the repository
+  `tmp/andes` tree although the driver runs from an andes_scratch working
+  directory.
+- A pipeline `find` of `driver_result.json` targets a directory under one
+  of the `--log-dir` values the pipeline passes, written repository-relative.
+
+Both halves are regression-locked: the driver by a scratch-cwd `main()` drive
+in the shard-driver tests; the pipeline half by
+`python memory/tools/detached_pipeline_lint.py` and its real-pipeline asset
+test. Run the lint before freezing a new detached pipeline.

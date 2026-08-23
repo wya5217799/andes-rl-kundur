@@ -142,6 +142,21 @@ def drive(
     }
 
 
+def _log_root(value: str | None) -> Path:
+    """Resolve the orchestration log root like --shards/--runner: relative
+    values anchor to the repository root, absolute values pass through.
+
+    The driver runs with a scratch working directory (andes_scratch
+    launcher), while detached pipelines look up driver_result.json from the
+    repository root; an unanchored relative --log-dir writes logs under the
+    scratch tree and pipelines then exit missing the result (R476 failure).
+    """
+    if value is None:
+        return ROOT / "tmp" / "andes"
+    path = Path(value)
+    return path if path.is_absolute() else ROOT / path
+
+
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--runner", required=True, type=Path)
@@ -182,11 +197,7 @@ def main() -> int:
         if unknown:
             raise SystemExit(f"unknown shard ids in --only: {sorted(unknown)}")
         shard_ids = [item for item in shard_ids if item in wanted]
-    log_root = (
-        Path(args.log_dir)
-        if args.log_dir is not None
-        else ROOT / "tmp" / "andes"
-    )
+    log_root = _log_root(args.log_dir)
     stamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%S.%fZ")
     log_dir = log_root / f"{args.round}_shard_logs_{stamp}"
     payload = drive(
