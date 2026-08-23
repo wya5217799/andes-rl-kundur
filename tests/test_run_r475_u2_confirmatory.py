@@ -343,3 +343,64 @@ def test_signflip_materiality_helper_matches_external_diagnostic() -> None:
 def test_signflip_materiality_all_above_bound_is_1_over_64() -> None:
     values = [0.30, 0.25, 0.20, 0.35, 0.28, 0.22]
     assert R475._signflip_p_one_sided(values, R475.MATERIALITY_LOG) == pytest.approx(1 / 64)
+
+
+def test_apply_holm_two_orders_by_p_and_controls_familywise() -> None:
+    """Holm on exactly two p-values: thresholds 0.025 then 0.05; the smaller
+    p passes at 0.025; the larger passes at 0.05 because the smaller passed
+    (standard Holm step-down)."""
+    rows = {
+        "actor": {"materiality_p_one_sided": 0.03125},  # larger p
+        "critic": {"materiality_p_one_sided": 0.015625},  # <= 0.025 -> passes
+    }
+    R475._apply_holm_two(rows)
+    assert rows["critic"]["holm_reject"] is True
+    assert rows["critic"]["holm_threshold"] == pytest.approx(0.025)
+    assert rows["actor"]["holm_reject"] is True
+    assert rows["actor"]["holm_threshold"] == pytest.approx(0.05)
+
+
+def test_apply_holm_two_both_below_thresholds_pass() -> None:
+    rows = {
+        "actor": {"materiality_p_one_sided": 1 / 64},
+        "critic": {"materiality_p_one_sided": 2 / 64},
+    }
+    R475._apply_holm_two(rows)
+    assert rows["actor"]["holm_reject"] is True
+    assert rows["critic"]["holm_reject"] is True
+
+
+def test_apply_holm_two_neither_passes_when_first_above() -> None:
+    rows = {
+        "actor": {"materiality_p_one_sided": 0.03125},
+        "critic": {"materiality_p_one_sided": 0.0625},
+    }
+    R475._apply_holm_two(rows)
+    assert rows["actor"]["holm_reject"] is False
+    assert rows["critic"]["holm_reject"] is False
+
+
+def test_exact_bootstrap_ci_is_reproducible_and_in_bounds() -> None:
+    """Exact 6^6 resample enumeration: deterministic, percentile CI inside
+    the observed range, and equal to a fresh enumeration (no Monte Carlo)."""
+    values = [0.2349, 0.1372, 0.1418, 0.1901, 0.2453, 0.0849]
+    lo1, hi1 = R475._exact_bootstrap_ci(values)
+    lo2, hi2 = R475._exact_bootstrap_ci(values)
+    assert lo1 == lo2 and hi1 == hi2  # deterministic
+    assert lo1 <= hi1
+    assert lo1 <= float(np.mean(values)) <= hi1
+    # Percentile CI must lie within the sample range.
+    assert lo1 >= min(values) and hi1 <= max(values)
+    # Full 6^6 = 46,656 ordered-resample enumeration gives the exact
+    # percentile CI [0.1285833..., 0.2163500...]; the external review's
+    # [0.12857068, 0.21634686] was its Monte Carlo approximation (its own
+    # verification record SS6.2), which this exact enumeration supersedes.
+    assert lo1 == pytest.approx(0.1285833333333333, abs=1e-9)
+    assert hi1 == pytest.approx(0.21635, abs=1e-6)
+
+
+def test_exact_bootstrap_ci_constant_values() -> None:
+    values = [0.5, 0.5, 0.5, 0.5, 0.5, 0.5]
+    lo, hi = R475._exact_bootstrap_ci(values)
+    assert lo == pytest.approx(0.5)
+    assert hi == pytest.approx(0.5)
