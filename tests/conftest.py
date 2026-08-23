@@ -40,6 +40,10 @@ _CLOSED_ROUND_LIFECYCLE_TESTS = {
         "test_authority_checks_reflect_active_plan",
     ): ("R475", "R475", "Q-0112", False),
     (
+        "test_run_r456_m1_dual_saturation.py",
+        "test_successor_authority_is_round_aware_and_output_absent",
+    ): ("R456", "R456", "Q-0112", False),
+    (
         "test_r358_physical_joint_endpoint_qp_analysis.py",
         "test_rehearsal_and_prepare_are_create_only_and_bind_closures",
     ): ("runner", "R358", "Q-0095", True),
@@ -63,7 +67,10 @@ def _isolate_closed_round_lifecycle(request, monkeypatch, tmp_path_factory) -> N
         f"state: active\nround: {round_id}\n{round_id}\n{question_id}\n",
         encoding="utf-8",
     )
-    monkeypatch.setattr(adapter, "PLAN", plan)
+    target = getattr(adapter, "BASE", adapter)
+    monkeypatch.setattr(target, "PLAN", plan)
+    if hasattr(target, "OUT"):
+        monkeypatch.setattr(target, "OUT", lifecycle_dir / "formal-output")
 
     if requires_question:
         question = lifecycle_dir / "question.md"

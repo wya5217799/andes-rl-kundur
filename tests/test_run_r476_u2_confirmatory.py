@@ -53,6 +53,9 @@ def test_load_seal_calls_r476_full_verifier_not_inherited_core(monkeypatch) -> N
     assert observed["round_id"] == "R476"
     assert observed["expected_shards"] == {
         "train": R476.TRAIN_SHARD_IDS,
+        "train_wave_1": R476.TRAIN_WAVE_IDS[0],
+        "train_wave_2": R476.TRAIN_WAVE_IDS[1],
+        "train_wave_3": R476.TRAIN_WAVE_IDS[2],
         "eval": R476.EVAL_SHARD_IDS,
     }
     assert R476.base.core.load_seal is R476.load_seal
@@ -78,11 +81,12 @@ def test_rehearsal_replaces_literal_terminal_table_with_executable_truth(
 
 def test_runner_is_adapter_not_a_second_training_implementation() -> None:
     source = inspect.getsource(R476)
-    assert "def train_arm_seed" not in source
-    assert "def evaluate_arm_stage" not in source
     assert "def routing_check" not in source
     assert "validate_review_coverage" in source
-    assert "classify_confirmatory" in source
+    assert "build_confirmatory_analysis" in source
+    assert "paired_log_effects" not in source
+    assert "_r475_train_arm_seed" in source
+    assert "_terminal_guarded_environment" in source
 
 
 def test_r476_paths_do_not_reuse_r475_output() -> None:
@@ -98,3 +102,43 @@ def test_artifact_budget_blocks_oversized_result_root(tmp_path, monkeypatch) -> 
     assert R476.artifact_budget_check(max_bytes=5)["total_bytes"] == 5
     with pytest.raises(RuntimeError, match="artifact budget exceeded"):
         R476.artifact_budget_check(max_bytes=4)
+
+
+def test_formal_training_and_eval_use_the_rehearsed_terminal_guard(monkeypatch) -> None:
+    events = []
+
+    class Guard:
+        def __enter__(self):
+            events.append("enter")
+
+        def __exit__(self, *_args):
+            events.append("exit")
+
+    monkeypatch.setattr(R476, "_terminal_guarded_environment", Guard)
+    monkeypatch.setattr(R476, "_r475_train_arm_seed", lambda arm, seed: f"{arm}|{seed}")
+    monkeypatch.setattr(
+        R476,
+        "_r475_evaluate_arm_stage",
+        lambda arm, stage: events.append(f"{arm}|{stage}"),
+    )
+    assert R476.train_arm_seed("an_cn_r0", 401) == "an_cn_r0|401"
+    R476.evaluate_arm_stage("an_cn_r0", "half")
+    assert events == ["enter", "exit", "enter", "an_cn_r0|half", "exit"]
+
+
+def test_manifest_wrapper_blocks_incomplete_finalization(monkeypatch, tmp_path) -> None:
+    monkeypatch.setattr(R476, "OUT", tmp_path)
+    monkeypatch.setattr(R476, "load_seal", lambda: {"round": "R476"})
+    monkeypatch.setattr(R476, "missing_shards", lambda: ["train|an_cn_r0|401"])
+    with pytest.raises(RuntimeError, match="missing shards"):
+        R476.formal_manifest()
+
+
+def test_pipeline_bounds_first_wave_recalibration_and_signal_inventory() -> None:
+    pipeline = R476.PIPELINE.read_text(encoding="utf-8")
+    assert "r476_train_wave${wave}_shards.json" in pipeline
+    assert "eta-recalibration" in pipeline
+    assert "trap 'on_signal 143' TERM" in pipeline
+    assert "run_r476_u2_confirmatory.py inventory" in pipeline
+    assert "run_phase budget" in pipeline
+    assert "run_phase manifest" in pipeline

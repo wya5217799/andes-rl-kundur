@@ -93,9 +93,23 @@ def _find_feed(round_id: str, plan_text: str | None) -> str | None:
         if m:
             line = m.group(1).strip().strip("'\"")
     if line:
-        direct = ROOT / "paper" / line / "reports" / f"{round_id}.md"
-        if direct.exists():
-            return str(direct)
+        line_root = None
+        for entry in ROOT.glob("paper/*/LINE.md"):
+            text = _read_text(entry)
+            if text and re.search(
+                rf"^line_id:\s*['\"]?{re.escape(line)}['\"]?\s*$",
+                text,
+                re.MULTILINE,
+            ):
+                line_root = entry.parent
+                break
+        if line_root is None:
+            candidate = ROOT / "paper" / line.replace("-", "_")
+            if (candidate / "LINE.md").is_file():
+                line_root = candidate
+        if line_root is not None:
+            direct = line_root / "reports" / f"{round_id}.md"
+            return str(direct) if direct.exists() else None
     candidates: list[Path] = []
     for pattern in (
         f"paper/*/reports/{round_id}.md",

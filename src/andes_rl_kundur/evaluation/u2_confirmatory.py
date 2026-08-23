@@ -10,9 +10,47 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
+import subprocess
 from collections.abc import Callable, Mapping, Sequence
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
+
+import numpy as np
+
+
+@dataclass(frozen=True)
+class ReviewCoverage:
+    """The common provenance accepted from two independent reviews."""
+
+    reviewed_commit: str
+    reviewer_ids: tuple[str, str]
+    reviewed_files: dict[str, str]
+
+
+@dataclass(frozen=True)
+class ConfirmatoryAnalysisContext:
+    """Round-bound dependencies for the frozen U2 confirmatory analysis."""
+
+    round_id: str
+    contract_sha256: str
+    seal_sha256: str
+    output_root: Path
+    arms: tuple[str, ...]
+    seeds: tuple[int, ...]
+    primary_metric: str
+    secondary_metric: str
+    materiality_log: float
+    scope: str
+    read_hashed_json: Callable[[Path], dict[str, Any]]
+    arm_factors: Callable[[str], Mapping[str, Any]]
+    paired_main_effects: Callable[[str, str], dict[str, list[float]]]
+    signflip_p_one_sided: Callable[[list[float], float], float]
+    exact_bootstrap_ci: Callable[[list[float]], tuple[float, float]]
+    apply_holm_two: Callable[[dict[str, dict[str, Any]]], None]
+    design_valid: Callable[[], bool]
+    created_utc: str
 
 
 def _sha256(path: Path) -> str:
@@ -66,8 +104,9 @@ def validate_review_coverage(
     *,
     repo_root: Path,
     reviewed_files: Sequence[Path],
-) -> dict[str, str]:
-    """Require two passing reviews over one identical current hash map."""
+    commit_file_sha256: Callable[[Path, str, str], str] | None = None,
+) -> ReviewCoverage:
+    """Require independent reviews over one current, committed hash map."""
 
     if len(review_paths) != 2:
         raise RuntimeError("exactly two independent review artifacts are required")
@@ -75,7 +114,9 @@ def validate_review_coverage(
         _repo_relative(path, repo_root): _sha256(path)
         for path in reviewed_files
     }
-    observed: list[dict[str, str]] = []
+    observed_files: list[dict[str, str]] = []
+    observed_commits: list[str] = []
+    reviewer_ids: list[str] = []
     for path in review_paths:
         review = _read_hashed_json(path)
         if review.get("decision") != "PASS":
@@ -90,12 +131,50 @@ def validate_review_coverage(
             for key, value in files.items()
         ):
             raise RuntimeError(f"invalid reviewed_files map: {path}")
-        observed.append(dict(files))
-    if observed[0] != observed[1]:
+        reviewed_commit = review.get("reviewed_commit")
+        if (
+            not isinstance(reviewed_commit, str)
+            or len(reviewed_commit) != 40
+            or any(character not in "0123456789abcdef" for character in reviewed_commit)
+        ):
+            raise RuntimeError(f"invalid reviewed_commit: {path}")
+        reviewer_id = review.get("reviewer_id")
+        if not isinstance(reviewer_id, str) or not reviewer_id.strip():
+            raise RuntimeError(f"missing reviewer_id: {path}")
+        observed_files.append(dict(files))
+        observed_commits.append(reviewed_commit)
+        reviewer_ids.append(reviewer_id.strip())
+    if observed_files[0] != observed_files[1]:
         raise RuntimeError("reviewed_files maps are not identical")
-    if observed[0] != expected:
+    if observed_files[0] != expected:
         raise RuntimeError("reviewed_files map does not match current source hashes")
-    return expected
+    if observed_commits[0] != observed_commits[1]:
+        raise RuntimeError("reviewed_commit values are not identical")
+    if reviewer_ids[0] == reviewer_ids[1]:
+        raise RuntimeError("reviews are not independent")
+    snapshot_sha256 = commit_file_sha256 or git_commit_file_sha256
+    for relative, expected_sha256 in expected.items():
+        if snapshot_sha256(repo_root, observed_commits[0], relative) != expected_sha256:
+            raise RuntimeError(f"reviewed_commit does not contain reviewed source: {relative}")
+    return ReviewCoverage(
+        reviewed_commit=observed_commits[0],
+        reviewer_ids=(reviewer_ids[0], reviewer_ids[1]),
+        reviewed_files=expected,
+    )
+
+
+def git_commit_file_sha256(repo_root: Path, commit: str, relative_path: str) -> str:
+    """Hash one file exactly as stored in a reviewed Git commit."""
+
+    result = subprocess.run(
+        ["git", "-C", str(repo_root), "show", f"{commit}:{relative_path}"],
+        check=False,
+        capture_output=True,
+    )
+    if result.returncode != 0:
+        detail = result.stderr.decode("utf-8", errors="replace").strip()
+        raise RuntimeError(f"cannot read reviewed commit {commit}: {relative_path}: {detail}")
+    return hashlib.sha256(result.stdout).hexdigest()
 
 
 def verify_formal_seal(
@@ -108,6 +187,7 @@ def verify_formal_seal(
     review_paths: Sequence[Path],
     reviewed_files: Sequence[Path],
     expected_shards: Mapping[str, Sequence[str]],
+    commit_file_sha256: Callable[[Path, str, str], str] | None = None,
 ) -> dict[str, Any]:
     """Verify every R476 authority input through one fail-closed interface."""
 
@@ -120,6 +200,8 @@ def verify_formal_seal(
         raise RuntimeError("formal seal lacks authority")
 
     for field, path in bound_files.items():
+        if path.suffix == ".json":
+            _read_hashed_json(path)
         if seal.get(field) != _sha256(path):
             raise RuntimeError(f"sealed bound-file drift: {field}: {path}")
 
@@ -152,13 +234,18 @@ def verify_formal_seal(
         if actual != list(expected):
             raise RuntimeError(f"shard list content drift: {name}")
 
-    reviewed_map = validate_review_coverage(
+    review = validate_review_coverage(
         review_paths,
         repo_root=repo_root,
         reviewed_files=reviewed_files,
+        commit_file_sha256=commit_file_sha256,
     )
-    if seal.get("reviewed_files") != reviewed_map:
+    if seal.get("reviewed_files") != review.reviewed_files:
         raise RuntimeError("sealed reviewed_files map drift")
+    if seal.get("reviewed_commit") != review.reviewed_commit:
+        raise RuntimeError("sealed reviewed_commit drift")
+    if seal.get("reviewer_ids") != list(review.reviewer_ids):
+        raise RuntimeError("sealed reviewer provenance drift")
     return seal
 
 
@@ -195,6 +282,64 @@ def terminal_truth_table(
     }
 
 
+class TerminalGuardedEnvironment:
+    """Apply the rehearsed terminal predicate to every real environment step."""
+
+    def __init__(
+        self,
+        environment: Any,
+        *,
+        steps: int,
+        predicate: Callable[..., bool] = terminal_invalid,
+    ) -> None:
+        self._environment = environment
+        self._steps = int(steps)
+        self._predicate = predicate
+        self._time_index = 0
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self._environment, name)
+
+    def reset(self, *args: Any, **kwargs: Any) -> Any:
+        self._time_index = 0
+        return self._environment.reset(*args, **kwargs)
+
+    def step(self, *args: Any, **kwargs: Any) -> Any:
+        result = self._environment.step(*args, **kwargs)
+        if len(result) != 4:
+            raise RuntimeError("unexpected environment step result")
+        _observation, _reward, done, info = result
+        tds_failed = bool(info.get("tds_failed"))
+        if self._predicate(
+            done=bool(done),
+            tds_failed=tds_failed,
+            time_index=self._time_index,
+            steps=self._steps,
+        ):
+            kind = "TDS failure" if tds_failed else "premature terminal"
+            raise RuntimeError(f"{kind} at step {self._time_index} of {self._steps}")
+        self._time_index += 1
+        return result
+
+
+def guard_environment_builder(
+    builder: Callable[..., Any],
+    *,
+    steps: int,
+    predicate: Callable[..., bool] = terminal_invalid,
+) -> Callable[..., TerminalGuardedEnvironment]:
+    """Wrap a real ANDES environment builder with the shared terminal gate."""
+
+    def guarded(*args: Any, **kwargs: Any) -> TerminalGuardedEnvironment:
+        return TerminalGuardedEnvironment(
+            builder(*args, **kwargs),
+            steps=steps,
+            predicate=predicate,
+        )
+
+    return guarded
+
+
 def classify_confirmatory(
     *,
     design_valid: bool,
@@ -229,4 +374,251 @@ def classify_confirmatory(
             "ESTABLISHED" if established_factors else "NOT_ESTABLISHED"
         ) if validity_pass else "NOT_TESTED",
         "verdict": verdict,
+    }
+
+
+def build_confirmatory_analysis(
+    context: ConfirmatoryAnalysisContext,
+    *,
+    missing_shards: Sequence[str],
+) -> dict[str, Any]:
+    """Build the complete frozen U2 analysis behind the package interface."""
+
+    if missing_shards:
+        classification = classify_confirmatory(
+            design_valid=context.design_valid(),
+            missing_shards=missing_shards,
+            integrity_errors=[],
+            dynamics_stable=False,
+            established_factors=[],
+        )
+        return {
+            "schema_version": 1,
+            "round": context.round_id,
+            "contract_sha256": context.contract_sha256,
+            "seal_sha256": context.seal_sha256,
+            "integrity": {"valid": True, "errors": []},
+            "missing_shards": list(missing_shards),
+            "main_effects": {},
+            "primary_materiality_tests": {},
+            "classification": classification,
+            "created_utc": context.created_utc,
+        }
+
+    integrity_errors: list[str] = []
+    base_hashes: dict[int, set[str]] = {seed: set() for seed in context.seeds}
+    reward_hashes: dict[bool, set[str]] = {False: set(), True: set()}
+    stability_rows: dict[str, list[dict[str, Any]]] = {}
+    for arm in context.arms:
+        stability_rows[arm] = []
+        for seed in context.seeds:
+            manifest = context.read_hashed_json(
+                context.output_root / "train" / arm / f"seed{seed}" / "manifest.json"
+            )
+            if not manifest["valid"] or int(manifest["interaction_steps"]) != 43_200:
+                integrity_errors.append(f"invalid training {arm} seed{seed}")
+            base_hashes[seed].add(str(manifest["base_state_sha256"]))
+            reward = bool(context.arm_factors(arm)["reward_access"])
+            reward_hashes[reward].add(str(manifest["reward_function_sha256"]))
+            stability_rows[arm].append(manifest["stability"])
+    for seed, hashes in base_hashes.items():
+        if len(hashes) != 1:
+            integrity_errors.append(f"base state mismatch seed{seed}")
+    if (
+        any(len(hashes) != 1 for hashes in reward_hashes.values())
+        or reward_hashes[False] != reward_hashes[True]
+    ):
+        integrity_errors.append("reward implementation hash mismatch")
+
+    stage_effects = {
+        stage: {
+            metric: context.paired_main_effects(stage, metric)
+            for metric in (context.primary_metric, context.secondary_metric)
+        }
+        for stage in ("half", "final")
+    }
+    final_primary = stage_effects["final"][context.primary_metric]
+    primary_tests: dict[str, dict[str, Any]] = {}
+    for factor in ("actor", "critic"):
+        values = final_primary[factor]
+        p_value = context.signflip_p_one_sided(values, context.materiality_log)
+        ci_low, ci_high = context.exact_bootstrap_ci(values)
+        primary_tests[factor] = {
+            "paired_log_effects": values,
+            "mean_log_effect": float(np.mean(values)),
+            "geometric_improvement": float(math.exp(float(np.mean(values))) - 1.0),
+            "materiality_log": context.materiality_log,
+            "materiality_p_one_sided": p_value,
+            "bootstrap_ci95_descriptive": [ci_low, ci_high],
+            "holm_reject": False,
+            "direction_count_positive": int(sum(value > 0 for value in values)),
+            "seed_min": float(np.min(values)),
+            "seed_median": float(np.median(values)),
+            "leave_one_out_means": [
+                float(np.mean([value for index, value in enumerate(values) if index != skip]))
+                for skip in range(len(values))
+            ],
+        }
+    context.apply_holm_two(primary_tests)
+
+    direction_flips = {}
+    for factor in ("actor", "critic"):
+        half = float(np.mean(stage_effects["half"][context.primary_metric][factor]))
+        final = float(np.mean(stage_effects["final"][context.primary_metric][factor]))
+        direction_flips[factor] = {
+            "half_mean": half,
+            "final_mean": final,
+            "flipped": bool(np.sign(half) != np.sign(final)),
+        }
+    no_plateau = [
+        f"{arm}|{seed}|{kind}"
+        for arm in context.arms
+        for seed, row in zip(context.seeds, stability_rows[arm], strict=True)
+        for kind in ("critic_loss", "actor_loss")
+        if not row[kind]["stable"]
+    ]
+    dynamics_stable = not any(
+        row["flipped"] for row in direction_flips.values()
+    ) and not no_plateau
+    established = [
+        factor for factor, row in primary_tests.items() if row["holm_reject"]
+    ]
+    classification = classify_confirmatory(
+        design_valid=context.design_valid(),
+        missing_shards=[],
+        integrity_errors=integrity_errors,
+        dynamics_stable=dynamics_stable,
+        established_factors=established,
+    )
+    for row in primary_tests.values():
+        row["material_effect"] = (
+            "NOT_TESTED"
+            if classification["material_effect"] == "NOT_TESTED"
+            else ("ESTABLISHED" if row["holm_reject"] else "NOT_ESTABLISHED")
+        )
+    return {
+        "schema_version": 1,
+        "round": context.round_id,
+        "contract_sha256": context.contract_sha256,
+        "seal_sha256": context.seal_sha256,
+        "integrity": {
+            "valid": not integrity_errors,
+            "errors": integrity_errors,
+            "six_seed_base_hashes": {
+                str(seed): sorted(values) for seed, values in base_hashes.items()
+            },
+            "reward_hashes": {
+                str(key): sorted(values) for key, values in reward_hashes.items()
+            },
+        },
+        "missing_shards": [],
+        "main_effects": stage_effects,
+        "primary_materiality_tests": primary_tests,
+        "optimization": {
+            "direction_flips": direction_flips,
+            "nonplateau_rows": no_plateau,
+            "unresolved": not dynamics_stable,
+        },
+        "classification": {
+            **classification,
+            "scope": context.scope,
+            "universal_intrinsic_claim_authorized": False,
+        },
+        "created_utc": context.created_utc,
+    }
+
+
+def check_artifact_budget(
+    output_root: Path,
+    *,
+    max_bytes: int = 650 * 1024 * 1024,
+) -> dict[str, int]:
+    """Fail before finalization when the sealed artifact budget is exceeded."""
+
+    total_bytes = (
+        sum(path.stat().st_size for path in output_root.rglob("*") if path.is_file())
+        if output_root.exists()
+        else 0
+    )
+    if total_bytes > max_bytes:
+        raise RuntimeError(
+            f"R476 artifact budget exceeded: {total_bytes} > {max_bytes} bytes"
+        )
+    return {"total_bytes": total_bytes, "max_bytes": max_bytes}
+
+
+def recalibrate_eta(
+    first_wave: Mapping[str, Any],
+    *,
+    remaining_training_shards: int,
+    evaluation_wave_count: int,
+) -> dict[str, Any]:
+    """Persist a scope-preserving ETA update after the first bounded wave."""
+
+    failed = first_wave.get("failed")
+    results = first_wave.get("results")
+    completed = len(results) if isinstance(results, Mapping) else 0
+    wall_seconds = float(first_wave.get("wall_seconds", 0.0))
+    if failed or completed < 1 or wall_seconds <= 0:
+        raise RuntimeError("first training wave is incomplete; ETA cannot be recalibrated")
+    training_waves = math.ceil(remaining_training_shards / completed)
+    remaining_wave_equivalents = training_waves + int(evaluation_wave_count)
+    return {
+        "schema_version": 1,
+        "basis": "observed first 16-shard training wave",
+        "first_wave_completed_shards": completed,
+        "first_wave_wall_seconds": wall_seconds,
+        "remaining_training_shards": int(remaining_training_shards),
+        "evaluation_wave_count": int(evaluation_wave_count),
+        "concurrency_unchanged": True,
+        "scope_unchanged": True,
+        "estimated_remaining_seconds": wall_seconds * remaining_wave_equivalents,
+        "estimated_remaining_range_seconds": [
+            wall_seconds * remaining_wave_equivalents * 0.8,
+            wall_seconds * remaining_wave_equivalents * 1.5,
+        ],
+    }
+
+
+def inventory_artifacts(
+    *,
+    repo_root: Path,
+    result_root: Path,
+    log_roots: Sequence[Path],
+    phase: str,
+    exit_code: int,
+    created_utc: str,
+) -> dict[str, Any]:
+    """Inventory preserved result and log files on every pipeline exit."""
+
+    rows: list[dict[str, Any]] = []
+    for root in (result_root, *log_roots):
+        if not root.exists():
+            continue
+        for path in sorted(root.rglob("*")):
+            if not path.is_file():
+                continue
+            row: dict[str, Any] = {
+                "path": _repo_relative(path, repo_root),
+                "bytes": path.stat().st_size,
+                "is_log": root != result_root,
+            }
+            if not path.name.endswith(".sha256"):
+                sidecar = Path(f"{path}.sha256")
+                row["sidecar_present"] = sidecar.is_file()
+                if sidecar.is_file():
+                    tokens = sidecar.read_text(encoding="ascii").split()
+                    row["sidecar_valid"] = bool(tokens and tokens[0] == _sha256(path))
+            rows.append(row)
+    return {
+        "schema_version": 1,
+        "phase": phase,
+        "exit_code": int(exit_code),
+        "interrupted": int(exit_code) in (130, 143),
+        "same_round_resume_authorized": False,
+        "partial_files_are_scientific": False,
+        "file_count": len(rows),
+        "total_bytes": sum(int(row["bytes"]) for row in rows),
+        "files": rows,
+        "created_utc": created_utc,
     }
