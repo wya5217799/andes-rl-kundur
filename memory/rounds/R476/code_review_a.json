@@ -1,0 +1,16 @@
+{
+  "decision": "PASS",
+  "findings": [],
+  "open_p0_count": 0,
+  "open_p1_count": 0,
+  "reviewed_commit": "2ae0e21ea7276345f9be21a6677b19e7df93fbf0",
+  "reviewed_files": {
+    "scripts/run_r476_detached_pipeline.sh": "092955775428ae178dc507ae8a8112c114ec8d5944121bcacc896357402ade63",
+    "scripts/run_r476_u2_confirmatory.py": "cb0eb59eaade14af7283e4b9cc9d4e24f517f6815a27b3d05a97c4ff25a48131",
+    "src/andes_rl_kundur/evaluation/u2_confirmatory.py": "728bc0928b22c476582ea22dce416b2de6e20ed3346542f4ea2942de581ca90c",
+    "tests/test_run_r476_u2_confirmatory.py": "0d1727f9c4c3d0666f812b19c9b06d3e3095787caaf9a3cac62bf010fba0a94d",
+    "tests/test_u2_confirmatory.py": "0d3ec851d97377dc5768415062822391ce69c4eb36bce921132ca82433aed610"
+  },
+  "reviewer_id": "project-standards",
+  "schema_version": 1
+}
