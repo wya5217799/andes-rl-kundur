@@ -18,6 +18,9 @@ Usage
     python memory/tools/session_friction.py --cwd <path>       # any workspace
     python memory/tools/session_friction.py --all              # every workspace
     python memory/tools/session_friction.py --json --limit 30
+    python memory/tools/session_friction.py --artifact <file>  # one external
+        session export: a .zip bundle, a plain .jsonl session, or a
+        .zstd/.zst artifact (cwd filter disabled for artifacts)
 
 Failure modes
 -------------
@@ -40,6 +43,7 @@ import json
 import os
 import re
 import sys
+import zipfile
 from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
@@ -137,7 +141,94 @@ def _find_artifacts(sessions_root: Path):
                     yield f
 
 
-def _scan(artifacts, cwd: str | None, all_ws: bool):
+def _scan_text(text, cwd, all_ws, stats, sig, sig_examples, corrections,
+               session_id=None):
+    """Scan one decoded session text; shared by the archive walk and --artifact."""
+    lines = text.split("\n")
+    try:
+        header = json.loads(lines[0])
+    except Exception:
+        header = {}
+    if header.get("type") != "session":
+        return
+    if session_id is None:
+        session_id = str(header.get("id"))
+    if not all_ws and cwd:
+        hcwd = (header.get("cwd") or "").replace("\\", "/").lower()
+        if hcwd != (cwd.replace("\\", "/").lower()):
+            return
+    stats["sessions"] += 1
+    for l in lines[1:]:
+        if not l.strip():
+            continue
+        try:
+            o = json.loads(l)
+        except Exception:
+            continue
+        t = o.get("type")
+        if t == "user/message":
+            u = _user_text(o)
+            if CORRECT_RE.search(u) and not u.startswith(("<", "You are", "Repository root:")):
+                corrections.append((session_id, u))
+        elif t == "tool/result":
+            r = _result_text(o)
+            if not r:
+                continue
+            for cls, rx, head in (
+                ("timeout", TIMEOUT_RE, "wall-clock ceiling"),
+                ("cli-usage", CLI_USAGE_RE, "usage:"),
+                ("edit-fail", EDIT_FAIL_RE, "old_string not found"),
+                ("dup-create", DUP_CREATE_RE, "cannot overwrite existing"),
+                ("bind-fail", BIND_FAIL_RE, "binding arguments"),
+                ("win32", WIN32_RE, "unsupported on platform"),
+            ):
+                if rx.search(r):
+                    sig[cls] += 1
+                    ex = r.split("\n")[0][:120] if r.split("\n") else r[:120]
+                    sig_examples.setdefault(cls, [])
+                    if ex not in sig_examples[cls] and len(sig_examples[cls]) < 6:
+                        sig_examples[cls].append(ex)
+                    break  # one dominant class per result
+
+
+def _load_artifact(path: Path) -> tuple[str, str]:
+    """Decode one external session artifact into scan text.
+
+    Accepts a .zip bundle (looks for session.jsonl / *.zstd / *.zst members),
+    a plain .jsonl session, or a .zstd/.zst artifact. Returns (text, status);
+    empty text with a non-ok status means the caller reports and exits.
+    """
+    if path.suffix.lower() == ".zip":
+        try:
+            zf = zipfile.ZipFile(path)
+        except Exception:
+            return "", "bad-zip"
+        cand = [n for n in zf.namelist()
+                if n.lower().endswith((".jsonl", ".zstd", ".zst"))
+                and "__MACOSX" not in n]
+        if not cand:
+            return "", "no-session"
+        cand.sort(key=lambda n: (not n.lower().endswith("session.jsonl"), n))
+        try:
+            raw = zf.read(cand[0])
+        except Exception:
+            return "", "bad-zip"
+        if cand[0].lower().endswith(".jsonl"):
+            return raw.decode("utf-8", "replace"), "ok"
+        return _decompress(raw)
+    if path.suffix.lower() in (".zstd", ".zst"):
+        try:
+            raw = path.read_bytes()
+        except OSError:
+            return "", "missing"
+        return _decompress(raw)
+    try:
+        return path.read_text(encoding="utf-8", errors="replace"), "ok"
+    except OSError:
+        return "", "missing"
+
+
+def _scan(artifacts, cwd, all_ws):
     stats = Counter()
     sig = Counter()      # signal class -> count
     sig_examples = {}    # signal class -> list of short examples
@@ -151,49 +242,7 @@ def _scan(artifacts, cwd: str | None, all_ws: bool):
         stats[status] += 1
         if not text:
             continue
-        lines = text.split("\n")
-        try:
-            header = json.loads(lines[0])
-        except Exception:
-            header = {}
-        if header.get("type") != "session":
-            continue
-        if not all_ws and cwd:
-            hcwd = (header.get("cwd") or "").replace("\\", "/").lower()
-            if hcwd != (cwd.replace("\\", "/").lower()):
-                continue
-        stats["sessions"] += 1
-        for l in lines[1:]:
-            if not l.strip():
-                continue
-            try:
-                o = json.loads(l)
-            except Exception:
-                continue
-            t = o.get("type")
-            if t == "user/message":
-                u = _user_text(o)
-                if CORRECT_RE.search(u) and not u.startswith(("<", "You are", "Repository root:")):
-                    corrections.append((str(header.get("id")), u))
-            elif t == "tool/result":
-                r = _result_text(o)
-                if not r:
-                    continue
-                for cls, rx, head in (
-                    ("timeout", TIMEOUT_RE, "wall-clock ceiling"),
-                    ("cli-usage", CLI_USAGE_RE, "usage:"),
-                    ("edit-fail", EDIT_FAIL_RE, "old_string not found"),
-                    ("dup-create", DUP_CREATE_RE, "cannot overwrite existing"),
-                    ("bind-fail", BIND_FAIL_RE, "binding arguments"),
-                    ("win32", WIN32_RE, "unsupported on platform"),
-                ):
-                    if rx.search(r):
-                        sig[cls] += 1
-                        ex = r.split("\n")[0][:120] if r.split("\n") else r[:120]
-                        sig_examples.setdefault(cls, [])
-                        if ex not in sig_examples[cls] and len(sig_examples[cls]) < 6:
-                            sig_examples[cls].append(ex)
-                        break  # one dominant class per result
+        _scan_text(text, cwd, all_ws, stats, sig, sig_examples, corrections)
     return stats, sig, sig_examples, corrections
 
 
@@ -227,21 +276,46 @@ def _render(stats, sig, sig_examples, corrections, limit):
 
 
 def main(argv=None) -> int:
+    # Windows consoles default to GBK; owner-correction quotes are Chinese, so
+    # force UTF-8 output (Codex 2026-08-23 needed `-X utf8` to run this tool).
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
     ap = argparse.ArgumentParser(description="Rank workflow friction across DSH session history")
     ap.add_argument("--cwd", default=str(ROOT), help="workspace path to filter (default: repo root)")
     ap.add_argument("--sessions-root",
                     default=str(Path(os.environ.get("USERPROFILE", "~")) / ".dsh" / "sessions"))
     ap.add_argument("--all", action="store_true", help="include every workspace, ignore --cwd")
+    ap.add_argument("--artifact",
+                    help="scan one external session artifact (.zip bundle, .jsonl session, or .zstd/.zst); cwd filter disabled")
     ap.add_argument("--limit", type=int, default=25, help="max correction quotes (default 25)")
     ap.add_argument("--json", action="store_true", help="machine-readable output")
     args = ap.parse_args(argv)
 
-    root = Path(args.sessions_root).expanduser()
-    if not root.is_dir():
-        print(f"session_friction.py: sessions root not found: {root}", file=sys.stderr)
-        return 1
-    stats, sig, sig_examples, corrections = _scan(
-        _find_artifacts(root), args.cwd, args.all)
+    if args.artifact:
+        p = Path(args.artifact).expanduser()
+        if not p.is_file():
+            print(f"session_friction.py: artifact not found: {p}", file=sys.stderr)
+            return 1
+        stats = Counter()
+        sig = Counter()
+        sig_examples = {}
+        corrections = []
+        text, status = _load_artifact(p)
+        stats[status] += 1
+        if not text:
+            print(f"session_friction.py: no session text in artifact: {p} "
+                  f"(status={status})", file=sys.stderr)
+            return 1
+        _scan_text(text, None, True, stats, sig, sig_examples, corrections)
+    else:
+        root = Path(args.sessions_root).expanduser()
+        if not root.is_dir():
+            print(f"session_friction.py: sessions root not found: {root}", file=sys.stderr)
+            return 1
+        stats, sig, sig_examples, corrections = _scan(
+            _find_artifacts(root), args.cwd, args.all)
     if args.json:
         print(json.dumps({
             "stats": dict(stats), "signals": dict(sig),

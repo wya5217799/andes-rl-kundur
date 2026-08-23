@@ -25,3 +25,21 @@ understand, explain, or interpret the repository receive a direct answer.
 `learning/README.md`; `learning/` 非权威, 永不替代 source/feed/claim/verdict。
 完整契约: `docs/repo-hygiene/external-skills.md`。
 
+## 会话工作纪律 (2026-08-23 Codex 复盘)
+
+多任务/审查/复盘会话的协作纪律, 对一切 agent 生效, 每条来自一次真实返工:
+
+- **task queue**: 同一会话接多个大任务时, 开工前列显式队列, 每条回复末尾
+  复述队列; 被新指令打断后, 处理完必须回到未完成项 (教训: 优化任务被
+  审查任务淹没, 永久丢失)。
+- **freeze-then-review**: 双审只审冻结提交 (`reviewed_commit` + 文件哈希);
+  先修完全部 P0/P1 再派审; 修完重审只审新冻结提交, 不审中间工作区
+  (教训: 审中间状态 → 修 → 再审, 两轮往返)。
+- **once-then-grep**: 冷启动读 CLAUDE.md + session_context 输出后即开工;
+  同一会话不整篇重读规章, 需要时 grep 定位; 子代理只拿任务简报与文件路径
+  (教训: 主会话与两个审查子代理各重读规章五遍以上)。
+- **long-run background**: 预计 >5min 的命令后台跑; 启动仿真前先查同名进程
+  是否已在跑, 不重复启动; 不轮询, 等完成通知。
+- **说人话**: 对 owner 用完整自然中文, 一次一个问题, 正文不出现仓库编号/
+  文件名/术语 — 本仓库最高频 owner 纠正, 外部 agent 同样遵守。
+

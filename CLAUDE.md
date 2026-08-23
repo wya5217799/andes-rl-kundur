@@ -404,6 +404,10 @@ canonical，不再要求另建 Note 索引。
   `python memory/tools/session_friction.py` (DSH 会话 zstd 日志 → 摩擦信号
   排名 + owner 纠正引语), 再按根因 codify。报告: 找到的痛点 + 根因 +
   优化了什么。
+- **外部 agent 会话纪律 (2026-08-23)**: Codex 复盘教训 codify 为
+  AGENTS.md `会话工作纪律` (task queue / freeze-then-review / once-then-grep /
+  long-run background / 说人话) + `session_friction.py --artifact` (外部会话
+  包直接复盘, 不再手工解压)。同类协作问题不再另立规则, 指向该节。
 - **harness 层优化**: 摩擦根因在 agent 组合层 (工具集 / persona / 呈现 /
   压缩) 时, 改专属预设 `~/.dsh/.agent-presets/kundur/` 而非 memory/tools。
   该预设 standard 基底 + 原生呈现 (非 PTC; bind-fail 按会话折算 PTC 更高,
