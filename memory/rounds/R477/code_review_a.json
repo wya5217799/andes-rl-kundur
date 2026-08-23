@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "reviewer_id": "r477-review-a",
+  "reviewed_commit": "fa53d232a0e7744de0278261254f9d54e8a70b92",
+  "reviewed_files": {
+    "scripts/run_r477_u2_confirmatory.py": "9cef3a312e4712956f30b942778a3a291b3e89e006dbef60ee13d52877be72ea",
+    "tests/test_run_r477_u2_confirmatory.py": "0c01acf387c93ab8589a529c8ba3343b83ef5231dcac189e8b770497125728b6",
+    "src/andes_rl_kundur/evaluation/u2_confirmatory.py": "728bc0928b22c476582ea22dce416b2de6e20ed3346542f4ea2942de581ca90c",
+    "tests/test_u2_confirmatory.py": "0d3ec851d97377dc5768415062822391ce69c4eb36bce921132ca82433aed610",
+    "scripts/run_r477_detached_pipeline.sh": "004a72b02b4126e9343ad452ccc91e88caa91ec5d740f8f5727eb1810db015b7",
+    "scripts/run_r476_u2_confirmatory.py": "cb0eb59eaade14af7283e4b9cc9d4e24f517f6815a27b3d05a97c4ff25a48131",
+    "scripts/soft_spot_shard_driver.py": "ab591eca51c9ecad7560ddb61aa5f9124735d1997b93e5b52035753989b69256",
+    "memory/tools/detached_pipeline_lint.py": "6d92e1108a1295bf261e8d4bb707e4eb5c822638da822bd37545b4e133cdaed0",
+    "tests/test_detached_pipeline_lint.py": "32b3c66ff62deef763e77570e8c12e2227837a6f9c50ba7f0d8ef5cb6a716fc7",
+    "tests/test_soft_spot_shard_driver.py": "229ca14551363a94d0a45b5ba5e0f3ac9928cc9ebcd53a52c53555ed336f7216"
+  },
+  "decision": "PASS",
+  "open_p0_count": 0,
+  "open_p1_count": 0,
+  "findings": [
+    {
+      "severity": "P2",
+      "path": "src/andes_rl_kundur/evaluation/u2_confirmatory.py",
+      "detail": "check_artifact_budget raises the failure message 'R476 artifact budget exceeded' with a hardcoded round label; if R477 trips the budget the message mislabels the round. Cosmetic only: the raise still blocks finalization fail-closed."
+    },
+    {
+      "severity": "P2",
+      "path": "scripts/run_r477_u2_confirmatory.py",
+      "detail": "import_r476_training_shards verifies the R476 manifest fields (round, valid, 43200 steps, arm/seed, factors, reward-function and base-state hashes) and hardlink identity, but does not re-hash half.pt/final.pt/full_curves.npz against the R476 manifest's recorded checkpoint/curves hashes. A drifted artifact is caught later at evaluation load (eval shard fails -> EXECUTION-INCOMPLETE -> manifest refused), so no wrong scientific conclusion is reachable; an explicit re-hash at import would localize the failure to the import phase."
+    },
+    {
+      "severity": "P2",
+      "path": "src/andes_rl_kundur/evaluation/u2_confirmatory.py",
+      "detail": "verify_formal_seal docstring still says 'Verify every R476 authority input' although the shared module now also serves R477; stale label, cosmetic only."
+    }
+  ]
+}

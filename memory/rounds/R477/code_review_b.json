@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "reviewer_id": "r477-review-b",
+  "reviewed_commit": "fa53d232a0e7744de0278261254f9d54e8a70b92",
+  "reviewed_files": {
+    "scripts/run_r477_u2_confirmatory.py": "9cef3a312e4712956f30b942778a3a291b3e89e006dbef60ee13d52877be72ea",
+    "tests/test_run_r477_u2_confirmatory.py": "0c01acf387c93ab8589a529c8ba3343b83ef5231dcac189e8b770497125728b6",
+    "src/andes_rl_kundur/evaluation/u2_confirmatory.py": "728bc0928b22c476582ea22dce416b2de6e20ed3346542f4ea2942de581ca90c",
+    "tests/test_u2_confirmatory.py": "0d3ec851d97377dc5768415062822391ce69c4eb36bce921132ca82433aed610",
+    "scripts/run_r477_detached_pipeline.sh": "004a72b02b4126e9343ad452ccc91e88caa91ec5d740f8f5727eb1810db015b7",
+    "scripts/run_r476_u2_confirmatory.py": "cb0eb59eaade14af7283e4b9cc9d4e24f517f6815a27b3d05a97c4ff25a48131",
+    "scripts/soft_spot_shard_driver.py": "ab591eca51c9ecad7560ddb61aa5f9124735d1997b93e5b52035753989b69256",
+    "memory/tools/detached_pipeline_lint.py": "6d92e1108a1295bf261e8d4bb707e4eb5c822638da822bd37545b4e133cdaed0",
+    "tests/test_detached_pipeline_lint.py": "32b3c66ff62deef763e77570e8c12e2227837a6f9c50ba7f0d8ef5cb6a716fc7",
+    "tests/test_soft_spot_shard_driver.py": "229ca14551363a94d0a45b5ba5e0f3ac9928cc9ebcd53a52c53555ed336f7216"
+  },
+  "decision": "PASS",
+  "open_p0_count": 0,
+  "open_p1_count": 0,
+  "findings": [
+    {
+      "severity": "P2",
+      "path": "src/andes_rl_kundur/evaluation/u2_confirmatory.py",
+      "detail": "check_artifact_budget raises 'R476 artifact budget exceeded' (line 545) with the round hardcoded in the message even though the module is shared across R476/R477; R477's budget phase would mislabel its own round in a failure message. Cosmetic only - threshold and fail-closed behavior are round-agnostic."
+    },
+    {
+      "severity": "P2",
+      "path": "scripts/soft_spot_shard_driver.py",
+      "detail": "The documented --resume recovery path appends '--resume' to the runner argv, but R470-family runners (including run_r477_u2_confirmatory.py) parse exactly [command, shard_id] and exit 2 on the unknown flag, so a driver-level resume of failed shards cannot work as documented. Pre-existing shared infra and off the R477 frozen success path (the pipeline never passes --resume and aborts fail-closed on a failed wave); advisory only."
+    }
+  ]
+}
