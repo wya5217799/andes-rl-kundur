@@ -61,6 +61,47 @@ def test_repository_tutoring_requires_explicit_invocation() -> None:
     assert "ordinary requests to\nunderstand, explain, or interpret" in agents
 
 
+def test_navigation_adapter_over_budget_reports_finding(tmp_path: Path) -> None:
+    (tmp_path / "README.md").write_text("See docs/source.md\n", encoding="utf-8")
+    (tmp_path / "docs").mkdir()
+    (tmp_path / "docs" / "source.md").write_text("# Source\n", encoding="utf-8")
+    (tmp_path / "CLAUDE.md").write_text(
+        "one\ntwo\nthree\nfour\nfive\nsix\n", encoding="utf-8"
+    )
+    _write_contract(
+        tmp_path,
+        _contract(
+            root={"allowed": ["README.md", "CLAUDE.md", "docs"], "tool_state": []},
+            navigation=[
+                {"adapter": "CLAUDE.md", "max_lines": 3, "must_reference": []}
+            ]
+        ),
+    )
+    result = _run(tmp_path, "--format", "json")
+    assert result.returncode == 1
+    assert "NAV_ADAPTER_OVER_BUDGET" in result.stdout
+
+
+def test_navigation_adapter_within_budget_passes(tmp_path: Path) -> None:
+    (tmp_path / "README.md").write_text("See docs/source.md\n", encoding="utf-8")
+    (tmp_path / "docs").mkdir()
+    (tmp_path / "docs" / "source.md").write_text("# Source\n", encoding="utf-8")
+    (tmp_path / "CLAUDE.md").write_text(
+        "one\ntwo\nthree\nfour\nfive\n", encoding="utf-8"
+    )
+    _write_contract(
+        tmp_path,
+        _contract(
+            root={"allowed": ["README.md", "CLAUDE.md", "docs"], "tool_state": []},
+            navigation=[
+                {"adapter": "CLAUDE.md", "max_lines": 10, "must_reference": []}
+            ]
+        ),
+    )
+    result = _run(tmp_path)
+    assert result.returncode == 0
+
+
 def test_clean_repository_passes_through_the_cli_seam(tmp_path: Path) -> None:
     (tmp_path / "README.md").write_text("See docs/source.md\n", encoding="utf-8")
     (tmp_path / "docs").mkdir()

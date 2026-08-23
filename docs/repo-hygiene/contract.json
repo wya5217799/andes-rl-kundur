@@ -626,6 +626,7 @@
   },
   {
    "adapter": "CLAUDE.md",
+   "max_lines": 160,
    "must_reference": [
     "skills/kundur-round/SKILL.md",
     "memory/tools/session_context.py",

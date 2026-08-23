@@ -156,6 +156,8 @@
 
 ## 活跃研究规则 (现状)
 
+- **规则预算 (2026-08-23)**: CLAUDE.md ≤160 行 (contract.json `max_lines`, repo_health
+  强制). 新增内容默认下放 pointer 文件; 超限先瘦身再继续干活.
 - **AI-only compactness**: new/edited AI rules/state = caveman short clauses + pointers + one fact/one home.
 - **AI-facing writing default**: agent-reader docs (`AGENTS.md`, `CLAUDE.md`, `skills/`,
   `docs/agents/`, `docs/repo-hygiene/`, ledger templates) 按 `writing-for-agents` skill 写 — 改前 load.

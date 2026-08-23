@@ -464,6 +464,16 @@ def _navigation_findings(root: Path, contract: dict[str, Any]) -> Iterable[Findi
                     adapter.as_posix(),
                     f"adapter does not reference {target.as_posix()}",
                 )
+        max_lines = item.get("max_lines")
+        if isinstance(max_lines, int) and max_lines > 0:
+            line_count = len([l for l in content.split("\n") if l != ""])
+            if line_count > max_lines:
+                yield Finding(
+                    "NAV_ADAPTER_OVER_BUDGET",
+                    adapter.as_posix(),
+                    f"navigation adapter is {line_count} lines, over the "
+                    f"{max_lines}-line budget — push details behind pointers",
+                )
 
 
 def _delivery_findings(root: Path, contract: dict[str, Any]) -> Iterable[Finding]:
