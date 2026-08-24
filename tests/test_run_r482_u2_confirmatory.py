@@ -8,6 +8,7 @@ closed, never executed.
 from __future__ import annotations
 
 import importlib.util
+import json
 import math
 import sys
 from pathlib import Path
@@ -64,6 +65,70 @@ def test_dev_shard_fails_closed_on_windows(monkeypatch):
 def test_dev_guard_wraps_dev_training(monkeypatch):
     source = Path(runner.__file__).read_text(encoding="utf-8")
     assert "_terminal_guarded_environment()" in source
+
+
+def test_factorial_training_uses_captured_parent(monkeypatch):
+    calls = []
+    monkeypatch.setattr(
+        runner,
+        "_PARENT_TRAIN_ARM_SEED",
+        lambda arm, seed: calls.append((arm, seed)) or "parent-result",
+    )
+    assert runner.train_arm_seed("an_cn_r0", 501) == "parent-result"
+    assert calls == [("an_cn_r0", 501)]
+
+
+def test_pipeline_resumes_without_restarting_development_wave():
+    source = (ROOT / "scripts/run_r482_detached_pipeline.sh").read_text(
+        encoding="utf-8"
+    )
+    assert "if [[ -d results/research_loop/r482_u2_confirmatory/dev ]]" in source
+    assert source.index("development-completeness") < source.index(
+        "if [[ ! -f tmp/andes/r482_formal_go.json ]]"
+    )
+    assert "owner go-file predates the development wave" in source
+
+
+def test_owner_approval_requires_round_and_source(tmp_path, monkeypatch):
+    approval = tmp_path / "OWNER_APPROVED.json"
+    approval.write_text(
+        json.dumps({"round": "R482", "approved": True, "source": "owner message"}),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(runner, "OWNER_APPROVED", approval)
+    assert runner.owner_approval_check()["approved"] is True
+
+
+def test_formal_go_requires_development_review(tmp_path, monkeypatch):
+    go_file = tmp_path / "r482_formal_go.json"
+    go_file.write_text(
+        json.dumps(
+            {
+                "round": "R482",
+                "approved": True,
+                "development_reviewed": True,
+                "source": "owner continuation message",
+            }
+        ),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(runner, "FORMAL_GO", go_file)
+    monkeypatch.setattr(runner, "development_check", lambda: {"passed": True})
+    assert runner.formal_go_check()["development_reviewed"] is True
+
+
+def test_development_check_rejects_missing_wave(monkeypatch, tmp_path):
+    monkeypatch.setattr(runner, "OUT", tmp_path / "out")
+    monkeypatch.setattr(runner, "load_seal", lambda: {})
+    with pytest.raises(RuntimeError, match="development wave incomplete/invalid"):
+        runner.development_check()
+
+
+def test_formal_manifest_implementation_excludes_dev_and_does_not_delegate():
+    source = Path(runner.__file__).read_text(encoding="utf-8")
+    body = source[source.index("def formal_manifest"):source.index("def write_eta_recalibration")]
+    assert '"dev" in path.relative_to(OUT).parts' in body
+    assert "core.formal_manifest" not in body
 
 
 def test_seed_and_arm_roster():

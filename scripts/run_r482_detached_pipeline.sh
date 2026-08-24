@@ -49,18 +49,34 @@ driver=("${python_bin}" scripts/andes_scratch.py scripts/soft_spot_shard_driver.
 
 run_phase verify "${runner[@]}" verify
 
-run_phase development-wave "${driver[@]}" \
-  --runner scripts/run_r482_u2_confirmatory.py \
-  --shards tmp/andes/r482_dev_shards.json \
-  --workers 16 \
-  --round R482 \
-  --log-dir tmp/andes/r482_dev_logs
+run_phase owner-approval "${runner[@]}" owner-check
+
+if [[ -d results/research_loop/r482_u2_confirmatory/dev ]]; then
+  run_phase development-completeness "${runner[@]}" dev-check
+else
+  if [[ -f tmp/andes/r482_formal_go.json ]]; then
+    echo "owner go-file predates the development wave" >&2
+    exit 1
+  fi
+  run_phase development-wave "${driver[@]}" \
+    --runner scripts/run_r482_u2_confirmatory.py \
+    --shards tmp/andes/r482_dev_shards.json \
+    --workers 16 \
+    --round R482 \
+    --log-dir tmp/andes/r482_dev_logs
+  run_phase development-completeness "${runner[@]}" dev-check
+  echo "development wave complete; awaiting owner go-file (tmp/andes/r482_formal_go.json)" >&2
+  phase="awaiting-owner-go"
+  exit 0
+fi
 
 if [[ ! -f tmp/andes/r482_formal_go.json ]]; then
   echo "development wave complete; awaiting owner go-file (tmp/andes/r482_formal_go.json)" >&2
   phase="awaiting-owner-go"
   exit 0
 fi
+
+run_phase formal-go "${runner[@]}" formal-go-check
 
 for wave in $(seq 1 15); do
   run_phase "training-wave-${wave}" "${driver[@]}" \

@@ -82,6 +82,7 @@ TRAIN_LOG_ROOT = ROOT / "tmp/andes/r482_train_logs"
 EVAL_LOG_ROOT = ROOT / "tmp/andes/r482_eval_logs"
 DEV_LOG_ROOT = ROOT / "tmp/andes/r482_dev_logs"
 FORMAL_GO = ROOT / "tmp/andes/r482_formal_go.json"
+OWNER_APPROVED = ROOT / "memory/rounds/R482/OWNER_APPROVED.json"
 ROUTING_GATE = ROOT / "memory/rounds/R482/routing_gate.json"
 REVIEW_A = ROOT / "memory/rounds/R482/code_review_a.json"
 REVIEW_B = ROOT / "memory/rounds/R482/code_review_b.json"
@@ -194,6 +195,10 @@ def _rewrite_chain() -> None:
 
 
 _rewrite_chain()
+
+# Capture the sealed parent entry before the compatibility rebinding below.
+# Calling ``base.train_arm_seed`` afterwards would recurse into this module.
+_PARENT_TRAIN_ARM_SEED = base.train_arm_seed
 
 
 def arm_factors(arm_id: str) -> dict[str, Any]:
@@ -1014,7 +1019,7 @@ def train_arm_seed(arm_id: str, seed: int) -> str:
         if seed not in SEEDS:
             raise ValueError(f"unregistered seed: {seed}")
         return _train_arm_seed_phase3b(seed)
-    return base.train_arm_seed(arm_id, seed)
+    return _PARENT_TRAIN_ARM_SEED(arm_id, seed)
 
 
 def _train_dev_cell_body(arm_id: str, seed: int) -> str:
@@ -1142,7 +1147,7 @@ def _train_dev_cell_body(arm_id: str, seed: int) -> str:
         key: core._curve_stability(np.asarray(curves[key]))
         for key in ("critic_loss", "actor_loss")
     }
-    return core._write_new_json(
+    manifest_sha = core._write_new_json(
         run_dir / "manifest.json",
         {
             "schema_version": 1,
@@ -1181,6 +1186,89 @@ def _train_dev_cell_body(arm_id: str, seed: int) -> str:
             "created_utc": datetime.now(UTC).isoformat(),
         },
     )
+    if not valid:
+        raise RuntimeError(
+            f"development cell invalid after preserving manifest: {arm_id}|{seed}"
+        )
+    return manifest_sha
+
+
+def development_check() -> dict[str, Any]:
+    """Validate the complete burned development wave without formal pooling."""
+    core = base.base.base.core
+    load_seal()
+    errors: list[str] = []
+    for arm_id, seed in DEV_CELLS:
+        run_dir = OUT / "dev" / arm_id / f"seed{seed}"
+        manifest_path = run_dir / "manifest.json"
+        try:
+            manifest = core._read_hashed_json(manifest_path)
+        except Exception as exc:
+            errors.append(f"{arm_id}|{seed}: manifest {exc}")
+            continue
+        expected = {
+            "round": ROUND_ID,
+            "development": True,
+            "formal_bank": False,
+            "arm_id": arm_id,
+            "training_seed": seed,
+            "valid": True,
+            "interaction_steps": 43_200,
+            "tds_failed_episodes": 0,
+            "contract_sha256": core.contract_sha256(),
+        }
+        for field, value in expected.items():
+            if manifest.get(field) != value:
+                errors.append(
+                    f"{arm_id}|{seed}: {field}={manifest.get(field)!r}, expected {value!r}"
+                )
+        for filename, field in (
+            ("half.pt", "half_checkpoint_sha256"),
+            ("final.pt", "final_checkpoint_sha256"),
+            ("full_curves.npz", "full_curves_sha256"),
+        ):
+            artifact = run_dir / filename
+            if not artifact.is_file() or core._sha256_file(artifact) != manifest.get(field):
+                errors.append(f"{arm_id}|{seed}: invalid {filename}")
+            sidecar = Path(f"{artifact}.sha256")
+            if not sidecar.is_file():
+                errors.append(f"{arm_id}|{seed}: missing {filename}.sha256")
+    if errors:
+        raise RuntimeError(f"development wave incomplete/invalid: {errors[:5]}")
+    return {
+        "round": ROUND_ID,
+        "development_cell_count": len(DEV_CELLS),
+        "formal_cells_included": 0,
+        "passed": True,
+    }
+
+
+def owner_approval_check() -> dict[str, Any]:
+    """Require the owner approval record immediately before any execution."""
+    payload = json.loads(OWNER_APPROVED.read_text(encoding="utf-8"))
+    if (
+        payload.get("round") != ROUND_ID
+        or payload.get("approved") is not True
+        or not isinstance(payload.get("source"), str)
+        or not payload["source"].strip()
+    ):
+        raise RuntimeError("R482 owner approval record is invalid")
+    return payload
+
+
+def formal_go_check() -> dict[str, Any]:
+    """Validate the post-development owner continuation authorization."""
+    development_check()
+    payload = json.loads(FORMAL_GO.read_text(encoding="utf-8"))
+    if (
+        payload.get("round") != ROUND_ID
+        or payload.get("approved") is not True
+        or payload.get("development_reviewed") is not True
+        or not isinstance(payload.get("source"), str)
+        or not payload["source"].strip()
+    ):
+        raise RuntimeError("R482 formal go-file is invalid")
+    return payload
 
 
 def evaluate_arm_stage(arm_id: str, stage: str) -> None:
@@ -1611,7 +1699,42 @@ def formal_manifest() -> str:
     required = {"design": "VALID", "execution": "COMPLETE", "integrity": "PASS"}
     if any(classification.get(field) != value for field, value in required.items()):
         raise RuntimeError(f"formal analysis is not finalizable: {classification}")
-    return base.base.base.core.formal_manifest()
+    core = base.base.base.core
+    entries = []
+    for path in sorted(OUT.rglob("*")):
+        if (
+            not path.is_file()
+            or path.name == "formal_manifest.json"
+            or path.name.endswith(".sha256")
+            or "dev" in path.relative_to(OUT).parts
+        ):
+            continue
+        sidecar = Path(f"{path}.sha256")
+        if (
+            not sidecar.is_file()
+            or sidecar.read_text(encoding="ascii").split()[0]
+            != core._sha256_file(path)
+        ):
+            raise RuntimeError(f"missing/invalid sidecar: {path}")
+        entries.append(
+            {
+                "path": core._relative(path),
+                "sha256": core._sha256_file(path),
+                "bytes": path.stat().st_size,
+            }
+        )
+    return core._write_new_json(
+        OUT / "formal_manifest.json",
+        {
+            "schema_version": 1,
+            "round": ROUND_ID,
+            "entries": entries,
+            "entry_count": len(entries),
+            "total_bytes": sum(row["bytes"] for row in entries),
+            "development_artifacts_excluded": True,
+            "created_utc": datetime.now(UTC).isoformat(),
+        },
+    )
 
 
 def write_eta_recalibration(driver_result: Path) -> str:
@@ -1684,6 +1807,9 @@ def _main() -> int:
             "eta",
             "inventory",
             "manifest",
+            "dev-check",
+            "owner-check",
+            "formal-go-check",
         ),
     )
     parser.add_argument("shard_id", nargs="?")
@@ -1731,6 +1857,18 @@ def _main() -> int:
         base.base.base.core.safe_emit(write_pipeline_inventory())
     elif args.command == "manifest":
         base.base.base.core.safe_emit(formal_manifest())
+    elif args.command == "dev-check":
+        base.base.base.core.safe_emit(
+            json.dumps(development_check(), indent=2, sort_keys=True)
+        )
+    elif args.command == "owner-check":
+        base.base.base.core.safe_emit(
+            json.dumps(owner_approval_check(), indent=2, sort_keys=True)
+        )
+    elif args.command == "formal-go-check":
+        base.base.base.core.safe_emit(
+            json.dumps(formal_go_check(), indent=2, sort_keys=True)
+        )
     else:
         if args.shard_id is None:
             raise SystemExit("shard requires a shard id")
