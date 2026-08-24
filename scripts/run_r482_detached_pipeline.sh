@@ -53,6 +53,7 @@ run_phase owner-approval "${runner[@]}" owner-check
 
 if [[ -d results/research_loop/r482_u2_confirmatory/dev ]]; then
   run_phase development-completeness "${runner[@]}" dev-check
+  run_phase development-report-check "${runner[@]}" dev-report-check
 else
   if [[ -f tmp/andes/r482_formal_go.json ]]; then
     echo "owner go-file predates the development wave" >&2
@@ -65,6 +66,7 @@ else
     --round R482 \
     --log-dir tmp/andes/r482_dev_logs
   run_phase development-completeness "${runner[@]}" dev-check
+  run_phase development-report "${runner[@]}" dev-report
   echo "development wave complete; awaiting owner go-file (tmp/andes/r482_formal_go.json)" >&2
   phase="awaiting-owner-go"
   exit 0

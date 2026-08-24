@@ -23,8 +23,11 @@ import inspect
 import json
 import math
 import os
+import subprocess
 import sys
 import tempfile
+import time
+from concurrent.futures import ProcessPoolExecutor
 from contextlib import contextmanager
 from datetime import UTC, datetime
 from pathlib import Path
@@ -388,17 +391,38 @@ def basegen() -> str:
                 "manifest_sha256": digest,
             }
         )
-    return base.base.base.core._write_new_json(
-        OUT / "basegen_provenance.json",
+    formal_entries = [row for row in entries if int(row["seed"]) in SEEDS]
+    development_entries = [row for row in entries if int(row["seed"]) in DEV_SEEDS]
+    formal_digest = base.base.base.core._write_new_json(
+        OUT / "formal_basegen_provenance.json",
         {
             "schema_version": 1,
             "round": ROUND_ID,
             "base_rng_offset": BASE_RNG_OFFSET,
-            "base_count": len(entries),
-            "entries": entries,
+            "base_count": len(formal_entries),
+            "entries": formal_entries,
             "donor_bank_absent": True,
             "created_utc": datetime.now(UTC).isoformat(),
         },
+    )
+    development_digest = base.base.base.core._write_new_json(
+        OUT / "development_inputs" / "basegen_provenance.json",
+        {
+            "schema_version": 1,
+            "round": ROUND_ID,
+            "base_rng_offset": BASE_RNG_OFFSET,
+            "base_count": len(development_entries),
+            "entries": development_entries,
+            "formal_bank": False,
+            "created_utc": datetime.now(UTC).isoformat(),
+        },
+    )
+    return json.dumps(
+        {
+            "formal_basegen_provenance_sha256": formal_digest,
+            "development_basegen_provenance_sha256": development_digest,
+        },
+        sort_keys=True,
     )
 
 
@@ -1198,6 +1222,7 @@ def development_check() -> dict[str, Any]:
     core = base.base.base.core
     load_seal()
     errors: list[str] = []
+    rows: list[dict[str, Any]] = []
     for arm_id, seed in DEV_CELLS:
         run_dir = OUT / "dev" / arm_id / f"seed{seed}"
         manifest_path = run_dir / "manifest.json"
@@ -1233,14 +1258,59 @@ def development_check() -> dict[str, Any]:
             sidecar = Path(f"{artifact}.sha256")
             if not sidecar.is_file():
                 errors.append(f"{arm_id}|{seed}: missing {filename}.sha256")
+        rows.append(
+            {
+                "arm_id": arm_id,
+                "seed": seed,
+                "manifest_sha256": core._sha256_file(manifest_path),
+                "interaction_steps": manifest.get("interaction_steps"),
+                "tds_failed_episodes": manifest.get("tds_failed_episodes"),
+                "curve_count": manifest.get("curve_count"),
+                "stability": manifest.get("stability"),
+                "created_utc": manifest.get("created_utc"),
+            }
+        )
     if errors:
         raise RuntimeError(f"development wave incomplete/invalid: {errors[:5]}")
+    manifest_set_sha256 = hashlib.sha256(
+        json.dumps(rows, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    ).hexdigest()
     return {
         "round": ROUND_ID,
         "development_cell_count": len(DEV_CELLS),
         "formal_cells_included": 0,
+        "manifest_set_sha256": manifest_set_sha256,
+        "cells": rows,
         "passed": True,
     }
+
+
+def write_development_report() -> str:
+    """Persist the owner-visible development diagnostics exactly once."""
+    core = base.base.base.core
+    payload = {
+        "schema_version": 1,
+        **development_check(),
+        "scientific_evidence": False,
+        "formal_inference_included": False,
+        "created_utc": datetime.now(UTC).isoformat(),
+    }
+    return core._write_new_json(OUT / "dev" / "diagnostic_report.json", payload)
+
+
+def development_report_check() -> dict[str, Any]:
+    """Verify that the visible report matches the immutable dev manifests."""
+    core = base.base.base.core
+    report = core._read_hashed_json(OUT / "dev" / "diagnostic_report.json")
+    current = development_check()
+    if (
+        report.get("passed") is not True
+        or report.get("scientific_evidence") is not False
+        or report.get("formal_inference_included") is not False
+        or report.get("manifest_set_sha256") != current["manifest_set_sha256"]
+    ):
+        raise RuntimeError("R482 development diagnostic report drift")
+    return report
 
 
 def owner_approval_check() -> dict[str, Any]:
@@ -1256,18 +1326,104 @@ def owner_approval_check() -> dict[str, Any]:
     return payload
 
 
+def measure_capacity() -> str:
+    """Run the registered 16-worker x 8-job corrected-family confirmation."""
+    core = base.base.base.core
+    core._assert_wsl_scratch()
+    if CAPACITY.exists() or SEAL.exists():
+        raise FileExistsError("R482 capacity/seal artifact already exists")
+    rehearsal_payload = core._read_hashed_json(REHEARSAL)
+    if rehearsal_payload.get("passed") is not True:
+        raise RuntimeError("R482 rehearsal did not pass")
+    ps_lines = subprocess.run(
+        ["ps", "-eo", "pid=,args="], capture_output=True, text=True, check=True
+    ).stdout.splitlines()
+    other = [
+        line.strip()
+        for line in ps_lines
+        if ("scripts/run_" in line or "soft_spot_shard_driver.py" in line)
+        and "run_r482_u2_confirmatory.py capacity" not in line
+    ]
+    if other:
+        raise RuntimeError(f"other research processes are active: {other}")
+    meminfo = Path("/proc/meminfo").read_text(encoding="ascii")
+    memory = {
+        line.split(":", 1)[0]: int(line.split()[1]) * 1024
+        for line in meminfo.splitlines()
+        if ":" in line and len(line.split()) >= 2 and line.split()[1].isdigit()
+    }
+    anchor_path = ROOT / "memory/rounds/R438/capacity_evidence.json"
+    anchor_payload = core._read_hashed_json(anchor_path)
+    worker_anchor = int(anchor_payload["training_worker_rss_anchor"]["bytes"])
+    memory_safe = 16 * worker_anchor + 3 * 1024**3 <= int(memory["MemTotal"])
+
+    import run_r481_direct_md as capacity_base
+
+    jobs = capacity_base._capacity_jobs(capacity_base.build_contract())
+    if len(jobs) != 8:
+        raise RuntimeError(f"capacity roster drift: expected 8 jobs, found {len(jobs)}")
+    started = time.perf_counter()
+    with ProcessPoolExecutor(max_workers=16) as executor:
+        records = list(executor.map(capacity_base._run_job, jobs))
+    wall_seconds = time.perf_counter() - started
+    failures = [
+        record.get("failure")
+        for record in records
+        if record.get("completed") is not True or record.get("tds_failed") is not False
+    ]
+    run_ready = memory_safe and not failures and not other
+    payload = {
+        "schema_version": 1,
+        "round": ROUND_ID,
+        "created_utc": datetime.now(UTC).isoformat(),
+        "readiness": "RUN-READY" if run_ready else "LOAD-CHECK-REVIEW",
+        "selected_workers": 16 if run_ready else 0,
+        "quick_confirm": {
+            "requested_workers": 16,
+            "jobs": len(records),
+            "wall_seconds": wall_seconds,
+            "all_records_valid": not failures,
+            "failures": failures,
+        },
+        "empirical_anchor": {
+            "path": core._relative(anchor_path),
+            "sha256": core._sha256_file(anchor_path),
+            "training_worker_rss_anchor_bytes": worker_anchor,
+            "history_ladder_r452_r477": (
+                "16 workers selected in every round R452-R477 on this host"
+            ),
+        },
+        "wsl_mem_total_bytes": int(memory["MemTotal"]),
+        "wsl_mem_available_bytes": int(memory["MemAvailable"]),
+        "memory_safe": memory_safe,
+        "whole_host_python_process_budget": 17,
+        "wsl_python_processes": 17,
+        "native_threads_per_process": 1,
+        "other_reserved_processes": 0,
+        "other_research_processes": other,
+        "capacity_trace_role": "non_claim_bearing_quick_confirmation",
+    }
+    return core._write_new_json(CAPACITY, payload)
+
+
 def formal_go_check() -> dict[str, Any]:
     """Validate the post-development owner continuation authorization."""
-    development_check()
+    report = development_report_check()
     payload = json.loads(FORMAL_GO.read_text(encoding="utf-8"))
     if (
         payload.get("round") != ROUND_ID
         or payload.get("approved") is not True
         or payload.get("development_reviewed") is not True
+        or payload.get("development_report_sha256")
+        != base.base.base.core._sha256_file(OUT / "dev" / "diagnostic_report.json")
         or not isinstance(payload.get("source"), str)
         or not payload["source"].strip()
     ):
         raise RuntimeError("R482 formal go-file is invalid")
+    approved_utc = datetime.fromisoformat(str(payload.get("approved_utc")))
+    report_utc = datetime.fromisoformat(str(report.get("created_utc")))
+    if approved_utc <= report_utc:
+        raise RuntimeError("R482 formal go-file predates the development report")
     return payload
 
 
@@ -1707,6 +1863,13 @@ def formal_manifest() -> str:
             or path.name == "formal_manifest.json"
             or path.name.endswith(".sha256")
             or "dev" in path.relative_to(OUT).parts
+            or "development_inputs" in path.relative_to(OUT).parts
+            or (
+                len(path.relative_to(OUT).parts) >= 2
+                and path.relative_to(OUT).parts[0] == "donors"
+                and path.relative_to(OUT).parts[1]
+                in {f"seed{seed}" for seed in DEV_SEEDS}
+            )
         ):
             continue
         sidecar = Path(f"{path}.sha256")
@@ -1809,7 +1972,10 @@ def _main() -> int:
             "manifest",
             "dev-check",
             "owner-check",
+            "capacity",
             "formal-go-check",
+            "dev-report",
+            "dev-report-check",
         ),
     )
     parser.add_argument("shard_id", nargs="?")
@@ -1865,16 +2031,35 @@ def _main() -> int:
         base.base.base.core.safe_emit(
             json.dumps(owner_approval_check(), indent=2, sort_keys=True)
         )
+    elif args.command == "capacity":
+        base.base.base.core.safe_emit(measure_capacity())
     elif args.command == "formal-go-check":
         base.base.base.core.safe_emit(
             json.dumps(formal_go_check(), indent=2, sort_keys=True)
+        )
+    elif args.command == "dev-report":
+        base.base.base.core.safe_emit(write_development_report())
+    elif args.command == "dev-report-check":
+        base.base.base.core.safe_emit(
+            json.dumps(development_report_check(), indent=2, sort_keys=True)
         )
     else:
         if args.shard_id is None:
             raise SystemExit("shard requires a shard id")
         parts = args.shard_id.split("|")
         if parts[0] == "train" and len(parts) == 3:
-            base.base.base.core.safe_emit(train_arm_seed(parts[1], int(parts[2])))
+            arm_id, seed = parts[1], int(parts[2])
+            digest = train_arm_seed(arm_id, seed)
+            manifest = base.base.base.core._read_hashed_json(
+                OUT / "train" / arm_id / f"seed{seed}" / "manifest.json"
+            )
+            if manifest.get("valid") is not True or int(
+                manifest.get("interaction_steps", -1)
+            ) != 43_200:
+                raise RuntimeError(
+                    f"formal training cell invalid after preserving manifest: {arm_id}|{seed}"
+                )
+            base.base.base.core.safe_emit(digest)
         elif parts[0] == "dev" and len(parts) == 3:
             with _terminal_guarded_environment():
                 base.base.base.core.safe_emit(

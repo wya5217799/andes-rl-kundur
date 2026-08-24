@@ -107,13 +107,22 @@ def test_formal_go_requires_development_review(tmp_path, monkeypatch):
                 "round": "R482",
                 "approved": True,
                 "development_reviewed": True,
+                "development_report_sha256": "report-sha",
+                "approved_utc": "2026-08-25T12:00:00+00:00",
                 "source": "owner continuation message",
             }
         ),
         encoding="utf-8",
     )
     monkeypatch.setattr(runner, "FORMAL_GO", go_file)
-    monkeypatch.setattr(runner, "development_check", lambda: {"passed": True})
+    monkeypatch.setattr(
+        runner,
+        "development_report_check",
+        lambda: {"passed": True, "created_utc": "2026-08-25T11:00:00+00:00"},
+    )
+    monkeypatch.setattr(
+        runner.base.base.base.core, "_sha256_file", lambda _path: "report-sha"
+    )
     assert runner.formal_go_check()["development_reviewed"] is True
 
 
@@ -128,7 +137,25 @@ def test_formal_manifest_implementation_excludes_dev_and_does_not_delegate():
     source = Path(runner.__file__).read_text(encoding="utf-8")
     body = source[source.index("def formal_manifest"):source.index("def write_eta_recalibration")]
     assert '"dev" in path.relative_to(OUT).parts' in body
+    assert '"development_inputs" in path.relative_to(OUT).parts' in body
+    assert "DEV_SEEDS" in body
     assert "core.formal_manifest" not in body
+
+
+def test_formal_training_shard_rejects_invalid_manifest_source():
+    source = Path(runner.__file__).read_text(encoding="utf-8")
+    shard_body = source[source.index('if parts[0] == "train"'):]
+    assert 'manifest.get("valid") is not True' in shard_body
+    assert "formal training cell invalid after preserving manifest" in shard_body
+
+
+def test_capacity_command_is_registered_as_16_by_8_quick_confirm():
+    source = Path(runner.__file__).read_text(encoding="utf-8")
+    body = source[source.index("def measure_capacity"):source.index("def formal_go_check")]
+    assert "ProcessPoolExecutor(max_workers=16)" in body
+    assert "if len(jobs) != 8" in body
+    assert '"whole_host_python_process_budget": 17' in body
+    assert '"native_threads_per_process": 1' in body
 
 
 def test_seed_and_arm_roster():
