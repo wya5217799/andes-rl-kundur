@@ -130,3 +130,4 @@ Seed entries from the R410 session (2026-08-16):
 Working rule: an entry with verdict "right" needs no adjustment. An entry
 with "too-hard" or "too-soft" is incomplete until its adjustment lands in
 the ledger (status cell updated).
+| R481 | Fresh-holdout exclusion + Phase-1A 4/4 gate + corrected telemetry rehearsal | right | The rehearsal summary validity check caught the system/device-base telemetry mismatch before seal (raw GENCLS readback vs corrected device-base info fields); the 4/4 gate and generator exclusions worked first-pass; the dual-audit gate needed no relaxations | Keep the rehearsal summary validity check as a hard pre-seal gate; keep validity-only capacity records documented as non-consuming in the feed Limits |
