@@ -77,6 +77,7 @@ After R482 closes, the corrected-plan experiment program is exhausted: Phase 1/2
 
 - Factorial: DESIGN-INVALID / EXECUTION-INCOMPLETE / INTEGRITY-INVALID -> no effect verdict (material_effect=NOT_TESTED). MATERIAL-MAIN-EFFECT: at least one main-effect materiality null rejected. MATERIAL-INTERACTION: at least one interaction materiality null rejected. MATERIAL-EFFECT-NOT-ESTABLISHED: validity complete, no registered rejection (never written as zero effect or equivalence). No outcome-based early stop.
 - Phase 3: PHASE3-TRADE-OFF-REPRODUCED: both one-sided paired tests reject in the frozen directions under Holm (family of 2, FWER 0.05) — (a) endpoint regression: per-seed paired log[L(RMS)/L(SAC)] > 0 on final checkpoints, exact one-sided Wilcoxon at zero; (b) action-stress improvement: the R433-frozen action-RMS row metric decreases. PHASE3-TRADE-OFF-NOT-ESTABLISHED: validity complete, one or both not rejected. Same invalid classes as the factorial. Guard rows reported descriptively (R431/R433 row style).
+- Phase-3 dual metric (CLM-0430): the geo pair above is primary; the feed and verdict MUST also report the paper cum_rf counterpart (compute_global_cum_rf over the same sealed eval records, per-seed paired sac-minus-rms diffs, direction registered: penalty regresses cum_rf, one-sided p at zero as a report line). If cum_rf rejects while geo does not (or vice versa), the verdict reports both directions explicitly; follow-up threshold for a future round = cum_rf one-sided p < 0.05 in the registered direction.
 
 ## Theory intake
 
