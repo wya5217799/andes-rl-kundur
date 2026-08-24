@@ -113,9 +113,9 @@ No external mathematical theory this round; the base convention is primary-sourc
 - capacity_evidence: per-family `memory/rounds/R478/capacity_*_repair3.json` artifacts, produced only after explicit physical authorization and bound to matching pre/post source and runtime snapshots
 - seal_source_scope: all repository Python modules dynamically loaded by the physical rehearsal plus runner/plan/card/parent; seal also binds installed ANDES module/distribution and Kundur case hashes
 - formal_owner_approval: `memory/rounds/R478/formal_owner_approval.json`, create-only and hash-bound to each approved family seal
-- wsl_python_processes: unresolved until final-source measurement
+- wsl_python_processes: 1 (port_extra_k35/port_extra_k4 frozen-parent serial seam) / 17 (port_unseen 16 parallel, measured repair5 ladder)
 - native_threads_per_process: 1
-- host_process_budget: unresolved until final-source measurement
+- host_process_budget: 1 (port_extra_k35/port_extra_k4 frozen-parent serial seam) / 17 (port_unseen 16 parallel, measured repair5 ladder)
 - other_reserved_processes: 0
 
 ## 资产保护契约
