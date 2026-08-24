@@ -8,6 +8,7 @@
 - 形态: **注册卡** — 一段自包含 statement (分类判定 + 主头条数字对 + 范围短语) + provenance 指向 feed/results.
 - R281+ verified finding/correction 另带结构化 `evidence_refs`: repo-relative JSON `path`、RFC 6901 `locator`、whole-file `sha256`、`role`. 每级表格 / 位置子表 / 守卫明细只住 results 与 feed, 不复制进 claim — 第三份拷贝是 fork (单一真源分配表见 `kundur-round` SKILL.md §3).
 - R291+ statement 硬上限 1800 UTF-8 bytes; 超出 = 注册卡在复制 feed, 应缩回分类 + 一个头条结果 + 范围.
+- **suspect 标记 (R478+)**: 证据对象失效但尚无替代证据时, 在 frontmatter 加 `suspect: true` + `suspect_round` + `suspect_reason`; status 保持 `current`(非终审, 不破坏 Q 回指); 替代证据闭合后按 correction/obsoleted 正常翻转并清除标记. 批量标记/清除/查询: `memory/tools/flag_suspect_claims.py`; STATE.md 自动渲染 Suspect Claims 区段. 判定标准与生命周期: `paper/yang_md_decoupling_marl/working/affected_claims_inventory_20260824.md`.
 
 ## question (Q-NNNN)
 
