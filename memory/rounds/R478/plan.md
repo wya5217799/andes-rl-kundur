@@ -41,7 +41,7 @@ R478 freezes the physical parameter card (device/system-base convention with pri
 3. Implement the conversion fix; all invariants green; V4 regression re-locked green.
 4. Locate the registered frozen banks (zero-action, nine-law, dev/eval schedule, energy-port unseen/extra-condition, topology variants) and re-point them at the corrected card via `scripts/run_r478_md_revalidation.py`: parent sealed runners stay byte-identical (frozen sha256 table), the adapter patches round id + output root only, records a rekey sidecar per dispatch, and runs the zero-action trace bank directly. Guards/profiles/split/windows unchanged. Trace capture (1C) = per-step rows of every re-run bank + the zero-action records.
 5. Freeze-then-review: two independent reviews of the frozen commit + file hashes; P0/P1 repaired before seal.
-6. Seal + commit; capacity ladder on representative deterministic jobs (rung sizes per CLAUDE.md); rehearsal through the formal entry's same-pre-attempt path (source_hash, parent_hash, installed_package, installed_case, output_absence); no formal attempt created.
+6. Seal + commit; capacity ladder on representative deterministic jobs (rung sizes per CLAUDE.md); rehearsal through the formal entry's same-pre-attempt path (source_hash, parent_hash, installed_package, installed_case, output_absence); no formal attempt created. Per-family phase order (parent-enforced): measure-capacity -> rehearse -> prepare; ladders run serially to avoid cross-family measurement contamination.
 7. STOP — owner review gate. No formal attempt, retry, or result inspection until the owner approves. Post-approval: formal banks execute; gates decide; round closes with feed/claim/verdict.
 
 ## Gate

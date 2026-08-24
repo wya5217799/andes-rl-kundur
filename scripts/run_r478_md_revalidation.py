@@ -151,6 +151,9 @@ def _load_module(name: str, path: Path) -> Any:
         raise RuntimeError(f"cannot load module from {path}")
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
+    # Register the module so ProcessPoolExecutor workers can re-import (pickle)
+    # functions defined inside the parent runner (capacity ladders fork pools).
+    sys.modules[name] = module
     return module
 
 
