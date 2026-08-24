@@ -49,6 +49,8 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+import numpy as np
+
 for _thread_variable in (
     "OMP_NUM_THREADS",
     "OPENBLAS_NUM_THREADS",
@@ -251,6 +253,71 @@ def _zero_prepare(out_root: Path) -> str:
     return _write_new_json(out_root / "contract.json", _zero_contract())
 
 
+def _zero_rehearse(out_root: Path) -> str:
+    """Walk the zero family's same-pre-attempt path without writing records.
+
+    Runs both registered zero-action traces on the corrected env, asserts
+    the zero-action invariant (device telemetry M_es/D_es constant across
+    steps, no TDS failure), and returns a rehearsal digest. No formal
+    artifact is created (create-only discipline: records.json only at
+    execute).
+    """
+    _assert_wsl()
+    from andes_rl_kundur.env.andes.andes_vsg_env_v4 import AndesMultiVSGEnvV4
+    from andes_rl_kundur.probes.andes_common.paper_constants import (
+        DEFAULT_PROBE_SEED,
+        DEFAULT_PROBE_STEPS_SHORT,
+        LS1_DELTA_U,
+        LS2_DELTA_U,
+    )
+    from andes_rl_kundur.probes.andes_common.tracers import (
+        run_zero_action_trace,
+    )
+
+    results = {}
+    for scenario_id, delta_u in (("ls1", LS1_DELTA_U), ("ls2", LS2_DELTA_U)):
+        result = run_zero_action_trace(
+            AndesMultiVSGEnvV4,
+            delta_u,
+            h_forced=None,
+            n_steps=DEFAULT_PROBE_STEPS_SHORT,
+            seed=DEFAULT_PROBE_SEED,
+            env_patch=None,
+            record_extras=("freq_hz", "M_es", "D_es"),
+        )
+        if result["tds_failed"]:
+            raise RuntimeError(f"zero rehearsal TDS failure: {scenario_id}")
+        traj = result["traj"]
+        if not traj:
+            raise RuntimeError(f"zero rehearsal empty trace: {scenario_id}")
+        m_values = [row.get("M_es") for row in traj]
+        d_values = [row.get("D_es") for row in traj]
+        if not all(
+            np.allclose(np.asarray(v, dtype=float), np.asarray(m_values[0], dtype=float))
+            for v in m_values
+        ) or not all(
+            np.allclose(np.asarray(v, dtype=float), np.asarray(d_values[0], dtype=float))
+            for v in d_values
+        ):
+            raise RuntimeError(
+                f"zero rehearsal invariant failure: M_es/D_es drift: {scenario_id}"
+            )
+        results[scenario_id] = {
+            "n_steps": int(result["n_steps"]),
+            "max_df": float(result["max_df"]),
+            "final_df": float(result["final_df"]),
+            "M_es_first": m_values[0],
+            "D_es_first": d_values[0],
+        }
+    rehearsal_dir = ROOT / "memory" / "rounds" / "R478"
+    return _write_new_json(
+        rehearsal_dir / "rehearsal_zero.json",
+        {"round": ROUND_ID, "family": "zero", "checks": [
+            "same-pre-attempt-path", "zero-action-preserves-M_es-D_es",
+            "tds-ok"], "results": results},
+    )
+
+
 def _zero_execute(out_root: Path) -> str:
     _assert_wsl()
     from andes_rl_kundur.env.andes.andes_vsg_env_v4 import AndesMultiVSGEnvV4
@@ -309,10 +376,13 @@ def main(argv: list[str] | None = None) -> int:
         if args.command == "prepare":
             print(f"R478 zero contract: {_zero_prepare(out_root)}")
             return 0
+        if args.command == "rehearse":
+            print(f"R478 zero rehearsal: {_zero_rehearse(out_root)}")
+            return 0
         if args.command == "execute":
             print(f"R478 zero records: {_zero_execute(out_root)}")
             return 0
-        raise SystemExit("zero family commands: prepare | execute")
+        raise SystemExit("zero family commands: prepare | rehearse | execute")
 
     parent_name = str(family_cfg["parent"])
     parent_path = ROOT / "scripts" / parent_name
