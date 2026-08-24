@@ -39,6 +39,33 @@ _spec.loader.exec_module(runner)
 # ---------------------------------------------------------------------------
 
 
+def test_dev_roster():
+    assert len(runner.DEV_CELLS) == 16
+    assert all(arm == "an_cn_r1" for arm, _seed in runner.DEV_CELLS[:8])
+    assert all(seed in range(601, 609) for _arm, seed in runner.DEV_CELLS[:8])
+    assert all(arm == "an_cn_r1_rms" for arm, _seed in runner.DEV_CELLS[8:])
+    assert all(seed in range(609, 617) for _arm, seed in runner.DEV_CELLS[8:])
+    assert len(runner.DEV_SHARD_IDS) == 16
+    assert runner.DEV_SHARDS == ROOT / "tmp/andes/r482_dev_shards.json"
+    assert not set(runner.DEV_SEEDS) & set(runner.SEEDS)
+    source = Path(runner.__file__).read_text(encoding="utf-8")
+    assert 'parts[0] == "dev"' in source
+    assert '"dev": DEV_SHARD_IDS' in source
+    assert "r482_formal_go.json" in source
+
+
+def test_dev_shard_fails_closed_on_windows(monkeypatch):
+    monkeypatch.setattr(sys, "argv", ["run_r482", "shard", "dev|an_cn_r1|601"])
+    with pytest.raises(RuntimeError) as error:
+        runner._main()
+    assert "WSL" in str(error.value)
+
+
+def test_dev_guard_wraps_dev_training(monkeypatch):
+    source = Path(runner.__file__).read_text(encoding="utf-8")
+    assert "_terminal_guarded_environment()" in source
+
+
 def test_seed_and_arm_roster():
     assert runner.SEEDS == tuple(range(501, 527))
     assert len(runner.FACTORIAL_ARMS) == 8

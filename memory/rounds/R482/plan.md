@@ -36,6 +36,14 @@ Train 234 all-fresh cells under the corrected card: 26 Phase-3B RMS-penalty cell
 - Q-0004 closed-negative @ R442, by CLM-1370.
 - Q-0111 closed-negative @ R397, by CLM-1130.
 
+## Development diagnostic wave (owner-approved 2026-08-25)
+
+- Purpose: engineering-health + training-dynamics smoke test on the corrected card before the formal waves; the owner reviews the diagnostic report with FULL visibility. Development cells are burned forever and never enter formal inference.
+- Roster (frozen in the seal shard_lists): 16 cells = 8 x an_cn_r1 (dev seeds 601-608) + 8 x an_cn_r1_rms (dev seeds 609-616); one wave, 16 workers; expected wall ≈ 3 h (R477 measured 10,803 s per 16-cell wave).
+- Outputs: results/research_loop/r482_u2_confirmatory/dev/ (create-only, hashed sidecars); excluded from missing_shards, formal manifests, and every formal analysis.
+- Gate: the detached pipeline pauses after the development wave until tmp/andes/r482_formal_go.json exists (owner continuation authorization). Decision paths: (a) continue the formal waves with the UNCHANGED frozen design; (b) any scientific-parameter/budget/roster change -> successor round with new registration + new seal (no in-place tuning); (c) stop -> close with EXECUTION-INCOMPLETE, dev artifacts preserved.
+- Blindness rule: formal scientific outcomes stay blind until the formal batch completes; the dev wave is visible by design.
+
 ## Frozen scientific contract
 
 - Card: corrected project calibration, device-base H0=100 s (M0=200 s), D0=100, one-convention conversion exactly once (R478 repair6). V4 regression green; zero-action preserves runtime M/D.
@@ -99,7 +107,7 @@ After R482 closes, the corrected-plan experiment program is exhausted: Phase 1/2
 - execution_class: non-quick
 - job_count: 252 unique jobs = 234 fresh training cells (26 Phase-3B + 208 factorial) + 18 arm-stage evaluation jobs (2 Phase-3B + 16 factorial)
 - concurrent_jobs: 16; one launcher; one native numerical thread per process
-- waves: 15 training waves + 1 evaluation phase (18 shards)
+- waves: 1 development wave (16 cells) + 15 formal training waves + 1 evaluation phase (18 shards)
 - eta_range: 44-52 hours wall after launch
 - eta_basis: R477 wave-1 measured 10,803.253 s for 16 cells (eta_recalibration.json); R476 card 8-12 h for 3+1 waves (consistent); R475 52-minute live no-failure training canary
 - eta_recalibration: after wave 1 (16 Phase-3B cells), recompute remaining range from observed wall; scope and concurrency unchanged

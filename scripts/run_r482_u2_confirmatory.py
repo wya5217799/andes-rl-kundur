@@ -25,6 +25,7 @@ import math
 import os
 import sys
 import tempfile
+from contextlib import contextmanager
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -70,6 +71,7 @@ SEAL = ROOT / "memory/rounds/R482/formal_seal.json"
 OUT = ROOT / "results/research_loop/r482_u2_confirmatory"
 TRAIN_SHARDS = ROOT / "tmp/andes/r482_train_shards.json"
 EVAL_SHARDS = ROOT / "tmp/andes/r482_eval_shards.json"
+DEV_SHARDS = ROOT / "tmp/andes/r482_dev_shards.json"
 TRAIN_WAVE_SHARDS = tuple(
     ROOT / f"tmp/andes/r482_train_wave{index}_shards.json"
     for index in range(1, 16)
@@ -78,6 +80,8 @@ ETA_RECALIBRATION = ROOT / "tmp/andes/r482_eta_recalibration.json"
 PIPELINE_INVENTORY = ROOT / "tmp/andes/r482_pipeline_inventories"
 TRAIN_LOG_ROOT = ROOT / "tmp/andes/r482_train_logs"
 EVAL_LOG_ROOT = ROOT / "tmp/andes/r482_eval_logs"
+DEV_LOG_ROOT = ROOT / "tmp/andes/r482_dev_logs"
+FORMAL_GO = ROOT / "tmp/andes/r482_formal_go.json"
 ROUTING_GATE = ROOT / "memory/rounds/R482/routing_gate.json"
 REVIEW_A = ROOT / "memory/rounds/R482/code_review_a.json"
 REVIEW_B = ROOT / "memory/rounds/R482/code_review_b.json"
@@ -87,6 +91,14 @@ ANALYSIS_MODULE = ROOT / "src/andes_rl_kundur/evaluation/r482_analysis.py"
 DESIGN_MODULE = ROOT / "src/andes_rl_kundur/evaluation/source_factorial_design.py"
 
 SEEDS = tuple(range(501, 527))
+DEV_SEEDS = tuple(range(601, 617))
+DEV_ARMS = ("an_cn_r1", "an_cn_r1_rms")
+DEV_CELLS = tuple(
+    (arm, seed)
+    for arm, index in ((DEV_ARMS[0], 0), (DEV_ARMS[1], 8))
+    for seed in DEV_SEEDS[index : index + 8]
+)
+DEV_SHARD_IDS = tuple(f"dev|{arm}|{seed}" for arm, seed in DEV_CELLS)
 FACTORIAL_ARMS = tuple(
     f"{actor}_{critic}_{reward}"
     for actor in ("an", "ap")
@@ -303,6 +315,7 @@ def load_seal() -> dict[str, Any]:
                 for index in range(1, 16)
             },
             "eval": EVAL_SHARD_IDS,
+            "dev": DEV_SHARD_IDS,
         },
     )
 
@@ -326,7 +339,7 @@ def basegen() -> str:
             "factorial reward source drifted from the sealed R470-R477 hash"
         )
     entries: list[dict[str, Any]] = []
-    for seed in SEEDS:
+    for seed in (*SEEDS, *DEV_SEEDS):
         out_dir = OUT / "donors" / f"seed{seed}"
         out_dir.mkdir(parents=True)
         base.base.base.core._seed_all(BASE_RNG_OFFSET + seed)
@@ -386,7 +399,7 @@ def base_audit() -> dict[str, Any]:
         raise FileExistsError("base audit must precede R482 rehearsal/formal artifacts")
     errors: list[str] = []
     rows: dict[int, dict[str, Any]] = {}
-    for seed in SEEDS:
+    for seed in (*SEEDS, *DEV_SEEDS):
         manifest_path = OUT / "donors" / f"seed{seed}" / "manifest.json"
         try:
             manifest = base.base.base.core._read_hashed_json(manifest_path)
@@ -404,10 +417,14 @@ def base_audit() -> dict[str, Any]:
             "path": manifest.get("base_state_path"),
             "sha256": manifest.get("base_state_sha256"),
         }
-    if set(rows) != set(SEEDS):
+    if set(rows) != set((*SEEDS, *DEV_SEEDS)):
         errors.append("base seed set drift")
     if len(RETRAIN_CELLS) != 234 or REUSED_CELLS:
         errors.append("cell split drift (expect 234 fresh, 0 reused)")
+    if len(DEV_CELLS) != 16:
+        errors.append("dev cell split drift (expect 16 dev cells)")
+    formal_count = len([seed for seed in rows if seed in SEEDS])
+    dev_count = len([seed for seed in rows if seed in DEV_SEEDS])
     return {
         "schema_version": 1,
         "round": ROUND_ID,
@@ -415,11 +432,17 @@ def base_audit() -> dict[str, Any]:
         "constructed_networks_before_audit": False,
         "fresh_generation": True,
         "bases": {str(key): value for key, value in rows.items()},
-        "base_count": len(rows),
+        "base_count": formal_count,
+        "dev_base_count": dev_count,
         "retrain_cell_count": len(RETRAIN_CELLS),
         "reuse_cell_count": len(REUSED_CELLS),
+        "dev_cell_count": len(DEV_CELLS),
         "errors": errors,
-        "passed": not errors and len(rows) == 26,
+        "passed": (
+            not errors
+            and formal_count == 26
+            and dev_count == 16
+        ),
     }
 
 
@@ -487,6 +510,7 @@ def rehearsal() -> dict[str, Any]:
     checks["base_audit"] = {
         "passed": bool(base_record["passed"]),
         "base_count": int(base_record["base_count"]),
+        "dev_base_count": int(base_record.get("dev_base_count", -1)),
         "retrain_cell_count": int(base_record["retrain_cell_count"]),
         "reuse_cell_count": int(base_record["reuse_cell_count"]),
     }
@@ -637,6 +661,7 @@ def rehearsal() -> dict[str, Any]:
         and all(checks["reward"]["penalty_semantics"].values())
         and checks["base_audit"]["passed"]
         and checks["base_audit"]["base_count"] == 26
+        and checks["base_audit"]["dev_base_count"] == 16
         and checks["base_audit"]["retrain_cell_count"] == 234
         and checks["base_audit"]["reuse_cell_count"] == 0
         and checks["terminal_truth_table"]["normal_horizon_done_accepted"]
@@ -708,6 +733,7 @@ def prepare() -> dict[str, Any]:
         (TRAIN_SHARDS, TRAIN_SHARD_IDS),
         *zip(TRAIN_WAVE_SHARDS, TRAIN_WAVE_IDS, strict=True),
         (EVAL_SHARDS, EVAL_SHARD_IDS),
+        (DEV_SHARDS, DEV_SHARD_IDS),
     ]:
         path.parent.mkdir(parents=True, exist_ok=True)
         if path.exists():
@@ -785,6 +811,10 @@ def prepare() -> dict[str, Any]:
                 "path": base.base.base.core._relative(EVAL_SHARDS),
                 "sha256": base.base.base.core._sha256_file(EVAL_SHARDS),
             },
+            "dev": {
+                "path": base.base.base.core._relative(DEV_SHARDS),
+                "sha256": base.base.base.core._sha256_file(DEV_SHARDS),
+            },
         },
         "reuse": {
             "source_round": None,
@@ -806,7 +836,29 @@ def prepare() -> dict[str, Any]:
     }
 
 
+@contextmanager
+def _terminal_guarded_environment():
+    """Bind the rehearsed terminal predicate to every formal environment step."""
+    core = base.base.base.core
+    guarded = guard_environment_builder(
+        core.r431._build_env,
+        steps=int(build_contract()["steps"]),
+        predicate=terminal_invalid,
+    )
+    original = core.r431._build_env
+    core.r431._build_env = guarded
+    try:
+        yield
+    finally:
+        core.r431._build_env = original
+
+
 def _train_arm_seed_phase3b(seed: int) -> str:
+    with _terminal_guarded_environment():
+        return _train_arm_seed_phase3b_body(seed)
+
+
+def _train_arm_seed_phase3b_body(seed: int) -> str:
     """Train one RMS-penalty cell (R482 penalty seam; single change vs an_cn_r1)."""
     base.base.base.core._assert_wsl_scratch()
     load_seal()
@@ -960,7 +1012,178 @@ def train_arm_seed(arm_id: str, seed: int) -> str:
     return base.train_arm_seed(arm_id, seed)
 
 
+def _train_dev_cell_body(arm_id: str, seed: int) -> str:
+    """Train one development diagnostic cell (burned; never formal evidence)."""
+    core = base.base.base.core
+    core._assert_wsl_scratch()
+    load_seal()
+    if (arm_id, seed) not in DEV_CELLS:
+        raise ValueError(f"unregistered dev cell: {arm_id}|{seed}")
+    run_dir = OUT / "dev" / arm_id / f"seed{seed}"
+    if run_dir.exists():
+        raise FileExistsError(f"dev output exists: {run_dir}")
+    run_dir.mkdir(parents=True)
+    contract = build_contract()
+    factors = arm_factors(arm_id)
+    penalized = arm_id == PHASE3B_ARM
+    base_manifest = core._read_hashed_json(
+        OUT / "donors" / f"seed{seed}" / "manifest.json"
+    )
+    core._seed_all(seed)
+    development = [p for p in contract["profiles"] if p["split"] == "development"]
+    envs = {
+        str(p["profile_id"]): core.r431._build_env(p) for p in development
+    }
+    wrapper = core.FactorialWrapper(arm_id)
+    base_path, base_sha = core._load_base(wrapper, seed)
+    scenarios = {
+        str(s["scenario_id"]): (profile, s)
+        for profile in development
+        for s in profile["scenarios"]
+    }
+    schedule = list(contract["training_contract"]["development_scenario_order"])
+    total_steps = 43_200
+    steps_per_episode = int(contract["steps"])
+    executed_steps = 0
+    episode_index = 0
+    tds_failures = 0
+    invalid_reason: str | None = None
+    curves: dict[str, list[float]] = {
+        "critic_loss": [], "actor_loss": [], "alpha_loss": [],
+        "alpha": [], "actor_grad_norm": [],
+    }
+    half_sha: str | None = None
+    try:
+        while executed_steps < total_steps:
+            scenario_id = str(schedule[episode_index % len(schedule)])
+            profile, scenario = scenarios[scenario_id]
+            env = envs[str(profile["profile_id"])]
+            observation = env.reset(delta_u=dict(scenario["delta_u"]))
+            previous = np.zeros((4, 2), dtype=np.float32)
+            for time_index in range(steps_per_episode):
+                joint = core.r431._joint_obs(observation)
+                actor_rows = base.base.base.source_rows(joint, "N")
+                critic_rows = base.base.base.source_rows(joint, "N")
+                raw, executed = wrapper.act(actor_rows, previous, deterministic=False)
+                if not np.all(np.isfinite(raw)) or not np.all(np.isfinite(executed)):
+                    invalid_reason = "nonfinite action"
+                    break
+                observation, _reward, done, info = env.step(
+                    {i: executed[i] for i in range(4)}
+                )
+                executed_steps += 1
+                next_joint = core.r431._joint_obs(observation)
+                next_actor_rows = base.base.base.source_rows(next_joint, "N")
+                next_critic_rows = base.base.base.source_rows(next_joint, "N")
+                terminal = bool(done) or bool(info["tds_failed"])
+                if penalized:
+                    rewards = _r482_penalized_step_rewards(
+                        joint,
+                        np.asarray(info["delta_M"], dtype=float),
+                        np.asarray(info["delta_D"], dtype=float),
+                        True,
+                        executed,
+                    )
+                else:
+                    rewards = core.legacy.step_rewards(
+                        joint,
+                        np.asarray(info["delta_M"], dtype=float),
+                        np.asarray(info["delta_D"], dtype=float),
+                        reward_access=True,
+                    )
+                wrapper.store(
+                    actor_rows, critic_rows, previous, raw, executed, rewards,
+                    next_actor_rows, next_critic_rows, terminal,
+                )
+                diagnostics = wrapper.update_all()
+                if diagnostics is not None:
+                    for key in curves:
+                        curves[key].append(float(diagnostics[key]))
+                    if not all(np.isfinite(list(diagnostics.values()))):
+                        invalid_reason = "nonfinite learner diagnostic"
+                        break
+                previous = executed.copy()
+                if executed_steps == total_steps // 2:
+                    half_sha = wrapper.save(
+                        run_dir / "half.pt", stage="half", base_sha256=base_sha
+                    )
+                if info["tds_failed"]:
+                    tds_failures += 1
+                    break
+            episode_index += 1
+            if invalid_reason is not None:
+                break
+    finally:
+        for env in envs.values():
+            try:
+                env.close()
+            except Exception:
+                pass
+    valid = (
+        invalid_reason is None
+        and executed_steps == total_steps
+        and half_sha is not None
+    )
+    final_sha = (
+        wrapper.save(run_dir / "final.pt", stage="final", base_sha256=base_sha)
+        if valid
+        else None
+    )
+    curve_sha = core._write_new_npz(
+        run_dir / "full_curves.npz",
+        **{key: np.asarray(value, dtype=np.float64) for key, value in curves.items()},
+    )
+    stability = {
+        key: core._curve_stability(np.asarray(curves[key]))
+        for key in ("critic_loss", "actor_loss")
+    }
+    return core._write_new_json(
+        run_dir / "manifest.json",
+        {
+            "schema_version": 1,
+            "round": ROUND_ID,
+            "development": True,
+            "formal_bank": False,
+            "arm_id": arm_id,
+            "factors": factors,
+            "training_seed": seed,
+            "rng_set_before_environment_network_optimizer_replay": True,
+            "base_state_path": base_path,
+            "base_state_sha256": base_sha,
+            "donor_manifest_sha256": core._sha256_file(
+                OUT / "donors" / f"seed{seed}" / "manifest.json"
+            ),
+            "reward_function_sha256": (
+                _penalized_reward_sha()
+                if penalized
+                else FACTORIAL_REWARD_SHA
+            ),
+            "p_source_semantics": (
+                "same-time row permutation rho(i)=(i+1) mod 4 of the authentic "
+                "N neighbour 4-tuples (guardrails A.1/A.2); no exogenous donor bank"
+            ),
+            "interaction_steps": executed_steps,
+            "episodes_attempted": episode_index,
+            "tds_failed_episodes": tds_failures,
+            "valid": valid,
+            "invalid_reason": invalid_reason,
+            "half_checkpoint_sha256": half_sha,
+            "final_checkpoint_sha256": final_sha,
+            "full_curves_sha256": curve_sha,
+            "curve_count": len(curves["critic_loss"]),
+            "stability": stability,
+            "contract_sha256": core.contract_sha256(),
+            "created_utc": datetime.now(UTC).isoformat(),
+        },
+    )
+
+
 def evaluate_arm_stage(arm_id: str, stage: str) -> None:
+    with _terminal_guarded_environment():
+        _evaluate_arm_stage_body(arm_id, stage)
+
+
+def _evaluate_arm_stage_body(arm_id: str, stage: str) -> None:
     """R482 evaluation (reward-free path; the inherited R475 loop, R482 roster)."""
     base.base.base.core._assert_wsl_scratch()
     load_seal()
@@ -1504,6 +1727,11 @@ def _main() -> int:
         parts = args.shard_id.split("|")
         if parts[0] == "train" and len(parts) == 3:
             base.base.base.core.safe_emit(train_arm_seed(parts[1], int(parts[2])))
+        elif parts[0] == "dev" and len(parts) == 3:
+            with _terminal_guarded_environment():
+                base.base.base.core.safe_emit(
+                    _train_dev_cell_body(parts[1], int(parts[2]))
+                )
         elif parts[0] == "eval" and len(parts) == 3:
             evaluate_arm_stage(parts[2], parts[1])
         else:

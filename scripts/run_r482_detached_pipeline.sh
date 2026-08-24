@@ -49,6 +49,19 @@ driver=("${python_bin}" scripts/andes_scratch.py scripts/soft_spot_shard_driver.
 
 run_phase verify "${runner[@]}" verify
 
+run_phase development-wave "${driver[@]}" \
+  --runner scripts/run_r482_u2_confirmatory.py \
+  --shards tmp/andes/r482_dev_shards.json \
+  --workers 16 \
+  --round R482 \
+  --log-dir tmp/andes/r482_dev_logs
+
+if [[ ! -f tmp/andes/r482_formal_go.json ]]; then
+  echo "development wave complete; awaiting owner go-file (tmp/andes/r482_formal_go.json)" >&2
+  phase="awaiting-owner-go"
+  exit 0
+fi
+
 for wave in $(seq 1 15); do
   run_phase "training-wave-${wave}" "${driver[@]}" \
     --runner scripts/run_r482_u2_confirmatory.py \
