@@ -1,0 +1,293 @@
+{
+  "all_ok": true,
+  "confirmation_pairs": [],
+  "confirmation_pass_2": [],
+  "created_utc": "2026-08-24T17:34:59.217690+00:00",
+  "family": "port_unseen",
+  "final_throughput_jobs_per_second": {
+    "16": 0.7059932567990028
+  },
+  "host": {
+    "logical_processors": 32,
+    "memory_available_bytes": 22072197120,
+    "memory_total_bytes": 29423165440
+  },
+  "host_process_budget": 17,
+  "identity_stable": true,
+  "jobs_per_rung": 8,
+  "marginal_rule": "next rung requires >=5% gain; gains in 3%-7% are remeasured once and averaged",
+  "memory_total_bytes": 29423165440,
+  "native_threads_per_process": 1,
+  "os_memory_floor_bytes": 3221225472,
+  "other_processes": [],
+  "other_reserved_processes": 0,
+  "post_attempt": {
+    "checks": {
+      "installed_case": true,
+      "installed_package": true,
+      "output_absence": true,
+      "parent_hash": true,
+      "source_hash": true
+    },
+    "installed_runtime": {
+      "andes_distribution_version": "2.0.0",
+      "andes_module_path": "/home/wya/andes_venv/lib/python3.12/site-packages/andes/__init__.py",
+      "andes_module_sha256": "939909810f88f0d1de3e7c909f31030665d5d55ef8c6b610d4fdb3e3292b967c",
+      "andes_version": "2.0.0",
+      "case_path": "/home/wya/andes_venv/lib/python3.12/site-packages/andes/cases/kundur/kundur_full.xlsx",
+      "case_sha256": "f725e03ba12d8207616f68acdd606bbd35e7c4a68f13e66d7db43925adac2ed8",
+      "python": "3.12.3 (main, Jun 19 2026, 12:46:00) [GCC 13.3.0]"
+    },
+    "sources": {
+      "base_env": {
+        "path": "src/andes_rl_kundur/env/andes/base_env.py",
+        "sha256": "6ed709f2a3db61ea43256cfb2dd8899ff3c6ece7c628ee2c123b0da23f9e2f1b"
+      },
+      "classifier": {
+        "path": "src/andes_rl_kundur/evaluation/gate_b3_deterministic.py",
+        "sha256": "a722f58e8d59bd9f5c33f44b1d87d807b6c287bc3b90ca6d56b2b823c95d4f5c"
+      },
+      "energy_port_env": {
+        "path": "src/andes_rl_kundur/env/andes/vsg_energy_port_env.py",
+        "sha256": "1668a04e6638aa72cb568b7305d24fd4318491072530601486f5ee1ed2c30d5e"
+      },
+      "loaded:scripts/run_r372_energy_port_object_gate.py": {
+        "path": "scripts/run_r372_energy_port_object_gate.py",
+        "sha256": "7a9355d2673faa44746fd26d9625b42b299084fdb63e3c39996fb3edefc07a59"
+      },
+      "loaded:scripts/run_r408_v2_solving_gate.py": {
+        "path": "scripts/run_r408_v2_solving_gate.py",
+        "sha256": "cbffd9d0e1296a4263c12d7127a200a5f6c8dbc79b61a930829c191cc78f44a1"
+      },
+      "loaded:scripts/run_r409_heldout_gate.py": {
+        "path": "scripts/run_r409_heldout_gate.py",
+        "sha256": "14f012278c7f725566c7c6540b8bc5e81240be1f7cc70f31b1d022ea2da2f000"
+      },
+      "loaded:scripts/run_r478_md_revalidation.py": {
+        "path": "scripts/run_r478_md_revalidation.py",
+        "sha256": "5ec9eb4bbcac0365fc793720008307576e9777c05d499f4bcc033661707bb5e1"
+      },
+      "loaded:src/andes_rl_kundur/__init__.py": {
+        "path": "src/andes_rl_kundur/__init__.py",
+        "sha256": "ac489a73caf3f84df9b46fe19943e6c308314fa5319a10d48f990d7dd8d214b8"
+      },
+      "loaded:src/andes_rl_kundur/control/__init__.py": {
+        "path": "src/andes_rl_kundur/control/__init__.py",
+        "sha256": "13a4acacd1c9d34c5fc9e91cd8dc2dd09c57d20a66cf772a82fd887d333b0a9b"
+      },
+      "loaded:src/andes_rl_kundur/control/active_power.py": {
+        "path": "src/andes_rl_kundur/control/active_power.py",
+        "sha256": "9a8f113b7da792aa5a32e5fdccfc031beb7cbb3cab7bf8f2a9deda850d5de991"
+      },
+      "loaded:src/andes_rl_kundur/control/blend_damping.py": {
+        "path": "src/andes_rl_kundur/control/blend_damping.py",
+        "sha256": "ee2daf06e55fee0bd9bb74892175bbecd92f1c7f8dd20e49882b280e93781979"
+      },
+      "loaded:src/andes_rl_kundur/control/feasibility_native_deterministic.py": {
+        "path": "src/andes_rl_kundur/control/feasibility_native_deterministic.py",
+        "sha256": "7ee4179ceb600155803422cf9cbd3e57b94af0bda03d0693f96fd7e9167a8e50"
+      },
+      "loaded:src/andes_rl_kundur/control/feasibility_native_vsg_action.py": {
+        "path": "src/andes_rl_kundur/control/feasibility_native_vsg_action.py",
+        "sha256": "93dd16f6d6e464ed250a7f2fdbafce6411a2c38e93af71a29a82e9d6dc9c2eb6"
+      },
+      "loaded:src/andes_rl_kundur/control/ring_bandpass_damping.py": {
+        "path": "src/andes_rl_kundur/control/ring_bandpass_damping.py",
+        "sha256": "b498702cf7a5dc582ab651e1df29bbae7735fb2a1bb7d43e5e6b07a13040a498"
+      },
+      "loaded:src/andes_rl_kundur/evaluation/__init__.py": {
+        "path": "src/andes_rl_kundur/evaluation/__init__.py",
+        "sha256": "46a7c75f1e3a8da5efb42e075b9a158b12859eaa764e6c695b94866baeec4b40"
+      },
+      "loaded:src/andes_rl_kundur/evaluation/gate_b3_deterministic.py": {
+        "path": "src/andes_rl_kundur/evaluation/gate_b3_deterministic.py",
+        "sha256": "a722f58e8d59bd9f5c33f44b1d87d807b6c287bc3b90ca6d56b2b823c95d4f5c"
+      },
+      "loaded:src/andes_rl_kundur/evaluation/vsg_energy_port_object_gate.py": {
+        "path": "src/andes_rl_kundur/evaluation/vsg_energy_port_object_gate.py",
+        "sha256": "2d0ef7e0811e8caf48776975ec0ad60146579df45e71e7555aaf7705420b1634"
+      },
+      "md_convention": {
+        "path": "src/andes_rl_kundur/env/andes/md_convention.py",
+        "sha256": "545a4ff044fc13d6db683f0652e2cd050fd626b83bb5798d6e52220e3d969222"
+      },
+      "parameter_card": {
+        "path": "paper/yang_md_decoupling_marl/working/md_parameter_card_20260824.json",
+        "sha256": "290e7422bf96395179527636b20948223811515717d0cd0ee1c19f19ef4cf79d"
+      },
+      "parent_runner": {
+        "path": "scripts/run_r409_heldout_gate.py",
+        "sha256": "14f012278c7f725566c7c6540b8bc5e81240be1f7cc70f31b1d022ea2da2f000"
+      },
+      "plan": {
+        "path": "memory/rounds/R478/plan.md",
+        "sha256": "997a3f6d2d83fb889cfdc688f907bf6a51934dd18c541ec7e2e90e7be4523732"
+      },
+      "r372_runner": {
+        "path": "scripts/run_r372_energy_port_object_gate.py",
+        "sha256": "7a9355d2673faa44746fd26d9625b42b299084fdb63e3c39996fb3edefc07a59"
+      },
+      "r408_runner": {
+        "path": "scripts/run_r408_v2_solving_gate.py",
+        "sha256": "cbffd9d0e1296a4263c12d7127a200a5f6c8dbc79b61a930829c191cc78f44a1"
+      },
+      "runner": {
+        "path": "scripts/run_r478_md_revalidation.py",
+        "sha256": "5ec9eb4bbcac0365fc793720008307576e9777c05d499f4bcc033661707bb5e1"
+      },
+      "v4_env": {
+        "path": "src/andes_rl_kundur/env/andes/andes_vsg_env_v4.py",
+        "sha256": "f755288652b67e8caa192e0d2bbe4d58fdfde853896f2df974b29e9446744f74"
+      }
+    }
+  },
+  "pre_attempt": {
+    "checks": {
+      "installed_case": true,
+      "installed_package": true,
+      "output_absence": true,
+      "parent_hash": true,
+      "source_hash": true
+    },
+    "installed_runtime": {
+      "andes_distribution_version": "2.0.0",
+      "andes_module_path": "/home/wya/andes_venv/lib/python3.12/site-packages/andes/__init__.py",
+      "andes_module_sha256": "939909810f88f0d1de3e7c909f31030665d5d55ef8c6b610d4fdb3e3292b967c",
+      "andes_version": "2.0.0",
+      "case_path": "/home/wya/andes_venv/lib/python3.12/site-packages/andes/cases/kundur/kundur_full.xlsx",
+      "case_sha256": "f725e03ba12d8207616f68acdd606bbd35e7c4a68f13e66d7db43925adac2ed8",
+      "python": "3.12.3 (main, Jun 19 2026, 12:46:00) [GCC 13.3.0]"
+    },
+    "sources": {
+      "base_env": {
+        "path": "src/andes_rl_kundur/env/andes/base_env.py",
+        "sha256": "6ed709f2a3db61ea43256cfb2dd8899ff3c6ece7c628ee2c123b0da23f9e2f1b"
+      },
+      "classifier": {
+        "path": "src/andes_rl_kundur/evaluation/gate_b3_deterministic.py",
+        "sha256": "a722f58e8d59bd9f5c33f44b1d87d807b6c287bc3b90ca6d56b2b823c95d4f5c"
+      },
+      "energy_port_env": {
+        "path": "src/andes_rl_kundur/env/andes/vsg_energy_port_env.py",
+        "sha256": "1668a04e6638aa72cb568b7305d24fd4318491072530601486f5ee1ed2c30d5e"
+      },
+      "loaded:scripts/run_r372_energy_port_object_gate.py": {
+        "path": "scripts/run_r372_energy_port_object_gate.py",
+        "sha256": "7a9355d2673faa44746fd26d9625b42b299084fdb63e3c39996fb3edefc07a59"
+      },
+      "loaded:scripts/run_r408_v2_solving_gate.py": {
+        "path": "scripts/run_r408_v2_solving_gate.py",
+        "sha256": "cbffd9d0e1296a4263c12d7127a200a5f6c8dbc79b61a930829c191cc78f44a1"
+      },
+      "loaded:scripts/run_r409_heldout_gate.py": {
+        "path": "scripts/run_r409_heldout_gate.py",
+        "sha256": "14f012278c7f725566c7c6540b8bc5e81240be1f7cc70f31b1d022ea2da2f000"
+      },
+      "loaded:scripts/run_r478_md_revalidation.py": {
+        "path": "scripts/run_r478_md_revalidation.py",
+        "sha256": "5ec9eb4bbcac0365fc793720008307576e9777c05d499f4bcc033661707bb5e1"
+      },
+      "loaded:src/andes_rl_kundur/__init__.py": {
+        "path": "src/andes_rl_kundur/__init__.py",
+        "sha256": "ac489a73caf3f84df9b46fe19943e6c308314fa5319a10d48f990d7dd8d214b8"
+      },
+      "loaded:src/andes_rl_kundur/control/__init__.py": {
+        "path": "src/andes_rl_kundur/control/__init__.py",
+        "sha256": "13a4acacd1c9d34c5fc9e91cd8dc2dd09c57d20a66cf772a82fd887d333b0a9b"
+      },
+      "loaded:src/andes_rl_kundur/control/active_power.py": {
+        "path": "src/andes_rl_kundur/control/active_power.py",
+        "sha256": "9a8f113b7da792aa5a32e5fdccfc031beb7cbb3cab7bf8f2a9deda850d5de991"
+      },
+      "loaded:src/andes_rl_kundur/control/blend_damping.py": {
+        "path": "src/andes_rl_kundur/control/blend_damping.py",
+        "sha256": "ee2daf06e55fee0bd9bb74892175bbecd92f1c7f8dd20e49882b280e93781979"
+      },
+      "loaded:src/andes_rl_kundur/control/feasibility_native_deterministic.py": {
+        "path": "src/andes_rl_kundur/control/feasibility_native_deterministic.py",
+        "sha256": "7ee4179ceb600155803422cf9cbd3e57b94af0bda03d0693f96fd7e9167a8e50"
+      },
+      "loaded:src/andes_rl_kundur/control/feasibility_native_vsg_action.py": {
+        "path": "src/andes_rl_kundur/control/feasibility_native_vsg_action.py",
+        "sha256": "93dd16f6d6e464ed250a7f2fdbafce6411a2c38e93af71a29a82e9d6dc9c2eb6"
+      },
+      "loaded:src/andes_rl_kundur/control/ring_bandpass_damping.py": {
+        "path": "src/andes_rl_kundur/control/ring_bandpass_damping.py",
+        "sha256": "b498702cf7a5dc582ab651e1df29bbae7735fb2a1bb7d43e5e6b07a13040a498"
+      },
+      "loaded:src/andes_rl_kundur/evaluation/__init__.py": {
+        "path": "src/andes_rl_kundur/evaluation/__init__.py",
+        "sha256": "46a7c75f1e3a8da5efb42e075b9a158b12859eaa764e6c695b94866baeec4b40"
+      },
+      "loaded:src/andes_rl_kundur/evaluation/gate_b3_deterministic.py": {
+        "path": "src/andes_rl_kundur/evaluation/gate_b3_deterministic.py",
+        "sha256": "a722f58e8d59bd9f5c33f44b1d87d807b6c287bc3b90ca6d56b2b823c95d4f5c"
+      },
+      "loaded:src/andes_rl_kundur/evaluation/vsg_energy_port_object_gate.py": {
+        "path": "src/andes_rl_kundur/evaluation/vsg_energy_port_object_gate.py",
+        "sha256": "2d0ef7e0811e8caf48776975ec0ad60146579df45e71e7555aaf7705420b1634"
+      },
+      "md_convention": {
+        "path": "src/andes_rl_kundur/env/andes/md_convention.py",
+        "sha256": "545a4ff044fc13d6db683f0652e2cd050fd626b83bb5798d6e52220e3d969222"
+      },
+      "parameter_card": {
+        "path": "paper/yang_md_decoupling_marl/working/md_parameter_card_20260824.json",
+        "sha256": "290e7422bf96395179527636b20948223811515717d0cd0ee1c19f19ef4cf79d"
+      },
+      "parent_runner": {
+        "path": "scripts/run_r409_heldout_gate.py",
+        "sha256": "14f012278c7f725566c7c6540b8bc5e81240be1f7cc70f31b1d022ea2da2f000"
+      },
+      "plan": {
+        "path": "memory/rounds/R478/plan.md",
+        "sha256": "997a3f6d2d83fb889cfdc688f907bf6a51934dd18c541ec7e2e90e7be4523732"
+      },
+      "r372_runner": {
+        "path": "scripts/run_r372_energy_port_object_gate.py",
+        "sha256": "7a9355d2673faa44746fd26d9625b42b299084fdb63e3c39996fb3edefc07a59"
+      },
+      "r408_runner": {
+        "path": "scripts/run_r408_v2_solving_gate.py",
+        "sha256": "cbffd9d0e1296a4263c12d7127a200a5f6c8dbc79b61a930829c191cc78f44a1"
+      },
+      "runner": {
+        "path": "scripts/run_r478_md_revalidation.py",
+        "sha256": "5ec9eb4bbcac0365fc793720008307576e9777c05d499f4bcc033661707bb5e1"
+      },
+      "v4_env": {
+        "path": "src/andes_rl_kundur/env/andes/andes_vsg_env_v4.py",
+        "sha256": "f755288652b67e8caa192e0d2bbe4d58fdfde853896f2df974b29e9446744f74"
+      }
+    }
+  },
+  "readiness": "RUN-READY",
+  "round": "R478",
+  "rung_decisions": [
+    {
+      "accepted": true,
+      "final_throughput_jobs_per_second": 0.7059932567990028,
+      "marginal_gain": null,
+      "memory_safe": true,
+      "projected_memory_bytes": 18328649728,
+      "workers": 16
+    }
+  ],
+  "rungs": [
+    {
+      "all_records_valid": true,
+      "job_count": 8,
+      "maximum_worker_rss_bytes": 0,
+      "native_threads_per_worker": 1,
+      "throughput_jobs_per_second": 0.7059932567990028,
+      "valid_completions": 8,
+      "wall_seconds": 11.331552989999182,
+      "workers": 16
+    }
+  ],
+  "schema_version": 1,
+  "selected_workers": 16,
+  "stage": "representative_capacity_ladder_rungs_1_2_4_8_12_16",
+  "worker_rss_floor_bytes": 944214016,
+  "wsl_python_processes": 17
+}

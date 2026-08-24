@@ -1,0 +1,20 @@
+{
+  "adapter_round": "R478",
+  "adapter_sha256": "249539723a1db68007a0362a29019170d233d6d43faf7d8fa5687893f15c6786",
+  "command": "measure-capacity",
+  "command_args": [],
+  "family": "port_unseen",
+  "parent_runner": "run_r409_heldout_gate.py",
+  "parent_sha256": "14f012278c7f725566c7c6540b8bc5e81240be1f7cc70f31b1d022ea2da2f000",
+  "rekey_snapshot": {
+    "after": {
+      "OUT": "/mnt/e/Projects/andes-rl-kundur/results/research_loop/r478_port_unseen",
+      "ROUND_ID": "R478"
+    },
+    "before": {
+      "OUT": "/mnt/e/Projects/andes-rl-kundur/results/research_loop/r409_heldout_gate",
+      "ROUND_ID": "R409"
+    }
+  },
+  "written_utc": "2026-08-24T17:30:38.235907+00:00"
+}

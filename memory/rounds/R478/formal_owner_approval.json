@@ -1,0 +1,12 @@
+{
+  "approved_by": "owner",
+  "approved_seals": {
+    "port_extra_k35": "ff34b2dfb2ecf2140a1efdb47d7e8951bb02614c60c758c2a2d73b6ed8ab1578",
+    "port_extra_k4": "5cc370e656a5a3d88f35ec70d010160b9b2570e94a00c2a4d45a9796d82d1bec",
+    "port_unseen": "8711c945333a0a30466017c6a884880545e134ff4c720e34654846dca96191d0"
+  },
+  "approved_utc": "2026-08-25T02:05:00Z",
+  "owner_approved": true,
+  "round": "R478",
+  "scope": "Formal execution of the three energy-port families (port_unseen 16-parallel; port_extra_k35/port_extra_k4 frozen-parent serial) under repair6 seals, per plan.md owner gate."
+}

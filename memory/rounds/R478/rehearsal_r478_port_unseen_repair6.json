@@ -1,0 +1,167 @@
+{
+  "family": "port_unseen",
+  "pre_attempt": {
+    "checks": {
+      "installed_case": true,
+      "installed_package": true,
+      "output_absence": true,
+      "parent_hash": true,
+      "source_hash": true
+    },
+    "installed_runtime": {
+      "andes_distribution_version": "2.0.0",
+      "andes_module_path": "/home/wya/andes_venv/lib/python3.12/site-packages/andes/__init__.py",
+      "andes_module_sha256": "939909810f88f0d1de3e7c909f31030665d5d55ef8c6b610d4fdb3e3292b967c",
+      "andes_version": "2.0.0",
+      "case_path": "/home/wya/andes_venv/lib/python3.12/site-packages/andes/cases/kundur/kundur_full.xlsx",
+      "case_sha256": "f725e03ba12d8207616f68acdd606bbd35e7c4a68f13e66d7db43925adac2ed8",
+      "python": "3.12.3 (main, Jun 19 2026, 12:46:00) [GCC 13.3.0]"
+    },
+    "sources": {
+      "base_env": {
+        "path": "src/andes_rl_kundur/env/andes/base_env.py",
+        "sha256": "6ed709f2a3db61ea43256cfb2dd8899ff3c6ece7c628ee2c123b0da23f9e2f1b"
+      },
+      "classifier": {
+        "path": "src/andes_rl_kundur/evaluation/gate_b3_deterministic.py",
+        "sha256": "a722f58e8d59bd9f5c33f44b1d87d807b6c287bc3b90ca6d56b2b823c95d4f5c"
+      },
+      "energy_port_env": {
+        "path": "src/andes_rl_kundur/env/andes/vsg_energy_port_env.py",
+        "sha256": "1668a04e6638aa72cb568b7305d24fd4318491072530601486f5ee1ed2c30d5e"
+      },
+      "loaded:scripts/run_r372_energy_port_object_gate.py": {
+        "path": "scripts/run_r372_energy_port_object_gate.py",
+        "sha256": "7a9355d2673faa44746fd26d9625b42b299084fdb63e3c39996fb3edefc07a59"
+      },
+      "loaded:scripts/run_r408_v2_solving_gate.py": {
+        "path": "scripts/run_r408_v2_solving_gate.py",
+        "sha256": "cbffd9d0e1296a4263c12d7127a200a5f6c8dbc79b61a930829c191cc78f44a1"
+      },
+      "loaded:scripts/run_r409_heldout_gate.py": {
+        "path": "scripts/run_r409_heldout_gate.py",
+        "sha256": "14f012278c7f725566c7c6540b8bc5e81240be1f7cc70f31b1d022ea2da2f000"
+      },
+      "loaded:scripts/run_r478_md_revalidation.py": {
+        "path": "scripts/run_r478_md_revalidation.py",
+        "sha256": "5ec9eb4bbcac0365fc793720008307576e9777c05d499f4bcc033661707bb5e1"
+      },
+      "loaded:src/andes_rl_kundur/__init__.py": {
+        "path": "src/andes_rl_kundur/__init__.py",
+        "sha256": "ac489a73caf3f84df9b46fe19943e6c308314fa5319a10d48f990d7dd8d214b8"
+      },
+      "loaded:src/andes_rl_kundur/control/__init__.py": {
+        "path": "src/andes_rl_kundur/control/__init__.py",
+        "sha256": "13a4acacd1c9d34c5fc9e91cd8dc2dd09c57d20a66cf772a82fd887d333b0a9b"
+      },
+      "loaded:src/andes_rl_kundur/control/active_power.py": {
+        "path": "src/andes_rl_kundur/control/active_power.py",
+        "sha256": "9a8f113b7da792aa5a32e5fdccfc031beb7cbb3cab7bf8f2a9deda850d5de991"
+      },
+      "loaded:src/andes_rl_kundur/control/blend_damping.py": {
+        "path": "src/andes_rl_kundur/control/blend_damping.py",
+        "sha256": "ee2daf06e55fee0bd9bb74892175bbecd92f1c7f8dd20e49882b280e93781979"
+      },
+      "loaded:src/andes_rl_kundur/control/feasibility_native_deterministic.py": {
+        "path": "src/andes_rl_kundur/control/feasibility_native_deterministic.py",
+        "sha256": "7ee4179ceb600155803422cf9cbd3e57b94af0bda03d0693f96fd7e9167a8e50"
+      },
+      "loaded:src/andes_rl_kundur/control/feasibility_native_vsg_action.py": {
+        "path": "src/andes_rl_kundur/control/feasibility_native_vsg_action.py",
+        "sha256": "93dd16f6d6e464ed250a7f2fdbafce6411a2c38e93af71a29a82e9d6dc9c2eb6"
+      },
+      "loaded:src/andes_rl_kundur/control/ring_bandpass_damping.py": {
+        "path": "src/andes_rl_kundur/control/ring_bandpass_damping.py",
+        "sha256": "b498702cf7a5dc582ab651e1df29bbae7735fb2a1bb7d43e5e6b07a13040a498"
+      },
+      "loaded:src/andes_rl_kundur/control/vsg_energy_port.py": {
+        "path": "src/andes_rl_kundur/control/vsg_energy_port.py",
+        "sha256": "97af4ad9cf0ce873219e67ef598fff185ab271b998c891a818ddc96c2a11674a"
+      },
+      "loaded:src/andes_rl_kundur/env/andes/__init__.py": {
+        "path": "src/andes_rl_kundur/env/andes/__init__.py",
+        "sha256": "910ee307b071dc3b91bf44574d8331dee4faa062e74de38cd40c5a7267f04de8"
+      },
+      "loaded:src/andes_rl_kundur/env/andes/andes_vsg_env_v4.py": {
+        "path": "src/andes_rl_kundur/env/andes/andes_vsg_env_v4.py",
+        "sha256": "f755288652b67e8caa192e0d2bbe4d58fdfde853896f2df974b29e9446744f74"
+      },
+      "loaded:src/andes_rl_kundur/env/andes/base_env.py": {
+        "path": "src/andes_rl_kundur/env/andes/base_env.py",
+        "sha256": "6ed709f2a3db61ea43256cfb2dd8899ff3c6ece7c628ee2c123b0da23f9e2f1b"
+      },
+      "loaded:src/andes_rl_kundur/env/andes/md_convention.py": {
+        "path": "src/andes_rl_kundur/env/andes/md_convention.py",
+        "sha256": "545a4ff044fc13d6db683f0652e2cd050fd626b83bb5798d6e52220e3d969222"
+      },
+      "loaded:src/andes_rl_kundur/env/andes/v4_config.py": {
+        "path": "src/andes_rl_kundur/env/andes/v4_config.py",
+        "sha256": "d371629bf0c05d4532e8c569c9a4fedb0bebfa432caba0ccd165699c1a4fd394"
+      },
+      "loaded:src/andes_rl_kundur/env/andes/vsg_energy_port_env.py": {
+        "path": "src/andes_rl_kundur/env/andes/vsg_energy_port_env.py",
+        "sha256": "1668a04e6638aa72cb568b7305d24fd4318491072530601486f5ee1ed2c30d5e"
+      },
+      "loaded:src/andes_rl_kundur/evaluation/__init__.py": {
+        "path": "src/andes_rl_kundur/evaluation/__init__.py",
+        "sha256": "46a7c75f1e3a8da5efb42e075b9a158b12859eaa764e6c695b94866baeec4b40"
+      },
+      "loaded:src/andes_rl_kundur/evaluation/gate_b3_deterministic.py": {
+        "path": "src/andes_rl_kundur/evaluation/gate_b3_deterministic.py",
+        "sha256": "a722f58e8d59bd9f5c33f44b1d87d807b6c287bc3b90ca6d56b2b823c95d4f5c"
+      },
+      "loaded:src/andes_rl_kundur/evaluation/vsg_energy_port_object_gate.py": {
+        "path": "src/andes_rl_kundur/evaluation/vsg_energy_port_object_gate.py",
+        "sha256": "2d0ef7e0811e8caf48776975ec0ad60146579df45e71e7555aaf7705420b1634"
+      },
+      "loaded:src/andes_rl_kundur/scenarios/__init__.py": {
+        "path": "src/andes_rl_kundur/scenarios/__init__.py",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "loaded:src/andes_rl_kundur/scenarios/contract.py": {
+        "path": "src/andes_rl_kundur/scenarios/contract.py",
+        "sha256": "eac18af1174559d11c3009d5172eeb3ad9694f2b18c862e566c77db1852d61de"
+      },
+      "md_convention": {
+        "path": "src/andes_rl_kundur/env/andes/md_convention.py",
+        "sha256": "545a4ff044fc13d6db683f0652e2cd050fd626b83bb5798d6e52220e3d969222"
+      },
+      "parameter_card": {
+        "path": "paper/yang_md_decoupling_marl/working/md_parameter_card_20260824.json",
+        "sha256": "290e7422bf96395179527636b20948223811515717d0cd0ee1c19f19ef4cf79d"
+      },
+      "parent_runner": {
+        "path": "scripts/run_r409_heldout_gate.py",
+        "sha256": "14f012278c7f725566c7c6540b8bc5e81240be1f7cc70f31b1d022ea2da2f000"
+      },
+      "plan": {
+        "path": "memory/rounds/R478/plan.md",
+        "sha256": "997a3f6d2d83fb889cfdc688f907bf6a51934dd18c541ec7e2e90e7be4523732"
+      },
+      "r372_runner": {
+        "path": "scripts/run_r372_energy_port_object_gate.py",
+        "sha256": "7a9355d2673faa44746fd26d9625b42b299084fdb63e3c39996fb3edefc07a59"
+      },
+      "r408_runner": {
+        "path": "scripts/run_r408_v2_solving_gate.py",
+        "sha256": "cbffd9d0e1296a4263c12d7127a200a5f6c8dbc79b61a930829c191cc78f44a1"
+      },
+      "runner": {
+        "path": "scripts/run_r478_md_revalidation.py",
+        "sha256": "5ec9eb4bbcac0365fc793720008307576e9777c05d499f4bcc033661707bb5e1"
+      },
+      "v4_env": {
+        "path": "src/andes_rl_kundur/env/andes/andes_vsg_env_v4.py",
+        "sha256": "f755288652b67e8caa192e0d2bbe4d58fdfde853896f2df974b29e9446744f74"
+      }
+    }
+  },
+  "rehearsal": true,
+  "rehearsal_ok": true,
+  "round": "R478",
+  "scenario": {
+    "identity_ok": true,
+    "rows": 50,
+    "tds_failed": false
+  }
+}
