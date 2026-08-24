@@ -119,6 +119,16 @@ def test_rekey_sidecar_records_identity_and_is_idempotent(tmp_path: Path) -> Non
         )
 
 
+def test_command_vocabulary_and_translation() -> None:
+    assert RUNNER.COMMAND_TRANSLATION["port_unseen"]["rehearse"] == ["--rehearse"]
+    assert RUNNER.COMMAND_TRANSLATION["port_unseen"]["execute"] == ["--execute"]
+    assert "measure-capacity" in RUNNER.FAMILY_COMMANDS["ninelaw"]
+    assert "select" in RUNNER.FAMILY_COMMANDS["schedule"]
+    assert "inventory" in RUNNER.FAMILY_COMMANDS["topology"]
+    assert "execute" not in RUNNER.FAMILY_COMMANDS["zero"]
+    assert "shard" in RUNNER.FAMILY_COMMANDS["topology"]
+
+
 def test_zero_contract_freezes_registered_scenarios() -> None:
     contract = RUNNER._zero_contract()
     assert contract["round"] == "R478"

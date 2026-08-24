@@ -100,6 +100,31 @@ FAMILIES: dict[str, dict[str, str | None]] = {
 
 ROUND_ID = "R478"
 
+# Parent CLI shapes differ: positional commands (R416/R458/R413/R415/R417)
+# vs flags (R409). The adapter translates the uniform command vocabulary.
+COMMAND_TRANSLATION: dict[str, dict[str, list[str]]] = {
+    "port_unseen": {
+        "measure-capacity": ["--measure-capacity"],
+        "rehearse": ["--rehearse"],
+        "execute": ["--execute"],
+    },
+}
+
+FAMILY_COMMANDS: dict[str, frozenset[str]] = {
+    "zero": frozenset({"prepare", "rehearse", "execute"}),
+    "ninelaw": frozenset({"measure-capacity", "rehearse", "prepare",
+                          "shards", "shard", "classify"}),
+    "schedule": frozenset({"capacity", "rehearse", "prepare", "shard",
+                           "select", "aggregate", "classify"}),
+    "port_unseen": frozenset({"measure-capacity", "rehearse", "execute"}),
+    "port_extra_k35": frozenset({"measure-capacity", "rehearse", "prepare",
+                                 "execute", "classify"}),
+    "port_extra_k4": frozenset({"measure-capacity", "rehearse", "prepare",
+                                "execute", "classify"}),
+    "topology": frozenset({"inventory", "measure-capacity", "rehearse",
+                           "prepare", "shards", "shard", "classify"}),
+}
+
 
 def _sha256_file(path: Path) -> str:
     digest = hashlib.sha256()
@@ -375,6 +400,11 @@ def _parser() -> argparse.ArgumentParser:
 def main(argv: list[str] | None = None) -> int:
     args = _parser().parse_args(argv)
     family_cfg = FAMILIES[args.family]
+    allowed = FAMILY_COMMANDS[args.family]
+    if args.command not in allowed:
+        raise SystemExit(
+            f"{args.family} commands: {' | '.join(sorted(allowed))}"
+        )
     out_root = ROOT / "results" / "research_loop" / str(family_cfg["out"])
     sidecar_dir = ROOT / "memory" / "rounds" / "R478" / "adapter_rekey"
 
@@ -408,7 +438,10 @@ def main(argv: list[str] | None = None) -> int:
 
     saved_argv = sys.argv
     try:
-        sys.argv = [str(parent_path), args.command, *args.args]
+        translated = COMMAND_TRANSLATION.get(
+            args.family, {}
+        ).get(args.command, [args.command])
+        sys.argv = [str(parent_path), *translated, *args.args]
         return int(parent.main())
     finally:
         sys.argv = saved_argv
