@@ -166,6 +166,13 @@ Preserve R398-R477 artifacts, all imported external-review material, every histo
 - After ladder + rehearsal, STOP: report measured budgets and rehearsal
   evidence to the owner; formal execution requires a per-family
   `formal_owner_approval.json` bound to each `repair4` seal hash.
+- Owner scheduling directive (2026-08-25): time is pressing — use the
+  hardware as fully as possible and parallelize as much as possible.
+  Interpretation within the frozen contract: pick the highest safe worker
+  rung inside the measured memory budget; formal families run at the maximum
+  measured concurrency (distinct output roots, no cross-family evidence
+  pooling); per-family ladder/rehearse stay serial only where the contract
+  requires it (no speculative downstream gates).
 
 ## Snapshot at plan-time (oracle as of 2026-08-24)
 
