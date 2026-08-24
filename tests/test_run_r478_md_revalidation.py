@@ -69,10 +69,10 @@ def test_rekey_patches_shard_and_selection_paths_for_r458_parent() -> None:
     assert parent.ROUND_ID == "R478"
     assert parent.OUT == out_root
     assert parent.DEV_SHARDS == (
-        ROOT / "tmp/andes/r478_repair4_r478_md_schedule_dev_shards.json"
+        ROOT / "tmp/andes/r478_repair5_r478_md_schedule_dev_shards.json"
     )
     assert parent.EVAL_SHARDS == (
-        ROOT / "tmp/andes/r478_repair4_r478_md_schedule_eval_shards.json"
+        ROOT / "tmp/andes/r478_repair5_r478_md_schedule_eval_shards.json"
     )
     assert parent.SELECTION == out_root / "selection.json"
     assert parent.PLAN == ROOT / "memory/rounds/R478/plan.md"
@@ -215,14 +215,18 @@ def test_capacity_ladder_uses_32_jobs_and_confirms_borderline_gain(
             "throughput_jobs_per_second": throughput,
         }
 
+    assert RUNNER.CAPACITY_RUNGS == (16,)
+    assert RUNNER.CAPACITY_TASKS_PER_RUNG == 8
     monkeypatch.setattr(RUNNER, "_measure_capacity_rung", fake_measure)
+    # The full-ladder algorithm is still exercised with the historical rung
+    # set; the production constants are the owner-ordered fast ladder.
+    monkeypatch.setattr(RUNNER, "CAPACITY_RUNGS", (1, 2, 4, 8, 12, 16))
+    monkeypatch.setattr(RUNNER, "CAPACITY_TASKS_PER_RUNG", 32)
     payload = RUNNER._capacity_ladder(
         task=lambda _index: {"ok": True},
         family="zero",
         memory_total_bytes=10_000,
     )
-    assert RUNNER.CAPACITY_RUNGS == (1, 2, 4, 8, 12, 16)
-    assert RUNNER.CAPACITY_TASKS_PER_RUNG == 32
     assert all(row["job_count"] == 32 for row in payload["rungs"])
     assert payload["confirmation_pairs"] == [
         {"low_workers": 1, "high_workers": 2}
@@ -366,7 +370,7 @@ def test_physical_preformal_authorization_is_hashed_and_source_bound(
         authorization,
         {
             "round": "R478",
-            "authority_generation": "repair4",
+            "authority_generation": "repair5",
             "physical_execution_authorized": True,
             "approved_commands": {
                 "zero": ["measure-capacity", "rehearse"],

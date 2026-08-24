@@ -174,6 +174,27 @@ Preserve R398-R477 artifacts, all imported external-review material, every histo
   pooling); per-family ladder/rehearse stay serial only where the contract
   requires it (no speculative downstream gates).
 
+## Repair5 fast-ladder amendment (2026-08-25)
+
+- Process error recorded: the `repair4` ladder was launched after a second
+  plan.md edit (owner scheduling directive), so the authorization source
+  binding drifted and the port_unseen ladder results were not persisted.
+  Lesson: generate the authorization artifact only after every plan/source
+  edit is committed.
+- Owner directive (2026-08-25): do not re-run the full six-rung ladder; the
+  same host and ANDES deterministic workload already measured it repeatedly
+  (R452-R477 all selected 16 workers; R458 schedule ladder on 2026-08-24;
+  R478 zero repair3 on corrected code). Full 1/2/4/8/12/16 x 32 ladders are
+  over-insurance for this round.
+- `repair5` reduces the ladder to one 16-worker rung of 8 jobs per family:
+  a re-confirmation of 16-way parallel safety (RSS/throughput) on the
+  corrected sources only. `AUTHORITY_GENERATION` moved `repair4` -> `repair5`;
+  `repair4` files stay byte-for-byte.
+- `repair5` allowlist (owner-approved): `port_unseen`, `port_extra_k35`,
+  `port_extra_k4` -> `measure-capacity`, `rehearse`. Same stop point: report
+  ladder + rehearsal evidence to the owner; formal execution requires a
+  per-family `formal_owner_approval.json` bound to each `repair5` seal hash.
+
 ## Snapshot at plan-time (oracle as of 2026-08-24)
 
 <!-- Auto-injected by reserve_round.py (F4 audit 2026-05-19). -->

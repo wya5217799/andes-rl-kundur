@@ -104,9 +104,15 @@ FAMILIES: dict[str, dict[str, str | None]] = {
 }
 
 ROUND_ID = "R478"
-AUTHORITY_GENERATION = "repair4"
-CAPACITY_RUNGS = (1, 2, 4, 8, 12, 16)
-CAPACITY_TASKS_PER_RUNG = 32
+AUTHORITY_GENERATION = "repair5"
+# Owner 2026-08-25 fast-ladder directive: time-sensitive, run as parallel as
+# possible. Full 1/2/4/8/12/16 x 32-job ladders were measured repeatedly on
+# this exact host for the same ANDES deterministic workload (R452-R477 all
+# selected 16 workers; R458 schedule ladder 2026-08-24). The fast ladder only
+# re-confirms 16-way safety on the corrected sources: one 16-worker rung of
+# 8 jobs per family.
+CAPACITY_RUNGS = (16,)
+CAPACITY_TASKS_PER_RUNG = 8
 MARGINAL_GAIN_MIN = 1.05
 MARGINAL_GAIN_CONFIRM_LOW = 1.03
 MARGINAL_GAIN_CONFIRM_HIGH = 1.07
@@ -152,7 +158,7 @@ EXECUTION_COMMANDS: dict[str, frozenset[str]] = {
 
 OWNER_APPROVAL = ROOT / "memory/rounds/R478/formal_owner_approval.json"
 PHYSICAL_EXECUTION_AUTHORIZATION = (
-    ROOT / "memory/rounds/R478/physical_execution_authorization_repair4.json"
+    ROOT / "memory/rounds/R478/physical_execution_authorization_repair5.json"
 )
 PHYSICAL_PREFORMAL_COMMANDS = frozenset(
     {"inventory", "measure-capacity", "capacity", "rehearse"}
