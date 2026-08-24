@@ -205,6 +205,20 @@ def test_routing_gate_allows_base_inputs_but_precedes_execution(tmp_path, monkey
     (out / "train").mkdir()
     with pytest.raises(FileExistsError, match="precede R482 execution artifacts"):
         runner.routing_gate()
+
+
+def test_authority_allows_preseal_base_inputs_but_not_execution(tmp_path, monkeypatch):
+    out = tmp_path / "out"
+    (out / "donors").mkdir(parents=True)
+    monkeypatch.setattr(runner, "OUT", out)
+    assert runner.authority_checks()["output_absence"] is True
+    (out / "dev").mkdir()
+    assert runner.authority_checks()["output_absence"] is False
+
+
+def test_failed_rehearsal_is_preserved_outside_authoritative_path():
+    assert runner.FAILED_REHEARSAL.name == "rehearsal.json"
+    assert runner.REHEARSAL.name == "rehearsal_repair1.json"
     assert runner.PHASE3B_ARM == "an_cn_r1_rms"
     assert len(runner.RETRAIN_ARMS) == 9
     assert runner.REUSED_CELLS == ()

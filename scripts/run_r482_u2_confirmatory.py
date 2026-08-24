@@ -69,7 +69,8 @@ LINE = ROOT / "paper/yang_md_decoupling_marl/LINE.md"
 POWER = ROOT / "paper/yang_md_decoupling_marl/working/source_factorial_power_plan.json"
 CAPACITY = ROOT / "memory/rounds/R482/capacity_evidence.json"
 BASE_AUDIT = ROOT / "memory/rounds/R482/base_audit.json"
-REHEARSAL = ROOT / "memory/rounds/R482/rehearsal.json"
+FAILED_REHEARSAL = ROOT / "memory/rounds/R482/rehearsal.json"
+REHEARSAL = ROOT / "memory/rounds/R482/rehearsal_repair1.json"
 SEAL = ROOT / "memory/rounds/R482/formal_seal.json"
 OUT = ROOT / "results/research_loop/r482_u2_confirmatory"
 TRAIN_SHARDS = ROOT / "tmp/andes/r482_train_shards.json"
@@ -272,7 +273,16 @@ def authority_checks() -> dict[str, bool]:
             and len(RETRAIN_CELLS) == 234
             and len(REUSED_CELLS) == 0
         ),
-        "output_absence": not OUT.exists(),
+        "output_absence": not any(
+            (OUT / path).exists()
+            for path in (
+                "train",
+                "eval",
+                "dev",
+                "formal_analysis.json",
+                "formal_manifest.json",
+            )
+        ),
     }
 
 
@@ -837,6 +847,7 @@ def prepare() -> dict[str, Any]:
         "driver_tests": ROOT / "tests/test_soft_spot_shard_driver.py",
         "scratch_launcher": ROOT / "scripts/andes_scratch.py",
         "detached_pipeline": PIPELINE,
+        "preseal_failed_rehearsal": FAILED_REHEARSAL,
         "environment": ROOT / "src/andes_rl_kundur/env/andes/andes_vsg_env_v4.py",
         "base_env": ROOT / "src/andes_rl_kundur/env/andes/base_env.py",
         "v4_config": ROOT / "src/andes_rl_kundur/env/andes/v4_config.py",
