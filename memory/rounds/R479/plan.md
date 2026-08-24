@@ -1,12 +1,13 @@
 ---
 round: R479
-state: queued
+state: aborted
 manuscript_line: yang-md-decoupling-marl
 opened: '2026-08-24'
-closed: null
+closed: '2026-08-25'
 supersedes_rounds: []
 superseded_by_round: null
-abort_reason: null
+abort_reason: operator interrupted formal execute at attempt creation; no scientific
+  cell ran; successor R480 re-executes the identical six cells
 superseded_note: null
 ---
 # R479 plan — corrected-card uniform-H zero-action sensitivity
@@ -16,10 +17,14 @@ superseded_note: null
 **Parent**: R478 sealed corrected M/D implementation; `md_parameter_card_20260824.json`.
 **Workload**: `evidence`
 
-**Queue status**: R478 remains the sole active owner of this manuscript line. While
-R479 is queued, one owner-authorized six-worker development screen may run under
-`tmp/`; it is explicitly non-claim-bearing and cannot substitute for the sealed
-formal bank after R478 closes and R479 is activated.
+**Queue status**: R478 closed completed on 2026-08-25; R479 activated the
+same day. The queued development screen ran earlier under `tmp/` and stays
+non-claim-bearing. Engineering note (pre-seal): the runner's R478-parent
+anchor is the executed repair6 port_unseen seal; its source entries are
+verified under each entry's sealed method (raw or LF-normalized), and
+`memory/rounds/R478/plan.md` is exempt from the hash check because
+close_round legally rewrites its frontmatter state. The runner was not
+sealed at the time of this edit, so no sealed artifact changed.
 
 ## TL;DR
 

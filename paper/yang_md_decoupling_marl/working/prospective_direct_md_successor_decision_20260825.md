@@ -2,8 +2,11 @@
 
 ## Status
 
-Recommendation only; not owner-approved, not an execution authority, and not
-a replacement for the frozen R478 route.
+OWNER-APPROVED (2026-08-25). The owner explicitly accepted abandonment of the
+bounded positive energy-port claim and selected the direct-M/D main-line
+re-verification route (condition 1 below satisfied). This document is now the
+route decision for the successor generation; it is not an execution authority
+by itself — conditions 2-7 remain binding prerequisites for any formal bank.
 
 ## Evidence boundary
 

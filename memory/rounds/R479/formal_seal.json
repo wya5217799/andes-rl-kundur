@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "round": "R479",
+  "created_utc": "2026-08-24T18:11:49.451026+00:00",
+  "sources": {
+    "runner": {
+      "path": "scripts/run_r479_h_sensitivity.py",
+      "sha256": "745ed35bc9d36058e65f1d7fa8af50f93b142ec53a03cfb7996097a52242178e"
+    },
+    "evaluation": {
+      "path": "src/andes_rl_kundur/evaluation/r479_h_sensitivity.py",
+      "sha256": "48cec892b10c69739b74d47119d727bfdbe1583ab4ed17f9aa8b6bdb169fd092"
+    },
+    "tests": {
+      "path": "tests/test_r479_h_sensitivity.py",
+      "sha256": "3e177700990541a33979804f5c38a89378ed061f39501bf8893e40f78a367913"
+    },
+    "plan": {
+      "path": "memory/rounds/R479/plan.md",
+      "sha256": "950d90a6b6dd064c21865e22e5ba4a24f6cc9e20941fc25784ad879b0ba2676e"
+    },
+    "approval": {
+      "path": "memory/rounds/R479/OWNER_APPROVED.json",
+      "sha256": "beb93a2f50b8862a8edcf08fbd88f4bd31c7ab5eb5e2bdd3afb85c43435c6ea2"
+    },
+    "capacity": {
+      "path": "memory/rounds/R479/capacity_evidence.json",
+      "sha256": "43f2424fc814d203ea03eede2c4d764f10d6ae22c15a143f6d4f02d61ebb2d0c"
+    },
+    "contract": {
+      "path": "memory/rounds/R479/contract.json",
+      "sha256": "c65776c8cf470bfde15a19c9b357a5faeb7497591be04cd4b09369cc391bec56"
+    }
+  },
+  "parents": {
+    "r478_seal": {
+      "path": "memory/rounds/R478/formal_seal_r478_port_unseen_repair6.json",
+      "sha256": "8711c945333a0a30466017c6a884880545e134ff4c720e34654846dca96191d0"
+    },
+    "parameter_card": {
+      "path": "paper/yang_md_decoupling_marl/working/md_parameter_card_20260824.json",
+      "sha256": "290e7422bf96395179527636b20948223811515717d0cd0ee1c19f19ef4cf79d"
+    }
+  },
+  "rehearsal_sha256": "3a94ee516dcfc3a500761e46b362337975b08afce6eea2d78121b2a9282c910d",
+  "worker_budget": {
+    "workers": 6,
+    "launcher": 1,
+    "native_threads_per_process": 1
+  },
+  "output_root": "results/research_loop/r479_h_sensitivity",
+  "authority": "owner-approved R479 zero-action H sensitivity only"
+}

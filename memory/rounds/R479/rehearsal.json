@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "round": "R479",
+  "phase": "same-pre-attempt-path-rehearsal",
+  "checks": {
+    "source_hash": true,
+    "parent_hash": true,
+    "installed_package": true,
+    "installed_case": true,
+    "output_absence": true,
+    "active_plan": true,
+    "owner_approved": true,
+    "contract_closed": true
+  },
+  "runtime": {
+    "python": "3.12.3 (main, Jun 19 2026, 12:46:00) [GCC 13.3.0]",
+    "python_executable": "/usr/bin/python3.12",
+    "andes_version": "2.0.0",
+    "andes_module": "/home/wya/andes_venv/lib/python3.12/site-packages/andes/__init__.py",
+    "case_path": "/home/wya/andes_venv/lib/python3.12/site-packages/andes/cases/kundur/kundur_full.xlsx",
+    "case_sha256": "f725e03ba12d8207616f68acdd606bbd35e7c4a68f13e66d7db43925adac2ed8"
+  },
+  "parent": {
+    "r478_seal_sha256": "8711c945333a0a30466017c6a884880545e134ff4c720e34654846dca96191d0",
+    "parameter_card_sha256": "290e7422bf96395179527636b20948223811515717d0cd0ee1c19f19ef4cf79d",
+    "verified_source_count": 33,
+    "plan_lifecycle_exempt": "memory/rounds/R478/plan.md (state active -> completed at R478 close)"
+  },
+  "cell": {
+    "cell_id": "h100_ls1",
+    "h_device_s": 100.0,
+    "m_device_s": 200.0,
+    "d_device": 100.0,
+    "scenario_id": "ls1",
+    "delta_u": {
+      "PQ_Bus14": -2.48
+    }
+  },
+  "summary": {
+    "cell_id": "h100_ls1",
+    "h_device_s": 100.0,
+    "scenario_id": "ls1",
+    "n_steps": 30,
+    "horizon_s": 6.0,
+    "valid": true,
+    "invalid_reasons": [],
+    "max_df_6s_hz": 0.131610452943697,
+    "final_df_6s_hz": 0.08409447044039098,
+    "physical_max_df_6s_hz": 0.15793254353243924,
+    "physical_final_df_6s_hz": 0.10091336452846633
+  },
+  "elapsed_seconds": 4.680974380011321,
+  "record_json_bytes": 7698,
+  "formal_attempt_created": false,
+  "formal_outputs_created": false
+}
