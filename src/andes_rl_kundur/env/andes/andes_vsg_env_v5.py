@@ -22,8 +22,10 @@ Framing 是 paper-deviation. 详 docs/adr/0004-v5-env-regca1-plant-paper-deviati
 from __future__ import annotations
 
 import andes
+import numpy as np
 
 from .andes_vsg_env_v4 import AndesMultiVSGEnvV4
+from .md_convention import SYSTEM_BASE_MVA, device_to_system
 from .v5_config import V5Config
 
 # ANDES kundur_full.xlsx 里 G4 在 bus 4, GENROU idx=4. 这是 ANDES case
@@ -164,8 +166,14 @@ class AndesMultiVSGEnvV5(AndesMultiVSGEnvV4):
 
         ss.setup()
 
+        # R478: 运行时数组是系统基准; 设备基准 D₀ 写入前只换算一次.
         for i, vsg_id in enumerate(self.vsg_idx):
-            ss.GENCLS.set("D", vsg_id, self.D0_HETEROGENEOUS[i], attr="v")
+            d_sys = device_to_system(
+                np.asarray([self.D0_HETEROGENEOUS[i]]),
+                device_mva=self.VSG_SN,
+                system_mva=SYSTEM_BASE_MVA,
+            )[0]
+            ss.GENCLS.set("D", vsg_id, float(d_sys), attr="v")
 
         # V4 ZERO_G4_INERTIA hack (跟 V4 完全一致)
         if self.ZERO_G4_INERTIA and hasattr(self, "_g4_genrou_idx"):
@@ -287,9 +295,15 @@ class AndesMultiVSGEnvV5(AndesMultiVSGEnvV4):
 
         ss.setup()
 
-        # (V4-identical) 异质 D₀ 套到 4 个 VSG
+        # (V4-identical) 异质 D₀ 套到 4 个 VSG.
+        # R478: 运行时数组是系统基准; 设备基准 D₀ 写入前只换算一次.
         for i, vsg_id in enumerate(self.vsg_idx):
-            ss.GENCLS.set("D", vsg_id, self.D0_HETEROGENEOUS[i], attr="v")
+            d_sys = device_to_system(
+                np.asarray([self.D0_HETEROGENEOUS[i]]),
+                device_mva=self.VSG_SN,
+                system_mva=SYSTEM_BASE_MVA,
+            )[0]
+            ss.GENCLS.set("D", vsg_id, float(d_sys), attr="v")
 
         # ─── (V5 NEW) G4 链 disable: GENROU + TGOV1 + EXDC2 全 u=0 ────
         # paper Sec.II 立场是 G4 是风机, 用 REGCA1 接管. V4 是 ZERO_G4_INERTIA

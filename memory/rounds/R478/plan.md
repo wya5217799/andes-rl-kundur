@@ -29,7 +29,7 @@ R478 freezes the physical parameter card (device/system-base convention with pri
 
 ## Engineering correction contract
 
-1. Fix lands in the shared reset/anchor path (`base_env.py` / `andes_vsg_env_v4.py`; NOTES_ANDES.md read before edits). Anchor = declared system-base runtime value; reported action increments use the same convention; telemetry readback compared in that convention.
+1. Fix lands in the shared reset/anchor path (`base_env.py` / `andes_vsg_env_v4.py`; NOTES_ANDES.md read before edits). Anchor = declared system-base runtime value; reported action increments use the same convention; telemetry readback compared in that convention. Reviewer-C extensions: V5's two heterogeneous-D build writes converted once (`andes_vsg_env_v5.py`), and the distributed-residual wrapper converts the runtime readback to device-base model units at its boundary (`distributed_residual_env.py`).
 2. V4 regression expectations re-locked to the corrected semantics inside this round; documented as the single deliberate change; historical checkpoints stay historical and are never imported into the corrected bank.
 3. Card + conversion helpers = reusable implementation in `src/andes_rl_kundur/`; invariant tests in `tests/`; bank adapters as stable scripts; governance shell (seal verification, fail-closed classification, dual review of one identical final source map, mutation tests) reused from the R477 pattern.
 4. Comparison identifiability: corrected vs historical numbers are compared only in the manuscript/review layer; within-bank comparisons are corrected-only.

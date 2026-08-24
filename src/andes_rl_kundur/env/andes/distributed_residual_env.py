@@ -18,6 +18,10 @@ from andes_rl_kundur.control.vector_inertia_residual import (
     execute_edge_residual_numpy,
     r292_vector_residual_contract,
 )
+from andes_rl_kundur.env.andes.md_convention import (
+    SYSTEM_BASE_MVA,
+    system_to_device,
+)
 from andes_rl_kundur.evaluation.active_power_authority import (
     R272_KI_SYSTEM_PU_PER_HZ_S_PER_DEVICE,
     R272_KP_SYSTEM_PU_PER_HZ_PER_DEVICE,
@@ -86,21 +90,36 @@ class DistributedVectorResidualEnv:
         return omega * nominal, omega_dot * nominal, power
 
     def _read_actual_vsg_md(self) -> tuple[np.ndarray, np.ndarray]:
-        """Read executed M/D directly from the ANDES GENCLS model arrays."""
+        """Read executed M/D from the GENCLS runtime arrays in device-base
+        model units.
+
+        R478: the runtime arrays are system-base; convert exactly once at
+        this boundary so the returned values compare directly against the
+        device-base contract fields (baseline_m, commanded_m, ...)."""
         positions = tuple(int(value) for value in self.base_env._vsg_pos)
         gencls = self.base_env.ss.GENCLS
-        actual_m = np.asarray(
+        actual_m_sys = np.asarray(
             [gencls.M.v[position] for position in positions],
             dtype=np.float64,
         )
-        actual_d = np.asarray(
+        actual_d_sys = np.asarray(
             [gencls.D.v[position] for position in positions],
             dtype=np.float64,
         )
-        if actual_m.shape != (self.N_AGENTS,) or actual_d.shape != (self.N_AGENTS,):
+        if actual_m_sys.shape != (self.N_AGENTS,) or actual_d_sys.shape != (self.N_AGENTS,):
             raise RuntimeError("VSG M/D readback must contain exactly four devices")
-        if not np.all(np.isfinite(actual_m)) or not np.all(np.isfinite(actual_d)):
+        if not np.all(np.isfinite(actual_m_sys)) or not np.all(np.isfinite(actual_d_sys)):
             raise RuntimeError("VSG M/D readback must be finite")
+        actual_m = system_to_device(
+            actual_m_sys,
+            device_mva=self.base_env.VSG_SN,
+            system_mva=SYSTEM_BASE_MVA,
+        )
+        actual_d = system_to_device(
+            actual_d_sys,
+            device_mva=self.base_env.VSG_SN,
+            system_mva=SYSTEM_BASE_MVA,
+        )
         return actual_m, actual_d
 
     def _observation(
