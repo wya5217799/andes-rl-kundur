@@ -56,7 +56,13 @@ def lint_text(text: str) -> list[str]:
     errors: list[str] = []
     log_dirs = [match.group(1) for match in LOG_DIR_RE.finditer(text)]
     find_targets = [match.group(1) for match in FIND_RESULT_RE.finditer(text)]
-    if not log_dirs:
+    has_driver = "shard_driver" in text
+    # A transport-only wrapper that neither invokes a shard driver nor
+    # searches for driver_result.json has no driver logs to locate, so the
+    # --log-dir requirement is vacuous there (R481: single-command WSL
+    # wrappers).  The pairing guard below still rejects any find that is
+    # not under a declared --log-dir.
+    if not log_dirs and (has_driver or find_targets):
         errors.append("no --log-dir argument found (driver logs unlocatable)")
     for value in log_dirs:
         if value.startswith("/"):

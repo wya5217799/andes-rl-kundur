@@ -60,9 +60,19 @@ def test_find_outside_log_dir_rejected() -> None:
     assert any("not under any --log-dir" in error for error in errors)
 
 
-def test_missing_log_dir_rejected() -> None:
-    text = "repo=/mnt/e/Projects/andes-rl-kundur\ncd repo\n"
+def test_missing_log_dir_with_driver_rejected() -> None:
+    text = (
+        "repo=/mnt/e/Projects/andes-rl-kundur\ncd repo\n"
+        "python scripts/soft_spot_shard_driver.py --shards tmp/andes/shards.json\n"
+    )
     assert lint.lint_text(text) == ["no --log-dir argument found (driver logs unlocatable)"]
+
+
+def test_transport_only_pipeline_without_driver_is_exempt() -> None:
+    # Single-command WSL wrapper: no shard driver and no driver_result.json
+    # search, so the --log-dir requirement is vacuous (R481 pattern).
+    text = "repo=/mnt/e/Projects/andes-rl-kundur\ncd repo\npython scripts/runner.py execute\n"
+    assert lint.lint_text(text) == []
 
 
 def test_real_pipelines_pass() -> None:
