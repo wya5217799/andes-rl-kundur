@@ -1,0 +1,36 @@
+{
+  "adapter_round": "R478",
+  "adapter_sha256": "6959ccb7f42f481314eb2e35792a464df0acd93255a590590166c22d0afc9029",
+  "command": "capacity",
+  "command_args": [],
+  "family": "schedule",
+  "parent_runner": "run_r458_dev_select_eval_validate.py",
+  "parent_sha256": "5be961a71defa2238cacf9685bf8875a1f9202d54d5134fce4b7f9d79ec883c8",
+  "rekey_snapshot": {
+    "after": {
+      "CAPACITY": "/mnt/e/Projects/andes-rl-kundur/memory/rounds/R478/capacity_r478_md_schedule.json",
+      "DEV_SHARDS": "/mnt/e/Projects/andes-rl-kundur/tmp/andes/r478_r478_md_schedule_dev_shards.json",
+      "EVAL_SHARDS": "/mnt/e/Projects/andes-rl-kundur/tmp/andes/r478_r478_md_schedule_eval_shards.json",
+      "LINE": "/mnt/e/Projects/andes-rl-kundur/paper/yang_md_decoupling_marl/LINE.md",
+      "OUT": "/mnt/e/Projects/andes-rl-kundur/results/research_loop/r478_md_schedule",
+      "PLAN": "/mnt/e/Projects/andes-rl-kundur/memory/rounds/R478/plan.md",
+      "REHEARSAL": "/mnt/e/Projects/andes-rl-kundur/memory/rounds/R478/rehearsal_r478_md_schedule.json",
+      "ROUND_ID": "R478",
+      "SEAL": "/mnt/e/Projects/andes-rl-kundur/memory/rounds/R478/formal_seal_r478_md_schedule.json",
+      "SELECTION": "/mnt/e/Projects/andes-rl-kundur/results/research_loop/r478_md_schedule/selection.json"
+    },
+    "before": {
+      "CAPACITY": "/mnt/e/Projects/andes-rl-kundur/memory/rounds/R458/capacity_evidence.json",
+      "DEV_SHARDS": "/mnt/e/Projects/andes-rl-kundur/tmp/andes/r458_dev_shards.json",
+      "EVAL_SHARDS": "/mnt/e/Projects/andes-rl-kundur/tmp/andes/r458_eval_shards.json",
+      "LINE": "/mnt/e/Projects/andes-rl-kundur/paper/yang_md_decoupling_marl/LINE.md",
+      "OUT": "/mnt/e/Projects/andes-rl-kundur/results/research_loop/r458_dev_select_eval_validate",
+      "PLAN": "/mnt/e/Projects/andes-rl-kundur/memory/rounds/R458/plan.md",
+      "REHEARSAL": "/mnt/e/Projects/andes-rl-kundur/memory/rounds/R458/rehearsal.json",
+      "ROUND_ID": "R458",
+      "SEAL": "/mnt/e/Projects/andes-rl-kundur/memory/rounds/R458/formal_seal.json",
+      "SELECTION": "/mnt/e/Projects/andes-rl-kundur/results/research_loop/r458_dev_select_eval_validate/selection.json"
+    }
+  },
+  "written_utc": "2026-08-24T13:36:52.751145+00:00"
+}

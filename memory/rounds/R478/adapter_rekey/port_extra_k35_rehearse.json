@@ -1,0 +1,30 @@
+{
+  "adapter_round": "R478",
+  "adapter_sha256": "6959ccb7f42f481314eb2e35792a464df0acd93255a590590166c22d0afc9029",
+  "command": "rehearse",
+  "command_args": [],
+  "family": "port_extra_k35",
+  "parent_runner": "run_r415_energy_port_extra_banks.py",
+  "parent_sha256": "ac729240304cb1eb504e473673bd99d6a7d8d42fe2bc9d6c53d36a21ebba6fa3",
+  "rekey_snapshot": {
+    "after": {
+      "CAPACITY": "/mnt/e/Projects/andes-rl-kundur/memory/rounds/R478/capacity_r478_port_extra_k35.json",
+      "LINE": "/mnt/e/Projects/andes-rl-kundur/paper/yang_md_decoupling_marl/LINE.md",
+      "OUT": "/mnt/e/Projects/andes-rl-kundur/results/research_loop/r478_port_extra_k35",
+      "PLAN": "/mnt/e/Projects/andes-rl-kundur/memory/rounds/R478/plan.md",
+      "REHEARSAL": "/mnt/e/Projects/andes-rl-kundur/memory/rounds/R478/rehearsal_r478_port_extra_k35.json",
+      "ROUND_ID": "R478",
+      "SEAL": "/mnt/e/Projects/andes-rl-kundur/memory/rounds/R478/formal_seal_r478_port_extra_k35.json"
+    },
+    "before": {
+      "CAPACITY": "/mnt/e/Projects/andes-rl-kundur/memory/rounds/R415/capacity_evidence.json",
+      "LINE": "/mnt/e/Projects/andes-rl-kundur/paper/yang_md_decoupling_marl/LINE.md",
+      "OUT": "/mnt/e/Projects/andes-rl-kundur/results/research_loop/r415_energy_port_extra_banks",
+      "PLAN": "/mnt/e/Projects/andes-rl-kundur/memory/rounds/R415/plan.md",
+      "REHEARSAL": "/mnt/e/Projects/andes-rl-kundur/memory/rounds/R415/rehearsal.json",
+      "ROUND_ID": "R415",
+      "SEAL": "/mnt/e/Projects/andes-rl-kundur/memory/rounds/R415/formal_seal.json"
+    }
+  },
+  "written_utc": "2026-08-24T14:01:01.709057+00:00"
+}

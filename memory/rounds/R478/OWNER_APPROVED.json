@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "round": "R478",
+  "approved_by": "owner",
+  "approved_utc": "2026-08-24T16:09:12Z",
+  "approval_mode": "session approval after owner review gate (plan.md section 7)",
+  "scope": "Formal execution of the frozen R478 corrected-M/D revalidation program per memory/rounds/R478/plan.md: Phase 1 deterministic banks (zero, ninelaw, schedule, port_unseen, port_extra_k35, port_extra_k4, topology), GATE-1A/1B/1C, trace capture (1C), then round close with feed/claim/verdict. No post-approval source or contract change; no retune after evaluation visibility.",
+  "authority": "memory/rounds/R478/plan.md owner review gate; Codex review P0 launch-authority requirement"
+}

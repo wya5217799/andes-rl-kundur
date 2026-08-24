@@ -1,0 +1,30 @@
+{
+  "adapter_round": "R478",
+  "adapter_sha256": "670caefc84527f8962be8d47cd4f4de9e7f476a4ee24f2ecd19bad8487c68198",
+  "command": "measure-capacity",
+  "command_args": [],
+  "family": "topology",
+  "parent_runner": "run_r413_topology_robustness.py",
+  "parent_sha256": "60ed77ff0bccaa0ee1437ae0abe15e5f86d06ce5902e4ef846312ba523b7cd36",
+  "rekey_snapshot": {
+    "after": {
+      "CAPACITY": "/mnt/e/Projects/andes-rl-kundur/memory/rounds/R478/capacity_r478_topology_variants.json",
+      "LINE": "/mnt/e/Projects/andes-rl-kundur/paper/yang_md_decoupling_marl/LINE.md",
+      "OUT": "/mnt/e/Projects/andes-rl-kundur/results/research_loop/r478_topology_variants",
+      "PLAN": "/mnt/e/Projects/andes-rl-kundur/memory/rounds/R478/plan.md",
+      "REHEARSAL": "/mnt/e/Projects/andes-rl-kundur/memory/rounds/R478/rehearsal_r478_topology_variants.json",
+      "ROUND_ID": "R478",
+      "SEAL": "/mnt/e/Projects/andes-rl-kundur/memory/rounds/R478/formal_seal_r478_topology_variants.json"
+    },
+    "before": {
+      "CAPACITY": "/mnt/e/Projects/andes-rl-kundur/memory/rounds/R413/capacity_evidence.json",
+      "LINE": "/mnt/e/Projects/andes-rl-kundur/paper/yang_md_decoupling_marl/LINE.md",
+      "OUT": "/mnt/e/Projects/andes-rl-kundur/results/research_loop/r413_topology_robustness",
+      "PLAN": "/mnt/e/Projects/andes-rl-kundur/memory/rounds/R413/plan.md",
+      "REHEARSAL": "/mnt/e/Projects/andes-rl-kundur/memory/rounds/R413/rehearsal.json",
+      "ROUND_ID": "R413",
+      "SEAL": "/mnt/e/Projects/andes-rl-kundur/memory/rounds/R413/formal_seal.json"
+    }
+  },
+  "written_utc": "2026-08-24T13:24:43.238651+00:00"
+}

@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "round": "R478",
+  "created_utc": "2026-08-24T22:50:00+08:00",
+  "capacity_trace_role": "pre-launch ladder aggregate (per-family traces non-claim-bearing; selected budgets feed the formal launch contract)",
+  "host": {
+    "logical_processors": 32,
+    "physical_memory_bytes": 33518587904
+  },
+  "wsl": {
+    "memory_total_bytes": 29423165440,
+    "memory_available_bytes": 21858217984
+  },
+  "native_threads_per_process": 1,
+  "per_family": {
+    "zero": {
+      "source": "memory/rounds/R478/rehearsal_zero.json",
+      "sha256": "2a0c51b838f8f6e3c3b63c2752223afa70d4aca43a39786f4fabe7f79081c3e7",
+      "budget": {"workers": 1, "launcher_processes": 1, "note": "single-process trace bank"}
+    },
+    "ninelaw": {
+      "source": "memory/rounds/R478/capacity_r478_md_ninelaw.json",
+      "sha256": "2f40f57c6495f51df156b40e97c16023488befa83b294a102224e5be56df279c",
+      "selected": {"workers": 8, "launcher_processes": 1, "throughput_jobs_per_second": 1.4628414189335572, "reason": "12/16 rungs rejected by memory reserve guard"}
+    },
+    "schedule": {
+      "source": "memory/rounds/R478/capacity_r478_md_schedule.json",
+      "sha256": "71906888302a2d21751eb8697c01f6e65323d7693b68a98e7e9a3bf5dc193d8f",
+      "selected": {"workers": 16, "launcher_processes": 1, "throughput_jobs_per_second": 2.2435, "estimated_formal_seconds": 1872}
+    },
+    "port_extra_k35": {
+      "source": "memory/rounds/R478/capacity_r478_port_extra_k35.json",
+      "sha256": "29b8d7ab057e5c465164c05b7b7ecdc0edad264ea4a47707054c1fe7c1a8811b",
+      "selected": {"workers": null, "note": "see source file"}
+    },
+    "port_extra_k4": {
+      "source": "memory/rounds/R478/capacity_r478_port_extra_k4.json",
+      "sha256": "d4e37f469e2a17c0c04b57e95cc468effdd1e831f81b410dcc4426879c32e542",
+      "selected": {"workers": null, "note": "see source file"}
+    },
+    "topology": {
+      "source": "memory/rounds/R478/capacity_r478_topology_variants.json",
+      "sha256": "8705f9762a59a68402aa0ae59b2657d5cd347907d5a1f1bbc66e890187be7478",
+      "selected": {"workers": null, "note": "see source file"}
+    }
+  },
+  "readiness": "RUN-READY per per-family ladder records; formal dispatch must use each family's selected budget"
+}
