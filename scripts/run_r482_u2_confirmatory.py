@@ -398,6 +398,7 @@ def basegen() -> str:
 
 
 def base_audit() -> dict[str, Any]:
+    base.base.base.core._assert_wsl_scratch()
     if REHEARSAL.exists() or SEAL.exists():
         raise FileExistsError("base audit must precede R482 rehearsal/formal artifacts")
     errors: list[str] = []
@@ -1325,11 +1326,15 @@ def _profile_stress(arm: str, seed: int, stage: str, profile_id: str) -> float:
     )
     per_record = []
     for record in payload["records"]:
-        squares = [
-            float(np.mean(np.asarray(row["action_norm"], dtype=float) ** 2))
+        step_rms = [
+            float(
+                math.sqrt(
+                    np.mean(np.asarray(row["action_norm"], dtype=float) ** 2)
+                )
+            )
             for row in record["steps"]
         ]
-        per_record.append(float(np.mean(squares)))
+        per_record.append(float(np.mean(step_rms)))
     return float(np.mean(per_record))
 
 
@@ -1692,6 +1697,7 @@ def _main() -> int:
     elif args.command == "basegen":
         base.base.base.core.safe_emit(basegen())
     elif args.command == "route":
+        base.base.base.core._assert_wsl_scratch()
         payload = base.base.base.routing_gate()
         digest = base.base.base.core._write_new_json(ROUTING_GATE, payload)
         base.base.base.core.safe_emit(

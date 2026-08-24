@@ -121,7 +121,7 @@ def boundary_test_rows(
         )
         primary = (
             "signflip"
-            if (not exact_valid or skew > SYMMETRY_SKEW_THRESHOLD)
+            if (not exact_valid or abs(skew) > SYMMETRY_SKEW_THRESHOLD)
             else "wilcoxon"
         )
         rows[name] = {

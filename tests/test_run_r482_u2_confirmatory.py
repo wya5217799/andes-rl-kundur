@@ -247,6 +247,14 @@ def test_boundary_rows_skew_triggers_fallback():
     assert rows["critic_main"]["primary_test"] in ("wilcoxon", "signflip")
 
 
+def test_boundary_rows_negative_skew_triggers_fallback():
+    effects = _seed_effects_fixture()
+    effects["critic_main"][501] -= 40.0
+    rows = r482_analysis.boundary_test_rows(effects, math.log(1.10))
+    assert abs(rows["critic_main"]["symmetry_skew"]) > 1.0
+    assert rows["critic_main"]["primary_test"] == "signflip"
+
+
 def test_phase3_holm_decision():
     reproduced = r482_analysis.phase3_analysis(
         [0.1, 0.2, 0.3, 0.1, 0.2, 0.3], [0.4, 0.5, 0.6, 0.4, 0.5, 0.6]
