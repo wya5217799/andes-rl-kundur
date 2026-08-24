@@ -582,68 +582,69 @@ def rehearsal() -> dict[str, Any]:
     contract = build_contract()
     profile = next(p for p in contract["profiles"] if p["split"] == "development")
     scenario = profile["scenarios"][0]
-    env = core.r431._build_env(profile)
-    joints: list[np.ndarray] = []
-    rows_completed = 0
-    update_result: dict[str, float] | None = None
-    try:
-        observation = env.reset(delta_u=dict(scenario["delta_u"]))
-        previous_joint = np.zeros((4, 2), dtype=np.float32)
-        wrapper = core.FactorialWrapper("an_cp_r0")
-        for index, probe_member in enumerate(wrapper.agents):
-            probe_rng = np.random.default_rng(950 + index)
-            previous = np.zeros(2, dtype=np.float32)
-            for _ in range(probe_member.batch_size - 1):
-                aobs = probe_rng.normal(size=7).astype(np.float32)
-                cobs = probe_rng.normal(size=7).astype(np.float32)
-                raw = np.tanh(probe_rng.normal(size=2)).astype(np.float32)
-                executed = probe_member.execute_action(previous, raw)
-                probe_member.store_source_transition(
-                    aobs, cobs, previous, raw, executed, -0.1, aobs, cobs, False
+    with _terminal_guarded_environment():
+        env = core.r431._build_env(profile)
+        joints: list[np.ndarray] = []
+        rows_completed = 0
+        update_result: dict[str, float] | None = None
+        try:
+            observation = env.reset(delta_u=dict(scenario["delta_u"]))
+            previous_joint = np.zeros((4, 2), dtype=np.float32)
+            wrapper = core.FactorialWrapper("an_cp_r0")
+            for index, probe_member in enumerate(wrapper.agents):
+                probe_rng = np.random.default_rng(950 + index)
+                previous = np.zeros(2, dtype=np.float32)
+                for _ in range(probe_member.batch_size - 1):
+                    aobs = probe_rng.normal(size=7).astype(np.float32)
+                    cobs = probe_rng.normal(size=7).astype(np.float32)
+                    raw = np.tanh(probe_rng.normal(size=2)).astype(np.float32)
+                    executed = probe_member.execute_action(previous, raw)
+                    probe_member.store_source_transition(
+                        aobs, cobs, previous, raw, executed, -0.1, aobs, cobs, False
+                    )
+                    previous = executed
+            for _ in range(3):
+                joint = core.r431._joint_obs(observation)
+                joints.append(joint.reshape(4, core.base.OBS_DIM))
+                actor_rows = base.base.base.source_rows(joint, "N")
+                critic_rows = base.base.base.source_rows(joint, "P")
+                raw, executed = wrapper.act(actor_rows, previous_joint, deterministic=False)
+                observation, _reward, done, info = env.step(
+                    {i: executed[i] for i in range(4)}
                 )
-                previous = executed
-        for _ in range(3):
-            joint = core.r431._joint_obs(observation)
-            joints.append(joint.reshape(4, core.base.OBS_DIM))
-            actor_rows = base.base.base.source_rows(joint, "N")
-            critic_rows = base.base.base.source_rows(joint, "P")
-            raw, executed = wrapper.act(actor_rows, previous_joint, deterministic=False)
-            observation, _reward, done, info = env.step(
-                {i: executed[i] for i in range(4)}
-            )
-            next_joint = core.r431._joint_obs(observation)
-            joints.append(next_joint.reshape(4, core.base.OBS_DIM))
-            rewards = core.legacy.step_rewards(
-                joint,
-                np.asarray(info["delta_M"]),
-                np.asarray(info["delta_D"]),
-                reward_access=False,
-            )
-            penalized = _r482_penalized_step_rewards(
-                joint,
-                np.asarray(info["delta_M"]),
-                np.asarray(info["delta_D"]),
-                True,
-                executed,
-            )
-            wrapper.store(
-                actor_rows, critic_rows, previous_joint, raw, executed, rewards,
-                base.base.base.source_rows(next_joint, "N"),
-                base.base.base.source_rows(next_joint, "P"),
-                bool(done) or bool(info["tds_failed"]),
-            )
-            update_result = wrapper.update_all()
-            previous_joint = executed
-            rows_completed += 1
-            if rows_completed == 1:
-                checks["penalty_on_real_actions"] = {
-                    "penalty_term_nonpositive": bool(
-                        np.all(penalized <= rewards + 1e-9)
-                    ),
-                    "penalty_applied": bool(np.any(penalized < rewards)),
-                }
-    finally:
-        env.close()
+                next_joint = core.r431._joint_obs(observation)
+                joints.append(next_joint.reshape(4, core.base.OBS_DIM))
+                rewards = core.legacy.step_rewards(
+                    joint,
+                    np.asarray(info["delta_M"]),
+                    np.asarray(info["delta_D"]),
+                    reward_access=False,
+                )
+                penalized = _r482_penalized_step_rewards(
+                    joint,
+                    np.asarray(info["delta_M"]),
+                    np.asarray(info["delta_D"]),
+                    True,
+                    executed,
+                )
+                wrapper.store(
+                    actor_rows, critic_rows, previous_joint, raw, executed, rewards,
+                    base.base.base.source_rows(next_joint, "N"),
+                    base.base.base.source_rows(next_joint, "P"),
+                    bool(done) or bool(info["tds_failed"]),
+                )
+                update_result = wrapper.update_all()
+                previous_joint = executed
+                rows_completed += 1
+                if rows_completed == 1:
+                    checks["penalty_on_real_actions"] = {
+                        "penalty_term_nonpositive": bool(
+                            np.all(penalized <= rewards + 1e-9)
+                        ),
+                        "penalty_applied": bool(np.any(penalized < rewards)),
+                    }
+        finally:
+            env.close()
     checks["routing_check"] = base.base.base.routing_check(
         np.stack(joints), realized_slots=True
     )
