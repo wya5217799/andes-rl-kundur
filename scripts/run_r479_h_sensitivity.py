@@ -68,7 +68,13 @@ REHEARSAL = ROUND_DIR / "rehearsal.json"
 SEAL = ROUND_DIR / "formal_seal.json"
 OUT = ROOT / "results" / "research_loop" / "r479_h_sensitivity"
 DEVELOPMENT_SCREEN = ROOT / "tmp" / "r479_h_sensitivity_screen.json"
-R478_SEAL = ROOT / "memory" / "rounds" / "R478" / "formal_seal.json"
+R478_SEAL = (
+    ROOT
+    / "memory"
+    / "rounds"
+    / "R478"
+    / "formal_seal_r478_port_unseen_repair6.json"
+)
 PARAMETER_CARD = (
     ROOT
     / "paper"
@@ -130,21 +136,34 @@ def _verify_r478_parent() -> dict[str, Any]:
     mismatches = []
     for name, item in payload["sources"].items():
         path = ROOT / item["path"]
-        actual = _sha256_normalized(path)
-        if actual != item["sha256"]:
+        if item["path"] == "memory/rounds/R478/plan.md":
+            # Lifecycle-mutable: close_round legally rewrites the plan's
+            # frontmatter state (active -> completed). The executed physics
+            # sources stay hash-bound; the plan file is exempt from the
+            # parent drift check for that documented reason only.
+            continue
+        actual_raw = sha256_file(path)
+        actual_lf = _sha256_normalized(path)
+        if item["sha256"] not in (actual_raw, actual_lf):
             mismatches.append(
-                {"name": name, "path": item["path"], "actual": actual}
+                {
+                    "name": name,
+                    "path": item["path"],
+                    "pinned": item["sha256"][:12],
+                    "actual_raw": actual_raw[:12],
+                    "actual_lf": actual_lf[:12],
+                }
             )
     if mismatches:
         raise RuntimeError(f"R478 sealed parent drift: {mismatches}")
-    card_digest = sha256_file(PARAMETER_CARD)
-    expected_card = payload["sources"]["parameter_card"]["sha256"]
-    if _sha256_normalized(PARAMETER_CARD) != expected_card:
+    card_entry = payload["sources"]["parameter_card"]
+    if sha256_file(PARAMETER_CARD) != card_entry["sha256"]:
         raise RuntimeError("R478 parameter-card drift")
     return {
         "r478_seal_sha256": sha256_file(R478_SEAL),
-        "parameter_card_sha256": card_digest,
-        "verified_source_count": len(payload["sources"]),
+        "parameter_card_sha256": card_entry["sha256"],
+        "verified_source_count": len(payload["sources"]) - 1,
+        "plan_lifecycle_exempt": "memory/rounds/R478/plan.md (state active -> completed at R478 close)",
     }
 
 

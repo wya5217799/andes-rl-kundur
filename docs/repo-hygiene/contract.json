@@ -3,6 +3,7 @@
  "baseline": "docs/repo-hygiene/baseline.json",
  "root": {
   "allowed": [
+   ".codex",
    ".gitattributes",
    ".gitignore",
    ".github",

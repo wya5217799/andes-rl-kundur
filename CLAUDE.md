@@ -54,9 +54,9 @@
 
 ## Read first (会话启动)
 
-冷启动跑 `python memory/tools/session_context.py --json` (点名手稿
-`--line <id>`, 未知 id 先 `--list-lines`), 只读它返回的 bounded
-`required_reading`; 完整步骤 canonical 在 `skills/kundur-round/SKILL.md` §1.
+会话 lane 与长任务授权 canonical 在 `AGENTS.md`; FAST 仅当 line/round 决定
+答案时跑 `memory/tools/session_context.py`. STANDARD/FORMAL 跑一次并只读 bounded
+`required_reading`; FORMAL 完整步骤在 `skills/kundur-round/SKILL.md` §1.
 
 - `memory/STATE.md` 是自动渲染 oracle, 需要全局状态时按需读, 永不手改.
 - 老上下文用 `python memory/tools/note_query.py --topic <t> [--grep <kw>]`,
@@ -129,9 +129,8 @@
   `MSYS_NO_PATHCONV=1`). Windows 侧 ANDES 是历史误装, 别用.
 - **ANDES 工作目录隔离**: 统一经 `scripts/andes_scratch.py` 启动, scratch 住
   `tmp/andes/`; 禁止仓库根直跑留 `kundur_full_out.*`.
-- **长命令后台跑**: 预计 >5min 的 ANDES/train/eval 必须后台 job, 禁止同步阻塞
-  (10min wall-clock ceiling, 撞了白跑). 后台后不轮询、等完成通知. 启动多小时
-  仿真前先确认它确为当前 round 所需 — 误判长任务 = 最大浪费.
+- **长命令后台跑**: 先满足 `AGENTS.md` LONG-AUTH; 获授权后, >5min 的
+  ANDES/train/eval 后台跑且不轮询; 多小时仿真先确认属当前 round.
 - **默认 env: `andes_vsg_env_v4`** (paper-faithful, ZERO_G4_INERTIA=True).
   V5 (REGCA1) 是 paper-deviation, opt-in only (ADR-0004).
 - **改 env / train.py 前**必读 `docs/eng-notes/NOTES_ANDES.md`.
