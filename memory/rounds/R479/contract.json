@@ -1,0 +1,94 @@
+{
+  "schema_version": 1,
+  "round": "R479",
+  "factor": "uniform-device-base-H0",
+  "h_levels_device_s": [
+    10.0,
+    100.0,
+    300.0
+  ],
+  "d0_device": 100.0,
+  "zero_action": true,
+  "steps": 150,
+  "short_window_steps": 30,
+  "dt_s": 0.2,
+  "seed": 42,
+  "cells": [
+    {
+      "cell_id": "h10_ls1",
+      "h_device_s": 10.0,
+      "m_device_s": 20.0,
+      "d_device": 100.0,
+      "scenario_id": "ls1",
+      "delta_u": {
+        "PQ_Bus14": -2.48
+      }
+    },
+    {
+      "cell_id": "h10_ls2",
+      "h_device_s": 10.0,
+      "m_device_s": 20.0,
+      "d_device": 100.0,
+      "scenario_id": "ls2",
+      "delta_u": {
+        "PQ_Bus15": 1.88
+      }
+    },
+    {
+      "cell_id": "h100_ls1",
+      "h_device_s": 100.0,
+      "m_device_s": 200.0,
+      "d_device": 100.0,
+      "scenario_id": "ls1",
+      "delta_u": {
+        "PQ_Bus14": -2.48
+      }
+    },
+    {
+      "cell_id": "h100_ls2",
+      "h_device_s": 100.0,
+      "m_device_s": 200.0,
+      "d_device": 100.0,
+      "scenario_id": "ls2",
+      "delta_u": {
+        "PQ_Bus15": 1.88
+      }
+    },
+    {
+      "cell_id": "h300_ls1",
+      "h_device_s": 300.0,
+      "m_device_s": 600.0,
+      "d_device": 100.0,
+      "scenario_id": "ls1",
+      "delta_u": {
+        "PQ_Bus14": -2.48
+      }
+    },
+    {
+      "cell_id": "h300_ls2",
+      "h_device_s": 300.0,
+      "m_device_s": 600.0,
+      "d_device": 100.0,
+      "scenario_id": "ls2",
+      "delta_u": {
+        "PQ_Bus15": 1.88
+      }
+    }
+  ],
+  "h300_semantics": "stress-point-not-paper-bound",
+  "materiality_fraction": 0.1,
+  "settling_band_hz": 0.02,
+  "frequency_coordinates": {
+    "primary": "controller-50-Hz-paper-coordinate",
+    "secondary": "ANDES-physical-frequency-coordinate",
+    "pooled": false
+  },
+  "claim_boundary": {
+    "open_loop_h_sensitivity": true,
+    "damping_realism": false,
+    "controller_ordering": false,
+    "learning_robustness": false,
+    "stability_certificate": false,
+    "yang_baseline_reproduction": false
+  }
+}

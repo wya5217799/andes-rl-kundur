@@ -1,0 +1,7 @@
+{
+  "approved": true,
+  "date": "2026-08-24",
+  "round": "R479",
+  "scope": "corrected-card H0=10/100/300 s zero-action LS1/LS2 sensitivity with short and long windows",
+  "source": "owner message in current task: allows adding and running the short CPU-available validation"
+}

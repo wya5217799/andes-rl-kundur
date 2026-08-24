@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "round": "R479",
+  "whole_host_python_process_budget": 7,
+  "host": {
+    "logical_processors": 32,
+    "physical_memory_bytes": 33518587904,
+    "free_physical_memory_bytes_at_measurement": 5658296320,
+    "cpu_load_percent_at_measurement": 13
+  },
+  "wsl": {
+    "memory_total_bytes": 29423165440,
+    "memory_available_bytes": 22123642880
+  },
+  "empirical_anchor": {
+    "source": "memory/rounds/R478/capacity_r478_md_ninelaw.json",
+    "source_sha256": "2f40f57c6495f51df156b40e97c16023488befa83b294a102224e5be56df279c",
+    "same_corrected_andes_family": true,
+    "all_records_valid": true,
+    "concurrent_workers": 9,
+    "native_threads_per_worker": 1
+  },
+  "selected": {
+    "workers": 6,
+    "launcher_processes": 1,
+    "reason": "one worker per independent cell; additional workers would have no unique job"
+  }
+}
