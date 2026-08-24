@@ -176,6 +176,8 @@ locator before calling these artifacts durably archived.
 | R478 | `results/research_loop/r478_port_unseen/` | `formal_analysis.json` | `a1b49eb024b1f7a61d13ab33d1ee83de14b94bf37d6e97fc1eabc10c42149c36` |
 | R478 | `results/research_loop/r478_port_extra_k35/` | `formal_analysis.json` | `0eba2bd6048688d98c8a2e635bd4ca0f987f50b813260ef1c3eb950423372c39` |
 | R478 | `results/research_loop/r478_port_extra_k4/` | `formal_analysis.json` | `fe952efd921242d424dbcd0997e5496acb1e03da47f3275f76709228e7cdf5a3` |
+| R480 | `results/research_loop/r480_h_sensitivity/` | `analysis.json` | `83c4f0bdbcbdd02e7062af3d2c5c53ab8109b40192f26e3d4742bba8313631f5` |
+| R481 | `results/research_loop/r481_direct_md/` | `formal_analysis.json` | `d6de9e9830421c39c49f0c80f76ee68f106f5c1cb47dd4271c091e30106c5db8` |
 
 The one hundred and eleven roots currently occupy 8,581,672,997 bytes. R286, R287, R291, R292,
 R294, R295, R296, R297, R298, R299, and R300 raw traces remain ignored; their retained trace hashes are indexed by
