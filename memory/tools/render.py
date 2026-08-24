@@ -360,7 +360,8 @@ def _format_headline_line(claim: dict[str, Any]) -> str:
     statement = (claim.get("statement") or "").strip().splitlines()[0]
     round_label = claim.get("round")
     suffix = f" ({round_label})" if round_label else ""
-    return f"- {cid} [{trust}] {statement}{suffix}"
+    marker = " [SUSPECT]" if claim.get("suspect") else ""
+    return f"- {cid}{marker} [{trust}] {statement}{suffix}"
 
 
 def _format_open_q_line(q: dict[str, Any]) -> str:
@@ -653,6 +654,26 @@ def render_state(
     else:
         lines.append("(none)")
     lines.append("")
+
+    # 1b. Suspect claims (R478 M/D base-convention invalidation): the
+    # evidence object (pre-R478 V4 env) is invalid; numbers must not be
+    # cited as evidence until corrected revalidation replaces them.
+    suspect_claims = [c for c in claims if c.get("suspect")]
+    if suspect_claims:
+        lines.append("## Suspect Claims (evidence object invalid)")
+        lines.append("")
+        lines.append(
+            f"{len(suspect_claims)} current claims flagged by the R478 M/D "
+            "base-convention invalidation; do not cite as evidence until "
+            "corrected revalidation replaces them. Full inventory: "
+            "`paper/yang_md_decoupling_marl/working/"
+            "affected_claims_inventory_20260824.md`"
+        )
+        for c in sorted(suspect_claims, key=lambda c: c["id"])[:15]:
+            lines.append(f"- {c['id']} [{c.get('round', '?')}]")
+        if len(suspect_claims) > 15:
+            lines.append(f"- ... ({len(suspect_claims) - 15} more)")
+        lines.append("")
 
     # 2. In-Flight (state-aware split: 在跑 / 排队 / ⚠️ stale)
     def _fmt_round_line(d: Path) -> str:

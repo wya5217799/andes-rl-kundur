@@ -77,6 +77,39 @@ def test_v5_heterogeneous_d_write_is_system_base(config: V5Config) -> None:
         env.close()
 
 
+@pytest.mark.xfail(
+    strict=False,
+    reason=(
+        "full regca1 (both plants) path is documented as practically "
+        "unusable in this ANDES case; the L292 write is fixed and verified "
+        "post-owner-approval"
+    ),
+)
+def test_v5_full_regca1_path_heterogeneous_d_write() -> None:
+    """The full-regca1 build path must also convert D0_HETEROGENEOUS."""
+    from andes_rl_kundur.env.andes.v5_config import V5Config
+
+    env = AndesMultiVSGEnvV5(
+        config=V5Config.v5_regca1_both(),
+        random_disturbance=False,
+        comm_fail_prob=0.0,
+    )
+    try:
+        env.seed(42)
+        env.reset(delta_u=SCENARIOS["load_step_1"])
+        positions = env._vsg_pos
+        d_runtime = np.asarray(
+            [env.ss.GENCLS.D.v[p] for p in positions], dtype=float
+        )
+        expected = device_to_system(
+            np.asarray(env.D0_HETEROGENEOUS, dtype=float),
+            device_mva=env.VSG_SN,
+        )
+        np.testing.assert_allclose(d_runtime, expected, atol=1e-9, rtol=0)
+    finally:
+        env.close()
+
+
 def test_distributed_residual_readback_is_device_base() -> None:
     """The residual wrapper must return M/D in device-base model units."""
     base = AndesMultiVSGEnvV4(random_disturbance=False, comm_fail_prob=0.0)

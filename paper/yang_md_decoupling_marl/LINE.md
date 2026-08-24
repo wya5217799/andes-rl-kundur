@@ -2,7 +2,7 @@
 line_id: yang-md-decoupling-marl
 status: active
 priority: 4
-stage: experiment-revalidation-pre-launch-build
+stage: experiment-revalidation-owner-review
 artifact_manifest: paper/yang_md_decoupling_marl/ARTIFACTS.json
 scope:
   write_roots: [paper/yang_md_decoupling_marl]

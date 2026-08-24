@@ -55,6 +55,24 @@ R478 freezes a project-calibration parameter card with an explicit non-Yang prov
 7. Under the current bounded authorization, run only the zero-family final-source capacity ladder (1/2/4/8/12/16 workers, exactly 32 representative jobs per rung, borderline 3%-7% gain remeasured once), then the serial semantic rehearsal through the same pre-attempt path. No corrected deterministic bank or baseline is opened by this authorization.
 8. STOP — owner formal gate. Every execution command verifies a hashed owner-approval artifact whose per-family entry equals the current seal hash. No formal attempt, retry, or result inspection exists before that check passes.
 
+## Codex review intake (2026-08-24)
+
+Frozen range reviewed by Codex: NOT-APPROVED; every finding below is addressed in this round:
+
+- P0 formal-execution seal/owner gate: code-enforced via `_require_launch_authority` (seal command + OWNER_APPROVED marker) blocking all physical commands.
+- P1 frozen R453 runner mutated: reverted to byte-identical; the v4-env drift contract now lives in the R453 test layer (exact-drift pin + strict xfail for the blocked inventory test).
+- P1 regression baseline missing -> silent skip: corrected baselines committed as test fixtures under `tests/fixtures/eval_v4_baseline_R478/`; missing fixture now FAILS the gate.
+- P1 failure-step telemetry untruthful: `base_env.step` now reads back the actual runtime M/D after the substep loop; `_prev_M/_prev_D` and `M_es/D_es` telemetry derive from readback (unchanged on success paths).
+- P1 scope pollution in the first R478 commit: the manuscript/supplement/figure files swept by the governance-clearing commit are registered verbatim from the prior planning session; documented here, never part of the scientific change; future commits carry only R478-owned paths.
+- P1 adapter exceeded thin-adapter duty: zero-family scientific logic moved to `src/andes_rl_kundur/evaluation/r478_zero_action.py`; the runner only dispatches.
+- P2 CRLF hashing: parent-source hashes are now LF-normalized (CRLF checkouts verify identically).
+- P2 test gaps: V5 full-regca1 branch test added (non-strict xfail, documented as practically unusable until post-approval verification); substep-level slew observation left to the bank record loops (declared).
+- Accepted, no code change: pre-ruling capacity/rehearsal artifacts stay as development evidence (non-claim-bearing, pre-approval); no further ANDES execution before owner approval.
+
+The later `repair3` amendment above supersedes the original global seal/approval
+mechanism described in this review intake: authority is now command-scoped and
+bound to the exact per-family seal hash.
+
 ## Gate
 
 - INVARIANT-GATE: all seven 0C invariants green before any simulator bank; any failure = engineering invalidity, no scientific run follows.

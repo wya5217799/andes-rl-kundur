@@ -80,17 +80,19 @@ class _FakeStorageEnv:
         action_array = np.stack(
             [self.last_md_actions[index] for index in range(4)]
         )
-        m_device = 200.0 + 600.0 * action_array[:, 0]
-        d_device = 100.0 + 600.0 * action_array[:, 1]
-        self.ss.GENCLS.M.v[:] = 2.0 * m_device
-        self.ss.GENCLS.D.v[:] = 2.0 * d_device
+        # R478 corrected convention: runtime arrays are system-base (2x the
+        # device-base commands); telemetry stays device-base.
+        device_m = 200.0 + 600.0 * action_array[:, 0]
+        device_d = 100.0 + 600.0 * action_array[:, 1]
+        self.ss.GENCLS.M.v[:] = 2.0 * device_m
+        self.ss.GENCLS.D.v[:] = 2.0 * device_d
         info = {
             "freq_hz_physical": self.get_vsg_frequency_physical_hz(),
             "omega_dot": self._compute_omega_dot(self._omega, self._power),
             "andes_nominal_frequency_hz": 60.0,
             "P_es": self._power.copy(),
-            "M_es": m_device.copy(),
-            "D_es": d_device.copy(),
+            "M_es": device_m.copy(),
+            "D_es": device_d.copy(),
         }
         return {}, {}, self._steps >= self.STEPS_PER_EPISODE, info
 

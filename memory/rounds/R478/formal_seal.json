@@ -1,0 +1,84 @@
+{
+  "authority": "Frozen pre-launch program. Physical execution is blocked until OWNER_APPROVED.json exists (owner review gate, Codex review P0).",
+  "created_utc": "2026-08-24T14:12:33.249942+00:00",
+  "round": "R478",
+  "schema_version": 1,
+  "sources": {
+    "adapter": {
+      "path": "scripts/run_r478_md_revalidation.py",
+      "sha256": "093e7db78f99abaef932d7455113d78f8e7bc081e141e9bc690f89e3cc39e3e8"
+    },
+    "adapter_tests": {
+      "path": "tests/test_run_r478_md_revalidation.py",
+      "sha256": "9b80c8b79bbda53c1df610ceb2aeffccc0df2ddc932606dcc0b4a7a9d33f4607"
+    },
+    "base_env": {
+      "path": "src/andes_rl_kundur/env/andes/base_env.py",
+      "sha256": "fb3f5045bca58436039825011e292418d132681ff1e5b11032a2a317ef05b2e2"
+    },
+    "distributed_residual_env": {
+      "path": "src/andes_rl_kundur/env/andes/distributed_residual_env.py",
+      "sha256": "5f3b40d8c21b3c70ffe24489fd4fb75400fb8d8df5add6b71f6777a22058ff40"
+    },
+    "extras_tests": {
+      "path": "tests/test_v4_md_convention_extras.py",
+      "sha256": "f9b2f46d93044cd52e66a5bab883ee149f33bf23b3fd1a70712f292447a5f168"
+    },
+    "invariant_tests": {
+      "path": "tests/test_v4_md_convention_invariants.py",
+      "sha256": "dd56426a981833b92fc07e12d0346d9108df2c4784b1c16ea07446ead179b2c9"
+    },
+    "md_convention": {
+      "path": "src/andes_rl_kundur/env/andes/md_convention.py",
+      "sha256": "545a4ff044fc13d6db683f0652e2cd050fd626b83bb5798d6e52220e3d969222"
+    },
+    "parameter_card": {
+      "path": "paper/yang_md_decoupling_marl/working/md_parameter_card_20260824.json",
+      "sha256": "016eddb3ca1d27c3efcc42a82285e13844e64d33709b848c4ce7a06b941b9fb3"
+    },
+    "plan": {
+      "path": "memory/rounds/R478/plan.md",
+      "sha256": "60880397ca43f1ac345d97ddf262a17c4f1e38217ec624c807c8fcccbd5f3cd3"
+    },
+    "regression_tests": {
+      "path": "tests/test_v4_env_regression.py",
+      "sha256": "01204e50577a408e7cee0b29c3a61e289b6bc49ababd20394b033e8de638e070"
+    },
+    "run_r409_heldout_gate.py": {
+      "path": "scripts/run_r409_heldout_gate.py",
+      "sha256": "14f012278c7f725566c7c6540b8bc5e81240be1f7cc70f31b1d022ea2da2f000"
+    },
+    "run_r413_topology_robustness.py": {
+      "path": "scripts/run_r413_topology_robustness.py",
+      "sha256": "2e1482d5250db64817654661cac18c6126b440eb6d84642ba93406d6fb6125f0"
+    },
+    "run_r415_energy_port_extra_banks.py": {
+      "path": "scripts/run_r415_energy_port_extra_banks.py",
+      "sha256": "df84af97ef1bb0f94c42a4653ca05641ebd1ec414edae6d4dcc8bd17599f2dac"
+    },
+    "run_r416_headroom_expansion.py": {
+      "path": "scripts/run_r416_headroom_expansion.py",
+      "sha256": "16869b415df14e1942bd20ba0ff8d68558494846bc15c1dd3924a5685dd56a29"
+    },
+    "run_r417_energy_port_banks_k4.py": {
+      "path": "scripts/run_r417_energy_port_banks_k4.py",
+      "sha256": "261046f49dda728982fa0015db9ffe1e3340b9944f5fded9cabbbb2c6ef7b7c5"
+    },
+    "run_r458_dev_select_eval_validate.py": {
+      "path": "scripts/run_r458_dev_select_eval_validate.py",
+      "sha256": "5be961a71defa2238cacf9685bf8875a1f9202d54d5134fce4b7f9d79ec883c8"
+    },
+    "v4_environment": {
+      "path": "src/andes_rl_kundur/env/andes/andes_vsg_env_v4.py",
+      "sha256": "4d7eb11fe815ce6079dacd453c430cddbbb705ebba848daae7569c822df86fc0"
+    },
+    "v5_environment": {
+      "path": "src/andes_rl_kundur/env/andes/andes_vsg_env_v5.py",
+      "sha256": "3840635680cfbdd29d0dc3c5007e94bdf1b1f7c3544dd3decdfd9609dd097a3b"
+    },
+    "zero_action_module": {
+      "path": "src/andes_rl_kundur/evaluation/r478_zero_action.py",
+      "sha256": "fc0f247746273efa563b4c6aa80081bc2916e834f54defe12e851e6847be7a34"
+    }
+  }
+}

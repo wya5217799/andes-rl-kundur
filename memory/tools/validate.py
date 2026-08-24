@@ -992,6 +992,30 @@ def validate_rules(
                 f"{claim['id']}: status=obsoleted requires 'obsoleted_reason' field"
             )
 
+    # Rule 8 (R478 suspect marker): ``suspect: true`` flags a claim whose
+    # evidence object was invalidated but that has no replacement evidence
+    # yet. Requires suspect_round + suspect_reason; status must stay
+    # ``current`` until a correction/obsoletion flips it (Q-closure
+    # back-references and current-claim filters rely on status=current).
+    for claim in claims.values():
+        if not claim.get("suspect"):
+            continue
+        if not claim.get("suspect_round"):
+            errors.append(
+                f"{claim['id']}: suspect=true requires 'suspect_round' field"
+            )
+        reason = claim.get("suspect_reason")
+        if not reason or not str(reason).strip():
+            errors.append(
+                f"{claim['id']}: suspect=true requires non-empty "
+                f"'suspect_reason' field"
+            )
+        if claim.get("status") != "current":
+            errors.append(
+                f"{claim['id']}: suspect=true requires status: current "
+                f"(use superseded/obsoleted for terminal states)"
+            )
+
     # Rule 5 (R50 opt I): structured ``metric`` field, if present, must
     # carry ``name: str`` and a numeric ``value`` so STATE.md's
     # leaderboard (H) can sort + display deterministically.
