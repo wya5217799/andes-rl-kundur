@@ -23,11 +23,12 @@ from collections import deque
 
 import numpy as np
 
-from andes_rl_kundur.scenarios.contract import KUNDUR as _DEFAULT_CONTRACT
 from andes_rl_kundur.env.andes.md_convention import (
     SYSTEM_BASE_MVA,
     device_to_system,
+    system_to_device,
 )
+from andes_rl_kundur.scenarios.contract import KUNDUR as _DEFAULT_CONTRACT
 
 
 class AndesBaseEnv(ABC):
@@ -413,9 +414,15 @@ class AndesBaseEnv(ABC):
                 tds_failed = True
                 break
 
-        # 更新 prev M/D (系统基准; 无论是否 TDS 失败, 下次 reset 会重置)
-        self._prev_M = M_new_sys.copy()
-        self._prev_D = D_new_sys.copy()
+        # R478: 遥测必须真实. TDS 中途失败时运行时只推进到最后一个成功
+        # 子步; 用读回的实际运行时值作为 prev 锚点, 遥测按设备基准报告
+        # (成功路径上读回 == 目标, 数值与旧行为一致).
+        self._prev_M = np.asarray(
+            [self.ss.GENCLS.M.v[pos] for pos in self._vsg_pos], dtype=float)
+        self._prev_D = np.asarray(
+            [self.ss.GENCLS.D.v[pos] for pos in self._vsg_pos], dtype=float)
+        reported_M = system_to_device(self._prev_M, device_mva=self.VSG_SN)
+        reported_D = system_to_device(self._prev_D, device_mva=self.VSG_SN)
 
         self.step_count += 1
 
@@ -505,8 +512,8 @@ class AndesBaseEnv(ABC):
             "omega": omega.copy(),
             "omega_dot": omega_dot.copy(),
             "P_es": P_es.copy(),
-            "M_es": M_new.copy(),
-            "D_es": D_new.copy(),
+            "M_es": reported_M,
+            "D_es": reported_D,
             "delta_M": delta_M.copy(),
             "delta_D": delta_D.copy(),
             "r_f": r_f_sum,

@@ -1,7 +1,8 @@
-"""R478 adapter offline tests — rekey machinery, family table, zero contract.
+"""R478 adapter offline tests — rekey machinery, family table, launch gates.
 
-No ANDES import: these tests verify the thin-adapter identity layer on
-any platform. Physical phases stay WSL-only.
+No ANDES import: these tests verify the thin-adapter identity layer and
+the seal/owner launch gates on any platform. Physical phases stay
+WSL-only and are additionally blocked until owner approval.
 """
 
 from __future__ import annotations
@@ -26,6 +27,10 @@ assert SPEC is not None and SPEC.loader is not None
 RUNNER = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(RUNNER)
 
+from andes_rl_kundur.evaluation.r478_zero_action import (  # noqa: E402
+    build_contract as zero_build_contract,
+)
+
 
 def _load_parent(name: str):
     spec = importlib.util.spec_from_file_location(
@@ -45,7 +50,7 @@ def test_family_table_parents_exist_and_hashes_frozen() -> None:
         parent_name = str(cfg["parent"])
         parent_path = ROOT / "scripts" / parent_name
         assert parent_path.is_file(), f"missing parent runner: {parent_name}"
-        assert RUNNER.PARENT_SHA256[parent_name] == RUNNER._sha256_file(
+        assert RUNNER.PARENT_SHA256[parent_name] == RUNNER._sha256_normalized(
             parent_path
         ), f"parent hash drift: {parent_name}"
     out_names = [str(cfg["out"]) for cfg in RUNNER.FAMILIES.values()]
@@ -82,6 +87,39 @@ def test_parent_source_drift_is_rejected(tmp_path: Path) -> None:
         RUNNER._verify_parent_source("run_r416_headroom_expansion.py", fake)
 
 
+def test_normalized_hashing_is_crlf_insensitive(tmp_path: Path) -> None:
+    lf = tmp_path / "lf.txt"
+    crlf = tmp_path / "crlf.txt"
+    lf.write_bytes(b"hello\nworld\n")
+    crlf.write_bytes(b"hello\r\nworld\r\n")
+    assert RUNNER._sha256_normalized(lf) == RUNNER._sha256_normalized(crlf)
+
+
+def test_launch_gate_blocks_physical_commands_without_owner_approval(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    monkeypatch.setattr(RUNNER, "SEAL_PATH", tmp_path / "formal_seal.json")
+    monkeypatch.setattr(RUNNER, "APPROVAL_PATH", tmp_path / "OWNER_APPROVED.json")
+    with pytest.raises(RuntimeError, match="seal missing"):
+        RUNNER._require_launch_authority()
+    (tmp_path / "formal_seal.json").write_text("{}\n", encoding="utf-8")
+    with pytest.raises(RuntimeError, match="owner approval missing"):
+        RUNNER._require_launch_authority()
+    (tmp_path / "OWNER_APPROVED.json").write_text("{}\n", encoding="utf-8")
+    RUNNER._require_launch_authority()  # both present -> pass
+
+
+def test_gated_commands_refuse_before_approval(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    monkeypatch.setattr(RUNNER, "SEAL_PATH", tmp_path / "formal_seal.json")
+    monkeypatch.setattr(RUNNER, "APPROVAL_PATH", tmp_path / "OWNER_APPROVED.json")
+    with pytest.raises(RuntimeError, match="seal missing"):
+        RUNNER.main(["zero", "execute"])
+    with pytest.raises(RuntimeError, match="seal missing"):
+        RUNNER.main(["port_unseen", "rehearse"])
+
+
 def test_rekey_sidecar_records_identity_and_is_idempotent(tmp_path: Path) -> None:
     common = dict(
         parent_name="run_r416_headroom_expansion.py",
@@ -96,12 +134,10 @@ def test_rekey_sidecar_records_identity_and_is_idempotent(tmp_path: Path) -> Non
     assert payload["adapter_round"] == "R478"
     assert payload["family"] == "ninelaw"
     assert payload["parent_sha256"].startswith("16869b41")
-    # Byte-identical re-dispatch (resume re-entry) is a no-op.
     again = RUNNER._write_rekey_sidecar(
         family="ninelaw", command="shards", command_args=(), **common
     )
     assert again == sidecar
-    # Different command gets its own sidecar; content mismatch is refused.
     other = RUNNER._write_rekey_sidecar(
         family="ninelaw", command="shard",
         command_args=("local_neighbour_md_km1_kd1",), **common
@@ -150,10 +186,14 @@ def test_command_vocabulary_and_translation() -> None:
     assert "inventory" in RUNNER.FAMILY_COMMANDS["topology"]
     assert "execute" in RUNNER.FAMILY_COMMANDS["zero"]
     assert "shard" in RUNNER.FAMILY_COMMANDS["topology"]
+    assert RUNNER.OWNER_GATED_COMMANDS["zero"] == frozenset(
+        {"rehearse", "execute"}
+    )
+    assert "prepare" not in RUNNER.OWNER_GATED_COMMANDS["ninelaw"]
 
 
 def test_zero_contract_freezes_registered_scenarios() -> None:
-    contract = RUNNER._zero_contract()
+    contract = zero_build_contract()
     assert contract["round"] == "R478"
     assert contract["seed"] == 42
     assert contract["n_steps"] == 30
@@ -161,13 +201,3 @@ def test_zero_contract_freezes_registered_scenarios() -> None:
     assert [sc["id"] for sc in contract["scenarios"]] == ["ls1", "ls2"]
     assert contract["scenarios"][0]["delta_u"] == {"PQ_Bus14": -2.48}
     assert contract["scenarios"][1]["delta_u"] == {"PQ_Bus15": +1.88}
-
-
-def test_zero_prepare_writes_create_only_contract(tmp_path: Path) -> None:
-    digest = RUNNER._zero_prepare(tmp_path)
-    contract_path = tmp_path / "contract.json"
-    assert contract_path.is_file()
-    assert (tmp_path / "contract.json.sha256").is_file()
-    assert digest == RUNNER._sha256_file(contract_path)
-    with pytest.raises(FileExistsError):
-        RUNNER._zero_prepare(tmp_path)

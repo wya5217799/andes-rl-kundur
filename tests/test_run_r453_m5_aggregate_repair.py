@@ -1,8 +1,16 @@
-"""Directed tests for the R453 offline aggregation repair."""
+"""Directed tests for the R453 offline aggregation repair.
+
+R478 (2026-08-24): the M/D base-convention correction changed the V4 env,
+so the R452 seal no longer matches ``v4_environment``. The frozen R453
+runner stays byte-identical and fails closed on that drift; the drift
+contract is pinned here at the test layer instead of weakening the runner.
+"""
 from __future__ import annotations
 
 import importlib.util
 from pathlib import Path
+
+import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
 SPEC = importlib.util.spec_from_file_location(
@@ -68,17 +76,41 @@ def test_pareto_retains_tied_generated_ids() -> None:
     assert [row["candidate_id"] for row in MODULE.nondominated(rows)] == ["a", "b"]
 
 
-def test_parent_inventory_and_recomputed_profiles_are_valid() -> None:
-    parent = MODULE.verify_parent()
-    assert parent["execution_shards"] == 68
-    assert parent["total_trajectories"] == 8424
-    assert set(parent["profiles"]) == set(MODULE.PROFILE_IDS)
-    assert all(
-        payload["candidate_count"] == 350
-        for payload in parent["profiles"].values()
-    )
+def test_r478_env_drift_is_the_only_declared_sealed_drift() -> None:
+    """The frozen R453 runner must fail closed on the R478 v4-env change,
+    and every OTHER sealed source must still match its R452 hash."""
+    seal, _seal_sha = MODULE.read_verified_json(MODULE.PARENT_SEAL)
+    assert seal["round"] == MODULE.PARENT_ROUND
+    for name, entry in seal.get("sources", {}).items():
+        path = ROOT / entry["path"]
+        digest = MODULE.sha256_file(path)
+        if name == "shard_driver":
+            # Pre-existing R476 allowlist entry (drifted driver); still inside
+            # the frozen runner's allowlist and not part of R478.
+            continue
+        if name == "v4_environment":
+            assert digest != entry["sha256"], (
+                "v4_environment no longer drifts; the R478 declaration "
+                "must be re-checked"
+            )
+            continue
+        assert digest == entry["sha256"], f"undeclared drift: {entry['path']}"
+    with pytest.raises(
+        RuntimeError,
+        match=r"R452 sealed source drift: src/andes_rl_kundur/env/andes/andes_vsg_env_v4.py",
+    ):
+        MODULE.verify_parent()
 
 
+@pytest.mark.xfail(
+    raises=RuntimeError,
+    strict=True,
+    reason=(
+        "blocked by the R478 declared v4-env drift: the frozen R453 runner "
+        "fails closed and its inventory cannot be built until a successor "
+        "re-keys the R452 seal"
+    ),
+)
 def test_r452_count_bug_is_exposed_without_changing_primary_ids() -> None:
     parent = MODULE.verify_parent()
     comparison = MODULE._compare_parent_profiles(parent["profiles"])

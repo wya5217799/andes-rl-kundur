@@ -110,14 +110,15 @@ class DistributedVectorResidualEnv:
             raise RuntimeError("VSG M/D readback must contain exactly four devices")
         if not np.all(np.isfinite(actual_m_sys)) or not np.all(np.isfinite(actual_d_sys)):
             raise RuntimeError("VSG M/D readback must be finite")
+        device_mva = float(getattr(self.base_env, "VSG_SN", 200.0))
         actual_m = system_to_device(
             actual_m_sys,
-            device_mva=self.base_env.VSG_SN,
+            device_mva=device_mva,
             system_mva=SYSTEM_BASE_MVA,
         )
         actual_d = system_to_device(
             actual_d_sys,
-            device_mva=self.base_env.VSG_SN,
+            device_mva=device_mva,
             system_mva=SYSTEM_BASE_MVA,
         )
         return actual_m, actual_d

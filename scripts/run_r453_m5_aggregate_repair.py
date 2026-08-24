@@ -284,16 +284,6 @@ def verify_parent() -> dict[str, Any]:
                 # is recorded and does not invalidate the parent inventory.
                 shared_infra_drift.append(entry["path"])
                 continue
-            if name == "v4_environment":
-                # Declared shared-infrastructure drift (2026-08-24, R478):
-                # the M/D base-convention correction changed the V4 env
-                # deliberately (device-base controller math, system-base
-                # runtime writes, convert exactly once). R452's canary
-                # verdict is a canary-invalid classification independent of
-                # the base convention, so the drift is recorded and does not
-                # invalidate the parent inventory.
-                shared_infra_drift.append(entry["path"])
-                continue
             raise RuntimeError(f"R452 sealed source drift: {entry['path']}")
 
     expected = expected_shard_paths()

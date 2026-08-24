@@ -42,7 +42,21 @@ R478 freezes the physical parameter card (device/system-base convention with pri
 4. Locate the registered frozen banks (zero-action, nine-law, dev/eval schedule, energy-port unseen/extra-condition, topology variants) and re-point them at the corrected card via `scripts/run_r478_md_revalidation.py`: parent sealed runners stay byte-identical (frozen sha256 table), the adapter patches round id + output root only, records a rekey sidecar per dispatch, and runs the zero-action trace bank directly. Guards/profiles/split/windows unchanged. Trace capture (1C) = per-step rows of every re-run bank + the zero-action records.
 5. Freeze-then-review: two independent reviews of the frozen commit + file hashes; P0/P1 repaired before seal.
 6. Seal + commit; capacity ladder on representative deterministic jobs (rung sizes per CLAUDE.md); rehearsal through the formal entry's same-pre-attempt path (source_hash, parent_hash, installed_package, installed_case, output_absence); no formal attempt created. Per-family phase order (parent-enforced): measure-capacity -> rehearse -> prepare; ladders run serially to avoid cross-family measurement contamination.
-7. STOP — owner review gate. No formal attempt, retry, or result inspection until the owner approves. Post-approval: formal banks execute; gates decide; round closes with feed/claim/verdict.
+7. STOP — owner review gate. No formal attempt, retry, or result inspection until the owner approves. Post-approval: formal banks execute; gates decide; round closes with feed/claim/verdict. The gate is code-enforced (Codex review P0, 2026-08-24): the adapter's `seal` command writes the frozen source manifest, and every physical command (rehearse/execute/shard/capacity) refuses without BOTH the seal and `memory/rounds/R478/OWNER_APPROVED.json`. Rehearsal order is seal -> owner review -> rehearsal -> formal attempts; no further ANDES execution happens before owner approval.
+
+## Codex review intake (2026-08-24)
+
+Frozen range reviewed by Codex: NOT-APPROVED; every finding below is addressed in this round:
+
+- P0 formal-execution seal/owner gate: code-enforced via `_require_launch_authority` (seal command + OWNER_APPROVED marker) blocking all physical commands.
+- P1 frozen R453 runner mutated: reverted to byte-identical; the v4-env drift contract now lives in the R453 test layer (exact-drift pin + strict xfail for the blocked inventory test).
+- P1 regression baseline missing -> silent skip: corrected baselines committed as test fixtures under `tests/fixtures/eval_v4_baseline_R478/`; missing fixture now FAILS the gate.
+- P1 failure-step telemetry untruthful: `base_env.step` now reads back the actual runtime M/D after the substep loop; `_prev_M/_prev_D` and `M_es/D_es` telemetry derive from readback (unchanged on success paths).
+- P1 scope pollution in the first R478 commit: the manuscript/supplement/figure files swept by the governance-clearing commit are registered verbatim from the prior planning session; documented here, never part of the scientific change; future commits carry only R478-owned paths.
+- P1 adapter exceeded thin-adapter duty: zero-family scientific logic moved to `src/andes_rl_kundur/evaluation/r478_zero_action.py`; the runner only dispatches.
+- P2 CRLF hashing: parent-source hashes are now LF-normalized (CRLF checkouts verify identically).
+- P2 test gaps: V5 full-regca1 branch test added (non-strict xfail, documented as practically unusable until post-approval verification); substep-level slew observation left to the bank record loops (declared).
+- Accepted, no code change: pre-ruling capacity/rehearsal artifacts stay as development evidence (non-claim-bearing, pre-approval); no further ANDES execution before owner approval.
 
 ## Gate
 

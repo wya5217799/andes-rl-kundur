@@ -6,11 +6,12 @@ convention (device-base controller math, system-base runtime arrays,
 convert exactly once per boundary crossing).
 
 The reference JSONs in
-``results/research_loop/eval_v4_baseline_R478/`` were generated on the
-corrected object. The older
+``tests/fixtures/eval_v4_baseline_R478/`` are committed fixtures
+generated on the corrected object (R478). The older
 ``results/research_loop/eval_v4_baseline_PRE_REFACTOR/`` references lock
 the pre-correction physics and stay untouched as historical evidence.
 The R478 re-lock is the single deliberate behavioral change of that round.
+A missing fixture FAILS the gate instead of silently skipping it.
 
 Tolerance is tight (1e-9) because the env is deterministic given
 fixed ``(seed, random_disturbance=False, comm_fail_prob=0)``.
@@ -42,7 +43,7 @@ if not _real_andes_available():
 from andes_rl_kundur.env.andes.andes_vsg_env_v4 import AndesMultiVSGEnvV4  # noqa: E402
 from andes_rl_kundur.probes.andes_common.paper_constants import SCENARIOS  # noqa: E402
 
-BASELINE_DIR = ROOT / "results" / "research_loop" / "eval_v4_baseline_R478"
+BASELINE_DIR = ROOT / "tests" / "fixtures" / "eval_v4_baseline_R478"
 
 
 @pytest.fixture(autouse=True)
@@ -88,7 +89,10 @@ def test_first_step_freq_hz_matches_baseline(scenario: str) -> None:
     """The very first post-disturbance step must be bit-identical."""
     baseline_path = BASELINE_DIR / f"no_control_{scenario}.json"
     if not baseline_path.exists():
-        pytest.skip(f"baseline JSON missing: {baseline_path}")
+        raise FileNotFoundError(
+            f"R478 corrected baseline fixture missing: {baseline_path}. "
+            "The 1e-9 regression gate must never silently skip."
+        )
 
     baseline = json.loads(baseline_path.read_text(encoding="utf-8"))
     expected = baseline["traces"][0]["freq_hz"]
