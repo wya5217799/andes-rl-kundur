@@ -215,9 +215,13 @@ def _write_rekey_sidecar(
     return path
 
 
-def _assert_wsl() -> None:
+def _assert_wsl_scratch() -> None:
+    """Physical phases are WSL-only and must run through the scratch launcher
+    (ANDES writes kundur_full_out.* to cwd; the repo root must stay clean)."""
     if os.name != "posix":
-        raise RuntimeError("physical phases are WSL-only (ANDES runtime)")
+        raise RuntimeError("physical phases are WSL/POSIX-only (ANDES runtime)")
+    if Path.cwd().resolve() == ROOT.resolve():
+        raise RuntimeError("must run through scripts/andes_scratch.py")
 
 
 # ─── Family: zero (registered zero-action trace bank, Phase 1A/1C) ───
@@ -262,7 +266,7 @@ def _zero_rehearse(out_root: Path) -> str:
     artifact is created (create-only discipline: records.json only at
     execute).
     """
-    _assert_wsl()
+    _assert_wsl_scratch()
     from andes_rl_kundur.env.andes.andes_vsg_env_v4 import AndesMultiVSGEnvV4
     from andes_rl_kundur.probes.andes_common.paper_constants import (
         DEFAULT_PROBE_SEED,
@@ -287,17 +291,17 @@ def _zero_rehearse(out_root: Path) -> str:
         )
         if result["tds_failed"]:
             raise RuntimeError(f"zero rehearsal TDS failure: {scenario_id}")
-        traj = result["traj"]
-        if not traj:
-            raise RuntimeError(f"zero rehearsal empty trace: {scenario_id}")
-        m_values = [row.get("M_es") for row in traj]
-        d_values = [row.get("D_es") for row in traj]
+        traj = result["traj"]  # dict[str, list[list[float]]] per record_extras
+        m_values = traj.get("M_es") or []
+        d_values = traj.get("D_es") or []
+        if not m_values or not d_values:
+            raise RuntimeError(f"zero rehearsal missing M/D extras: {scenario_id}")
+        m0 = np.asarray(m_values[0], dtype=float)
+        d0 = np.asarray(d_values[0], dtype=float)
         if not all(
-            np.allclose(np.asarray(v, dtype=float), np.asarray(m_values[0], dtype=float))
-            for v in m_values
+            np.allclose(np.asarray(v, dtype=float), m0) for v in m_values
         ) or not all(
-            np.allclose(np.asarray(v, dtype=float), np.asarray(d_values[0], dtype=float))
-            for v in d_values
+            np.allclose(np.asarray(v, dtype=float), d0) for v in d_values
         ):
             raise RuntimeError(
                 f"zero rehearsal invariant failure: M_es/D_es drift: {scenario_id}"
@@ -306,8 +310,8 @@ def _zero_rehearse(out_root: Path) -> str:
             "n_steps": int(result["n_steps"]),
             "max_df": float(result["max_df"]),
             "final_df": float(result["final_df"]),
-            "M_es_first": m_values[0],
-            "D_es_first": d_values[0],
+            "M_es_first": m0.tolist(),
+            "D_es_first": d0.tolist(),
         }
     rehearsal_dir = ROOT / "memory" / "rounds" / "R478"
     return _write_new_json(
@@ -319,7 +323,7 @@ def _zero_rehearse(out_root: Path) -> str:
 
 
 def _zero_execute(out_root: Path) -> str:
-    _assert_wsl()
+    _assert_wsl_scratch()
     from andes_rl_kundur.env.andes.andes_vsg_env_v4 import AndesMultiVSGEnvV4
     from andes_rl_kundur.probes.andes_common.paper_constants import (
         DEFAULT_PROBE_SEED,
@@ -342,6 +346,8 @@ def _zero_execute(out_root: Path) -> str:
             env_patch=None,
             record_extras=("freq_hz", "M_es", "D_es"),
         )
+        if result["tds_failed"]:
+            raise RuntimeError(f"zero execute TDS failure: {scenario_id}")
         records[scenario_id] = {
             "max_df": float(result["max_df"]),
             "final_df": float(result["final_df"]),
