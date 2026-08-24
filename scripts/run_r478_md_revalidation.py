@@ -166,6 +166,7 @@ def _verify_parent_source(name: str, path: Path) -> None:
 
 def _rekey(parent: Any, family: str, out_root: Path) -> dict[str, Any]:
     """Patch parent module globals to the R478 identity; return the snapshot."""
+    stem = out_root.name  # unique per family -> no cross-family path collisions
     before: dict[str, Any] = {}
     after: dict[str, Any] = {}
     if hasattr(parent, "ROUND_ID"):
@@ -173,14 +174,14 @@ def _rekey(parent: Any, family: str, out_root: Path) -> dict[str, Any]:
         parent.ROUND_ID = ROUND_ID
         after["ROUND_ID"] = parent.ROUND_ID
     for attr, rel in (
-        ("OUT", f"results/research_loop/{out_root.name}"),
+        ("OUT", f"results/research_loop/{stem}"),
         ("LINE", "paper/yang_md_decoupling_marl/LINE.md"),
         ("PLAN", "memory/rounds/R478/plan.md"),
-        ("REHEARSAL", "memory/rounds/R478/rehearsal.json"),
-        ("CAPACITY", "memory/rounds/R478/capacity_evidence.json"),
-        ("SEAL", "memory/rounds/R478/formal_seal.json"),
-        ("DEV_SHARDS", "tmp/andes/r478_dev_shards.json"),
-        ("EVAL_SHARDS", "tmp/andes/r478_eval_shards.json"),
+        ("REHEARSAL", f"memory/rounds/R478/rehearsal_{stem}.json"),
+        ("CAPACITY", f"memory/rounds/R478/capacity_{stem}.json"),
+        ("SEAL", f"memory/rounds/R478/formal_seal_{stem}.json"),
+        ("DEV_SHARDS", f"tmp/andes/r478_{stem}_dev_shards.json"),
+        ("EVAL_SHARDS", f"tmp/andes/r478_{stem}_eval_shards.json"),
     ):
         if hasattr(parent, attr):
             before[attr] = str(getattr(parent, attr))
