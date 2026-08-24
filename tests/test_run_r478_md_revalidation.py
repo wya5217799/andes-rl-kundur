@@ -69,10 +69,10 @@ def test_rekey_patches_shard_and_selection_paths_for_r458_parent() -> None:
     assert parent.ROUND_ID == "R478"
     assert parent.OUT == out_root
     assert parent.DEV_SHARDS == (
-        ROOT / "tmp/andes/r478_repair5_r478_md_schedule_dev_shards.json"
+        ROOT / "tmp/andes/r478_repair6_r478_md_schedule_dev_shards.json"
     )
     assert parent.EVAL_SHARDS == (
-        ROOT / "tmp/andes/r478_repair5_r478_md_schedule_eval_shards.json"
+        ROOT / "tmp/andes/r478_repair6_r478_md_schedule_eval_shards.json"
     )
     assert parent.SELECTION == out_root / "selection.json"
     assert parent.PLAN == ROOT / "memory/rounds/R478/plan.md"
@@ -370,7 +370,7 @@ def test_physical_preformal_authorization_is_hashed_and_source_bound(
         authorization,
         {
             "round": "R478",
-            "authority_generation": "repair5",
+            "authority_generation": "repair6",
             "physical_execution_authorized": True,
             "approved_commands": {
                 "zero": ["measure-capacity", "rehearse"],

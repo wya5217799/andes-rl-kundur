@@ -104,7 +104,7 @@ FAMILIES: dict[str, dict[str, str | None]] = {
 }
 
 ROUND_ID = "R478"
-AUTHORITY_GENERATION = "repair5"
+AUTHORITY_GENERATION = "repair6"
 # Owner 2026-08-25 fast-ladder directive: time-sensitive, run as parallel as
 # possible. Full 1/2/4/8/12/16 x 32-job ladders were measured repeatedly on
 # this exact host for the same ANDES deterministic workload (R452-R477 all
@@ -158,7 +158,7 @@ EXECUTION_COMMANDS: dict[str, frozenset[str]] = {
 
 OWNER_APPROVAL = ROOT / "memory/rounds/R478/formal_owner_approval.json"
 PHYSICAL_EXECUTION_AUTHORIZATION = (
-    ROOT / "memory/rounds/R478/physical_execution_authorization_repair5.json"
+    ROOT / "memory/rounds/R478/physical_execution_authorization_repair6.json"
 )
 PHYSICAL_PREFORMAL_COMMANDS = frozenset(
     {"inventory", "measure-capacity", "capacity", "rehearse"}

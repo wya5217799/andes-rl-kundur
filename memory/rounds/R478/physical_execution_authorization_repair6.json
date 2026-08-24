@@ -1,0 +1,24 @@
+{
+  "approved_commands": {
+    "port_unseen": [
+      "measure-capacity",
+      "rehearse"
+    ],
+    "port_extra_k35": [
+      "measure-capacity",
+      "rehearse"
+    ],
+    "port_extra_k4": [
+      "measure-capacity",
+      "rehearse"
+    ]
+  },
+  "authority_generation": "repair6",
+  "physical_execution_authorized": true,
+  "round": "R478",
+  "sources": {
+    "parameter_card": "290e7422bf96395179527636b20948223811515717d0cd0ee1c19f19ef4cf79d",
+    "plan": "997a3f6d2d83fb889cfdc688f907bf6a51934dd18c541ec7e2e90e7be4523732",
+    "runner": "5ec9eb4bbcac0365fc793720008307576e9777c05d499f4bcc033661707bb5e1"
+  }
+}
