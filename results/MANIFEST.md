@@ -173,6 +173,9 @@ locator before calling these artifacts durably archived.
 | R469 | `results/research_loop/r469_u8_separation_bound/` | `checks/verification_report.json` | `57050677549689b7aaa9cd85b566bd6a71adadb23dc2f4825b53747612e2de1e` |
 | R473 | `results/research_loop/r473_u2_source_factorial/` | `formal_analysis.json` | `b8786a5e9c3be3919ab4ca92e8b46747daaeb0e5405b4aa6b6e3d250bd333dda` |
 | R477 | `results/research_loop/r477_u2_confirmatory/` | `formal_analysis.json` | `7cd9129b404a7fd634fb6234034f36c065751c6a51b5be41ff2a2883fefc30e3` |
+| R478 | `results/research_loop/r478_port_unseen/` | `formal_analysis.json` | `a1b49eb024b1f7a61d13ab33d1ee83de14b94bf37d6e97fc1eabc10c42149c36` |
+| R478 | `results/research_loop/r478_port_extra_k35/` | `formal_analysis.json` | `0eba2bd6048688d98c8a2e635bd4ca0f987f50b813260ef1c3eb950423372c39` |
+| R478 | `results/research_loop/r478_port_extra_k4/` | `formal_analysis.json` | `fe952efd921242d424dbcd0997e5496acb1e03da47f3275f76709228e7cdf5a3` |
 
 The one hundred and eleven roots currently occupy 8,581,672,997 bytes. R286, R287, R291, R292,
 R294, R295, R296, R297, R298, R299, and R300 raw traces remain ignored; their retained trace hashes are indexed by

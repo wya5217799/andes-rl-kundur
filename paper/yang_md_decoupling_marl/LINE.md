@@ -2,7 +2,7 @@
 line_id: yang-md-decoupling-marl
 status: active
 priority: 4
-stage: experiment-revalidation-owner-review
+stage: successor-route-owner-decision
 artifact_manifest: paper/yang_md_decoupling_marl/ARTIFACTS.json
 scope:
   write_roots: [paper/yang_md_decoupling_marl]
@@ -17,7 +17,7 @@ venue:
   review_triggers: ["after evidence-bounded conference-draft review or any authorized topology-robustness gate", "before 2026-08-28 author registration and 2026-09-07 final-paper upload"]
 working_title: "Decoupling-Oriented Coordination of Paralleled  VSGs With Multi-Agent Reinforcement Learning"
 title_policy: "Fixed wording; same-object evidence per term; prospective till gate passes."
-objective: "Pre-launch build: physical card frozen, base convention fixed, invariants green; adapt deterministic/offline/learner/factorial runners from the prior structure, seal and rehearse every launch path. Stop before any formal simulation attempt; owner reviews the frozen program."
+objective: "R478 corrected-M/D revalidation closed (energy-port candidate terminal, CLM-1490); run the queued R479 H-sensitivity bank; owner decides the successor route (prospective direct-M/D decision on file) before any new formal bank or training."
 decision_refs: ["docs/adr/0019-separate-yang-md-decoupling-marl-successor.md#decision", "paper/yang_md_decoupling_marl/working/gpt_pro_unresolved_math_solution_20260821/IMPORT_NOTE.md#manuscript-disposition", "paper/yang_md_decoupling_marl/working/corrected_md_revalidation_experiment_plan_20260824.md#decision", "paper/yang_md_decoupling_marl/working/md_parameter_card_20260824.json#owner_decision"]
 evidence_refs:
   - "CLM-1135 -> paper/yang_md_decoupling_marl/reports/R398.md"
@@ -82,7 +82,9 @@ evidence_refs:
   - "CLM-1470 -> paper/yang_md_decoupling_marl/reports/R469.md"
   - "CLM-1475 -> paper/yang_md_decoupling_marl/reports/R473.md"
   - "CLM-1480 -> paper/yang_md_decoupling_marl/reports/R477.md"
+  - "CLM-1485 -> paper/yang_md_decoupling_marl/reports/R478.md"
+  - "CLM-1490 -> paper/yang_md_decoupling_marl/reports/R478.md"
 required_reading: [paper/yang_md_decoupling_marl/LINE.md]
 verification: ["Zero action preserves runtime M/D; corrected objects stay non-pooled; COI/modal sensitivity reported."]
-stop_when: ["No formal simulation before the owner approves the frozen program; notify the owner at the launch moment."]
+stop_when: ["No successor formal bank or training before the owner's route decision; notify the owner at each launch moment."]
 ---

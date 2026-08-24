@@ -1,0 +1,18 @@
+{
+  "round": "R478",
+  "schema_version": 1,
+  "pre_fix": {
+    "failed": 6,
+    "passed": 1,
+    "note": "zero-action invariant red; telemetry invariant already passed pre-fix",
+    "log": "memory/rounds/R478/red_invariants_pre_fix.log",
+    "log_sha256": "5800ccb751696c44508917a15c5283205cd5d5996be78e1ecdcdb291600a2131"
+  },
+  "post_fix": {
+    "failed": 0,
+    "passed": 7,
+    "log": "memory/rounds/R478/green_invariants_post_fix.log",
+    "log_sha256": "fceb9177f0e68ff01e59e6886f865cccdc5f7b0fe3ba94f8b75d8335c88e165a"
+  },
+  "v4_regression": "re-locked green under the corrected baselines"
+}
