@@ -161,6 +161,13 @@ def test_capacity_command_is_registered_as_16_by_8_quick_confirm():
 def test_seed_and_arm_roster():
     assert runner.SEEDS == tuple(range(501, 527))
     assert len(runner.FACTORIAL_ARMS) == 8
+
+
+def test_basegen_uses_r482_arm_vocabulary():
+    source = Path(runner.__file__).read_text(encoding="utf-8")
+    body = source[source.index("def basegen"):source.index("def base_audit")]
+    assert "FactorialWrapper(\n            FACTORIAL_ARMS[0]" in body
+    assert "core.ARMS[0]" not in body
     assert runner.PHASE3B_ARM == "an_cn_r1_rms"
     assert len(runner.RETRAIN_ARMS) == 9
     assert runner.REUSED_CELLS == ()

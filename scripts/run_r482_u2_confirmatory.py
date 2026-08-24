@@ -355,7 +355,7 @@ def basegen() -> str:
         out_dir.mkdir(parents=True)
         base.base.base.core._seed_all(BASE_RNG_OFFSET + seed)
         prototype = base.base.base.core.FactorialWrapper(
-            base.base.base.core.ARMS[0]
+            FACTORIAL_ARMS[0]
         )
         base_path = out_dir / "base_state.pt"
         base_sha = base.base.base.core._write_new_torch(
