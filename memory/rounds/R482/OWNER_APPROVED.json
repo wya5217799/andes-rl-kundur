@@ -1,0 +1,7 @@
+{
+  "approved": true,
+  "date": "2026-08-25",
+  "round": "R482",
+  "scope": "R482 frozen plan with recommended defaults O1-O5; authorize base-state generation, rehearsal, 16x8 capacity confirmation, seal, and the 16-cell development diagnostic wave only. The 15 formal training waves remain blocked until a separate owner go-file binds the completed diagnostic report hash.",
+  "source": "owner message 2026-08-25: 审查最新任务先审查诊断开发波，然后启动，再审查其他代码"
+}
