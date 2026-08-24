@@ -128,4 +128,3 @@
 - `tmp/ars_review_20260824/perspective_phase2.md`
 - `tmp/ars_review_20260824/da_phase2.md`
 - `tmp/ars_review_20260824/editorial_synthesis.md`
-

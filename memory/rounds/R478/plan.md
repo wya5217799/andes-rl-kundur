@@ -17,20 +17,30 @@ superseded_note: null
 
 ## TL;DR
 
-R478 freezes the physical parameter card (device/system-base convention with primary-source justification), implements the single conversion fix in the shared reset/anchor path, proves the seven 0C invariants, adapts the frozen deterministic direct-M/D and energy-port banks to the corrected card with unchanged profiles/guards/split, seals and rehearses, then STOPS. The owner reviews the frozen program; only after approval does R478 create formal attempts and close.
+R478 freezes a project-calibration parameter card with an explicit non-Yang provenance boundary, implements the single conversion fix in the shared reset/anchor path, and proves the offline 0C invariants. The owner's 2026-08-24 continuation authorizes only the zero-family capacity measurement and serial semantic rehearsal; it does not authorize a formal attempt, deterministic bank, training, or factorial. A passing invariant opens one deterministic canary, not the whole bank. Branch-specific formal revalidation follows only when the lower gate survives. The 224-job factorial is a deferred shelf plan and is never the next execution queue. Formal work still requires final-source capacity/rehearsal/seal and owner approval bound to every seal hash.
+
+## Pre-seal corrective amendment (2026-08-24)
+
+- The code/design repair is authorized. The owner's later instruction authorizes only zero-family `measure-capacity` and `rehearse`; training and formal execution remain forbidden.
+- Capacity/rehearsal artifacts produced before the invariant gate and final review are quarantined. They are old-generation, non-authoritative, excluded from every future seal, and remain preserved byte-for-byte.
+- The current repaired authority namespace is `repair3`; its artifact and shard paths cannot collide with quarantined files. The earlier `repair1` capacity run is quarantine-only because source/runtime identity was not bound across the full ladder and the runner changed before interpretation. The unused `repair2` authorization is also quarantine-only because its registered plan path was inconsistent before launch.
+- Missing corrected regression fixtures fail closed. They may only be generated after the final source freeze and explicit physical-execution authorization.
+- Conclusion dependency is terminal: semantic invariant failure stops every corrected-object claim; a deterministic-canary flip opens only the affected deterministic bank; training and the factorial remain closed until all upstream conclusions survive.
+- Parallelism is inside the current gate only: unique capacity/canary jobs may run concurrently at the measured safe worker count, but downstream gates never run speculatively in parallel.
+- Every completed semantic/canary/formal gate receives a create-only report recording frozen input and output hashes, validity, registered metrics, comparison with the corresponding old Yang-line conclusion, the decision `retain old route` or `redesign successor`, and exactly one next gate.
 
 ## Frozen scientific contract
 
 - One scientific change: M/D initialization, runtime application, telemetry, and interpolation anchors use one declared device/system-base convention; conversion happens exactly once. Everything else (laws, gains, profiles, split, window, endpoint definitions, guards, topology list, exclusion gates) unchanged.
 - Parameter card fields: `S_n,i`; `S_b`; device-base `H_i`, `M_i=2H_i`, `D_i`; runtime system-base M/D; normalized-to-physical action map; clamps + slew rule; units + conversion equation per field.
-- Physical card chosen from model semantics + primary-source engineering justification (Yang2023 benchmark card + primary VSG literature), never from controller performance.
+- The card is inherited project calibration held fixed to isolate the conversion correction, never selected from controller performance. Yang2023 does not supply enough baseline/unit information for a strict benchmark card; Phase-1 claims remain project-calibration finite-bank claims.
 - Old artifacts preserved as historical evidence, byte-for-byte; the corrected bank has distinct identity and result root; old and corrected numbers are never pooled.
 - Deterministic banks: selection uses development profiles once; evaluation profiles remain unseen; no retune after evaluation visibility.
 
 ## Engineering correction contract
 
 1. Fix lands in the shared reset/anchor path (`base_env.py` / `andes_vsg_env_v4.py`; NOTES_ANDES.md read before edits). Anchor = declared system-base runtime value; reported action increments use the same convention; telemetry readback compared in that convention. Reviewer-C extensions: V5's two heterogeneous-D build writes converted once (`andes_vsg_env_v5.py`), and the distributed-residual wrapper converts the runtime readback to device-base model units at its boundary (`distributed_residual_env.py`).
-2. V4 regression expectations re-locked to the corrected semantics inside this round; documented as the single deliberate change; historical checkpoints stay historical and are never imported into the corrected bank.
+2. V4 regression expectations are fail-closed until corrected baselines are generated after the final source freeze; documented as the single deliberate change; historical checkpoints stay historical and are never imported into the corrected bank.
 3. Card + conversion helpers = reusable implementation in `src/andes_rl_kundur/`; invariant tests in `tests/`; bank adapters as stable scripts; governance shell (seal verification, fail-closed classification, dual review of one identical final source map, mutation tests) reused from the R477 pattern.
 4. Comparison identifiability: corrected vs historical numbers are compared only in the manuscript/review layer; within-bank comparisons are corrected-only.
 
@@ -39,15 +49,16 @@ R478 freezes the physical parameter card (device/system-base convention with pri
 1. 0A/0B: audit primary sources; write + register the parameter card and justification note in ARTIFACTS.
 2. 0C: write the seven invariant tests red-first (zero action; telemetry; round trip; heterogeneous card; nonzero-action branch/clamp/slew units; energy-port slow channel; reset repeatability). Confirm the zero-action invariant fails pre-fix (bug reproduced).
 3. Implement the conversion fix; all invariants green; V4 regression re-locked green.
-4. Locate the registered frozen banks (zero-action, nine-law, dev/eval schedule, energy-port unseen/extra-condition, topology variants) and re-point them at the corrected card via `scripts/run_r478_md_revalidation.py`: parent sealed runners stay byte-identical (frozen sha256 table), the adapter patches round id + output root only, records a rekey sidecar per dispatch, and runs the zero-action trace bank directly. Guards/profiles/split/windows unchanged. Trace capture (1C) = per-step rows of every re-run bank + the zero-action records.
+4. Locate the registered frozen banks (zero-action, nine-law, dev/eval schedule, energy-port unseen/extra-condition, topology variants) and re-point them at the corrected card via `scripts/run_r478_md_revalidation.py`: parent sealed runners stay byte-identical (line-ending-independent frozen source hashes), the adapter patches authority paths into the `repair3` namespace and records a source-keyed sidecar. The reusable probe module, not the runner, owns zero-action scenario selection, physical execution, and validity checks. Guards/profiles/split/windows remain unchanged.
 5. Freeze-then-review: two independent reviews of the frozen commit + file hashes; P0/P1 repaired before seal.
-6. Seal + commit; capacity ladder on representative deterministic jobs (rung sizes per CLAUDE.md); rehearsal through the formal entry's same-pre-attempt path (source_hash, parent_hash, installed_package, installed_case, output_absence); no formal attempt created. Per-family phase order (parent-enforced): measure-capacity -> rehearse -> prepare; ladders run serially to avoid cross-family measurement contamination.
-7. STOP — owner review gate. No formal attempt, retry, or result inspection until the owner approves. Post-approval: formal banks execute; gates decide; round closes with feed/claim/verdict.
+6. Freeze and dual-review the final source map. Record the owner's bounded physical authorization in a hashed `physical_execution_authorization_repair3.json` bound to the exact runner/plan/card and approved family commands.
+7. Under the current bounded authorization, run only the zero-family final-source capacity ladder (1/2/4/8/12/16 workers, exactly 32 representative jobs per rung, borderline 3%-7% gain remeasured once), then the serial semantic rehearsal through the same pre-attempt path. No corrected deterministic bank or baseline is opened by this authorization.
+8. STOP — owner formal gate. Every execution command verifies a hashed owner-approval artifact whose per-family entry equals the current seal hash. No formal attempt, retry, or result inspection exists before that check passes.
 
 ## Gate
 
 - INVARIANT-GATE: all seven 0C invariants green before any simulator bank; any failure = engineering invalidity, no scientific run follows.
-- GATE-1A: at least one frozen deterministic comparator finite and guard-valid on its registered scope; else stop direct-M/D learner training and revise the paper route.
+- GATE-1A: development profiles select exactly one schedule using the frozen priority/tie rule. Only that winner reaches evaluation. It must be finite and guard-valid on all four registered evaluation profiles; one-to-three passing profiles cannot open the gate. Failure stops direct-M/D learner training, with no evaluation-visible fallback.
 - GATE-1B: frozen energy-port controller passes its registered contract; else drop/redesign the constructive companion in a new plan; no tuning in this run.
 - GATE-1C: complete frequency/M-D/action/topology/disturbance traces retained for every valid record.
 - Integrity: paper-facing EIG passes TDS.test_ok + exit_code=0 + init residuals + finite spectrum + positive-real guard (CLM-0665).
@@ -60,9 +71,9 @@ No external mathematical theory this round; the base convention is primary-sourc
 ## Experiment efficiency card
 
 - execution_class: non-quick
-- job_count: symbolic (`N_det` + `N_port`) until the frozen bank list is located and re-pointed
-- concurrent_jobs: derived budget 4 workers + 1 launcher, pending the pre-launch capacity ladder; not a hard cap
-- waves: `ceil(J/5)`, recomputed at seal
+- job_count: deterministic Phase-1 total remains symbolic until the repaired inventories are frozen; the later source factorial is prospectively frozen at 224 unique jobs (208 training + 16 evaluation)
+- concurrent_jobs: unresolved until the mandated 1/2/4/8/12/16-worker, 32-jobs-per-rung final-source ladder is authorized and measured
+- waves: unresolved until job count and measured concurrency are both frozen
 - eta_range: unset until corrected rehearsal/first-wave timing exists (do not invent)
 - artifact_budget: symbolic; hard review stop set at seal from rehearsal disk telemetry
 - completion_rule: every registered bank job valid + trace bank complete + manifest hash-valid
@@ -74,25 +85,53 @@ No external mathematical theory this round; the base convention is primary-sourc
 ## Formal launch contract
 
 - formal_entry: scripts/run_r478_md_revalidation.py <family> <phase> (families: zero|ninelaw|schedule|port_unseen|port_extra_k35|port_extra_k4|topology; parent runners stay byte-identical, rekey sidecar per dispatch)
+- zero_preformal_order: contract -> measure-capacity -> rehearse -> prepare(seal)
+- port_unseen_preformal_order: measure-capacity -> rehearse -> prepare(seal)
 - rehearsal_command: /home/wya/andes_venv/bin/python scripts/andes_scratch.py scripts/run_r478_md_revalidation.py <family> rehearse
 - rehearsal_scope: same-pre-attempt-path
 - rehearsal_checks: source_hash,parent_hash,installed_package,installed_case,output_absence
-- capacity_evidence: memory/rounds/R478/capacity_evidence.json (produced by the pre-launch ladder)
-- wsl_python_processes: 5 (4 workers + 1 launcher; derived, re-measured before formal launch)
+- authority_generation: repair3
+- physical_execution_authorization: `memory/rounds/R478/physical_execution_authorization_repair3.json`, create-only hashed artifact bound to exact runner/plan/card; current allowlist is only zero-family `measure-capacity` and `rehearse`
+- capacity_evidence: per-family `memory/rounds/R478/capacity_*_repair3.json` artifacts, produced only after explicit physical authorization and bound to matching pre/post source and runtime snapshots
+- seal_source_scope: all repository Python modules dynamically loaded by the physical rehearsal plus runner/plan/card/parent; seal also binds installed ANDES module/distribution and Kundur case hashes
+- formal_owner_approval: `memory/rounds/R478/formal_owner_approval.json`, create-only and hash-bound to each approved family seal
+- wsl_python_processes: unresolved until final-source measurement
 - native_threads_per_process: 1
-- host_process_budget: 5
+- host_process_budget: unresolved until final-source measurement
 - other_reserved_processes: 0
 
 ## 资产保护契约
 
-Preserve R398-R477 artifacts, all imported external-review material, and every historical checkpoint byte-for-byte. Add only: parameter card + justification, conversion fix + invariant tests, corrected bank adapters + trace capture, reviews, seal/rehearsal artifacts, corrected result root (distinct identity), feed/claim/verdict. Historical results are never pooled with corrected results.
+Preserve R398-R477 artifacts, all imported external-review material, every historical checkpoint, the premature R478 capacity/rehearsal files, and all `repair1`/`repair2` files byte-for-byte. These files are quarantine-only and never enter `repair3` authority. Add only: parameter card + justification, conversion fix + invariant tests, corrected bank adapters + trace capture, reviews, `repair3` seal/rehearsal artifacts, corrected result root (distinct identity), feed/claim/verdict. Historical results are never pooled with corrected results.
 
 ## Cross-references
 
 - paper/yang_md_decoupling_marl/working/corrected_md_revalidation_experiment_plan_20260824.md (authority)
+- paper/yang_md_decoupling_marl/working/source_factorial_power_plan.json (prospective statistical contract; no new training outcomes)
 - docs/adr/0019-separate-yang-md-decoupling-marl-successor.md
 - docs/eng-notes/NOTES_ANDES.md (required before env edits)
 - CLM-0665 topology/EIG hard gate; R477 structure template (plan, efficiency card, launch contract)
+
+## Post-run quarantine audit (2026-08-25)
+
+- The bounded `repair3` authorization covered only zero-family capacity and
+  rehearsal. Those two artifacts remain the only authority-valid physical
+  outputs of this generation.
+- The direct-M/D and energy-port confirmation runs launched afterward were
+  not listed in the repair3 allowlist. Preserve their raw files and reports,
+  but classify them only as development-visible diagnostics. They cannot
+  enter a formal seal, claim sheet, manuscript number, or route verdict.
+- Viewing `eval_a` through `eval_d` consumed their holdout status. They are
+  never reused as unseen evaluation evidence. Any successor formal bank must
+  prospectively register genuinely fresh profile identities before execution.
+- The frozen canary route remains authoritative: the next official gate is
+  still the deterministic energy-port bank unless the owner approves a
+  successor decision that abandons the energy-port claim. No direct formal
+  bank is open.
+- `repair3` is closed to further physical commands. A future attempt requires
+  a new authority generation, an exact plan allowlist for every probe/profile,
+  fail-closed WSL/scratch entrypoints, and matching pre/post transitive source,
+  installed ANDES, and Kundur case identities.
 
 ## Snapshot at plan-time (oracle as of 2026-08-24)
 

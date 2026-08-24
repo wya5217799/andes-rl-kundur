@@ -23,11 +23,12 @@ from collections import deque
 
 import numpy as np
 
-from andes_rl_kundur.scenarios.contract import KUNDUR as _DEFAULT_CONTRACT
 from andes_rl_kundur.env.andes.md_convention import (
     SYSTEM_BASE_MVA,
     device_to_system,
+    system_to_device,
 )
+from andes_rl_kundur.scenarios.contract import KUNDUR as _DEFAULT_CONTRACT
 
 
 class AndesBaseEnv(ABC):
@@ -252,6 +253,18 @@ class AndesBaseEnv(ABC):
         子类需在施加 PQ 负荷变化后设置 self.ss.TDS.custom_event = True.
         """
 
+    def _apply_heterogeneous_d0(self, ss) -> None:
+        """Write the device-base damping card once at the ANDES boundary."""
+        d_system = device_to_system(
+            np.asarray(self.D0_HETEROGENEOUS, dtype=float),
+            device_mva=self.VSG_SN,
+            system_mva=SYSTEM_BASE_MVA,
+        )
+        if len(d_system) != len(self.vsg_idx):
+            raise ValueError("D0 card length must match the controlled VSG count")
+        for vsg_id, value in zip(self.vsg_idx, d_system, strict=True):
+            ss.GENCLS.set("D", vsg_id, float(value), attr="v")
+
     # ─── reset (模板方法) ───
 
     def reset(self, delta_u=None, scenario_idx=None, **kwargs):
@@ -413,9 +426,27 @@ class AndesBaseEnv(ABC):
                 tds_failed = True
                 break
 
-        # 更新 prev M/D (系统基准; 无论是否 TDS 失败, 下次 reset 会重置)
-        self._prev_M = M_new_sys.copy()
-        self._prev_D = D_new_sys.copy()
+        # Runtime readback is authoritative.  In particular, a failed TDS
+        # substep may leave the applied card short of the requested target;
+        # carrying the target forward would hide that partial application.
+        M_applied_sys = np.asarray(
+            [self.ss.GENCLS.M.v[pos] for pos in self._vsg_pos], dtype=float
+        )
+        D_applied_sys = np.asarray(
+            [self.ss.GENCLS.D.v[pos] for pos in self._vsg_pos], dtype=float
+        )
+        self._prev_M = M_applied_sys.copy()
+        self._prev_D = D_applied_sys.copy()
+        M_applied = system_to_device(
+            M_applied_sys,
+            device_mva=self.VSG_SN,
+            system_mva=SYSTEM_BASE_MVA,
+        )
+        D_applied = system_to_device(
+            D_applied_sys,
+            device_mva=self.VSG_SN,
+            system_mva=SYSTEM_BASE_MVA,
+        )
 
         self.step_count += 1
 
@@ -505,8 +536,10 @@ class AndesBaseEnv(ABC):
             "omega": omega.copy(),
             "omega_dot": omega_dot.copy(),
             "P_es": P_es.copy(),
-            "M_es": M_new.copy(),
-            "D_es": D_new.copy(),
+            "M_es": M_applied.copy(),
+            "D_es": D_applied.copy(),
+            "M_target_es": M_new.copy(),
+            "D_target_es": D_new.copy(),
             "delta_M": delta_M.copy(),
             "delta_D": delta_D.copy(),
             "r_f": r_f_sum,

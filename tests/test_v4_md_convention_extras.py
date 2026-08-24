@@ -38,6 +38,7 @@ from andes_rl_kundur.env.andes.distributed_residual_env import (  # noqa: E402
 from andes_rl_kundur.env.andes.md_convention import (  # noqa: E402
     device_to_system,
 )
+from andes_rl_kundur.env.andes.v5_config import V5Config  # noqa: E402
 from andes_rl_kundur.probes.andes_common.paper_constants import SCENARIOS  # noqa: E402
 
 
@@ -48,9 +49,18 @@ def _isolate_andes_working_directory(
     monkeypatch.chdir(tmp_path)
 
 
-def test_v5_heterogeneous_d_write_is_system_base() -> None:
+@pytest.mark.parametrize(
+    "config",
+    [V5Config.v5_default(), V5Config.v4_plant_fallback()],
+    ids=["regca1-w2-only", "gencls-fallback"],
+)
+def test_v5_heterogeneous_d_write_is_system_base(config: V5Config) -> None:
     """Both V5 build paths must leave the runtime D on the system base."""
-    env = AndesMultiVSGEnvV5(random_disturbance=False, comm_fail_prob=0.0)
+    env = AndesMultiVSGEnvV5(
+        random_disturbance=False,
+        comm_fail_prob=0.0,
+        config=config,
+    )
     try:
         env.seed(42)
         env.reset(delta_u=SCENARIOS["load_step_1"])

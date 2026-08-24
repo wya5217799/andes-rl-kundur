@@ -1,0 +1,27 @@
+{
+  "env": "andes_vsg_env_v4 corrected base convention (md_convention)",
+  "family": "zero",
+  "n_steps": 30,
+  "record_extras": [
+    "freq_hz",
+    "M_es",
+    "D_es"
+  ],
+  "round": "R478",
+  "runtime_readback_note": "M_es/D_es are device-base telemetry derived from ANDES runtime readback; x_sys = x_dev * S_n / S_b.",
+  "scenarios": [
+    {
+      "delta_u": {
+        "PQ_Bus14": -2.48
+      },
+      "id": "ls1"
+    },
+    {
+      "delta_u": {
+        "PQ_Bus15": 1.88
+      },
+      "id": "ls2"
+    }
+  ],
+  "seed": 42
+}

@@ -1,0 +1,16 @@
+{
+  "approved_commands": {
+    "zero": [
+      "measure-capacity",
+      "rehearse"
+    ]
+  },
+  "authority_generation": "repair2",
+  "physical_execution_authorized": true,
+  "round": "R478",
+  "sources": {
+    "parameter_card": "316e3ebb561002847b320c96c2d699401bcabd2892f02f35b52e140bbe394922",
+    "plan": "23fb8a82020d55c5bd69ea2e79ad833708e4059c05556ddc6df1a454c93501d5",
+    "runner": "c2c5abc9e78303e1ea42561a8ec161c4c1237c5ceef9a1aac19fe6f7e53ec6b3"
+  }
+}

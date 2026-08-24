@@ -87,8 +87,10 @@ def _run_no_control(scenario_name: str) -> dict:
 def test_first_step_freq_hz_matches_baseline(scenario: str) -> None:
     """The very first post-disturbance step must be bit-identical."""
     baseline_path = BASELINE_DIR / f"no_control_{scenario}.json"
-    if not baseline_path.exists():
-        pytest.skip(f"baseline JSON missing: {baseline_path}")
+    assert baseline_path.is_file(), (
+        "corrected regression baseline is required and must be generated "
+        f"after the final source freeze: {baseline_path}"
+    )
 
     baseline = json.loads(baseline_path.read_text(encoding="utf-8"))
     expected = baseline["traces"][0]["freq_hz"]

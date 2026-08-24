@@ -44,12 +44,11 @@ if not _real_andes_available():
     )
 
 from andes_rl_kundur.env.andes.andes_vsg_env_v4 import AndesMultiVSGEnvV4  # noqa: E402
-from andes_rl_kundur.env.andes.vsg_energy_port_env import AndesVSGEnergyPortEnv  # noqa: E402
 from andes_rl_kundur.env.andes.md_convention import (  # noqa: E402
-    SYSTEM_BASE_MVA,
     device_to_system,
     system_to_device,
 )
+from andes_rl_kundur.env.andes.vsg_energy_port_env import AndesVSGEnergyPortEnv  # noqa: E402
 from andes_rl_kundur.probes.andes_common.paper_constants import SCENARIOS  # noqa: E402
 
 VSG_SN = 200.0

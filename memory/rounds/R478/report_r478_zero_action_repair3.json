@@ -1,0 +1,155 @@
+{
+  "capacity_selected_workers": 16,
+  "classification": "SEMANTIC-GATE-PASS",
+  "decision": "retain old route",
+  "formal_evidence": false,
+  "gate": "semantic_invariant",
+  "input_hashes": {
+    "authorized_sources": {
+      "parameter_card": "316e3ebb561002847b320c96c2d699401bcabd2892f02f35b52e140bbe394922",
+      "plan": "27036aa90938fb5141a6748ddfdb865c07757da9372c0b102e46b580f3484303",
+      "runner": "3162c5dafd01af2fb8e6e78b4ec767c3e47515cc257aa5087c67f156ecf357ed"
+    },
+    "capacity_sha256": "a1d8919f75a51386077edc126fc4ae3e3c922fbdb5fcae72f4976ef5be0f0234",
+    "contract_sha256": "cd70ddcda7064cabfc20e43ec7ce563364c434479b0699786572212d428c1e64",
+    "physical_authorization_sha256": "869a2bf5bec6b41b348d3b7b0c7bfc610ba40d8b7f028570be4c440ea9dc1740"
+  },
+  "manuscript_line": "yang-md-decoupling-marl",
+  "next_gate": "direct_md_canary_2a",
+  "old_yang_line_conclusion_comparison": "corrected M/D semantics are operationally plausible; no old Yang-line numerical or paper conclusion is revalidated",
+  "output_hashes": {
+    "rehearsal_sha256": "40d4016949bd7fc42a9d0af314f498f4de5c6b9598a487a0916e88906c3db00a"
+  },
+  "registered_metrics": {
+    "checks": {
+      "no_component_exception": true,
+      "nonzero_five_substep_readback": true,
+      "reset_repeatability": true,
+      "two_zero_action_disturbances": true,
+      "zero_action_matches_frozen_card": true
+    },
+    "classification": "SEMANTIC-GATE-PASS",
+    "errors": {},
+    "formal_evidence": false,
+    "manuscript_line": "yang-md-decoupling-marl",
+    "results": {
+      "nonzero_readback": {
+        "D_es": [
+          50.0,
+          50.0,
+          50.0,
+          50.0
+        ],
+        "D_target_es": [
+          50.0,
+          50.0,
+          50.0,
+          50.0
+        ],
+        "M_es": [
+          500.0,
+          500.0,
+          500.0,
+          500.0
+        ],
+        "M_target_es": [
+          500.0,
+          500.0,
+          500.0,
+          500.0
+        ],
+        "action": [
+          0.5,
+          -0.25
+        ],
+        "checks": {
+          "d_applied_matches_independent_target": true,
+          "d_runtime_readback_matches_report": true,
+          "d_target_matches_independent_card_calculation": true,
+          "environment_card_matches_frozen_card": true,
+          "five_substeps": true,
+          "m_applied_matches_independent_target": true,
+          "m_runtime_readback_matches_report": true,
+          "m_target_matches_independent_card_calculation": true,
+          "tds_ok": true
+        },
+        "substeps": 5
+      },
+      "reset_repeatability": {
+        "D_es_first": [
+          100.0,
+          100.0,
+          100.0,
+          100.0
+        ],
+        "D_es_second": [
+          100.0,
+          100.0,
+          100.0,
+          100.0
+        ],
+        "M_es_first": [
+          200.0,
+          200.0,
+          200.0,
+          200.0
+        ],
+        "M_es_second": [
+          200.0,
+          200.0,
+          200.0,
+          200.0
+        ],
+        "checks": {
+          "d_first_reset_matches_frozen_card": true,
+          "d_second_reset_restores_frozen_card": true,
+          "m_first_reset_matches_frozen_card": true,
+          "m_second_reset_restores_frozen_card": true
+        }
+      },
+      "zero_action": {
+        "ls1": {
+          "D_es_first": [
+            100.0,
+            100.0,
+            100.0,
+            100.0
+          ],
+          "M_es_first": [
+            200.0,
+            200.0,
+            200.0,
+            200.0
+          ],
+          "final_df": 0.08409447044039098,
+          "max_df": 0.131610452943697,
+          "n_steps": 30
+        },
+        "ls2": {
+          "D_es_first": [
+            100.0,
+            100.0,
+            100.0,
+            100.0
+          ],
+          "M_es_first": [
+            200.0,
+            200.0,
+            200.0,
+            200.0
+          ],
+          "final_df": 0.06403368157637601,
+          "max_df": 0.09538231511503881,
+          "n_steps": 30
+        }
+      }
+    },
+    "round": "R478",
+    "schema_version": 1,
+    "training_authorized": false
+  },
+  "round": "R478",
+  "schema_version": 1,
+  "training_authorized": false,
+  "validity": true
+}

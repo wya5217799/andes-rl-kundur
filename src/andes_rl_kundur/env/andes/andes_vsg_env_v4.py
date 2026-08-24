@@ -46,10 +46,6 @@ import numpy as np
 
 import andes
 from andes_rl_kundur.env.andes.base_env import AndesBaseEnv
-from andes_rl_kundur.env.andes.md_convention import (
-    SYSTEM_BASE_MVA,
-    device_to_system,
-)
 from andes_rl_kundur.env.andes.v4_config import V4Config
 from andes_rl_kundur.scenarios.contract import KUNDUR as _CONTRACT
 
@@ -361,16 +357,7 @@ class AndesMultiVSGEnvV4(AndesBaseEnv):
 
         ss.setup()
 
-        # Apply heterogeneous D₀ to each VSG after setup.
-        # R478: 运行时数组是系统基准; 设备基准 D₀ 写入前只换算一次
-        # (旧代码直接写设备基准数, 运行时阻尼系统性减半).
-        for i, vsg_id in enumerate(self.vsg_idx):
-            d_sys = device_to_system(
-                np.asarray([self.D0_HETEROGENEOUS[i]]),
-                device_mva=self.VSG_SN,
-                system_mva=SYSTEM_BASE_MVA,
-            )[0]
-            ss.GENCLS.set("D", vsg_id, float(d_sys), attr="v")
+        self._apply_heterogeneous_d0(ss)
 
         # Optionally zero G4 inertia (off in V4 paper baseline)
         if self.ZERO_G4_INERTIA and hasattr(self, "_g4_genrou_idx"):

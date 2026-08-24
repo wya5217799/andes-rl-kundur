@@ -16,6 +16,7 @@ from andes_rl_kundur.env.andes.distributed_residual_env import (
 
 class _FakeStorageEnv:
     N_AGENTS = 4
+    VSG_SN = 200.0
     DT = 0.2
     STEPS_PER_EPISODE = 4
     andes_nominal_frequency_hz = 60.0
@@ -29,8 +30,8 @@ class _FakeStorageEnv:
         self._vsg_pos = list(range(4))
         self.ss = SimpleNamespace(
             GENCLS=SimpleNamespace(
-                M=SimpleNamespace(v=np.full(4, 200.0, dtype=float)),
-                D=SimpleNamespace(v=np.full(4, 100.0, dtype=float)),
+                M=SimpleNamespace(v=np.full(4, 400.0, dtype=float)),
+                D=SimpleNamespace(v=np.full(4, 200.0, dtype=float)),
             )
         )
 
@@ -79,15 +80,17 @@ class _FakeStorageEnv:
         action_array = np.stack(
             [self.last_md_actions[index] for index in range(4)]
         )
-        self.ss.GENCLS.M.v[:] = 200.0 + 600.0 * action_array[:, 0]
-        self.ss.GENCLS.D.v[:] = 100.0 + 600.0 * action_array[:, 1]
+        m_device = 200.0 + 600.0 * action_array[:, 0]
+        d_device = 100.0 + 600.0 * action_array[:, 1]
+        self.ss.GENCLS.M.v[:] = 2.0 * m_device
+        self.ss.GENCLS.D.v[:] = 2.0 * d_device
         info = {
             "freq_hz_physical": self.get_vsg_frequency_physical_hz(),
             "omega_dot": self._compute_omega_dot(self._omega, self._power),
             "andes_nominal_frequency_hz": 60.0,
             "P_es": self._power.copy(),
-            "M_es": self.ss.GENCLS.M.v.copy(),
-            "D_es": self.ss.GENCLS.D.v.copy(),
+            "M_es": m_device.copy(),
+            "D_es": d_device.copy(),
         }
         return {}, {}, self._steps >= self.STEPS_PER_EPISODE, info
 

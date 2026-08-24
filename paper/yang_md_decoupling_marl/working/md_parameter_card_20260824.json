@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "frozen": "2026-08-24",
-  "owner_decision": "keep-current-values; only-conversion-change (owner approved 2026-08-24)",
+  "card_scope": "project calibration held fixed to isolate one conversion correction; not a strict Yang benchmark card",
   "convention": "controller math device-base; ANDES runtime system-base; convert exactly once per boundary crossing",
   "system_base_mva": 100.0,
   "devices": {
@@ -45,10 +45,12 @@
     "d": "p.u.; x_sys = x_dev * S_n / S_b",
     "h": "s; M = 2H"
   },
-  "yang_card_answer": "no separate Yang-benchmark card: the paper gives no baseline H0/D0 and no H dimension; the paper action increments dH=[-100,+300], dD=[-200,+600] are already matched in device base",
+  "yang_card_answer": "no strict Yang-benchmark card can be reconstructed: the paper gives action increments dH=[-100,+300] and dD=[-200,+600] but no baseline H0/D0 or sufficient unit/base information",
   "telemetry_base": "device (info M_es/D_es); invariant: equals ANDES readback converted to device",
   "justification_refs": [
-    "tmp/yang_md_decoupling_marl/phase0_card_audit/card_justification.md",
-    "CLM-0740 measured runtime readback M/D = 400/200"
+    "paper/yang_md_decoupling_marl/working/md_parameter_card_justification_20260824.md",
+    "docs/paper/kd_4agent_paper_facts.md",
+    "src/andes_rl_kundur/env/andes/v4_config.py",
+    "memory/claims/CLM-0740.md (different object; non-substitutable)"
   ]
 }

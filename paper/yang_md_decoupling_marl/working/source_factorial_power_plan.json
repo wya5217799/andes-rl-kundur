@@ -1,0 +1,246 @@
+{
+  "alternatives": {
+    "actor_main": "true 20% ratio; prove above the 10% bar",
+    "actor_x_critic": "positive 30% ratio-of-ratios, rounded below the old descriptive mean",
+    "critic_main": "true 20% ratio; prove above the 10% bar",
+    "critic_x_reward": "positive 25% ratio-of-ratios, rounded below the old descriptive mean"
+  },
+  "constructed_new_training_outcomes": false,
+  "estimand": {
+    "available_case_analysis": false,
+    "fresh_seed_roster": [
+      501,
+      502,
+      503,
+      504,
+      505,
+      506,
+      507,
+      508,
+      509,
+      510,
+      511,
+      512,
+      513,
+      514,
+      515,
+      516,
+      517,
+      518,
+      519,
+      520,
+      521,
+      522,
+      523,
+      524,
+      525,
+      526
+    ],
+    "missing_rule": "any missing/invalid matched cell invalidates the whole seed",
+    "nuisance_factor_weights": "equal within seed",
+    "profile_roster": [
+      "canary_eval_a",
+      "canary_eval_b",
+      "canary_eval_c",
+      "canary_eval_d"
+    ],
+    "profile_weights": "equal within seed",
+    "registered_hypotheses": [
+      "actor_main",
+      "critic_main",
+      "actor_x_critic",
+      "critic_x_reward"
+    ],
+    "unit": "training seed"
+  },
+  "execution_queue_status": "DEFERRED-UNTIL-UPSTREAM-CONCLUSIONS-SURVIVE",
+  "formal_execution_ready": false,
+  "inference": {
+    "assumptions": [
+      "independent training seeds",
+      "continuous symmetric location-shift distribution of boundary-centered seed effects",
+      "no zero differences or tied absolute ranks; otherwise inferential verdict is invalid"
+    ],
+    "familywise_alpha": 0.05,
+    "holm_tests": 4,
+    "materiality_log": 0.09531017980432493,
+    "materiality_ratio": 1.1,
+    "non_rejection": "not equivalence and not evidence of zero effect",
+    "power_planning_threshold": 0.0125,
+    "test": "exact one-sided Wilcoxon signed-rank at the materiality boundary"
+  },
+  "n_star": 26,
+  "old_descriptive_effects": {
+    "actor_main": {
+      "mean": -0.02481407517864216,
+      "sample_sd": 0.09170880153476273,
+      "seed_effects": [
+        -0.0030131208661800923,
+        -0.1408835904701544,
+        -0.030340071602302527,
+        0.1288640257855512,
+        -0.09052370684334939,
+        -0.012987987075417776
+      ]
+    },
+    "actor_x_critic": {
+      "mean": 0.3152844415061185,
+      "sample_sd": 0.19133119799723677,
+      "seed_effects": [
+        0.3893843600574223,
+        0.06577606021071754,
+        0.28185089661521173,
+        0.1278723530241942,
+        0.49693181736703484,
+        0.5298911617621304
+      ]
+    },
+    "critic_main": {
+      "mean": 0.044168668416696304,
+      "sample_sd": 0.0690913861005555,
+      "seed_effects": [
+        -0.07059881919489218,
+        0.12316891708554296,
+        0.015460567540766867,
+        0.061042025571691055,
+        0.10123858706611885,
+        0.03470073243095024
+      ]
+    },
+    "critic_x_reward": {
+      "mean": 0.241132061049537,
+      "sample_sd": 0.16515992854871225,
+      "seed_effects": [
+        0.11988783156418763,
+        0.07850569459381629,
+        0.5302233563876317,
+        0.30521967804891864,
+        0.25726515857175614,
+        0.15569064713091155
+      ]
+    }
+  },
+  "planner": {
+    "path": "src/andes_rl_kundur/evaluation/source_factorial_design.py",
+    "sha256": "e7150034c9ab1920bf61b13d536fbcc6c1d6c7c76dd648828abfe7188cbbfd07"
+  },
+  "power_at_n_star": {
+    "actor_main": {
+      "critical_w_plus": 264,
+      "n": 26,
+      "power": 0.986815,
+      "power_wilson95_lower": 0.9863056580585701,
+      "rng_seed": 20270824,
+      "simulations": 200000
+    },
+    "actor_x_critic": {
+      "critical_w_plus": 264,
+      "n": 26,
+      "power": 0.96941,
+      "power_wilson95_lower": 0.9686462335988206,
+      "rng_seed": 20270826,
+      "simulations": 200000
+    },
+    "critic_main": {
+      "critical_w_plus": 264,
+      "n": 26,
+      "power": 0.986775,
+      "power_wilson95_lower": 0.9862649114006734,
+      "rng_seed": 20270825,
+      "simulations": 200000
+    },
+    "critic_x_reward": {
+      "critical_w_plus": 264,
+      "n": 26,
+      "power": 0.818865,
+      "power_wilson95_lower": 0.817171005081007,
+      "rng_seed": 20270827,
+      "simulations": 200000
+    }
+  },
+  "power_model": "independent normal location shifts on the boundary-centred seed effects; exact signed-rank rejection region",
+  "prospective_only": true,
+  "remaining_gates": [
+    "corrected physical regression baseline",
+    "all offline and real-ANDES invariants green",
+    "measured capacity/runtime/memory/disk budget on final sources",
+    "frozen source map and dual review",
+    "formal seal and explicit owner approval"
+  ],
+  "requirements": {
+    "actor_main": {
+      "alternative_log": 0.1823215567939546,
+      "alternative_ratio": 1.2,
+      "power_at_required_n": {
+        "critical_w_plus": 88,
+        "n": 14,
+        "power": 0.8139,
+        "power_wilson95_lower": 0.8121883192660758,
+        "rng_seed": 20260838,
+        "simulations": 200000
+      },
+      "required_n": 14,
+      "sd_bound": 0.09170880153476273
+    },
+    "actor_x_critic": {
+      "alternative_log": 0.26236426446749106,
+      "alternative_ratio": 1.3,
+      "power_at_required_n": {
+        "critical_w_plus": 111,
+        "n": 16,
+        "power": 0.814985,
+        "power_wilson95_lower": 0.813277144522028,
+        "rng_seed": 20262840,
+        "simulations": 200000
+      },
+      "required_n": 16,
+      "sd_bound": 0.19133119799723677
+    },
+    "critic_main": {
+      "alternative_log": 0.1823215567939546,
+      "alternative_ratio": 1.2,
+      "power_at_required_n": {
+        "critical_w_plus": 88,
+        "n": 14,
+        "power": 0.809885,
+        "power_wilson95_lower": 0.8081593532018088,
+        "rng_seed": 20261838,
+        "simulations": 200000
+      },
+      "required_n": 14,
+      "sd_bound": 0.09170880153476273
+    },
+    "critic_x_reward": {
+      "alternative_log": 0.22314355131420976,
+      "alternative_ratio": 1.25,
+      "power_at_required_n": {
+        "critical_w_plus": 264,
+        "n": 26,
+        "power": 0.817545,
+        "power_wilson95_lower": 0.815846257584986,
+        "rng_seed": 20263850,
+        "simulations": 200000
+      },
+      "required_n": 26,
+      "sd_bound": 0.19133119799723677
+    }
+  },
+  "round": "R478",
+  "schema_version": 1,
+  "source": {
+    "metric": "disturbance_differential_energy",
+    "path": "paper/yang_md_decoupling_marl/manuscript/supplement/r477_arm_seed_profile.csv",
+    "sha256": "dfaaa4451afcc656134f68c0bcaddf88ae438877177671766d40cb55e1490122",
+    "stage": "final",
+    "use": "variance and direction planning only; never pooled"
+  },
+  "variance_rule": {
+    "interactions": "maximum old sample SD across both interactions",
+    "main_effects": "maximum old sample SD across actor and critic main effects"
+  },
+  "workload": {
+    "arm_stage_evaluation_jobs": 16,
+    "fresh_training_cells": 208,
+    "total_factorial_jobs": 224
+  }
+}
