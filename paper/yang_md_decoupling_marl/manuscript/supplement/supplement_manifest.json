@@ -1,0 +1,77 @@
+{
+  "generated_files": [
+    {
+      "path": "paper/yang_md_decoupling_marl/manuscript/supplement/frozen_profile_bank.csv",
+      "sha256": "2157b44ac7507898fc2198266fff1cc448717d6cd31434b8ced692d66fdbdb36"
+    },
+    {
+      "path": "paper/yang_md_decoupling_marl/manuscript/supplement/r413_topology_variants.csv",
+      "sha256": "43edf0d5c4f18a3c23409171821d54514b7919ba2804647514daed7c55fbb3a9"
+    },
+    {
+      "path": "paper/yang_md_decoupling_marl/manuscript/supplement/r477_arm_seed_profile.csv",
+      "sha256": "dfaaa4451afcc656134f68c0bcaddf88ae438877177671766d40cb55e1490122"
+    },
+    {
+      "path": "paper/yang_md_decoupling_marl/manuscript/supplement/r477_arm_summary.csv",
+      "sha256": "ebabbe00e31296025e37032a2b13aa7cefc107d7bd5a7e2857d528062e9bd639"
+    },
+    {
+      "path": "paper/yang_md_decoupling_marl/manuscript/supplement/r477_asymmetric_sensitivity.json",
+      "sha256": "5deaeabfbfe2386a177d5650063d77497675302cedd363b51c924d3d19dac386"
+    },
+    {
+      "path": "paper/yang_md_decoupling_marl/manuscript/supplement/r477_carryover_manifest.csv",
+      "sha256": "952ddd5462f306f26547d1b5f958d03ae89231052d5b705a24fa08ac359ee281"
+    },
+    {
+      "path": "paper/yang_md_decoupling_marl/manuscript/supplement/r477_conditioned_effects.csv",
+      "sha256": "df41d988c8ed65c288ea98ae33ca7f1b5674941fee996221e640cb7411d7cb67"
+    },
+    {
+      "path": "paper/yang_md_decoupling_marl/manuscript/supplement/r477_reward_conditioned_effects.csv",
+      "sha256": "8fd6e3542f0810378bbf301ba1f6ce4b8f6d2943d0e29fe98f01beef6703d91e"
+    },
+    {
+      "path": "paper/yang_md_decoupling_marl/manuscript/supplement/r477_run_flow.md",
+      "sha256": "6dd2ab0d4ec4ba2c96d6446849e297c99dcaeb377675e5615b79afbaa2a012b0"
+    },
+    {
+      "path": "paper/yang_md_decoupling_marl/manuscript/supplement/r477_training_stability.csv",
+      "sha256": "bc463bc4bbeae894d1fe26e1d35bf024e811254e787c624bdad1f6654335acb4"
+    },
+    {
+      "path": "paper/yang_md_decoupling_marl/manuscript/supplement/reproducibility_contract.json",
+      "sha256": "68c232e74c1d1f0e84c4df21ee5d15531e1728563e531aa60cce3b368cba3670"
+    }
+  ],
+  "generator": {
+    "path": "paper/yang_md_decoupling_marl/manuscript/build_reproducibility_supplement.py",
+    "sha256": "8bd847754e30374f84ed1865df0f7dc513e7dee27bf38c95778b811920c76771"
+  },
+  "manuscript": {
+    "path": "paper/yang_md_decoupling_marl/manuscript/main.tex",
+    "sha256": "5eff32b5b430ec33197ac8dcacfd5ff6af3624d44a495e32714d9108ba285dc0"
+  },
+  "path_base": "repository_root",
+  "schema_version": 1,
+  "scientific_scope": "The manifest binds the manuscript to deterministic exports of sealed R477/R413 evidence. It performs no training, simulation, retuning, case exclusion, or endpoint modification.",
+  "upstream_evidence": [
+    {
+      "path": "results/research_loop/r477_u2_confirmatory/formal_analysis.json",
+      "sha256": "7cd9129b404a7fd634fb6234034f36c065751c6a51b5be41ff2a2883fefc30e3"
+    },
+    {
+      "path": "results/research_loop/r477_u2_confirmatory/formal_manifest.json",
+      "sha256": "dc8950aca7a3716cd2cee70c53d1f932324b47d97cd20dbccae1da52540d1cdf"
+    },
+    {
+      "path": "results/research_loop/r477_u2_confirmatory/r476_shard_import.json",
+      "sha256": "fafcc94d25e403776c5d48ccf532f4f0123fd5f723760a88f6548c315fb98417"
+    },
+    {
+      "path": "results/research_loop/r413_topology_robustness/formal_analysis.json",
+      "sha256": "bc94e1fe35ed77e4a45aa189f3158a3c0c3178ebdad763cf8c340f963ca7fb9e"
+    }
+  ]
+}

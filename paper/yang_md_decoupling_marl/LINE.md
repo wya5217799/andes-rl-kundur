@@ -2,7 +2,7 @@
 line_id: yang-md-decoupling-marl
 status: active
 priority: 4
-stage: manuscript-drafting
+stage: experiment-revalidation-pre-launch-build
 artifact_manifest: paper/yang_md_decoupling_marl/ARTIFACTS.json
 scope:
   write_roots: [paper/yang_md_decoupling_marl]
@@ -17,8 +17,8 @@ venue:
   review_triggers: ["after evidence-bounded conference-draft review or any authorized topology-robustness gate", "before 2026-08-28 author registration and 2026-09-07 final-paper upload"]
 working_title: "Decoupling-Oriented Coordination of Paralleled  VSGs With Multi-Agent Reinforcement Learning"
 title_policy: "Fixed wording; same-object evidence per term; prospective till gate passes."
-objective: "Draft/audit an evidence-bounded ICEMS 2026 manuscript: direct-M/D MARL canary as bounded negative comparison; R408/R409 energy-port results as separately labelled constructive mechanism result. No new experiment/training/learner replacement/fresh bank/broader title claim, except the owner-authorized message-contrast repair round, soft-spot program, and VSG failure-math advisory resolution program; only verified outcomes may enter, before the final-paper freeze."
-decision_refs: ["paper/yang_md_decoupling_marl/working/route_owner_decision_v2_solving_2026-08-15.md#decision", "memory/claims/CLM-1165.md#statement", "paper/yang_md_decoupling_marl/working/route_successor_design_r403.md#decision", "docs/adr/0019-separate-yang-md-decoupling-marl-successor.md#decision", "paper/yang_md_decoupling_marl/working/route_owner_decision_message_repair_2026-08-16.md#decision", "paper/yang_md_decoupling_marl/working/route_owner_decision_soft_spot_program_2026-08-16.md#decision", "paper/yang_md_decoupling_marl/working/soft_spot_experiment_program.md#default-deck-run-in-order-then-stop", "paper/yang_md_decoupling_marl/working/route_owner_decision_advisory_unresolved_2026-08-21.md#decision", "paper/yang_md_decoupling_marl/working/gpt_pro_unresolved_math_solution_20260821/IMPORT_NOTE.md#manuscript-disposition"]
+objective: "Pre-launch build: physical card frozen, base convention fixed, invariants green; adapt deterministic/offline/learner/factorial runners from the prior structure, seal and rehearse every launch path. Stop before any formal simulation attempt; owner reviews the frozen program."
+decision_refs: ["docs/adr/0019-separate-yang-md-decoupling-marl-successor.md#decision", "paper/yang_md_decoupling_marl/working/gpt_pro_unresolved_math_solution_20260821/IMPORT_NOTE.md#manuscript-disposition", "paper/yang_md_decoupling_marl/working/corrected_md_revalidation_experiment_plan_20260824.md#decision", "paper/yang_md_decoupling_marl/working/md_parameter_card_20260824.json#owner_decision"]
 evidence_refs:
   - "CLM-1135 -> paper/yang_md_decoupling_marl/reports/R398.md"
   - "CLM-1140 -> paper/yang_md_decoupling_marl/reports/R399.md"
@@ -83,6 +83,6 @@ evidence_refs:
   - "CLM-1475 -> paper/yang_md_decoupling_marl/reports/R473.md"
   - "CLM-1480 -> paper/yang_md_decoupling_marl/reports/R477.md"
 required_reading: [paper/yang_md_decoupling_marl/LINE.md]
-verification: ["One VSG proxy = one actor, one independently executed bounded delta-M/delta-D vector; decoupling = lower off-diagonal common/differential response + lower disturbance differential energy with common-mode no-harm; coordination = message-enabled execution beats a matched no-message arm; R399 = finite non-learning stop; historical values not evidence; direct-M/D vs energy-port ratios never pooled."]
-stop_when: ["No training/tuning/learner replacement/bank retry/fresh bank, except the owner-authorized message-contrast repair round, soft-spot program rounds, and VSG failure-math advisory resolution rounds (one per item, program order). Keep R404 values out of title-supporting Results; no universal MARL claim from the R402 canary failure; no successful-MARL claim from R409; keep direct-M/D and energy-port objects/estimators/banks/references separate."]
+verification: ["Zero action preserves runtime M/D; corrected objects stay non-pooled; COI/modal sensitivity reported."]
+stop_when: ["No formal simulation before the owner approves the frozen program; notify the owner at the launch moment."]
 ---

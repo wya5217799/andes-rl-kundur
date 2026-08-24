@@ -1,40 +1,74 @@
-# Draft update queue — yang-md-decoupling-marl
+# Manuscript update queue
 
-草稿批次更新契约的实例。单一真源 = 各 feed 的 `Manuscript mapping` 段
-(feed_check 强制存在)；本文件只持指针与已知冲突点，不复制 feed 结论。
+## Current state
 
-## 状态
+- All authorized experiments are complete.
+- The clean row-permuted-placebo source factorial is the final source-effect authority.
+- The previous Markdown mother draft is superseded by the IEEE LaTeX manuscript.
+- The current manuscript compiles to six A4 IEEE two-column pages with the fixed title and author block.
+- All 20 cited references have passed independent metadata and citation-strength verification.
+- No new experiment is required for the bounded ICEMS evaluation paper.
 
-- 草稿批次更新只在批次节点执行：manuscript lane 轮 / manuscript-refresh /
-  提交冻结（CLAUDE.md 手稿线生命周期）。
-- **R473 统计口径需降级（外部深审 2026-08-23，`working/gpt_pro_r474_placebo_review_deep_20260823/01_R474_DEEP_REVIEW.md` F-04）**：
-  R473 的 "Holm-controlled p=0.015625" 是零效应符号翻转检验；正确口径是
-  直接材料性检验（H0: effect <= log(1.10)），R473 六个 critic 差值下
-  p=2/64=0.03125 > 0.025 不通过。**论文中 18.8% 数字的 "Holm 控制材料性"
-  措辞必须降级或等待 R475 结果**；R475（2026-08-23 启动，直接材料性 Holm
-  口径）完成后按 R475 结果写入。
-- **R474 abort（2026-08-23）**：外部深审证明 pi(i)=(i+2) 对角复制 P 违反
-  守卫逐槽值池条件；R474 已关闭（零新鲜分片），R475 以行置换 P + 全新鲜
-  2x2 + 直接材料性 Holm 重做（运行中）。
-- 当前：R475 训练中（48 片，预计 2026-08-24 凌晨完成）；等批次节点一次性处理。
-- 新增对照输入：GPT chat 审核解答（2026-08-22，`working/U1_U9_audited_solution_20260822.md`）
-  逐条给出可写/禁止措辞；批次更新时对照其 U1/U4/U5/U6/U7/U8/U9 各节，
-  尤其 U1 有限类不可行证书与 U7 的 pure-q^2 措辞边界。
-- U1 升级（agent-results 包，2026-08-22）：精确有理支撑证书已本机复证
-  （序列化 binary64 QY10 SOCP 的 t 下界 0.0599381277975427... > 0），
-  稿中 U1 措辞可从此数值容差版本升级为严格证书版本。
-- U2 边界（agent-results 包，2026-08-22，已对源码核实）：P 源读外生随机
-  策略 donor 库、N 源读当前受控轨迹，边际审计仅覆盖 donor 库内部；
-  R473 完成后的结论只能写「真实邻居源 vs 外生 donor 源的总算法效应」，
-  不能写纯语义邻居信息效应（R473 feed 已按此措辞落地）。
-- 待对照 feed（最新 → 旧）：R473, R469, R468, R467, R465, R464, R463 —
-  逐条对照各自 `Manuscript mapping` 段。
-- 已知冲突点：R464 (U1 Youla 证书) vs 草稿 §3.5 / §6.4 的「只有蓝图、
-  没有证书」表述 — 批次更新时必须修订草稿这两处。
+## Ordered writing work
 
-## 使用
+1. [x] Replace the old three-seed message conclusion with the six-seed 10%-materiality result.
+2. [x] Compress the learner route into representative repair and evidence-ladder tables.
+3. [x] Keep direct-M/D and energy-port objects separate in analysis and prose.
+4. [x] Add a one-column source-effect interval figure generated from the final formal analysis.
+5. [x] Add a non-data-selected physical response figure from sealed five-seed trajectories.
+6. [x] Add a one-column physical-contract overview using vector TikZ.
+7. [x] Rewrite Methods, Results, Interpretation, Introduction, Conclusion, and Abstract.
+8. [x] Preserve the verified IEEE author block and bibliography style without reusing old scientific content.
+9. [x] Run claim-evidence, power-system domain, citation, language, LaTeX, and visual audits.
 
-- 批次更新时：逐条对照队列中 feed 的 Manuscript mapping 段，改完删除
-  对应行。
-- 新 feed 完成：只写 feed 的 Manuscript mapping 段；mapping 断言与草稿
-  现有文字冲突时 feed 当场标 `CONFLICT`（历史 feed 不回填）。
+## 2026-08-24 review-driven revision
+
+1. [x] Correct the direct-$M/D$ swing equations, executed decoder, units, and
+   finite-window endpoint definitions.
+2. [x] Separate the deterministic two-development-profile bank from the learner
+   four-development-profile bank and state the ideal communication assumptions.
+3. [x] Make the reward, carryover audit, exact sign-flip test, bootstrap interval,
+   and leave-one-seed-out checks reproducible from the manuscript.
+4. [x] Replace action-stress/no-harm language with empirical command
+   magnitude/variation guards and clarify all signed source effects.
+5. [x] Delete the under-documented numerical power claim and retain only the
+   supported small-effect limitation.
+6. [x] Define the equilibrium-sound topology subset and its two pre-performance
+   exclusions.
+7. [x] Compile, render, run claim-evidence and power-system audits, then repeat
+   the multi-agent review on one frozen revision.
+
+Build status: compilation and six-page visual rendering pass; the changed-claim
+evidence audit and R477 reproducibility tables pass. The frozen multi-agent
+re-review returned one additional major revision, implemented below.
+
+## 2026-08-24 second review-driven revision
+
+1. [x] Export the exact deterministic and learner profile banks, including
+   signed probe vectors, magnitudes, steady loads, and localized locations.
+2. [x] Export interaction-sensitive source contrasts and disclose actor/critic
+   conditional direction reversals in the Results.
+3. [x] Separate loss-curve stability from source-effect plateau and report the
+   half/final effect contraction.
+4. [x] Disclose the actor-source-asymmetric carryover allocation and limit the
+   signed direction claims to the sealed dataset.
+5. [x] Add an exact asymmetric-distribution sign sensitivity without changing
+   the primary mean estimand.
+6. [x] Freeze a supplement manifest binding the manuscript, generator, exports,
+   and authoritative R477/R413 inputs by SHA-256.
+7. [x] Replace every broad energy-port attainability sentence with a distinct
+   action-object, matched-contract statement.
+8. [x] Recompile and visually inspect all six pages; refresh the changed-claim
+   evidence audit.
+
+Remaining queue: independent rerun of the 16 carryover cells is optional and
+would be needed only to promote the signed actor direction beyond a descriptive
+sealed-dataset result. It is not required for the retained “material effect not
+established” conclusion. A final venue/package audit remains before submission.
+
+## Wording ceilings
+
+- Use “no effect above the 10% materiality bar was established.”
+- Do not use “there is no effect,” “communication is useless,” or “MARL cannot coordinate VSGs.”
+- Describe the structured energy-port controller as a distinct non-pooled physical witness, never as learned M/D success.
+- Bound every result to the frozen modified-Kundur plant, registered banks, controller family, and seed design.

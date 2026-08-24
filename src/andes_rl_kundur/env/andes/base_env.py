@@ -24,6 +24,10 @@ from collections import deque
 import numpy as np
 
 from andes_rl_kundur.scenarios.contract import KUNDUR as _DEFAULT_CONTRACT
+from andes_rl_kundur.env.andes.md_convention import (
+    SYSTEM_BASE_MVA,
+    device_to_system,
+)
 
 
 class AndesBaseEnv(ABC):
@@ -316,9 +320,14 @@ class AndesBaseEnv(ABC):
             self._action_history_dM.clear()
             self._action_history_dD.clear()
 
-        # 记录当前 M/D 值, 用于 substep 插值的起点
-        self._prev_M = self.M0.copy()
-        self._prev_D = self.D0.copy()
+        # 记录当前运行时 M/D 值 (系统基准), 作为 substep 插值的起点.
+        # R478: 旧代码把未换算的设备基准 M0/D0 当锚点 —— 零动作第一步就会
+        # 把运行时惯量从系统基准值改写为设备基准数 (M 400->200, D 200->100),
+        # 而报告的动作增量仍是零. 锚点改为 ANDES 运行时数组读回.
+        self._prev_M = np.asarray(
+            [self.ss.GENCLS.M.v[pos] for pos in self._vsg_pos], dtype=float)
+        self._prev_D = np.asarray(
+            [self.ss.GENCLS.D.v[pos] for pos in self._vsg_pos], dtype=float)
 
         # 记录上一步物理增量 (用于 LAMBDA_SMOOTH 平滑惩罚)
         self._prev_delta_M = np.zeros(self.N_AGENTS)
@@ -370,6 +379,14 @@ class AndesBaseEnv(ABC):
             M_new[i] = max(self.M0[i] + delta_M[i], M_MIN)
             D_new[i] = max(self.D0[i] + delta_D[i], D_MIN)
 
+        # R478 基准约定: 动作解码与奖励保持设备基准 (论文 Eq.12 语义);
+        # 写入 ANDES 运行时数组 (系统基准) 前只换算一次.
+        # 旧代码把设备基准数直接写进系统基准数组, 运行时惯量/阻尼系统性减半.
+        M_new_sys = device_to_system(
+            M_new, device_mva=self.VSG_SN, system_mva=SYSTEM_BASE_MVA)
+        D_new_sys = device_to_system(
+            D_new, device_mva=self.VSG_SN, system_mva=SYSTEM_BASE_MVA)
+
         # 2. 分 N_SUBSTEPS 小段渐变推进仿真, 避免参数突变导致 TDS 发散
         # CRITICAL: float(...) cast — ANDES dae.t 是 numpy 0-d array, 直接赋值
         # 拿到的是引用, ANDES 推进 dae.t 后 current_t 也会跟变, sub_target
@@ -382,8 +399,8 @@ class AndesBaseEnv(ABC):
         for k in range(self.N_SUBSTEPS):
             alpha = (k + 1) / self.N_SUBSTEPS
             for i in range(self.N_AGENTS):
-                M_interp = self._prev_M[i] + alpha * (M_new[i] - self._prev_M[i])
-                D_interp = self._prev_D[i] + alpha * (D_new[i] - self._prev_D[i])
+                M_interp = self._prev_M[i] + alpha * (M_new_sys[i] - self._prev_M[i])
+                D_interp = self._prev_D[i] + alpha * (D_new_sys[i] - self._prev_D[i])
                 self.ss.GENCLS.set("M", self.vsg_idx[i], M_interp, attr='v')
                 self.ss.GENCLS.set("D", self.vsg_idx[i], D_interp, attr='v')
 
@@ -396,9 +413,9 @@ class AndesBaseEnv(ABC):
                 tds_failed = True
                 break
 
-        # 更新 prev M/D (无论是否 TDS 失败, 下次 reset 会重置)
-        self._prev_M = M_new.copy()
-        self._prev_D = D_new.copy()
+        # 更新 prev M/D (系统基准; 无论是否 TDS 失败, 下次 reset 会重置)
+        self._prev_M = M_new_sys.copy()
+        self._prev_D = D_new_sys.copy()
 
         self.step_count += 1
 

@@ -1,0 +1,13 @@
+variant_id,kind,line_id,reactance_factor,equilibrium_screen_pass,initialization_tolerance,positive_real_tolerance,performance_scored,exclusion_reason
+nominal,none,,,True,0.0001,1e-07,True,
+out_Line_4,outage,Line_4,,True,0.0001,1e-07,True,
+out_Line_5,outage,Line_5,,True,0.0001,1e-07,True,
+out_Line_7,outage,Line_7,,True,0.0001,1e-07,True,
+out_Line_7_12,outage,Line_7_12,,False,,1e-07,False,LinAlgError: Array must not contain infs or NaNs
+out_Line_8,outage,Line_8,,True,0.0001,1e-07,True,
+out_Line_9_15,outage,Line_9_15,,False,,1e-07,False,LinAlgError: Array must not contain infs or NaNs
+x0p5_Line_4,impedance,Line_4,0.5,True,0.0001,1e-07,True,
+x0p5_Line_7,impedance,Line_7,0.5,True,0.0001,1e-07,True,
+x1p5_Line_4,impedance,Line_4,1.5,True,0.0001,1e-07,True,
+x1p5_Line_7,impedance,Line_7,1.5,True,0.0001,1e-07,True,
+x1p5_Line_7_12,impedance,Line_7_12,1.5,True,0.0001,1e-07,True,

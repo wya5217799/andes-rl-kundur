@@ -1,0 +1,60 @@
+{
+  "deterministic_comparator": {
+    "candidate_gain_grid": [
+      0.5,
+      1.0,
+      2.0
+    ],
+    "damping_target": "tanh(k_D*(|f_i|+mean_j|f_i-f_j|+mean_j|rocof_i-rocof_j|))",
+    "inertia_target": "tanh(k_M*(|f_i|+|rocof_i|-mean_j(|f_j|+|rocof_j|)))",
+    "projector": "elementwise [-1,1] clip with per-update slew <=0.25",
+    "selected_damping_gain": 2.0,
+    "selected_inertia_gain": 2.0
+  },
+  "endpoint_units": "Hz^2 s / pu^2; discrete L2 response energy, not joules or a Lyapunov/storage function",
+  "probe_vectors": {
+    "common": "epsilon_c/4 * [1,1,1,1]",
+    "differential": "epsilon_d/4 * [1,1,-1,-1]",
+    "localized": "epsilon_l * e_j"
+  },
+  "scope": "frozen direct-M/D comparator and R477 confirmatory evaluation",
+  "software": {
+    "andes": "2.0.0",
+    "dependency_floor_source": "pyproject.toml",
+    "python_torch_numpy_exact_versions": "not recorded in the sealed R477 artifacts"
+  },
+  "source_files": [
+    {
+      "path": "pyproject.toml",
+      "sha256": "b329d8f0ab15f5217bb90d52c026479a1c722242523c95f12d3bcef596375ed9"
+    },
+    {
+      "path": "src/andes_rl_kundur/control/per_vsg_md.py",
+      "sha256": "830122cbc2c4cbba96bd892197f95a5991e3f4c4e514d2c28d370ca589a29c5d"
+    },
+    {
+      "path": "src/andes_rl_kundur/evaluation/md_decoupling_headroom.py",
+      "sha256": "bb5cb7aafe4b03b556dbeca24773cfecc4d31955e4e6eb7e94b379107a6bb87c"
+    },
+    {
+      "path": "src/andes_rl_kundur/evaluation/cd_matd3_canary.py",
+      "sha256": "811ffd314a450e3c700270158437e7326d0d1bbdebc26fdb81f2783a53129f78"
+    },
+    {
+      "path": "src/andes_rl_kundur/env/andes/base_env.py",
+      "sha256": "1797c658aa52a788a5e26782fc2c7fa71b7dccfac3c2dc5de7d6ce6e4432fe34"
+    },
+    {
+      "path": "scripts/run_r475_u2_confirmatory.py",
+      "sha256": "5ba3ca160b03908f93ceb8c99d865275441d35c69d7a339756a8243b2ad4e76f"
+    },
+    {
+      "path": "scripts/run_r476_u2_confirmatory.py",
+      "sha256": "cb0eb59eaade14af7283e4b9cc9d4e24f517f6815a27b3d05a97c4ff25a48131"
+    },
+    {
+      "path": "scripts/run_r477_u2_confirmatory.py",
+      "sha256": "9cef3a312e4712956f30b942778a3a291b3e89e006dbef60ee13d52877be72ea"
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "estimand": "seed median source effect above log(1.10)",
+  "null_boundary": "Pr(seed effect > log(1.10)) <= 0.5",
+  "purpose": "asymmetric-distribution sensitivity only; it does not replace the primary across-seed mean estimand",
+  "results": {
+    "actor": {
+      "one_sided_exact_binomial_p": 0.984375,
+      "seed_count": 6,
+      "seed_effects_above_log_1p10": 1
+    },
+    "critic": {
+      "one_sided_exact_binomial_p": 0.890625,
+      "seed_count": 6,
+      "seed_effects_above_log_1p10": 2
+    }
+  }
+}

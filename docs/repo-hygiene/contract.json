@@ -183,14 +183,22 @@
    "roles": {
     "canonical": [
      "paper/yang_md_decoupling_marl/LINE.md",
-     "paper/yang_md_decoupling_marl/ARTIFACTS.json"
+     "paper/yang_md_decoupling_marl/ARTIFACTS.json",
+     "paper/yang_md_decoupling_marl/manuscript/main.tex",
+     "paper/yang_md_decoupling_marl/manuscript/references.bib"
     ],
     "support": [
      "paper/yang_md_decoupling_marl/working/route_contract.md",
-     "paper/yang_md_decoupling_marl/working/vsg_failure_math_advisory_20260820"
+     "paper/yang_md_decoupling_marl/working/vsg_failure_math_advisory_20260820",
+     "paper/yang_md_decoupling_marl/manuscript/build_reproducibility_supplement.py",
+     "paper/yang_md_decoupling_marl/manuscript/supplement"
     ],
     "reports": [
      "paper/yang_md_decoupling_marl/reports"
+    ],
+    "derived": [
+     "paper/yang_md_decoupling_marl/manuscript/main.pdf",
+     "paper/yang_md_decoupling_marl/manuscript/figures"
     ]
    }
   },
@@ -559,7 +567,7 @@
   "navigation_budgets": {
    "line_max_lines": 90,
    "line_max_bytes": 8192,
-   "required_reading_max_bytes": 32768
+   "required_reading_max_bytes": 40960
   },
   "venue_statuses": [
    "unassessed",

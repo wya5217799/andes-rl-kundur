@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "frozen": "2026-08-24",
+  "owner_decision": "keep-current-values; only-conversion-change (owner approved 2026-08-24)",
+  "convention": "controller math device-base; ANDES runtime system-base; convert exactly once per boundary crossing",
+  "system_base_mva": 100.0,
+  "devices": {
+    "vsg_1_to_4": {
+      "sn_mva": 200.0,
+      "h_device_s": 100.0,
+      "m_device_s": 200.0,
+      "d_device": 100.0,
+      "m_system_s": 400.0,
+      "d_system": 200.0,
+      "note": "H0=100 s / D0=100 are declared project calibration values; the Yang 2023 paper specifies no baseline H0/D0"
+    },
+    "wf2_proxy": {
+      "sn_mva": 100.0,
+      "m_device_s": 0.1,
+      "d_device": 0.0,
+      "factor": 1.0,
+      "note": "not a controlled agent; no controller writes"
+    }
+  },
+  "action_map": {
+    "normalized_action_range": [-1, 1],
+    "delta_m_device": [-200, 600],
+    "delta_d_device": [-200, 600],
+    "delta_m_system": [-400, 1200],
+    "delta_d_system": [-400, 1200],
+    "positive_slope": 600,
+    "negative_slope": 200
+  },
+  "clamps": {
+    "m_min_device": 20.0,
+    "d_min_device": 10.0,
+    "upper_clamp": "none (reachable maxima 800/700 device)"
+  },
+  "slew": {
+    "n_substeps": 5,
+    "rule": "linear interpolation over one 0.2 s control step"
+  },
+  "units_and_conversion": {
+    "m": "s; x_sys = x_dev * S_n / S_b",
+    "d": "p.u.; x_sys = x_dev * S_n / S_b",
+    "h": "s; M = 2H"
+  },
+  "yang_card_answer": "no separate Yang-benchmark card: the paper gives no baseline H0/D0 and no H dimension; the paper action increments dH=[-100,+300], dD=[-200,+600] are already matched in device base",
+  "telemetry_base": "device (info M_es/D_es); invariant: equals ANDES readback converted to device",
+  "justification_refs": [
+    "tmp/yang_md_decoupling_marl/phase0_card_audit/card_justification.md",
+    "CLM-0740 measured runtime readback M/D = 400/200"
+  ]
+}

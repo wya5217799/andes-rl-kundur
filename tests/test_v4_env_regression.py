@@ -1,13 +1,16 @@
 """V4 env behavioral regression test.
 
 Locks the public-interface contract that ``AndesMultiVSGEnvV4`` produces
-bit-identical no-control trajectories before and after the AD-01
-self-containment refactor.
+bit-identical no-control trajectories under the R478-corrected M/D base
+convention (device-base controller math, system-base runtime arrays,
+convert exactly once per boundary crossing).
 
 The reference JSONs in
-``results/research_loop/eval_v4_baseline_PRE_REFACTOR/`` were generated
-on the V1→V2→V3→V4 inheritance chain immediately before the refactor.
-The current V4 (now self-contained) must reproduce them step-for-step.
+``results/research_loop/eval_v4_baseline_R478/`` were generated on the
+corrected object. The older
+``results/research_loop/eval_v4_baseline_PRE_REFACTOR/`` references lock
+the pre-correction physics and stay untouched as historical evidence.
+The R478 re-lock is the single deliberate behavioral change of that round.
 
 Tolerance is tight (1e-9) because the env is deterministic given
 fixed ``(seed, random_disturbance=False, comm_fail_prob=0)``.
@@ -39,7 +42,7 @@ if not _real_andes_available():
 from andes_rl_kundur.env.andes.andes_vsg_env_v4 import AndesMultiVSGEnvV4  # noqa: E402
 from andes_rl_kundur.probes.andes_common.paper_constants import SCENARIOS  # noqa: E402
 
-BASELINE_DIR = ROOT / "results" / "research_loop" / "eval_v4_baseline_PRE_REFACTOR"
+BASELINE_DIR = ROOT / "results" / "research_loop" / "eval_v4_baseline_R478"
 
 
 @pytest.fixture(autouse=True)
@@ -95,9 +98,9 @@ def test_first_step_freq_hz_matches_baseline(scenario: str) -> None:
     np.testing.assert_allclose(
         actual, expected, atol=1e-9, rtol=0,
         err_msg=(
-            f"V4 env initial-step freq_hz drifted from pre-refactor baseline "
-            f"for {scenario}. AD-01 self-containment must preserve bit-identical "
-            f"physics."
+            f"V4 env initial-step freq_hz drifted from the R478-corrected "
+            f"baseline for {scenario}. The corrected base convention must "
+            f"stay bit-identical."
         ),
     )
 

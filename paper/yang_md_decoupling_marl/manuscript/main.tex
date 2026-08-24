@@ -1,0 +1,596 @@
+\documentclass[conference,a4paper]{IEEEtran}
+
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{balance}
+\usepackage{cite}
+\usepackage{graphicx}
+\usepackage{siunitx}
+\usepackage{tikz}
+\usepackage{xcolor}
+\usetikzlibrary{arrows.meta,positioning,fit}
+
+\graphicspath{{figures/}}
+\sisetup{detect-all}
+
+\title{Decoupling-Oriented Coordination of Paralleled VSGs With
+Multi-Agent Reinforcement Learning}
+
+\author{
+\IEEEauthorblockN{Yuang Wei, Yixiao Wang, and Zhuang Xu}
+\IEEEauthorblockA{
+Department of Electrical and Electronic Engineering\\
+University of Nottingham Ningbo China, Ningbo, China\\
+John.XU@nottingham.edu.cn}
+}
+
+\begin{document}
+\pagestyle{empty}
+\maketitle
+\renewcommand{\IEEEkeywordsname}{Keywords}
+
+\begin{abstract}
+Coordination among paralleled virtual synchronous generators (VSGs) cannot be
+inferred from average-frequency recovery alone because aggregate support and
+relative motion are different physical coordinates. This paper evaluates a
+direct inertia/damping multi-agent reinforcement learning (MARL) formulation
+under a guard-first contract that separates common-frequency restoration,
+off-diagonal common--differential response, disturbance-driven differential
+energy, and command magnitude/variation. Each of four actors writes only its own bounded,
+slew-limited inertia/damping pair. A sequence of matched repairs makes the
+ learning trajectories valid and removes selected guard failures, but none of the
+ reported valid direct-$M/D$ configurations satisfies the complete physical
+ contract. We then estimate a dataset-level algorithmic source contrast with a
+ prospectively frozen eight-arm factorial,
+six training seeds, and a same-time row-permuted placebo. Authentic neighbour
+sources yield a signed geometric effect of $-2.45\%$ for the actor factor
+(unfavourable to the authentic source) and $+4.52\%$ for the critic factor;
+exact sign-flip tests with Holm control
+did not establish either effect above the $10\%$ materiality bar. This is a bounded
+``not established above $10\%$'' result, not evidence of zero communication
+ value. A distinct structured energy-port controller passes its own registered
+ development and unseen-bank contract. This related, non-pooled witness keeps
+ the negative MARL conclusion specific to the tested action, learner, and
+ $43{,}200$-step schedule.
+\end{abstract}
+
+\begin{IEEEkeywords}
+virtual synchronous generator, multi-agent reinforcement learning, frequency
+ coordination, virtual inertia, factorial evaluation
+\end{IEEEkeywords}
+
+\section{Introduction}
+
+Virtual synchronous generators reproduce swing-like behaviour in converter
+controls and expose configurable inertia and damping~\cite{zhong2011synchronverters,darco2013vsm}.
+When several VSGs operate in
+parallel, however, their average frequency and their relative motion are not
+the same control objective. Consensus and mutual-damping controllers address
+frequency restoration and oscillatory interaction with explicit information
+structures~\cite{liu2020consensus,shi2021restoration,fu2022mutual,gao2024mutual,
+wang2024consensus}.
+The distinction is visible in a localized disturbance: a fleet-wide inertia
+change directly addresses aggregate support but not inter-unit motion, whereas
+spatially different commands target relative motion and may create additional
+command variation. Figure~\ref{fig:contract} makes these two readouts explicit.
+
+Learning-based VSG controllers adapt virtual parameters without requiring an
+explicit plant model~\cite{yang2023ddic,lu2024sac,benhmidouch2024rlvsg,
+zhang2024maddpg,kang2025madrl,li2026adaptive,ikram2026madrlffr,
+ding2024review}.
+Here, we ask a different question from success-oriented controller design:
+whether neighbour-source access adds differential coordination after actor,
+critic, reward, execution semantics, and physical endpoints are matched.
+Three evaluation problems remain when such controllers are interpreted as
+coordination mechanisms. First, a scalar reward or an average-frequency metric
+can mix common support with differential motion. Second, a favourable endpoint
+can be obtained on commands that violate amplitude, slew, or command-variation
+requirements. Third, a nominal message/no-message comparison can change actor,
+critic, reward, or source-distribution access at the same time. Seed variation
+adds further uncertainty to small-run reinforcement-learning
+studies~\cite{agarwal2021statistical}. These issues do not imply that
+MARL is unsuitable; they mean that its incremental coordination value must be
+defined before it is measured.
+
+Our goal is therefore to evaluate whether distributed direct-$M/D$ MARL adds
+physically valid differential coordination beyond fixed common support and a
+strong deterministic comparator. We define decoupling through two finite-window
+physical endpoints: off-diagonal response between arithmetic common and
+differential coordinates, and differential-frequency energy across signed
+common, differential, and localized probes. Endpoint improvement is interpreted only after common-frequency,
+peak, RoCoF, action, slew, bound, and execution-validity guards pass. The paper
+thus studies a new evaluation setting rather than presuming a successful learned
+controller.
+
+This setting creates three technical challenges. The physical coordinates and
+guards must remain consistent across deterministic and learned controllers.
+Actor commands must be compared after their executed-action semantics are made
+valid, because raw neural outputs and slew-projected plant inputs are different
+objects. Finally, neighbour information must be tested against a placebo that
+preserves time and marginal structure; otherwise a donor distribution can be
+mistaken for semantic message value.
+
+We address these challenges with a guard-first evaluation pipeline. A modified
+Kundur system in ANDES~\cite{cui2021andes} provides signed common/differential
+probes and localized disturbances. Direct-$M/D$ learning variants share bounded
+per-VSG actions, fixed budgets, final-checkpoint evaluation, and a strong local
+neighbour comparator. Representative interventions then test action projection,
+value scaling, and action penalties without concealing failed runs. The final
+source experiment crosses actor source, critic source, and reward access, using
+authentic same-time neighbour rows or a prospectively frozen row permutation. A
+ separate energy-port controller is retained only as a non-pooled witness for
+ its distinct action object and endpoint contract.
+
+This work makes three contributions. First, we formulate a physical coordination
+contract that separates common support, differential response, and empirical
+command guards (Section~II). Second, we provide a matched evaluation showing that
+successive direct-$M/D$ learner repairs move, but do not close, the residual
+guard gap (Sections~III--IV). Third, a six-seed source factorial does not establish
+an actor or critic effect above a prospectively frozen $10\%$ materiality bar, while a
+distinct structured controller bounds the negative conclusion to the tested
+formulation (Sections~IV--V).
+
+\begin{figure}[t]
+\centering
+\resizebox{\columnwidth}{!}{%
+\begin{tikzpicture}[
+  node distance=4mm and 6mm,
+  box/.style={draw,rounded corners,minimum height=8mm,align=center,inner sep=3pt},
+  actor/.style={box,fill=blue!8},
+  plant/.style={box,fill=gray!10},
+  metric/.style={box,fill=green!9},
+  guard/.style={box,fill=orange!12},
+  arr/.style={-{Latex[length=2mm]},thick}
+]
+\node[actor] (src) {Authentic or\\row-permuted source};
+\node[actor,right=of src] (pi) {Actor $i$\\$a_i^M,a_i^D$};
+\node[guard,right=of pi] (proj) {box + slew\\projection};
+\node[plant,right=of proj] (vsg) {VSG $i$\\$\Delta M_i,\Delta D_i$};
+\draw[arr] (src)--(pi);
+\draw[arr] (pi)--(proj);
+\draw[arr] (proj)--(vsg);
+\node[plant,below=8mm of pi] (freq) {$\Delta f_1,\ldots,\Delta f_4$};
+\node[metric,below left=6mm and -3mm of freq] (common) {common $z_c$\\restoration};
+\node[metric,below right=6mm and -3mm of freq] (diff) {differential $z_d$\\coordination};
+\node[guard,right=7mm of diff] (decision) {guard-first\\decision};
+\draw[arr] (vsg.south) |- (freq.east);
+\draw[arr] (freq)--(common);
+\draw[arr] (freq)--(diff);
+\draw[arr] (common.south) -- ++(0,-3mm) -| (decision.south);
+\draw[arr] (diff)--(decision);
+\end{tikzpicture}}
+\caption{The evaluation contract separates the information source, executed
+direct-$M/D$ action, common-frequency support, and differential coordination.
+Endpoint improvement is accepted only after the physical and command guards
+pass.}
+\label{fig:contract}
+\end{figure}
+
+\section{Physical Coordination Contract}
+
+\subsection{Control object and coordinates}
+
+The model contains four swing-equation VSG proxies. Their rotor-angle and
+frequency states satisfy
+\begin{equation}
+ \label{eq:swing}
+ \dot{\delta}_i=2\pi f_n(\omega_i-1),\qquad
+ M_i\dot{\omega}_i=\tau_{m,i}-\tau_{e,i}-D_i(\omega_i-1),
+\end{equation}
+where $f_n=\SI{60}{Hz}$, $M_i=2H_i$ is the ANDES startup-time parameter in
+seconds, and $D_i$ is its per-unit damping coefficient. Actor $i$ independently
+produces $a_i=[a_i^M,a_i^D]^\top\in[-1,1]^2$ every \SI{0.2}{s}. Each component
+is limited to a change of $0.25$ per update. Equation~\eqref{eq:action_map}
+decodes the executed action into local virtual inertia and damping:
+\begin{equation}
+ \label{eq:action_map}
+ \begin{aligned}
+ \Delta q(a)&=\begin{cases}600a,&a\ge0,\\200a,&a<0,\end{cases}\\
+ M_i[k]&=\max\{20,M_i^0+\Delta q(a_i^M[k])\},\\
+ D_i[k]&=\max\{10,D_i^0+\Delta q(a_i^D[k])\}.
+ \end{aligned}
+\end{equation}
+The learner bank spans $M_i^0\in[140,260]$~s and
+$D_i^0\in[50,150]$ on the same per-unit model base. No actor directly injects
+active power.
+
+Let $\Delta f\in\mathbb{R}^4$ denote the physical \SI{60}{Hz} frequency
+deviations. We use the arithmetic common coordinate $z_c=\mathbf{1}^\top
+\Delta f/4$. Equation~\eqref{eq:coordinates} defines the differential
+coordinate:
+\begin{equation}
+ \label{eq:coordinates}
+ z_d=T_d\Delta f,\quad
+ T_d=\begin{bmatrix}
+ 1/2&1/2&-1/2&-1/2\\
+ 1/\sqrt2&-1/\sqrt2&0&0\\
+ 0&0&1/\sqrt2&-1/\sqrt2
+ \end{bmatrix}.
+\end{equation}
+These are registered arithmetic coordinates, not identified eigenmodes. For
+signed probe kind $k\in\{c,d,\ell\}$, define the odd response
+$\widetilde f_k[n]=(\Delta f_k^+[n]-\Delta f_k^-[n])/2$,
+$z_{c,k}[n]=\mathbf1^\top\widetilde f_k[n]/4$, and
+$z_{d,k}[n]=T_d\widetilde f_k[n]$. With signed-pair magnitude
+$\varepsilon_k$, the two lower-is-better endpoints are
+\begin{align}
+ J_{\mathrm{cross}}={}&\frac{\Delta t}{\varepsilon_c^2}
+ \sum_{n=1}^{N}\frac{\|z_{d,c}[n]\|_2^2}{3}
+ +\frac{\Delta t}{\varepsilon_d^2}
+ \sum_{n=1}^{N}z_{c,d}^2[n], \label{eq:jcross}\\
+ J_d={}&\sum_{k\in\{c,d,\ell\}}
+ \frac{\Delta t}{\varepsilon_k^2}
+ \sum_{n=1}^{N}\frac{\|z_{d,k}[n]\|_2^2}{3}, \label{eq:jd}
+\end{align}
+where $N=30$ and $\Delta t=\SI{0.2}{s}$. The positive input vectors are
+$u_c=\varepsilon_c[1,1,1,1]^\top/4$,
+$u_d=\varepsilon_d[1,1,-1,-1]^\top/4$, and
+$u_\ell=\varepsilon_\ell e_j$; each has a matched negative pair. The frozen
+profile table supplies every $\varepsilon_k$ and localized-load index. Both
+endpoints have units $\mathrm{Hz^2\,s/pu^2}$ and are discrete $L_2$ response
+energies, not joules, storage functions, or Lyapunov functions. Thus $J_d$
+includes the common, differential, and localized pairs. The arithmetic $z_c$
+is not an inertia-weighted centre of inertia, and $T_d$ is not a modal basis.
+
+\subsection{Guard-first decision}
+
+A controller is interpreted only after its trajectories complete and its
+identity, bounds, slew, saturation, and independent per-VSG action checks pass.
+Common-frequency integral, worst-unit peak, and RoCoF must remain within
+$103\%$ of the deterministic reference, while executed-action RMS and total
+variation must remain within $110\%$. These empirical guards apply to the
+tested bank; they are not stability or safety certificates. The margins were
+frozen before confirmatory analysis and encode a tighter non-degradation
+tolerance for grid-response quantities than for command summaries. Training
+reward is never used
+to override a failed physical guard. Safe and constrained reinforcement
+learning similarly distinguishes an optimization penalty from verified
+closed-loop constraints~\cite{tabas2022safe,shuai2025safe}.
+
+RoCoF is the worst absolute one-step finite difference of physical VSG
+frequency, including the initial-to-first-sample interval, divided by
+$\Delta t$. Command RMS is taken over all eight executed normalized components;
+total variation sums the per-step mean absolute component change from zero
+within each signed record.
+
+Let $v=[\Delta M_1,\Delta D_1,\ldots,\Delta M_4,\Delta D_4]^\top$ denote the
+decoded direct-$M/D$ command vector. At the synchronous power-balanced
+equilibrium, a folded index-1 DAE
+linearization gives the channel in~\eqref{eq:dae_authority}:
+\begin{equation}
+ \label{eq:dae_authority}
+ B_{v,r}=f_v-f_yg_y^{-1}g_v=0
+\end{equation}
+for all eight direct-$M/D$ command columns. At this equilibrium, the torque
+residual and $\omega_i-1$ vanish in~\eqref{eq:swing}, while the network algebraic
+equations contain no direct $M/D$ column; hence $f_v=g_v=0$ and the folded
+channel is zero. This is an equilibrium first-order
+authority result: it does not remove the off-equilibrium multiplicative effect
+of $M$ and $D$, and it is not treated as the sole cause of learning failure.
+
+\section{MARL and Confirmatory Protocol}
+
+\subsection{Plant, comparator, and learners}
+
+All direct-$M/D$ trajectories use ANDES 2.0.0 on a modified Kundur two-area system at
+\SI{60}{Hz}, with \SI{0.2}{s} controller updates over a \SI{6}{s}
+post-disturbance window. Deterministic comparator selection uses two development
+and four fixed evaluation profiles; learner training and confirmatory evaluation
+use a separate bank of four development and four fixed evaluation profiles.
+Both banks vary loading, VSG parameter mismatch, disturbance location, sign,
+magnitude, and spatial distribution before execution. A bank of nine local-neighbour dynamic $M/D$
+laws is selected on development data. The selected law reduces off-diagonal
+and disturbance differential energy by $60.79\%$ and $64.13\%$, respectively,
+relative to zero action while passing every development guard. It is therefore
+a stronger comparator than zero action.
+
+The learning studies include parameter-shared multi-agent TD3 and adapted SAC
+families. TD3 uses delayed policy updates and twin critics~\cite{fujimoto2018td3};
+the multi-agent critic follows centralized-training,
+decentralized-execution practice~\cite{lowe2017maddpg}. Each actor receives its
+local active-power, frequency, and RoCoF features plus two ring-neighbour
+frequency/RoCoF pairs. No-message rows retain the same dimension but mask the
+four neighbour entries in every actor path. Training uses $43{,}200$ physical
+interaction steps per seed and deterministic final checkpoints. Executed
+actions, rather than raw network outputs, are used by the physical evaluation.
+Neighbour rows are sampled synchronously at each decision instant; delay,
+packet loss, and quantization are not modelled. The critic-source factor affects
+centralized training only; evaluation deploys the deterministic actor with its
+frozen actor-source mapping and no critic access.
+
+The confirmatory factorial freezes the projected adapted-SAC learner. Its
+Gaussian--tanh actor and twin-Q critic each use four 128-unit hidden layers,
+learning rate $3\times10^{-4}$, $\gamma=0.99$, $\tau=0.005$, a $10{,}000$-sample
+replay buffer, and batch size 256. Automatic entropy temperature is bounded to
+$[0.005,5]$; one update follows each environment step after buffer warm-up, and
+evaluation uses the deterministic actor mean. The reward is the unchanged
+weighted sum $r_i=100r_{f,i}+50r_{\mathrm{abs},i}+0.0056r_M+0.0056r_D$.
+Here $r_{f,i}$ penalizes squared disagreement among the local frequency and two
+ring neighbours, $r_{\mathrm{abs},i}$ penalizes squared local frequency deviation
+after conversion to physical hertz, and $r_M,r_D$ penalize the squared fleet-mean
+decoded pre-clamp command increments normalized by 600. The reward-access
+factor switches only the neighbour terms in $r_{f,i}$.
+
+\subsection{Representative repair ladder}
+
+The archived development line includes invalid, negative, and partial repairs;
+Table~\ref{tab:ladder} reports representative valid stages rather than an
+all-attempt flow diagram. Target
+normalization suppresses critic-scale divergence and removes command-summary
+failures, but common-frequency and worst-peak guards remain. Execution-layer
+projection makes adapted SAC trajectories valid and improves both endpoints,
+but executed-action RMS and variation remain above the comparator. Penalizing action
+RMS closes that guard while frequency restoration and action variation regress.
+No stage passes the full direct-$M/D$ contract.
+
+\begin{table}[t]
+\caption{Representative valid learner repairs on the direct-$M/D$ object}
+\label{tab:ladder}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3.2pt}
+\begin{tabular}{@{}p{1.55cm}ccc@{}}
+\toprule
+Intervention & Common/peak guards & Action guards & Full gate\\
+\midrule
+Value-target normalization & fail & pass & fail\\
+Projected adapted SAC & pass (message) & fail & fail\\
+SAC + RMS penalty & fail & RMS only & fail\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Clean neighbour-source factorial}
+
+The confirmatory experiment crosses actor source $\{N,P\}$, critic source
+$\{N,P\}$, and reward access $\{0,1\}$, producing eight arms for seeds
+401--406. $N$ is the authentic same-time ring-neighbour source. $P$ retains
+each recipient's local columns but replaces neighbour columns with the
+authentic row of the next actor, $\rho(i)=(i+1)\bmod4$. This placebo preserves
+time and uses no exogenous donor bank. More precisely, it leaves the three
+recipient-local columns unchanged and row-permutes only the four neighbour
+columns. The permutation is fixed-point-free: for every neighbour column, its
+four-value multiset and the multiset of ordered neighbour tuples are identical
+under $N$ and $P$, while no $P$ tuple is the authentic neighbour tuple of its
+recipient. Reward access independently switches the neighbour terms in the
+coordination reward; the reported source effects marginalize over this factor.
+
+All $48$ training cells completed
+$43{,}200$ steps. Sixteen cells were hash-identical carryovers accepted only
+after per-cell identity and completeness checks; the other $32$ were trained
+afresh. Each carryover had to match the arm, seed, factor assignment, complete
+$43{,}200$-step manifest, reward hash, and base-state hash. Half and final
+checkpoints produced $16$ complete evaluation jobs, and all $48$ final cells
+were valid.
+The manifest-bound reproducibility supplement provides the frozen input banks,
+all stage--arm--seed--profile endpoints, interaction-sensitive contrasts,
+carryover provenance, curve-stability rows, topology variants, and the complete
+confirmatory run flow.
+
+Let $L$ be disturbance differential energy on one evaluation profile. For
+each seed, the actor-source effect is the equal-weight mean of
+$\log[L(P,c,r)/L(N,c,r)]$ over matched critic sources, reward-access values,
+and profiles; the critic-source effect is defined analogously over matched
+actor sources. Positive values therefore favour the authentic source. The
+primary estimand is the across-seed mean at the final checkpoint. The
+materiality threshold is $\log(1.10)$. At this boundary, we assume joint sign
+invariance of the six paired seed effects and monotone symmetric location
+shifts. We then enumerate all $2^6$ seed-level sign flips, test each factor
+one-sided, and apply Holm control across the two tests~\cite{holm1979simple}.
+The descriptive $95\%$ intervals are percentile intervals from all $6^6$
+ordered seed-level resamples. As an asymmetric-distribution sensitivity, exact
+binomial sign tests for a seed-median effect above the same bar count $1/6$
+actor and $2/6$ critic effects above it ($p=0.9844$ and $0.8906$); this is a
+different estimand from the primary mean. Half/final direction consistency and
+leave-one-seed-out means are also reported. The frozen curve-stability check
+compares median absolute actor/critic losses in the final two training deciles
+and requires an absolute log-ratio no larger than $\log(1.25)$; it does not
+establish that the source-effect estimand has plateaued.
+
+\section{Results}
+
+Table~\ref{tab:evidence} collects selected valid evidence stages. Invalid
+trajectories and incomplete checkpoints are not numerically pooled with valid
+rows. The table also keeps the direct-$M/D$ and energy-port
+objects separate: their ratios have different actuators, estimators, banks, and
+references and are therefore not pooled.
+
+\begin{table*}[!t]
+\caption{Valid evidence ladder and the claim retained from each stage}
+\label{tab:evidence}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{4.0pt}
+\begin{tabular}{@{}p{2.45cm}p{3.55cm}p{6.15cm}p{4.15cm}@{}}
+\toprule
+Stage & Object and evaluation unit & Valid result & Retained claim\\
+\midrule
+Deterministic finite bank
+& Nine direct-$M/D$ laws; development selection and four fixed evaluation profiles
+& Selected law lowers the two development endpoints by $60.79\%$ and $64.13\%$ versus zero; the outcome-seeing nine-law oracle selects the same law on all four profiles
+& Strong comparator, but no extra profile-conditional headroom inside this finite family\\
+Value-normalized TD3
+& Direct-$M/D$ learner; matched seed--profile bank
+& Critic scale and command-summary guards recover, while common-frequency and worst-peak guards remain failed
+& Numerical stabilization alone does not close the physical contract\\
+Projected adapted SAC
+& Direct-$M/D$ learner; $20$ message-arm seed--profile blocks
+& All trajectories are valid; endpoint ratios are $0.635/0.590$, common-frequency and worst-peak guards pass, RoCoF fails in $4/20$ blocks, and both command-summary guards fail in every block
+& Partial endpoint movement, not a guard-clean controller\\
+SAC with RMS penalty
+& Same direct-$M/D$ object and bank
+& RMS failures fall to $0/20$, but action variation remains failed; endpoint ratios regress to $1.229/1.221$, with common-frequency, worst-peak, and RoCoF failures in $20/20$, $18/20$, and $7/20$ blocks
+& A measured trade-off, not a repair\\
+Clean source factorial
+& Eight direct-$M/D$ arms, six seeds, matched profiles
+& Actor and critic geometric effects are $-2.45\%$ and $+4.52\%$; neither clears the $10\%$ materiality test with Holm control
+& Neither source factor clears the $10\%$ materiality test; zero effect is not established\\
+Structured energy port
+& Feasible power-residual action; frozen unseen and topology-variant banks
+& Deterministic controller passes the endpoints on the unseen bank and all ten equilibrium-sound topology variants; residual SAC adds no endpoint or message increment
+& The target is nonempty for a distinct action object; no numerical ranking against direct $M/D$\\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\subsection{Direct-$M/D$ learning remains guard limited}
+
+The deterministic development-selected law is also selected by a finite
+outcome-seeing oracle on all four evaluation profiles, so the original
+nine-law family provides no additional profile-conditional headroom. A later
+$350$-schedule time-varying family contains one development-selected schedule
+that is guard-clean on two of four fixed evaluation profiles. Thus direct
+$M/D$ authority is not empty, but the finite evidence does not supply a
+uniform transferable target for the learner.
+
+Among the valid direct-$M/D$ learner stages, projected adapted SAC provides the
+largest guard-valid endpoint movement. Its message arm reaches $0.635$ and $0.590$
+times the deterministic reference on the disturbance and off-diagonal
+endpoints and passes the common-frequency and worst-peak guards in all $20$
+seed--profile blocks. RoCoF still fails in $4/20$ blocks, and both command-summary
+guards fail in all $20$ blocks.
+Adding an RMS penalty eliminates the RMS failures but moves the endpoint ratios
+to $1.229$ and $1.221$ and produces $20/20$ common-frequency and $18/20$
+worst-peak failures, together with $7/20$ RoCoF failures. The interventions
+therefore exchange guard failures rather than producing a guard-clean
+direct-$M/D$ learner.
+
+Figure~\ref{fig:tradeoff} gives a non-data-selected time-domain view of this
+exchange on the first registered evaluation profile under its common-positive
+disturbance. Projection reduces the common-frequency deviation but requires
+substantially larger executed actions. The RMS penalty returns action magnitude
+near the deterministic trace while the frequency deviation becomes larger than
+the comparator. This trace illustrates the mechanism; the complete gate counts
+in Table~\ref{tab:evidence} carry the inference.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{repair_tradeoff.pdf}
+\caption{Projection improves common-frequency response but raises command
+magnitude; the RMS penalty reverses the trade-off. Panel (a) shows
+$1000(60-\bar f)$ and panel (b) shows the RMS of the eight executed normalized
+action components. Learned curves are medians across seeds 401--405; shading
+spans their range, while the deterministic comparator is a single
+trace. The profile and disturbance are fixed independently of the plotted
+outcome.}
+\label{fig:tradeoff}
+\end{figure}
+
+\subsection{No source effect above the materiality bar is established}
+
+Figure~\ref{fig:source} reports the confirmatory source effects. The actor
+factor has final marginal mean log effect $-0.0248$, corresponding to a $-2.45\%$ geometric
+effect unfavourable to the authentic source, with descriptive $95\%$ log-scale interval
+$[-0.0882,0.0450]$. Only one of six seed effects is positive. The critic factor
+has mean log effect $0.0442$, or $+4.52\%$, with log-scale interval
+$[-0.0092,0.0908]$ and five positive seed effects. The exact materiality
+$p$ values are $0.984375$ and $0.953125$; neither Holm test rejects. No marginal
+half/final direction flip is recorded, and all loss rows pass the stated
+curve-stability rule. However, actor and critic marginal effects contract from
+$-13.23\%$ and $+23.59\%$ at half budget to $-2.45\%$ and $+4.52\%$ at final
+budget. Leave-one-seed-out mean log effects remain negative for the actor
+($-0.0556$ to $-0.0016$) and positive for the critic ($0.0284$ to $0.0671$).
+
+The marginal directions are not component-wise effects. Conditioning on critic
+source changes the final actor contrast from $+14.21\%$ for authentic critic rows
+to $-16.68\%$ for placebo critic rows. Conditioning on reward access changes the
+critic contrast from $-7.36\%$ to $+17.91\%$. These unregistered interactions are
+descriptive and rule out interpreting the marginals as stable isolated actor or
+critic benefits.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{source_effect.pdf}
+\caption{Neither authentic neighbour-source factor establishes an effect above
+the $10\%$ materiality bar. Points show geometric effects and bars transform
+the descriptive bootstrap intervals from the paired log scale; inference uses
+the exact six-seed sign-flip tests with Holm control.}
+\label{fig:source}
+\end{figure}
+
+The supported wording is narrow: within this six-seed learner, bank, and
+projector, authentic same-time neighbour sources versus the row-permuted
+placebo do not establish an effect above $10\%$ in either factor. The contrast is a
+dataset-level algorithmic source contrast: the permutation also changes
+recipient-conditioned coupling and source roles, so pure semantic information
+value is not identified. The six-seed design is low resolution, and smaller
+effects are not excluded.
+
+Sixteen hash-identical carryovers all occupy actor-source-$N$ cells; no
+same-round retraining comparison was performed. The reuse audit establishes
+file/configuration identity and arithmetic replay, but cannot empirically exclude
+a batch-by-actor-source effect. Therefore the signed directions remain
+descriptive for the sealed dataset rather than independent repeatability claims.
+
+\subsection{A distinct structured controller bounds the negative result}
+
+The energy-port companion replaces direct parameter modulation with a
+state-dependent feasible power-headroom map and a frozen \SI{0.4}{Hz}
+ring-edge bandpass. Because its actuator, estimator, bank, and reference differ,
+its ratios are not pooled with the MARL results. After development selection,
+$K=3.5$ is frozen and attains $r_d=0.938218$ and
+$r_{\mathrm{cross}}=0.793730$ on a one-use unseen bank, with every guard
+passing. It also passes all ten equilibrium-sound members of a frozen
+topology-variant bank: the nominal network, four inter-area line outages, and
+five line-reactance scalings. Two VSG-tie outages fail the pre-performance
+initialization/equilibrium-information gate and are excluded from performance
+scoring.
+Across three additional condition/parameter blocks, two pass and a
+relaxed-inertia/heavy-damping block misses the differential ceiling with
+$r_d=0.9712$ while retaining all guards.
+
+A baseline-anchored residual SAC then preserves the bandpass passes on the ten
+sound variants but never improves either endpoint and shows no message
+increment. This companion supports two bounded statements: a different
+energy-port action object attains its own matched endpoint contract on finite
+banks, and adding a learner to that strong structure provides no measured
+increment in the tested configuration.
+
+\section{Interpretation and Limitations}
+
+The combined evidence localizes, but does not uniquely identify, the negative
+result. On the gauge-fixed, fixed-mode direct-$M/D$ model, the Schur-folded
+Jacobian $B_{v,r}=f_v-f_y g_y^{-1}g_v$ is zero for all eight direct-$M/D$
+columns at the synchronous power-balanced equilibrium, so no additive
+first-order reduced-state channel is present there. Converged local
+physical-parameter derivatives establish mixed state--parameter dependence
+away from equilibrium; the normalized policy and asymmetric decoder are only
+piecewise differentiable at zero, so the local interpretation is one-sided.
+The sealed 30-step finite-amplitude ladder is quadratic-leading in all 12
+tested blocks but neither separates mixed from pure quadratic terms nor
+establishes a global Taylor law. These facts are consistent with, but do not
+causally identify, a difficult residual-learning interface.
+The repair ladder also shows that critic scale, command execution, command
+summaries, and frequency restoration are distinct failure axes: correcting one
+does not imply that the others close. The energy-port result suggests that the
+choice of physical action basis can matter more than increasing learner freedom,
+but the unmatched objects prevent a causal ranking.
+
+The conclusions cover one phasor-domain simulator, one modified Kundur plant,
+registered finite banks, the tested learner families, the fixed $43{,}200$-step
+schedule, and at most six training seeds. Arithmetic common/differential
+coordinates are neither modal eigenvectors nor inertia-weighted COI coordinates;
+time-domain guards are not stability or safety certificates. The topology
+variants do not support arbitrary graph or size generalization, and no EMT,
+HIL, hardware, or field claim is made. Most importantly, failure to establish a
+$10\%$ source effect is not an equivalence test and does not imply zero
+communication value. Communication is idealized as synchronous and noiseless;
+delay, loss, and quantization remain outside the tested contract.
+
+\section{Conclusion}
+
+This paper has evaluated decoupling-oriented MARL coordination under a
+guard-first physical contract. With matched action semantics and a clean
+row-permuted placebo, the reported direct-$M/D$ configurations have neither
+closed the full coordination contract nor established an actor or critic marginal
+source effect above $10\%$ within six seeds and $43{,}200$ steps. A separate
+energy-port action object attains its own matched contract on bounded banks; it
+does not establish direct-$M/D$ attainability. Future work should independently
+repeat the source factorial, test physically structured residual actions, and
+require held-out networks before topology-general claims.
+
+\bibliographystyle{IEEEtran}
+\balance
+\bibliography{references}
+
+\end{document}
