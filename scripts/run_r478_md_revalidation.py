@@ -104,7 +104,7 @@ FAMILIES: dict[str, dict[str, str | None]] = {
 }
 
 ROUND_ID = "R478"
-AUTHORITY_GENERATION = "repair3"
+AUTHORITY_GENERATION = "repair4"
 CAPACITY_RUNGS = (1, 2, 4, 8, 12, 16)
 CAPACITY_TASKS_PER_RUNG = 32
 MARGINAL_GAIN_MIN = 1.05
@@ -152,7 +152,7 @@ EXECUTION_COMMANDS: dict[str, frozenset[str]] = {
 
 OWNER_APPROVAL = ROOT / "memory/rounds/R478/formal_owner_approval.json"
 PHYSICAL_EXECUTION_AUTHORIZATION = (
-    ROOT / "memory/rounds/R478/physical_execution_authorization_repair3.json"
+    ROOT / "memory/rounds/R478/physical_execution_authorization_repair4.json"
 )
 PHYSICAL_PREFORMAL_COMMANDS = frozenset(
     {"inventory", "measure-capacity", "capacity", "rehearse"}

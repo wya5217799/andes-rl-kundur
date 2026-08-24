@@ -151,6 +151,22 @@ Preserve R398-R477 artifacts, all imported external-review material, every histo
   fail-closed WSL/scratch entrypoints, and matching pre/post transitive source,
   installed ANDES, and Kundur case identities.
 
+## Repair4 authority generation (2026-08-25)
+
+- Owner start instruction (2026-08-25): re-seal on the merged final sources,
+  then run the energy-port family capacity ladders and rehearsals before any
+  formal execution decision.
+- `AUTHORITY_GENERATION` moved `repair3` -> `repair4` in the adapter; the
+  `repair3` authorization and all `repair1/2/3` artifacts stay byte-for-byte
+  quarantine. No `repair3` command can run under `repair4`.
+- `repair4` allowlist (owner-approved): `port_unseen`, `port_extra_k35`,
+  `port_extra_k4` -> `measure-capacity`, `rehearse`. No formal bank, no
+  `prepare`/`execute`/`classify`, no direct-M/D, no ninelaw/schedule/topology
+  physical command under this generation.
+- After ladder + rehearsal, STOP: report measured budgets and rehearsal
+  evidence to the owner; formal execution requires a per-family
+  `formal_owner_approval.json` bound to each `repair4` seal hash.
+
 ## Snapshot at plan-time (oracle as of 2026-08-24)
 
 <!-- Auto-injected by reserve_round.py (F4 audit 2026-05-19). -->
