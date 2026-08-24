@@ -479,6 +479,46 @@ def base_audit() -> dict[str, Any]:
     }
 
 
+def routing_gate() -> dict[str, Any]:
+    """Run the inherited routing proof after R482 base generation, before training."""
+    if SEAL.exists() or any((OUT / phase).exists() for phase in ("train", "eval", "dev")):
+        raise FileExistsError("routing gate must precede R482 execution artifacts")
+    rng = np.random.default_rng(20260823)
+    synthetic = rng.normal(size=(64, 4, 7)).astype(np.float32)
+    synthetic[:, :, 0] = 0.0
+    wide = base.base.base.routing_check(synthetic)
+    rehearsal_payload = base.base.base.core._read_hashed_json(REHEARSAL)
+    real = rehearsal_payload.get("routing_check", {})
+    required_flags = (
+        "per_slot_value_pools_equal",
+        "tuple_multiset_equal",
+        "every_source_tuple_changed",
+        "no_p_source_is_true_neighbour",
+        "no_within_tuple_source_collapse",
+        "actual_row_value_collapse_absent",
+        "own_columns_unchanged",
+        "actual_p_rows_match_declared_row_perm",
+        "row_perm_is_permutation",
+        "row_perm_fixed_point_free",
+        "same_contemporaneous_pool",
+    )
+    passed = bool(
+        all(wide[flag] for flag in required_flags)
+        and all(real.get(flag) for flag in required_flags)
+        and bool(real.get("realized_slot_identity_ok"))
+        and bool(real.get("realized_slots_checked"))
+    )
+    return {
+        "schema_version": 1,
+        "round": ROUND_ID,
+        "created_utc": datetime.now(UTC).isoformat(),
+        "synthetic_wide_sweep": wide,
+        "real_three_step_from_rehearsal": real,
+        "passed": passed,
+        "failure_semantics": "any false flag = DESIGN-INVALID; no training starts",
+    }
+
+
 def _penalty_semantics_probe() -> dict[str, Any]:
     """R424 target-semantics gate for the R482 penalty seam (closed-form)."""
     probe = np.asarray([[0.25, -0.5], [0.0, 0.0], [1.0, 1.0], [-0.75, 0.25]], dtype=float)
@@ -1940,6 +1980,7 @@ for _name, _value in {
     "arm_factors": arm_factors,
     "load_seal": load_seal,
     "rehearsal": rehearsal,
+    "routing_gate": routing_gate,
     "prepare": prepare,
     "train_arm_seed": train_arm_seed,
     "evaluate_arm_stage": evaluate_arm_stage,
@@ -1990,7 +2031,7 @@ def _main() -> int:
         base.base.base.core.safe_emit(basegen())
     elif args.command == "route":
         base.base.base.core._assert_wsl_scratch()
-        payload = base.base.base.routing_gate()
+        payload = routing_gate()
         digest = base.base.base.core._write_new_json(ROUTING_GATE, payload)
         base.base.base.core.safe_emit(
             json.dumps({**payload, "sha256": digest}, indent=2, sort_keys=True)

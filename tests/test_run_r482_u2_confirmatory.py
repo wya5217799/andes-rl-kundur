@@ -168,6 +168,38 @@ def test_basegen_uses_r482_arm_vocabulary():
     body = source[source.index("def basegen"):source.index("def base_audit")]
     assert "FactorialWrapper(\n            FACTORIAL_ARMS[0]" in body
     assert "core.ARMS[0]" not in body
+
+
+def test_routing_gate_allows_base_inputs_but_precedes_execution(tmp_path, monkeypatch):
+    out = tmp_path / "out"
+    (out / "donors").mkdir(parents=True)
+    monkeypatch.setattr(runner, "OUT", out)
+    monkeypatch.setattr(runner, "SEAL", tmp_path / "seal.json")
+    flags = {
+        "per_slot_value_pools_equal": True,
+        "tuple_multiset_equal": True,
+        "every_source_tuple_changed": True,
+        "no_p_source_is_true_neighbour": True,
+        "no_within_tuple_source_collapse": True,
+        "actual_row_value_collapse_absent": True,
+        "own_columns_unchanged": True,
+        "actual_p_rows_match_declared_row_perm": True,
+        "row_perm_is_permutation": True,
+        "row_perm_fixed_point_free": True,
+        "same_contemporaneous_pool": True,
+        "realized_slot_identity_ok": True,
+        "realized_slots_checked": True,
+    }
+    monkeypatch.setattr(runner.base.base.base, "routing_check", lambda _rows: flags)
+    monkeypatch.setattr(
+        runner.base.base.base.core,
+        "_read_hashed_json",
+        lambda _path: {"routing_check": flags},
+    )
+    assert runner.routing_gate()["passed"] is True
+    (out / "train").mkdir()
+    with pytest.raises(FileExistsError, match="precede R482 execution artifacts"):
+        runner.routing_gate()
     assert runner.PHASE3B_ARM == "an_cn_r1_rms"
     assert len(runner.RETRAIN_ARMS) == 9
     assert runner.REUSED_CELLS == ()
