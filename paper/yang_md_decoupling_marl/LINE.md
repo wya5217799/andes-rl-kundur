@@ -2,14 +2,14 @@
 line_id: yang-md-decoupling-marl
 status: active
 priority: 4
-stage: learning-reverification-decision
+stage: learning-reverification-round
 artifact_manifest: paper/yang_md_decoupling_marl/ARTIFACTS.json
 scope: {write_roots: [paper/yang_md_decoupling_marl], shared_read_roots: [paper/paralleled_vsg_marl, paper/icems2026, paper/decoupling_marl_model_first, memory, results, docs/research, src/andes_rl_kundur]}
 venue: {kind: conference, status: locked, primary: 'ICEMS 2026', decision_record: 'paper/yang_md_decoupling_marl/working/icems2026_official_requirements.md', official_source_status: current, last_checked: 2026-08-16, review_triggers: ['after evidence-bounded conference-draft review or any authorized topology-robustness gate', 'before 2026-08-28 author registration and 2026-09-07 final-paper upload']}
 working_title: "Decoupling-Oriented Coordination of Paralleled  VSGs With Multi-Agent Reinforcement Learning"
 title_policy: "Fixed wording; same-object evidence per term; prospective till gate passes."
-objective: "R481 fresh-holdout direct-M/D deterministic bank closed DIRECT-MD-FORMAL-PASS (CLM-1505): the deterministic comparator attains the decoupling target on fresh holdouts; energy-port remains terminal (CLM-1490); next = owner decision on the training/MARL re-verification and source-factorial successor (prospective decision condition 7) before any new formal bank or training."
-decision_refs: ["docs/adr/0019-separate-yang-md-decoupling-marl-successor.md#decision", "paper/yang_md_decoupling_marl/working/gpt_pro_unresolved_math_solution_20260821/IMPORT_NOTE.md#manuscript-disposition", "paper/yang_md_decoupling_marl/working/corrected_md_revalidation_experiment_plan_20260824.md#decision", "paper/yang_md_decoupling_marl/working/md_parameter_card_20260824.json#owner_decision", "paper/yang_md_decoupling_marl/working/prospective_direct_md_successor_decision_20260825.md#status"]
+objective: "R482 launched (owner-approved 2026-08-25): corrected-plan Phase 3 + Phase 4, frozen 26-seed design, local host; after R482 the experiment program ends; new experiments need a fresh owner decision."
+decision_refs: ["docs/adr/0019-separate-yang-md-decoupling-marl-successor.md#decision", "paper/yang_md_decoupling_marl/working/gpt_pro_unresolved_math_solution_20260821/IMPORT_NOTE.md#manuscript-disposition", "paper/yang_md_decoupling_marl/working/corrected_md_revalidation_experiment_plan_20260824.md#decision", "paper/yang_md_decoupling_marl/working/md_parameter_card_20260824.json#owner_decision", "paper/yang_md_decoupling_marl/working/prospective_direct_md_successor_decision_20260825.md#status", "paper/yang_md_decoupling_marl/working/learning_reverification_launch_decision_20260825.md#status"]
 evidence_refs:
   - "CLM-1135 -> paper/yang_md_decoupling_marl/reports/R398.md"
   - "CLM-1140 -> paper/yang_md_decoupling_marl/reports/R399.md"
@@ -79,6 +79,6 @@ evidence_refs:
   - "CLM-1500 -> paper/yang_md_decoupling_marl/reports/R480.md"
   - "CLM-1505 -> paper/yang_md_decoupling_marl/reports/R481.md"
 required_reading: [paper/yang_md_decoupling_marl/LINE.md]
-verification: ["Zero action preserves runtime M/D; corrected objects stay non-pooled; COI/modal sensitivity reported."]
-stop_when: ["No training or factorial launch before a fresh owner decision and a new seal; notify the owner at each launch moment."]
+verification: ["Zero action preserves runtime M/D; corrected objects stay non-pooled."]
+stop_when: ["No WSL/ANDES execution before the owner's code review; no training before seal + owner approval; notify at each launch."]
 ---
