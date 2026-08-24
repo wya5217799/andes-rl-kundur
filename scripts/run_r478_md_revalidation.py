@@ -116,7 +116,9 @@ FAMILY_COMMANDS: dict[str, frozenset[str]] = {
                           "shards", "shard", "classify"}),
     "schedule": frozenset({"capacity", "rehearse", "prepare", "shard",
                            "select", "aggregate", "classify"}),
-    "port_unseen": frozenset({"measure-capacity", "rehearse", "execute"}),
+    # R409's measure-capacity writes its artifact to a hardcoded R409 path
+    # (would clobber historical evidence); its rehearse does not require it.
+    "port_unseen": frozenset({"rehearse", "execute"}),
     "port_extra_k35": frozenset({"measure-capacity", "rehearse", "prepare",
                                  "execute", "classify"}),
     "port_extra_k4": frozenset({"measure-capacity", "rehearse", "prepare",
@@ -124,6 +126,76 @@ FAMILY_COMMANDS: dict[str, frozenset[str]] = {
     "topology": frozenset({"inventory", "measure-capacity", "rehearse",
                            "prepare", "shards", "shard", "classify"}),
 }
+
+
+def _patched_authority(parent: Any, family: str) -> dict[str, bool]:
+    """R478-keyed equivalent of the parent's authority gate.
+
+    Identity re-key only: every scientific check delegates to the parent's
+    own primitives; the round-id string is the R478 plan. Parent source
+    files stay byte-identical (the override is recorded in the rekey sidecar).
+    """
+    plan_text = (ROOT / "memory/rounds/R478/plan.md").read_text(encoding="utf-8")
+    line_text = (
+        ROOT / "paper/yang_md_decoupling_marl/LINE.md"
+    ).read_text(encoding="utf-8")
+    checks = {
+        "active_plan": (
+            "state: active" in plan_text
+            and "manuscript_line: yang-md-decoupling-marl" in plan_text
+            and "R478" in plan_text
+        ),
+        "active_line": (
+            "line_id: yang-md-decoupling-marl" in line_text
+            and "status: active" in line_text
+        ),
+        "output_absence": not parent.OUT.exists(),
+    }
+    if family == "ninelaw":
+        contract = parent._r399_contract()
+        checks.update({
+            "contract_shape": (
+                len(contract["profiles"]) == 6 and int(contract["steps"]) == 30
+            ),
+            "candidates_frozen": (
+                len(parent.extended_candidate_ids()) == 21
+                and set(parent.original_nine_ids()).issubset(
+                    set(parent.extended_candidate_ids())
+                )
+            ),
+        })
+    elif family == "schedule":
+        checks.update({
+            "candidate_contract": (
+                len(parent.candidates()) == 350
+                and parent.R452.candidate_sequence_sha256()
+                == parent.R452.EXPECTED_CANDIDATE_SHA256
+            ),
+            "shard_contract": (
+                len(parent.expected_dev_shard_ids()) == 34
+                and len(parent.expected_eval_shard_ids()) == 8
+            ),
+        })
+    elif family in ("port_extra_k35", "port_extra_k4", "topology"):
+        contract = parent._base_contract()
+        checks.update({
+            "contract_shape": (
+                len(contract["mode_ids"]) == 4
+                and int(contract["device_count"]) == 4
+                and int(contract["steps"]) == 50
+            ),
+        })
+        if family == "topology":
+            checks["variant_bank_frozen"] = (
+                len(parent.TOPOLOGY_VARIANTS) == 12
+                and parent.variant_ids()[0] == "nominal"
+            )
+        else:
+            checks["banks_frozen"] = (
+                len(parent.BLOCKS) == 3
+                and parent.block_ids()[0] == "a4_conditions_b"
+            )
+    return checks
 
 
 def _sha256_file(path: Path) -> str:
@@ -429,6 +501,16 @@ def main(argv: list[str] | None = None) -> int:
     _verify_parent_source(parent_name, parent_path)
     parent = _load_module(f"_r478_{args.family}_parent", parent_path)
     snapshot = _rekey(parent, args.family, out_root)
+    # Identity re-key: replace the parent's round-id-hardcoded authority gate
+    # with an R478-keyed equivalent built from its own primitives.
+    for _auth_name in ("authority_checks", "_authority_checks"):
+        if hasattr(parent, _auth_name):
+            family_name = args.family
+            setattr(
+                parent,
+                _auth_name,
+                lambda: _patched_authority(parent, family_name),
+            )
     sidecar = _write_rekey_sidecar(
         family=args.family,
         command=args.command,

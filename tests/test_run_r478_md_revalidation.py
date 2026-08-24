@@ -119,6 +119,29 @@ def test_rekey_sidecar_records_identity_and_is_idempotent(tmp_path: Path) -> Non
         )
 
 
+def test_patched_authority_is_r478_keyed_and_scientific_checks_delegated() -> None:
+    for family, parent_name, keys in (
+        ("ninelaw", "run_r416_headroom_expansion.py",
+         {"contract_shape", "candidates_frozen"}),
+        ("schedule", "run_r458_dev_select_eval_validate.py",
+         {"candidate_contract", "shard_contract"}),
+        ("topology", "run_r413_topology_robustness.py",
+         {"contract_shape", "variant_bank_frozen"}),
+        ("port_extra_k35", "run_r415_energy_port_extra_banks.py",
+         {"contract_shape", "banks_frozen"}),
+    ):
+        parent = _load_parent(parent_name)
+        out_root = ROOT / "results" / "research_loop" / str(
+            RUNNER.FAMILIES[family]["out"]
+        )
+        RUNNER._rekey(parent, family, out_root)
+        checks = RUNNER._patched_authority(parent, family)
+        assert checks["active_plan"] is True
+        assert checks["active_line"] is True
+        assert keys <= set(checks), f"{family} missing delegated checks"
+        assert all(checks.values()), f"{family} authority not all green: {checks}"
+
+
 def test_command_vocabulary_and_translation() -> None:
     assert RUNNER.COMMAND_TRANSLATION["port_unseen"]["rehearse"] == ["--rehearse"]
     assert RUNNER.COMMAND_TRANSLATION["port_unseen"]["execute"] == ["--execute"]
