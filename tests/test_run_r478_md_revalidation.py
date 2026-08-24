@@ -125,7 +125,7 @@ def test_command_vocabulary_and_translation() -> None:
     assert "measure-capacity" in RUNNER.FAMILY_COMMANDS["ninelaw"]
     assert "select" in RUNNER.FAMILY_COMMANDS["schedule"]
     assert "inventory" in RUNNER.FAMILY_COMMANDS["topology"]
-    assert "execute" not in RUNNER.FAMILY_COMMANDS["zero"]
+    assert "execute" in RUNNER.FAMILY_COMMANDS["zero"]
     assert "shard" in RUNNER.FAMILY_COMMANDS["topology"]
 
 
