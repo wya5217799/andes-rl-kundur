@@ -606,10 +606,10 @@ def rehearsal() -> dict[str, Any]:
             "same_device": os.stat(source).st_dev == os.stat(target).st_dev,
         }
     core._seed_all(901)
-    first = core.FactorialWrapper(core.ARMS[0])
+    first = core.FactorialWrapper(FACTORIAL_ARMS[0])
     first_hash = core._state_tensor_hash(first)
     core._seed_all(901)
-    second = core.FactorialWrapper(core.ARMS[-1])
+    second = core.FactorialWrapper(FACTORIAL_ARMS[-1])
     second_hash = core._state_tensor_hash(second)
     checks["initialization"] = {
         "same_seed_all_cell_tensor_hash_equal": first_hash == second_hash,

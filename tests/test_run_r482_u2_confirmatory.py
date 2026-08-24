@@ -170,6 +170,11 @@ def test_basegen_uses_r482_arm_vocabulary():
     assert "core.ARMS[0]" not in body
 
 
+def test_all_r482_wrapper_construction_uses_r482_arm_vocabulary():
+    source = Path(runner.__file__).read_text(encoding="utf-8")
+    assert "FactorialWrapper(core.ARMS" not in source
+
+
 def test_routing_gate_allows_base_inputs_but_precedes_execution(tmp_path, monkeypatch):
     out = tmp_path / "out"
     (out / "donors").mkdir(parents=True)
