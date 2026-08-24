@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "round": "R481",
+  "phase": "same-pre-attempt-path-rehearsal",
+  "checks": {
+    "source_hash": true,
+    "parent_hash": true,
+    "installed_package": true,
+    "installed_case": true,
+    "output_absence": true,
+    "active_plan": true,
+    "owner_approved": true,
+    "contract_closed": true
+  },
+  "runtime": {
+    "python": "3.12.3 (main, Jun 19 2026, 12:46:00) [GCC 13.3.0]",
+    "python_executable": "/usr/bin/python3.12",
+    "andes_version": "2.0.0",
+    "andes_module": "/home/wya/andes_venv/lib/python3.12/site-packages/andes/__init__.py",
+    "case_path": "/home/wya/andes_venv/lib/python3.12/site-packages/andes/cases/kundur/kundur_full.xlsx",
+    "case_sha256": "f725e03ba12d8207616f68acdd606bbd35e7c4a68f13e66d7db43925adac2ed8"
+  },
+  "parent": {
+    "r478_seal_sha256": "8711c945333a0a30466017c6a884880545e134ff4c720e34654846dca96191d0",
+    "parameter_card_sha256": "290e7422bf96395179527636b20948223811515717d0cd0ee1c19f19ef4cf79d",
+    "verified_source_count": 33,
+    "plan_lifecycle_exempt": "memory/rounds/R478/plan.md (state active -> completed at R478 close)"
+  },
+  "rehearsal_scope": "zero arm on the first fresh development profile, six scenarios",
+  "summary": {
+    "profile_id": "fresh_dev_a",
+    "split": "development",
+    "arm_id": "zero",
+    "valid": true,
+    "record_count": 6,
+    "off_diagonal_response_energy": 6.86563040318528e-05,
+    "disturbance_differential_energy": 0.001034530558512628,
+    "common_frequency_iae_hz_s": 0.6827510174556455,
+    "worst_unit_peak_hz": 0.06252492164031054,
+    "worst_rocof_hz_s": 0.11077836341655711,
+    "differential_settling_seconds": {
+      "common": 6.0,
+      "differential": 6.0,
+      "localized": 6.0
+    },
+    "action_rms": 0.0,
+    "action_total_variation": 0.0,
+    "minimum_record_total_variation": 0.0,
+    "maximum_action_row_dispersion": 0.0,
+    "minimum_record_action_row_dispersion": 0.0,
+    "action_saturation_fraction": 0.0,
+    "action_bound_violation": false,
+    "action_slew_violation": false,
+    "actuator_mapping_pass": true
+  },
+  "elapsed_seconds": 20.9823941020004,
+  "formal_attempt_created": false,
+  "formal_outputs_created": false
+}

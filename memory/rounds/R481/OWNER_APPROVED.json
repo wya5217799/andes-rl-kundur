@@ -1,0 +1,7 @@
+{
+  "approved": true,
+  "date": "2026-08-25",
+  "round": "R481",
+  "scope": "fresh-holdout direct-M/D deterministic formal bank per the R481 plan (implementation, contract freeze, rehearsal, 16x8 capacity quick confirm, seal, 16-worker formal execute, classify, close-out) with the recommended defaults O1-O3; training, MARL attribution, topology, and manuscript-number replacement stay closed",
+  "source": "owner message 2026-08-25: '继续任务吧，小步快跑，尽量跑满cpu', following the owner-approved direct-M/D main-line re-verification route decision (prospective_direct_md_successor_decision OWNER-APPROVED)"
+}

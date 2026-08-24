@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "round": "R481",
+  "quick_confirm": {
+    "workers": 16,
+    "jobs": 8,
+    "wall_seconds": 6.3283898110094015,
+    "all_records_valid": true,
+    "failures": []
+  },
+  "empirical_anchor": {
+    "source": "memory/rounds/R478/capacity_r478_md_ninelaw.json",
+    "source_sha256": "2f40f57c6495f51df156b40e97c16023488befa83b294a102224e5be56df279c",
+    "same_corrected_andes_family": true,
+    "all_records_valid": true,
+    "concurrent_workers": 9,
+    "native_threads_per_worker": 1,
+    "history_ladder_r452_r477": "16 workers selected in every round R452-R477 on this host"
+  },
+  "selected": {
+    "workers": 16,
+    "launcher_processes": 1,
+    "reason": "history ladder R452-R477 16-worker precedent plus this round's 16x8 quick confirm; bank has 360 independent records"
+  },
+  "whole_host_python_process_budget": 17,
+  "native_threads_per_process": 1,
+  "other_reserved_processes": 0,
+  "capacity_trace_role": "non_claim_bearing_quick_confirmation"
+}
