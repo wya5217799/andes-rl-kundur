@@ -55,6 +55,12 @@ understand, explain, or interpret the repository receive a direct answer.
   (教训: 主会话与两个审查子代理各重读规章五遍以上)。
 - **long-run background**: 预计 >5min 的命令后台跑; 启动仿真前先查同名进程
   是否已在跑, 不重复启动; 不轮询, 等完成通知。
+- **launch parallel first** (2026-08-25 R478 repair5): 启动高并行仿真前,
+  先查历史容量证据 (memory/rounds/*/capacity*.json 的 selected_workers;
+  R452-R477 全为 16 并行先例, 同主机同负载)。有完整阶梯证据 + owner
+  时间紧急指令 → 复用历史选择, 只跑单档 16×8 快速确认, 不重爬完整
+  6 档阶梯。授权哈希文件必须在所有 plan/source 修改提交后再生成
+  (repair4 因改 plan 导致哈希绑定漂移的教训)。
 - **说人话**: 对 owner 用完整自然中文, 一次一个问题;
   保留学科通用专业词并在首次出现时说明它在本句的作用。仓库编号/文件名
   只在用户要求核对、影响决策或需要可追溯时出现;
