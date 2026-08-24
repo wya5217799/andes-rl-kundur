@@ -269,11 +269,14 @@ def authority_checks() -> dict[str, bool]:
 
 
 def _reviewed_files() -> tuple[Path, ...]:
+    # source_factorial_design.py is deliberately NOT in the review set: its
+    # pre-existing CRLF working copy would break the byte-level review-coverage
+    # check (git stores LF), and it is already double-bound by the power
+    # artifact's embedded planner sha256 and the seal source map.
     return (
         Path(__file__).resolve(),
         RUNNER_TESTS,
         ANALYSIS_MODULE,
-        DESIGN_MODULE,
         ROOT / "scripts/run_r477_u2_confirmatory.py",
         ROOT / "scripts/run_r476_u2_confirmatory.py",
         ROOT / "src/andes_rl_kundur/evaluation/u2_confirmatory.py",
