@@ -2,11 +2,9 @@
 line_id: yang-md-decoupling-marl
 status: active
 priority: 4
-stage: successor-route-owner-decision
+stage: successor-authority-generation
 artifact_manifest: paper/yang_md_decoupling_marl/ARTIFACTS.json
-scope:
-  write_roots: [paper/yang_md_decoupling_marl]
-  shared_read_roots: [paper/paralleled_vsg_marl, paper/icems2026, paper/decoupling_marl_model_first, memory, results, docs/research, src/andes_rl_kundur]
+scope: {write_roots: [paper/yang_md_decoupling_marl], shared_read_roots: [paper/paralleled_vsg_marl, paper/icems2026, paper/decoupling_marl_model_first, memory, results, docs/research, src/andes_rl_kundur]}
 venue:
   kind: conference
   status: locked
@@ -17,8 +15,8 @@ venue:
   review_triggers: ["after evidence-bounded conference-draft review or any authorized topology-robustness gate", "before 2026-08-28 author registration and 2026-09-07 final-paper upload"]
 working_title: "Decoupling-Oriented Coordination of Paralleled  VSGs With Multi-Agent Reinforcement Learning"
 title_policy: "Fixed wording; same-object evidence per term; prospective till gate passes."
-objective: "R478 corrected-M/D revalidation closed (energy-port candidate terminal, CLM-1490); run the queued R479 H-sensitivity bank; owner decides the successor route (prospective direct-M/D decision on file) before any new formal bank or training."
-decision_refs: ["docs/adr/0019-separate-yang-md-decoupling-marl-successor.md#decision", "paper/yang_md_decoupling_marl/working/gpt_pro_unresolved_math_solution_20260821/IMPORT_NOTE.md#manuscript-disposition", "paper/yang_md_decoupling_marl/working/corrected_md_revalidation_experiment_plan_20260824.md#decision", "paper/yang_md_decoupling_marl/working/md_parameter_card_20260824.json#owner_decision"]
+objective: "R478 revalidation closed (energy-port candidate terminal) and R480 H-sensitivity formal bank closed (OPEN-LOOP-H-SENSITIVE); owner accepted abandoning the energy-port positive claim and selected the direct-M/D main-line re-verification; next = fresh-holdout direct-M/D successor contract before any training."
+decision_refs: ["docs/adr/0019-separate-yang-md-decoupling-marl-successor.md#decision", "paper/yang_md_decoupling_marl/working/gpt_pro_unresolved_math_solution_20260821/IMPORT_NOTE.md#manuscript-disposition", "paper/yang_md_decoupling_marl/working/corrected_md_revalidation_experiment_plan_20260824.md#decision", "paper/yang_md_decoupling_marl/working/md_parameter_card_20260824.json#owner_decision", "paper/yang_md_decoupling_marl/working/prospective_direct_md_successor_decision_20260825.md#status"]
 evidence_refs:
   - "CLM-1135 -> paper/yang_md_decoupling_marl/reports/R398.md"
   - "CLM-1140 -> paper/yang_md_decoupling_marl/reports/R399.md"
@@ -84,7 +82,9 @@ evidence_refs:
   - "CLM-1480 -> paper/yang_md_decoupling_marl/reports/R477.md"
   - "CLM-1485 -> paper/yang_md_decoupling_marl/reports/R478.md"
   - "CLM-1490 -> paper/yang_md_decoupling_marl/reports/R478.md"
+  - "CLM-1495 -> paper/yang_md_decoupling_marl/reports/R480.md"
+  - "CLM-1500 -> paper/yang_md_decoupling_marl/reports/R480.md"
 required_reading: [paper/yang_md_decoupling_marl/LINE.md]
 verification: ["Zero action preserves runtime M/D; corrected objects stay non-pooled; COI/modal sensitivity reported."]
-stop_when: ["No successor formal bank or training before the owner's route decision; notify the owner at each launch moment."]
+stop_when: ["No successor formal bank or training before the successor authority generation is sealed and owner-approved; notify the owner at each launch moment."]
 ---
