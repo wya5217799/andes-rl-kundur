@@ -39,7 +39,7 @@ R478 freezes the physical parameter card (device/system-base convention with pri
 1. 0A/0B: audit primary sources; write + register the parameter card and justification note in ARTIFACTS.
 2. 0C: write the seven invariant tests red-first (zero action; telemetry; round trip; heterogeneous card; nonzero-action branch/clamp/slew units; energy-port slow channel; reset repeatability). Confirm the zero-action invariant fails pre-fix (bug reproduced).
 3. Implement the conversion fix; all invariants green; V4 regression re-locked green.
-4. Locate the registered frozen banks (zero-action, nine-law, frozen dev/eval schedule family, energy-port unseen/extra-condition/topology) and re-point them at the corrected card with unchanged guards; add trace capture (1C).
+4. Locate the registered frozen banks (zero-action, nine-law, dev/eval schedule, energy-port unseen/extra-condition, topology variants) and re-point them at the corrected card via `scripts/run_r478_md_revalidation.py`: parent sealed runners stay byte-identical (frozen sha256 table), the adapter patches round id + output root only, records a rekey sidecar per dispatch, and runs the zero-action trace bank directly. Guards/profiles/split/windows unchanged. Trace capture (1C) = per-step rows of every re-run bank + the zero-action records.
 5. Freeze-then-review: two independent reviews of the frozen commit + file hashes; P0/P1 repaired before seal.
 6. Seal + commit; capacity ladder on representative deterministic jobs (rung sizes per CLAUDE.md); rehearsal through the formal entry's same-pre-attempt path (source_hash, parent_hash, installed_package, installed_case, output_absence); no formal attempt created.
 7. STOP — owner review gate. No formal attempt, retry, or result inspection until the owner approves. Post-approval: formal banks execute; gates decide; round closes with feed/claim/verdict.
@@ -73,8 +73,8 @@ No external mathematical theory this round; the base convention is primary-sourc
 
 ## Formal launch contract
 
-- formal_entry: scripts/run_r478_md_revalidation.py <phase> (built in this round; exact phases frozen at seal)
-- rehearsal_command: /home/wya/andes_venv/bin/python scripts/andes_scratch.py scripts/run_r478_md_revalidation.py rehearse
+- formal_entry: scripts/run_r478_md_revalidation.py <family> <phase> (families: zero|ninelaw|schedule|port_unseen|port_extra_k35|port_extra_k4|topology; parent runners stay byte-identical, rekey sidecar per dispatch)
+- rehearsal_command: /home/wya/andes_venv/bin/python scripts/andes_scratch.py scripts/run_r478_md_revalidation.py <family> rehearse
 - rehearsal_scope: same-pre-attempt-path
 - rehearsal_checks: source_hash,parent_hash,installed_package,installed_case,output_absence
 - capacity_evidence: memory/rounds/R478/capacity_evidence.json (produced by the pre-launch ladder)
