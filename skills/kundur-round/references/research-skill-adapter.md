@@ -1,9 +1,9 @@
 # ANDES/Kundur research-skill adapter
 
-Apply this file whenever a global literature, research-planning, writing,
-figure, evidence-audit, domain-review, or submission skill operates in this
-repository. This is the only project-specific adapter; global skills must
-remain project-neutral.
+Apply this file whenever an internal workflow module or external literature,
+research-planning, writing, figure, review, or submission skill operates here.
+This is the only ANDES-specific adapter; modules remain subordinate to
+`kundur-round` and external skills remain project-neutral.
 
 ## Bootstrap and scope
 
@@ -121,7 +121,7 @@ forces `STAY-OUT`; it does not spawn a second report.
 Apply the global navigator's `paper-writing-protocol.md`, with these
 project-native mappings:
 
-- The Supervisor `Evidence Map` is a temporary view over current CLM cards,
+- Any external `Evidence Map` is a temporary view over current CLM cards,
   experiment feeds, formal verdicts, and stable result locators. It must not be
   persisted as a second evidence ledger.
 - The ARS `Material Passport` maps to the selected `LINE.md`,

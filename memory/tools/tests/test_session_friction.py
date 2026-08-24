@@ -42,6 +42,7 @@ def test_artifact_plain_jsonl_scans(capsys):
     assert "cli-usage" in out
     assert "说人话" in out
     assert "sessions=1" in out
+    assert "Read the exact target before mutation" in out
 
 
 def test_artifact_zip_scans(tmp_path, capsys):
@@ -69,3 +70,15 @@ def test_artifact_missing_exits_1(tmp_path, capsys):
     err = capsys.readouterr().err
     assert rc == 1
     assert "artifact not found" in err
+
+
+def test_json_reports_actionable_remediations(tmp_path, capsys):
+    path = tmp_path / "session.jsonl"
+    path.write_text(_session_text(), encoding="utf-8")
+
+    rc = sf.main(["--artifact", str(path), "--json"])
+    payload = json.loads(capsys.readouterr().out)
+
+    assert rc == 0
+    assert payload["remediations"]["edit-fail"].startswith("Read the exact target")
+    assert payload["remediations"]["cli-usage"].startswith("Run --help once")

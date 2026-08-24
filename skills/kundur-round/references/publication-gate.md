@@ -13,12 +13,12 @@ skill.
 
 ## Semantic review route
 
-1. **Evidence audit** — apply `audit-manuscript-evidence` to the feed's
+1. **Evidence audit** — load `evidence-audit.md` on the feed's
    Observations and Conclusions against final machine-readable decisions,
    any already-current parent CLM records, sealed
    summaries, raw result fields, validity guards, exclusions, and
    supersession. A LaTeX draft is not required.
-2. **Domain audit** — apply `review-power-systems-manuscript` to the same
+2. **Domain audit** — load `power-systems-audit.md` on the same
    pre-draft claim sheet, model, units, actuator path, endpoints, baselines,
    inference, and scope. Mark presentation-only checks not yet applicable.
 3. **External context** — classify:

@@ -47,6 +47,13 @@ The non-authoritative `learning/` asset that maps transferable foundations
 needed to understand this repository. It is a learning graph, not a project
 glossary, source index, evidence ledger, or learner-progress record.
 
+### `project skill` / `internal workflow module` / `external skill`
+The sole project skill is `kundur-round`. A project-maintained workflow module
+is plain branch detail under its `references/`, evolved from repository
+friction but excluded from skill discovery. An external skill has an independent
+upstream owner and remains a bounded method dependency. Neither module nor
+external skill gains research authority from its location.
+
 ### `Foundation Atom`
 A precise, transferable STEM or research-method concept selected because this
 repository uses it. Project-local names remain Context terms and point to

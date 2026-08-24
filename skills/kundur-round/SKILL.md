@@ -7,9 +7,9 @@ description: andes-rl-kundur 仓库流程 canonical — 一轮研究从选题到
 
 # Kundur Round — 仓库流程 canonical
 
-本文件是 andes-rl-kundur 研究流程的唯一过程真源。仓库事实（schema、
-工具目录、代码约定、模板）留在 CLAUDE.md 与各模板文件，本文件只持
-**过程**并用指针取细节。
+本文件是 andes-rl-kundur 唯一项目 skill 入口，也是研究流程的唯一过程真源。
+仓库事实（schema、工具目录、代码约定、模板）留在 CLAUDE.md 与各模板文件，
+本文件只持**过程**并用指针取细节；`references/` 内文件不是可独立调用的 skill。
 
 词汇: **round** = 一次可证伪调查 (plan + verdict); **feed** = 实验实质
 的唯一完整写处; **ledger** = claims / questions / rounds 骨架三件套。
@@ -19,13 +19,19 @@ description: andes-rl-kundur 仓库流程 canonical — 一轮研究从选题到
 1. 跑 `python memory/tools/session_context.py --json`。
 2. 只读输出的 `required_reading`; 历史事实按需用 `note_query.py` / `query.py`
    查, 不把整个 ledger 塞进上下文。
-3. `mode=resume-round` → 先闭环 active round; `mode=research` → 用输出的
+3. `mode=resume-round` → 先闭环 active round; owner 当前明示指定且与
+   active evidence/write scope 不相交的 `scratch` 可插入, 但必须先报
+   保护边界、不改 active round/seal/artifact, 完成后只回到仍未完成的
+   明示任务队列;
+   `mode=research` → 用输出的
    原文 objective / verification / stop_when; `mode=manuscript` → 按当前
    LINE.md 入口完成手稿动作; `mode=manuscript-refresh` → 先清 artifact
    新鲜度告警再起草/审稿; `mode=idle` → 不自行开实验。
 4. 改代码或仓库治理前必须读 `CLAUDE.md`, 即使当前 manuscript 入口没有把
    它列入最小阅读集。
-5. 使用全局研究、写作或审稿 skill 时，先读
+5. 需要研究路由、执行准备、证据/领域/投稿审计时，按
+   `skills/kundur-round/references/module-routing.md` 只加载命中的内部模块。
+   使用外部研究、写作或审稿 skill 时，再读
    `skills/kundur-round/references/research-skill-adapter.md`；项目规则不从
    全局 skill 包反向复制。
 
@@ -322,8 +328,10 @@ Question 或当前手稿 `LINE.md`。
 - `memory/rounds/_TEMPLATE_VERDICT.md` — verdict 骨架模板 (validate.py
   强制节)
 - `memory/tools/*.py` — 自文档 (docstring 含 motivation/usage/失败模式)
-- `skills/kundur-round/references/research-skill-adapter.md` — 全局研究
-  skill 在本项目中的唯一适配层
+- `skills/kundur-round/references/module-routing.md` — 内部模块唯一调用表；
+  原五个自维护 workflow 只作为 references，不是额外 skill 入口
+- `skills/kundur-round/references/research-skill-adapter.md` — 外部研究 skill
+  在本项目中的唯一适配层
 - `skills/kundur-round/references/technical-route-census.md` — 方向不清时的
   五家族穷尽盘点、覆盖校验与唯一后续路线门
 - `skills/kundur-round/references/external-theory-intake.md` — 外部数学/理论

@@ -58,8 +58,8 @@ Adopt a production-and-control split.
    structural rewrites reopen the argument stage and trigger whole-draft
    re-audit.
 
-The global orchestration contract is
-`ask-research-supervisor/references/paper-writing-protocol.md`. This
+The project orchestration contract is
+`skills/kundur-round/references/paper-writing-protocol.md`. This
 repository's mappings and review order are owned by
 `skills/kundur-round/references/research-skill-adapter.md`.
 

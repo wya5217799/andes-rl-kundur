@@ -1,9 +1,23 @@
-# External skill adapters
+# Skill ownership and external adapters
 
 External skills are optional perspectives, not project authorities. The
 canonical round lifecycle, claims, questions, gates, and manuscript feed
 contracts remain owned by `skills/kundur-round/SKILL.md` and the schemas under
 `memory/`.
+
+## Project-maintained workflow
+
+`kundur-round` is the only project skill entrypoint. Five workflows authored
+and repeatedly repaired from repository friction remain local as internal
+references: research junction, execution readiness, evidence audit,
+power-system audit, and submission audit. Their exact triggers live only in
+`skills/kundur-round/references/module-routing.md`; they have no `SKILL.md`
+frontmatter or `agents/openai.yaml`, so discovery cannot select them.
+
+Change the entrypoint or its modules only through a repository maintenance task
+backed by a concrete failure or repeated friction pattern, then run the module
+contract tests, scope checker, and repository health. The external-skill
+adapter remains `skills/kundur-round/references/research-skill-adapter.md`.
 
 ## Academic research suite
 
@@ -50,9 +64,9 @@ commitments stabilize, and `paper-polish` only after material changes settle.
 Their Evidence Map is a working view over the existing feed, claims, and result
 locators. It is not registered as another evidence ledger.
 
-The global division and drafting/revision order live in
-`ask-research-supervisor/references/paper-writing-protocol.md`; the repository-
-specific mappings live only in the project adapter.
+The drafting/revision order lives in
+`skills/kundur-round/references/paper-writing-protocol.md`; repository-specific
+mappings live only in the project adapter.
 
 For investigation depth, use `research` for one bounded primary-source
 question or evidence gap and `deep-research` for a multi-perspective literature
@@ -77,8 +91,8 @@ explicitly requests an import and the candidate is revalidated against live
 repository anchors.
 
 These teaching skills are intentionally outside
-`docs/repo-hygiene/research-skills.scope.json`: that manifest governs academic
-research skills with no project-write authority. The Tutor is read-only; the
+`docs/repo-hygiene/research-skills.scope.json`: that manifest governs this
+project's research workflow portfolio. The Tutor is read-only; the
 enrichment writer has one narrow, user-authorized teaching destination and no
 research authority.
 
@@ -90,33 +104,35 @@ may mutate rounds, claims, questions, gates, feeds, or manuscript-line state;
 they return implementation artifacts only.
 
 - **`ask-matt`** — the engineering flow: idea → spec → tickets → `/implement`
-  (which drives `/tdd` + `/code-review`). Default for a non-trivial `scratch`
-  slice or a multi-file build.
+  (which drives `/tdd` + `/code-review`); use only when the user names it.
 - **`diagnosing-bugs`** — the bug-finding discipline: build a tight red loop
   before theorising, fix with a regression test, then post-mortem; hands off to
   `/improve-codebase-architecture` when no correct seam exists.
 
-Selection is a peer engineering decision; the research supervisor does not
+Selection is a peer engineering decision; the research-junction module does not
 discover or nested-route through them. `skills/kundur-round/SKILL.md` section 2
 and the current user authorization still decide the writable lane.
 
 ## Invocation and scope manifest
 
-`docs/repo-hygiene/research-skills.scope.json` is the single inventory of
-global academic skills used by this repository. It records which skills may
-be invoked implicitly and asserts empty project-write authority.
+`docs/repo-hygiene/research-skills.scope.json` is the single inventory of the
+project entrypoint, internal modules, and external academic skills. It records
+exact project paths, external invocation policy, and empty external
+project-write authority.
+Source roots, one-primary selection, precedence, and collision handling live
+only in `docs/repo-hygiene/skill-routing.md`.
 Engineering workflow routers are intentionally outside this academic scope.
 If the user explicitly invokes one, it operates as a separate peer request
-under its own authority contract; the research supervisor does not discover or
+under its own authority contract; the research-junction module does not discover or
 nested-route through it.
 
-The Supervisor may issue a workflow-load recommendation (`scratch`,
+The research-junction module may issue a workflow-load recommendation (`scratch`,
 `manuscript`, or `evidence`) to keep routing proportional. That recommendation
 does not expand project write authority: `skills/kundur-round/SKILL.md`
 section 2 and the current user authorization make the binding lane and scope
 decision. Ask Matt remains a peer engineering router and cannot mutate the
 research ledger or manuscript-line state. It must not be added to the academic
-scope manifest or the Supervisor dependency inventory. The project adapter's
+scope manifest or the external capability inventory. The project adapter's
 `Ownership and handoffs` table is the single repository-specific owner map;
 this page only records the installation boundary.
 
@@ -124,14 +140,13 @@ Validate installation, duplicate names, invocation policy, and accidental
 project-specific text in global packages with:
 
 ```powershell
-python C:\Users\27443\.codex\skills\ask-research-supervisor\scripts\check_dependencies.py `
+python memory\tools\check_skill_scope.py `
   --strict --scope-manifest docs\repo-hygiene\research-skills.scope.json
 ```
 
-High-cost judgment workflows such as Deep Research, Idea Evaluator, full
-drafting, and complete pre-submission review are explicit. Narrow presentation
-helpers and hard evidence/domain/submission gates may be selected implicitly
-when the task clearly matches.
+High-cost external judgment workflows are explicit. Narrow external
+presentation helpers may be selected on an exact match. Project audit and
+efficiency gates are reached only through the checked-in project workflow.
 
 ## Agent-facing writing standard
 

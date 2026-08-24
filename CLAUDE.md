@@ -65,27 +65,18 @@
 
 ## Agent skills
 
-- **Issue tracker**: 工程规格与票在 GitHub Issues — `docs/agents/issue-tracker.md`.
-- **Triage labels**: agent-facing issue 状态用五个 canonical labels — `docs/agents/triage-labels.md`.
-- **Domain docs**: 领域语言 `CONTEXT.md`, 架构决策 `docs/adr/` — `docs/agents/domain.md`.
-- **工程流**: 非 research round 的 scoped code work (feature/refactor/bug) 走 `ask-matt`
-  (build/spec/多文件) 或 `diagnosing-bugs` (broken/flaky/regressed), 不进 round/claim/feed
-  ledger. 边界: `docs/repo-hygiene/external-skills.md`.
-- **External skills**: 适配器, 无独立 authority over rounds/claims/gates/ledgers.
-  高成本判断流程 explicit-only; 窄呈现与硬审计门按 `research-skills.scope.json`
-  隐式选. 项目专属研究/审查规则只住 `skills/kundur-round/references/research-skill-adapter.md`.
-- **类型检查范围**: `docs/repo-hygiene/type-checking.md`.
-- **外部理论吸收**: 三分 (代数恒等式/机制预测/论文级命题) 各走路径 (R422/R424/R432
-  教训); 任何机制预测强制 plan 可观测清单 + feed 裁决; evidence 收尾跑
-  `external_theory_intake_lint.py R<N>`. 全文:
-  `skills/kundur-round/references/external-theory-intake.md`.
+- **路由唯一真源**: `docs/repo-hygiene/skill-routing.md`; 一任务至多一个 primary skill,
+  仓库私有 authority > 外部方法, explicit > implicit, availability != invocation.
+- **项目/外部 skill**: 项目只暴露 `kundur-round`; 自维护分支是其内部 reference,
+  不独立调用. 外部安装/边界见 `docs/repo-hygiene/external-skills.md`; 适配只住
+  `skills/kundur-round/references/research-skill-adapter.md`; type scope 见 `docs/repo-hygiene/type-checking.md`.
+- **Issue/domain**: `docs/agents/issue-tracker.md`, `docs/agents/triage-labels.md`, `docs/agents/domain.md`, `CONTEXT.md`, `docs/adr/`.
+- **外部理论**: 三分吸收 + observable/feed/close gates → `skills/kundur-round/references/external-theory-intake.md`.
 
 ## 记忆系统 (R39+)
 
-四实体 (Claim `CLM-NNNN` / Question `Q-NNNN` / Round `RNN` / Note `NOTE-NNNN`)
-+ handoff 草稿 (出 schema, 不进 oracle). STATE.md 只读 claims/questions/rounds,
-永不手改. 写法与时机 (claim/question/note 形态、evidence_refs、归档判据):
-`skills/kundur-round/references/ledger-writing.md`.
+四实体: Claim / Question / Round / Note; handoff 不进 schema, STATE.md 永不手改.
+形态、引用、归档: `skills/kundur-round/references/ledger-writing.md`.
 
 ## Round 文件契约 — feed 分工
 
@@ -156,26 +147,15 @@
 
 ## 活跃研究规则 (现状)
 
-- **规则预算 (2026-08-23)**: CLAUDE.md ≤160 行 (contract.json `max_lines`, repo_health
-  强制). 新增内容默认下放 pointer 文件; 超限先瘦身再继续干活.
+- **规则预算**: CLAUDE.md ≤160 行; 新规默认下放 pointer, `repo_health` 强制.
 - **AI-only compactness**: new/edited AI rules/state = caveman short clauses + pointers + one fact/one home.
-- **AI-facing writing default**: agent-reader docs (`AGENTS.md`, `CLAUDE.md`, `skills/`,
-  `docs/agents/`, `docs/repo-hygiene/`, ledger templates) 按 `writing-for-agents` skill 写 — 改前 load.
-- plan 与 verdict 技术骨架可用紧凑中文; question/claim/feed 用英文.
-  给 PI 的正文必须完整、自然、无术语中文.
-- **说人话 (交互层)**: 对话层对 owner 完整自然中文、一次一问、不堆术语;
-  仓库资产层反向 caveman (短句 + 指针).
-- **owner 要效率 = 免批授权**: owner 说「拉满硬件/别管规则/为效率改规则」时,
-  走 `gate_lifecycle.py` grant/provisional 或按明示直接执行, 别硬顶规则拒绝.
+- **AI-facing writing**: agent-reader docs 改前 load `writing-for-agents`; schema shape 不变.
+- 技术资产 caveman; question/claim/feed English; owner 对话/PI 正文完整自然中文, 一次一问.
+- **owner 要效率 = 免批授权**: 按明示或 `gate_lifecycle.py` grant/provisional 执行.
 - **Plateau (R86)**: algo dim 结构性 plateau 已证, 别起 algo SOTA-hunt rounds.
-- **Research priority (fallback only)**: correctness and objective validity → residual
-  mechanism → topology generalisation → safety/stability → cross-simulator/HIL → manuscript.
-- **新架构 (R82)**: TD3-Transformer / TD3-LSTM2 ≤ R72_w4 baseline (CLM-0144/0145);
-  Transformer deterministic-eval collapse 是 known issue.
+- **Research priority fallback**: correctness/objective → mechanism → topology → safety → HIL → manuscript.
+- **新架构 (R82)**: TD3-Transformer/TD3-LSTM2 ≤ R72_w4; Transformer eval collapse known.
 - 当前论文目标只由 `session_context.py --line <id>` 决定; `priority` 只供回退.
-- **实验设计护栏 (2026-08-22 三包吸收)**: 新实验 plan 写设计段前必查
-  `skills/kundur-round/references/experiment-design-guardrails.md`.
-- **工作流优化触发**: 用户「优化工作流」→ `session_friction.py` 复盘 → 根因 codify
-  进 infra; harness 层摩擦改 `~/.dsh/.agent-presets/kundur/` (改前 `--all` 复测, 改后 owner 新会话验证).
-- **外部 agent 会话纪律 (2026-08-23)**: Codex 复盘教训 → AGENTS.md `会话工作纪律`
-  + `session_friction.py --artifact`. 同类协作问题指向该节.
+- **实验设计**: 新 plan 前读 `skills/kundur-round/references/experiment-design-guardrails.md`.
+- **工作流优化**: `session_friction.py` → 根因进 infra; harness 改前 `--all`, 改后新会话验.
+- **外部 agent 摩擦**: `session_friction.py --artifact` → AGENTS.md `会话工作纪律`.

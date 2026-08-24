@@ -32,8 +32,9 @@ Failure modes
 
 Output
 ------
-Ranked, de-duplicated friction signals plus the top owner-correction quotes.
-``--json`` emits the same structure machine-readably for downstream linting.
+Ranked, de-duplicated friction signals, one actionable remediation per signal,
+and the top owner-correction quotes. ``--json`` emits the same structure
+machine-readably for downstream linting.
 """
 from __future__ import annotations
 
@@ -72,6 +73,33 @@ BIND_FAIL_RE = re.compile(
     r"binding arguments must be lossless JSON|missing required property|"
     r"invalid arguments|Unexpected token")
 WIN32_RE = re.compile(r"unsupported on platform win32|terminal inspection is unsupported")
+REMEDIATIONS = {
+    "edit-fail": (
+        "Read the exact target before mutation; after a stale match, reread once "
+        "and recompute the patch instead of retrying blindly."
+    ),
+    "dup-create": (
+        "Resolve and read an existing target before choosing edit versus a new "
+        "create-only path; never overwrite by guessing."
+    ),
+    "timeout": (
+        "Move work expected to exceed five minutes to the runtime job API; for "
+        "Windows-to-WSL pipelines use scripts/launch_detached.py and wait for "
+        "completion notification rather than polling."
+    ),
+    "cli-usage": (
+        "Run --help once after the first usage error, then issue one exact command; "
+        "do not replace atomic reservation tools with hand-picked identifiers."
+    ),
+    "bind-fail": (
+        "Rebuild the smallest call from the current tool schema as lossless JSON, "
+        "including every required property and native value type."
+    ),
+    "win32": (
+        "Use PowerShell process or job status (Get-Process/Get-CimInstance) when "
+        "terminal inspection is unsupported; do not retry the unavailable path."
+    ),
+}
 # Owner correction markers (Chinese; kept narrow to avoid false hits on
 # subagent prompts / ritual boilerplate).
 CORRECT_RE = re.compile(
@@ -259,6 +287,7 @@ def _render(stats, sig, sig_examples, corrections, limit):
         out.append(f"{n:>4}  {cls}")
         for ex in sig_examples.get(cls, [])[:3]:
             out.append(f"        {ex}")
+        out.append(f"        fix: {REMEDIATIONS[cls]}")
     out.append("")
     out.append(f"== owner-correction quotes ({len(corrections)}; top {limit}) ==")
     seen = set()
@@ -320,6 +349,9 @@ def main(argv=None) -> int:
         print(json.dumps({
             "stats": dict(stats), "signals": dict(sig),
             "examples": sig_examples,
+            "remediations": {
+                cls: REMEDIATIONS[cls] for cls in sig
+            },
             "corrections": [{"session": s, "text": u[:400]} for s, u in corrections],
         }, ensure_ascii=False, indent=2))
     else:

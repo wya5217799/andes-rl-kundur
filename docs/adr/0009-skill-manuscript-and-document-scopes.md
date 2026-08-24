@@ -1,6 +1,8 @@
 # ADR-0009: Separate skill, project, manuscript, and document scopes
 
 - **Status:** Accepted
+- **Partially superseded:** ADR-0021 keeps one project skill entrypoint and moves
+  self-maintained workflow detail into its internal project modules.
 - **Date:** 2026-07-30
 - **Deciders:** repository owner and Codex workflow review
 - **Supersedes:** none
@@ -25,12 +27,13 @@ must not silently become a permanent venue fact.
 
 Use four nested scopes with one-way authority:
 
-1. **Global skill scope** — `ask-matt`, `ask-research-supervisor`, ARS,
-   Supervisor Skills, and specialist auditors remain project-neutral. They
-   advise or execute their own workflow but own no project writes.
-2. **Project scope** — `skills/kundur-round/` owns the ANDES lifecycle, ledger,
-   feed contract, physical audit requirements, and the adapter that global
-   research skills must obey in this repository.
+1. **Global skill scope** — `ask-matt`, ARS, Supervisor Skills, and other
+   external capabilities remain project-neutral. They advise or execute their
+   own workflow but own no project writes.
+2. **Project scope** — `skills/kundur-round/` is the sole project skill and owns
+   the ANDES lifecycle, ledger, feed contract, physical audit requirements,
+   internal workflow modules, and the adapter that global research skills must
+   obey in this repository.
 3. **Manuscript-line scope** — every active paper has one delivery root, one
    `LINE.md`, one exclusive write scope, declared shared read roots, and one
    `ARTIFACTS.json`. Several ongoing papers may be active at once: lifecycle

@@ -16,7 +16,11 @@ routes execution; it does not replace the full `kundur-round` skill.
 3. Execute only the active plan for the selected manuscript line. Do not
    reserve another round on that line, broaden the question, enter manuscript
    prose, or bind evidence to a paper line unless the plan explicitly
-   authorizes it. Exception: the owner's standing concurrency authority
+   authorizes it. An owner-explicit `scratch` task disjoint from every active
+   evidence/write scope may interrupt this default only after the agent states
+   the protected boundary; it must not modify the active plan, seal, artifacts,
+   evidence, or manuscript, and completion returns only to other unfinished
+   explicit tasks. Exception: the owner's standing concurrency authority
    (CLAUDE.md 并行预算) allows same-line concurrent rounds whenever the
    concurrent-load ladder and total-memory accounting show hardware surplus;
    the new round's plan must declare every in-flight round's processes via

@@ -1,11 +1,59 @@
 {
-  "version": 1,
+  "version": 3,
+  "routing_contract": "docs/repo-hygiene/skill-routing.md",
+  "selection_contract": {
+    "project_entrypoint_limit": 1,
+    "primary_skill_limit": 1,
+    "implicit_requires_exact_deliverable_match": true,
+    "availability_is_selection": false,
+    "internal_modules_discoverable": false
+  },
   "project_adapter": "skills/kundur-round/references/research-skill-adapter.md",
   "project_local_skills": [
     {
       "name": "kundur-round",
       "path": "skills/kundur-round",
+      "source_scope": "repository-private",
+      "selection": "project-bootstrap",
+      "allow_implicit_invocation": false,
       "role": "Own the ANDES research lifecycle, ledger, feed, and manuscript-line contract."
+    }
+  ],
+  "project_modules": [
+    {
+      "name": "research-junction",
+      "path": "skills/kundur-round/references/research-junction.md",
+      "caller": "skills/kundur-round/references/module-routing.md",
+      "legacy_provenance": "ask-research-supervisor"
+    },
+    {
+      "name": "execution-readiness",
+      "path": "skills/kundur-round/references/execution-readiness.md",
+      "caller": "skills/kundur-round/references/module-routing.md",
+      "legacy_provenance": "experiment-efficiency-gate"
+    },
+    {
+      "name": "evidence-audit",
+      "path": "skills/kundur-round/references/evidence-audit.md",
+      "caller": "skills/kundur-round/references/module-routing.md",
+      "legacy_provenance": "audit-manuscript-evidence"
+    },
+    {
+      "name": "power-systems-audit",
+      "path": "skills/kundur-round/references/power-systems-audit.md",
+      "caller": "skills/kundur-round/references/module-routing.md",
+      "legacy_provenance": "review-power-systems-manuscript"
+    },
+    {
+      "name": "submission-audit",
+      "path": "skills/kundur-round/references/submission-audit.md",
+      "caller": "skills/kundur-round/references/module-routing.md",
+      "legacy_provenance": "audit-journal-submission"
+    },
+    {
+      "name": "skill-maintenance",
+      "path": "skills/kundur-round/references/skill-maintenance-loop.md",
+      "caller": "skills/kundur-round/references/module-routing.md"
     }
   ],
   "forbidden_global_markers": [
@@ -16,105 +64,107 @@
   ],
   "global_skills": [
     {
-      "name": "ask-research-supervisor",
-      "role": "Project-neutral academic navigator that chooses focused research, deep research, and downstream paper gates without nesting an engineering router.",
-      "allow_implicit_invocation": false,
-      "project_write_authority": []
-    },
-    {
       "name": "academic-research-suite",
+      "source_scope": "shared-global",
+      "selection": "explicit-only",
       "role": "Academic control library for argument recovery, integrity, patch revision, rebuttal, and multi-role re-review; not the default prose generator or project state machine.",
       "allow_implicit_invocation": false,
       "project_write_authority": []
     },
     {
       "name": "research",
+      "source_scope": "shared-global",
+      "selection": "exact-implicit",
       "role": "Focused primary-source investigation for one bounded question or evidence gap.",
       "allow_implicit_invocation": true,
       "project_write_authority": []
     },
     {
       "name": "deep-research",
+      "source_scope": "shared-global",
+      "selection": "explicit-only",
       "role": "Bounded survey-grade literature investigation.",
       "allow_implicit_invocation": false,
       "project_write_authority": []
     },
     {
       "name": "idea-evaluator",
+      "source_scope": "shared-global",
+      "selection": "explicit-only",
       "role": "Fatal-flaw and research-idea evaluation.",
       "allow_implicit_invocation": false,
       "project_write_authority": []
     },
     {
       "name": "tech-paper-template",
+      "source_scope": "shared-global",
+      "selection": "explicit-only",
       "role": "Default technical-paper argument-chain designer.",
       "allow_implicit_invocation": false,
       "project_write_authority": []
     },
     {
       "name": "benchmark-paper-template",
+      "source_scope": "shared-global",
+      "selection": "exact-implicit",
       "role": "Benchmark-paper logical skeleton.",
       "allow_implicit_invocation": true,
       "project_write_authority": []
     },
     {
       "name": "paper-writer",
+      "source_scope": "shared-global",
+      "selection": "explicit-only",
       "role": "Default evidence-bounded body-prose generator.",
       "allow_implicit_invocation": false,
       "project_write_authority": []
     },
     {
       "name": "intro-drafter",
+      "source_scope": "shared-global",
+      "selection": "explicit-only",
       "role": "Default technical Introduction generator after body commitments stabilize.",
       "allow_implicit_invocation": false,
       "project_write_authority": []
     },
     {
       "name": "figure-designer",
+      "source_scope": "shared-global",
+      "selection": "exact-implicit",
       "role": "Paper-figure design.",
       "allow_implicit_invocation": true,
       "project_write_authority": []
     },
     {
       "name": "drawio-reconstruction",
+      "source_scope": "shared-global",
+      "selection": "exact-implicit",
       "role": "Editable figure reconstruction.",
       "allow_implicit_invocation": true,
       "project_write_authority": []
     },
     {
       "name": "paper-polish",
+      "source_scope": "shared-global",
+      "selection": "exact-implicit",
       "role": "Faithful academic prose polishing.",
       "allow_implicit_invocation": true,
       "project_write_authority": []
     },
     {
       "name": "pre-submission-reviewer",
+      "source_scope": "shared-global",
+      "selection": "explicit-only",
       "role": "Focused broad manuscript review after evidence and domain gates.",
       "allow_implicit_invocation": false,
       "project_write_authority": []
     },
     {
       "name": "vibe-research-workflow",
+      "source_scope": "shared-global",
+      "selection": "explicit-only",
       "role": "Human-in-control coding, writing, and figure workflow guidance.",
       "allow_implicit_invocation": false,
-      "project_write_authority": []
-    },
-    {
-      "name": "audit-manuscript-evidence",
-      "role": "Claim-to-evidence audit.",
-      "allow_implicit_invocation": true,
-      "project_write_authority": []
-    },
-    {
-      "name": "review-power-systems-manuscript",
-      "role": "Power-system physical and experimental audit.",
-      "allow_implicit_invocation": true,
-      "project_write_authority": []
-    },
-    {
-      "name": "audit-journal-submission",
-      "role": "Current journal-policy and package audit.",
-      "allow_implicit_invocation": true,
       "project_write_authority": []
     }
   ]

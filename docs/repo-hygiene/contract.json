@@ -644,6 +644,7 @@
     "docs/agents/domain.md",
     "docs/repo-hygiene/executables.md",
     "docs/repo-hygiene/external-skills.md",
+    "docs/repo-hygiene/skill-routing.md",
     "docs/repo-hygiene/type-checking.md"
    ]
   },

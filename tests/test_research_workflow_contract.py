@@ -30,7 +30,7 @@ def test_bootstrap_and_navigation_point_to_the_lane_gate() -> None:
     assert "scratch 每个 red-green slice 只跑定向测试" in workflow
 
 
-def test_global_workflow_recommendation_cannot_expand_project_write_scope() -> None:
+def test_project_router_recommendation_cannot_expand_project_write_scope() -> None:
     adapter = (
         REPO_ROOT / "skills/kundur-round/references/research-skill-adapter.md"
     ).read_text(encoding="utf-8")
@@ -42,15 +42,77 @@ def test_global_workflow_recommendation_cannot_expand_project_write_scope() -> N
             encoding="utf-8"
         )
     )
-    supervisor = next(
+    junction = next(
         item
-        for item in scope["global_skills"]
-        if item["name"] == "ask-research-supervisor"
+        for item in scope["project_modules"]
+        if item["name"] == "research-junction"
     )
 
     assert "A global workflow-load recommendation does not authorize project writes" in adapter
     assert "workflow-load recommendation" in external
-    assert supervisor["project_write_authority"] == []
+    assert junction["path"] == "skills/kundur-round/references/research-junction.md"
+    assert junction["caller"].endswith("module-routing.md")
+
+
+def test_skill_sources_and_selection_are_explicit_and_consistent() -> None:
+    scope = json.loads(
+        (REPO_ROOT / "docs/repo-hygiene/research-skills.scope.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    routing_path = REPO_ROOT / scope["routing_contract"]
+    routing = routing_path.read_text(encoding="utf-8")
+    routing_normalized = " ".join(routing.split())
+
+    assert scope["selection_contract"]["primary_skill_limit"] == 1
+    assert scope["selection_contract"]["availability_is_selection"] is False
+    expected_local = {"kundur-round"}
+    local_names = {skill["name"] for skill in scope["project_local_skills"]}
+    global_names = {skill["name"] for skill in scope["global_skills"]}
+    assert local_names == expected_local
+    assert local_names.isdisjoint(global_names)
+    for skill in scope["project_local_skills"]:
+        assert skill["source_scope"] == "repository-private"
+        assert skill["allow_implicit_invocation"] is False
+        assert (REPO_ROOT / skill["path"] / "SKILL.md").is_file()
+    assert scope["selection_contract"]["project_entrypoint_limit"] == 1
+    assert scope["selection_contract"]["internal_modules_discoverable"] is False
+    for module in scope["project_modules"]:
+        path = REPO_ROOT / module["path"]
+        caller = REPO_ROOT / module["caller"]
+        assert path.is_file()
+        assert path.name != "SKILL.md"
+        assert path.name in caller.read_text(encoding="utf-8")
+    for skill in scope["global_skills"]:
+        expected = (
+            "exact-implicit"
+            if skill["allow_implicit_invocation"]
+            else "explicit-only"
+        )
+        assert skill["selection"] == expected
+        assert skill["source_scope"] in {"shared-global", "codex-global"}
+
+    assert "at most one primary external skill" in routing
+    assert "Availability means only discoverable" in routing_normalized
+    assert "treat it as an intent label" in routing
+    assert "catalog-level" in routing
+    assert "docs/repo-hygiene/skill-routing.md" in (
+        REPO_ROOT / "CLAUDE.md"
+    ).read_text(encoding="utf-8")
+
+
+def test_project_modules_reach_the_single_adapter_without_becoming_skills() -> None:
+    for name in (
+        "research-junction.md",
+        "evidence-audit.md",
+        "power-systems-audit.md",
+        "submission-audit.md",
+    ):
+        text = (
+            REPO_ROOT / "skills/kundur-round/references" / name
+        ).read_text(encoding="utf-8")
+        assert "research-skill-adapter.md" in text
+        assert not text.startswith("---\nname:")
 
 
 def test_future_pi_report_is_plain_language_layer_before_technical_evidence() -> None:
