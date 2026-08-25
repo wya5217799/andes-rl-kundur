@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import json
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
@@ -12,6 +13,7 @@ from andes_rl_kundur.evaluation.u2_confirmatory import (
     build_confirmatory_analysis,
     check_artifact_budget,
     classify_confirmatory,
+    git_commit_file_sha256,
     recalibrate_eta,
     terminal_invalid,
     terminal_truth_table,
@@ -20,6 +22,29 @@ from andes_rl_kundur.evaluation.u2_confirmatory import (
 )
 
 COMMIT = "a" * 40
+
+
+def test_commit_hash_uses_worktree_filters_for_cross_platform_bytes(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    filtered = b"line1\r\nline2\r\n"
+    calls: list[list[str]] = []
+
+    def fake_run(command: list[str], **kwargs: object) -> SimpleNamespace:
+        del kwargs
+        calls.append(command)
+        return SimpleNamespace(returncode=0, stdout=filtered, stderr=b"")
+
+    monkeypatch.setattr(
+        "andes_rl_kundur.evaluation.u2_confirmatory.subprocess.run", fake_run
+    )
+    digest = git_commit_file_sha256(tmp_path, COMMIT, "source.py")
+    assert digest == hashlib.sha256(filtered).hexdigest()
+    assert calls[0][-3:] == [
+        "--filters",
+        "--path=source.py",
+        f"{COMMIT}:source.py",
+    ]
 
 
 def _sha(path: Path) -> str:
@@ -269,7 +294,8 @@ def test_review_coverage_binds_commit_and_independent_reviewers(tmp_path: Path) 
     review_b = tmp_path / "review_b.json"
     _review(review_a, reviewed, reviewer_id="same")
     _review(review_b, reviewed, reviewer_id="same")
-    callback = lambda _root, _commit, relative: reviewed[relative]
+    def callback(_root: Path, _commit: str, relative: str) -> str:
+        return reviewed[relative]
 
     with pytest.raises(RuntimeError, match="not independent"):
         validate_review_coverage(

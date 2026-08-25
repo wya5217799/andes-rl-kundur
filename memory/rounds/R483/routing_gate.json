@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "round": "R483",
+  "created_utc": "2026-08-25T10:27:00Z",
+  "passed": true,
+  "failure_semantics": "any false flag = DESIGN-INVALID; no training starts",
+  "checks": {
+    "reviewed_commit": "74cd03f628dfd495fb89b1b4865446be1ffa9def",
+    "independent_reviews_passed": true,
+    "exact_factorial_arms": 8,
+    "exact_training_seeds": 26,
+    "exact_new_training_cells": 208,
+    "exact_evaluation_shards": 16,
+    "worker_slots": 16,
+    "r482_fixed_budget_cells_included": false,
+    "source_round_terminal": true,
+    "output_absent": true,
+    "stop_policy_matches_plan": true,
+    "probe_sha256_matches_config": true,
+    "probe_joint_shape": [
+      240,
+      4,
+      7
+    ],
+    "probe_previous_action_shape": [
+      240,
+      4,
+      2
+    ],
+    "scenario_count": 24,
+    "sampled_times_per_scenario": 5,
+    "previous_action_contexts": [
+      "zero",
+      "alternating"
+    ]
+  }
+}

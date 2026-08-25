@@ -164,10 +164,26 @@ def validate_review_coverage(
 
 
 def git_commit_file_sha256(repo_root: Path, commit: str, relative_path: str) -> str:
-    """Hash one file exactly as stored in a reviewed Git commit."""
+    """Hash one reviewed file after Git's working-tree filters.
+
+    Formal reviews bind the bytes executed from the working tree.  On Windows,
+    ``core.autocrlf`` can make those bytes differ from the LF-only blob even
+    when the committed content is identical.  ``cat-file --filters`` replays
+    the commit through the same checkout filters without trusting the current
+    file, so cross-platform newline conversion is accepted but content drift
+    still fails closed.
+    """
 
     result = subprocess.run(
-        ["git", "-C", str(repo_root), "show", f"{commit}:{relative_path}"],
+        [
+            "git",
+            "-C",
+            str(repo_root),
+            "cat-file",
+            "--filters",
+            f"--path={relative_path}",
+            f"{commit}:{relative_path}",
+        ],
         check=False,
         capture_output=True,
     )

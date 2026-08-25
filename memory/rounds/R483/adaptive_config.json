@@ -4,7 +4,7 @@
   "source_round": "R482",
   "out": "results/research_loop/r483_adaptive_u2",
   "source_out": "results/research_loop/r482_u2_confirmatory",
-  "seal": "memory/rounds/R483/formal_seal.json",
+  "seal": "memory/rounds/R483/formal_seal_v2.json",
   "power": "paper/yang_md_decoupling_marl/working/source_factorial_power_plan.json",
   "probe_bank": "memory/rounds/R483/probe_bank_v2.npz",
   "probe_bank_sha256": "84c40e3d81eec23cf55e56fa152b035b93f392fd0344e47c1837208a95820fbf",
@@ -864,11 +864,11 @@
   "authority": {
     "plan": "memory/rounds/R483/plan.md",
     "owner_approval": "memory/rounds/R483/OWNER_APPROVED.json",
-    "routing_gate": "memory/rounds/R483/routing_gate.json",
-    "rehearsal": "memory/rounds/R483/rehearsal.json",
-    "capacity": "memory/rounds/R483/capacity_evidence.json",
-    "review_a": "memory/rounds/R483/code_review_a.json",
-    "review_b": "memory/rounds/R483/code_review_b.json",
+    "routing_gate": "memory/rounds/R483/routing_gate_v2.json",
+    "rehearsal": "memory/rounds/R483/rehearsal_v2.json",
+    "capacity": "memory/rounds/R483/capacity_evidence_v2.json",
+    "review_a": "memory/rounds/R483/code_review_a_v2.json",
+    "review_b": "memory/rounds/R483/code_review_b_v2.json",
     "train_shard_list": "memory/rounds/R483/train_shards.json",
     "eval_shard_list": "memory/rounds/R483/eval_shards.json"
   }

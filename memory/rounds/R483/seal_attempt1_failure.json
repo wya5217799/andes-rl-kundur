@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "round": "R483",
+  "attempt": 1,
+  "classification": "PRESEAL-INVALID",
+  "formal_authority_established": false,
+  "training_started": false,
+  "failed_command": "authority",
+  "error": "reviewed_commit raw Git blob bytes differed from Windows working-tree bytes under core.autocrlf",
+  "root_cause": "git_commit_file_sha256 used git show instead of Git worktree filters",
+  "preserved_seal": "memory/rounds/R483/formal_seal_failed_attempt1.json",
+  "disposition": "preserve failed attempt; correct cross-platform verifier prospectively; repeat review, rehearsal, capacity, and seal"
+}
