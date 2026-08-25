@@ -1,0 +1,44 @@
+{
+  "archive_class": "LOCAL-ONLY",
+  "classification": "EXECUTION-INCOMPLETE",
+  "created_utc": "2026-08-25T09:27:55.938Z",
+  "development_bank_excluded": true,
+  "driver_records": [
+    {
+      "failed_shards": 0,
+      "path": "tmp/andes/r482_train_logs/wave1/R482_shard_logs_20260825T035259.822973Z/driver_result.json",
+      "sha256": "df4f29425f894aef368923d739a73b535a3fa2e06452695c5381417e0600c12b",
+      "successful_shards": 16,
+      "wave": 1
+    },
+    {
+      "failed_shards": 0,
+      "path": "tmp/andes/r482_train_logs/wave2/R482_shard_logs_20260825T063631.428445Z/driver_result.json",
+      "sha256": "93fe55360e79d1575f962c340f9aace799773943a788d66b124c5bb34403e1f9",
+      "successful_shards": 16,
+      "wave": 2
+    }
+  ],
+  "evaluation_launched": false,
+  "formal_inference_allowed": false,
+  "manifest_audit": {
+    "all_invalid_reason_null": true,
+    "all_steps": 43200,
+    "all_tds_failed_episodes": 0,
+    "all_valid": true,
+    "arm_counts": {
+      "an_cn_r0": 6,
+      "an_cn_r1_rms": 26
+    },
+    "count": 32,
+    "path_sha256_set": "72898e751de1241f3261aff645d36c050f09ffb9a6e899ca55d3ce73a2d6e1de"
+  },
+  "pool_into_successor": false,
+  "result_root": "results/research_loop/r482_u2_confirmatory",
+  "round": "R482",
+  "same_round_resume_allowed": false,
+  "schema_version": 1,
+  "waves_completed": 2,
+  "waves_planned": 15,
+  "waves_three_through_fifteen_launched": false
+}
