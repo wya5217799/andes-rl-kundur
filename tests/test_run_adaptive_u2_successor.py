@@ -27,13 +27,18 @@ def _write_artifact(path: Path, content: str) -> str:
     return sha256_file(path)
 
 
-def test_load_config_rejects_duplicate_cells(tmp_path: Path) -> None:
+def test_load_config_rejects_duplicate_cells(tmp_path: Path, monkeypatch: object) -> None:
+    monkeypatch.setattr(
+        runner,
+        "_repo_path",
+        lambda value: Path(value) if Path(value).is_absolute() else ROOT / Path(value),
+    )
     config = tmp_path / "config.json"
     config.write_text(
         json.dumps(
             {
                 "schema_version": 2,
-                "round": "R999",
+                "round": "R483",
                 "source_round": "R482",
                 "out": "tmp/andes/r999_out",
                 "source_out": "results/research_loop/r482_u2_confirmatory",
@@ -43,14 +48,19 @@ def test_load_config_rejects_duplicate_cells(tmp_path: Path) -> None:
                 "probe_bank_sha256": "x",
                 "stop_config": {},
                 "recovery_policy": runner.RECOVERY_POLICY,
+                "execution": {
+                    "workers": 16,
+                    "train_log_dir": "tmp/andes/r483_train_logs",
+                    "eval_log_dir": "tmp/andes/r483_eval_logs",
+                },
                 "authority": {
-                    "plan": "memory/rounds/R999/plan.md",
-                    "owner_approval": "memory/rounds/R999/OWNER_APPROVED.json",
-                    "routing_gate": "memory/rounds/R999/routing_gate.json",
-                    "rehearsal": "memory/rounds/R999/rehearsal.json",
-                    "capacity": "memory/rounds/R999/capacity.json",
-                    "review_a": "memory/rounds/R999/review_a.json",
-                    "review_b": "memory/rounds/R999/review_b.json",
+                    "plan": "memory/rounds/R483/plan.md",
+                    "owner_approval": "memory/rounds/R483/OWNER_APPROVED.json",
+                    "routing_gate": "memory/rounds/R483/routing_gate.json",
+                    "rehearsal": "memory/rounds/R483/rehearsal.json",
+                    "capacity": "memory/rounds/R483/capacity.json",
+                    "review_a": "memory/rounds/R483/review_a.json",
+                    "review_b": "memory/rounds/R483/review_b.json",
                     "train_shard_list": "tmp/andes/r999_train_shards.json",
                     "eval_shard_list": "tmp/andes/r999_eval_shards.json",
                 },
@@ -70,10 +80,17 @@ def test_load_config_rejects_duplicate_cells(tmp_path: Path) -> None:
         raise AssertionError("duplicate adaptive cells should fail closed")
 
 
-def test_load_config_rejects_unbalanced_arm_seed_roster(tmp_path: Path) -> None:
+def test_load_config_rejects_unbalanced_arm_seed_roster(
+    tmp_path: Path, monkeypatch: object
+) -> None:
+    monkeypatch.setattr(
+        runner,
+        "_repo_path",
+        lambda value: Path(value) if Path(value).is_absolute() else ROOT / Path(value),
+    )
     base = {
         "schema_version": 2,
-        "round": "R999",
+        "round": "R483",
         "source_round": "R482",
         "out": "tmp/andes/r999_out",
         "source_out": "results/research_loop/r482_u2_confirmatory",
@@ -83,14 +100,19 @@ def test_load_config_rejects_unbalanced_arm_seed_roster(tmp_path: Path) -> None:
         "probe_bank_sha256": "x",
         "stop_config": {},
         "recovery_policy": runner.RECOVERY_POLICY,
+        "execution": {
+            "workers": 16,
+            "train_log_dir": "tmp/andes/r483_train_logs",
+            "eval_log_dir": "tmp/andes/r483_eval_logs",
+        },
         "authority": {
-            "plan": "memory/rounds/R999/plan.md",
-            "owner_approval": "memory/rounds/R999/OWNER_APPROVED.json",
-            "routing_gate": "memory/rounds/R999/routing_gate.json",
-            "rehearsal": "memory/rounds/R999/rehearsal.json",
-            "capacity": "memory/rounds/R999/capacity.json",
-            "review_a": "memory/rounds/R999/review_a.json",
-            "review_b": "memory/rounds/R999/review_b.json",
+            "plan": "memory/rounds/R483/plan.md",
+            "owner_approval": "memory/rounds/R483/OWNER_APPROVED.json",
+            "routing_gate": "memory/rounds/R483/routing_gate.json",
+            "rehearsal": "memory/rounds/R483/rehearsal.json",
+            "capacity": "memory/rounds/R483/capacity.json",
+            "review_a": "memory/rounds/R483/review_a.json",
+            "review_b": "memory/rounds/R483/review_b.json",
             "train_shard_list": "tmp/andes/r999_train_shards.json",
             "eval_shard_list": "tmp/andes/r999_eval_shards.json",
         },
@@ -108,6 +130,58 @@ def test_load_config_rejects_unbalanced_arm_seed_roster(tmp_path: Path) -> None:
         assert "balanced" in str(exc)
     else:
         raise AssertionError("unbalanced adaptive roster should fail closed")
+
+
+def test_r483_config_rejects_changed_stop_policy(
+    tmp_path: Path, monkeypatch: object
+) -> None:
+    monkeypatch.setattr(
+        runner,
+        "_repo_path",
+        lambda value: Path(value) if Path(value).is_absolute() else ROOT / Path(value),
+    )
+    payload = {
+        "schema_version": 2,
+        "round": "R483",
+        "source_round": "R482",
+        "out": "results/research_loop/r483_adaptive_u2",
+        "source_out": "results/research_loop/r482_u2_confirmatory",
+        "seal": "memory/rounds/R483/formal_seal.json",
+        "power": "paper/yang_md_decoupling_marl/working/source_factorial_power_plan.json",
+        "probe_bank": "memory/rounds/R483/probe_bank.npz",
+        "probe_bank_sha256": "probe",
+        "stop_config": {"max_steps": 40_000},
+        "recovery_policy": runner.RECOVERY_POLICY,
+        "execution": {
+            "workers": 16,
+            "train_log_dir": "tmp/andes/r483_train_logs",
+            "eval_log_dir": "tmp/andes/r483_eval_logs",
+        },
+        "authority": {
+            "plan": "memory/rounds/R483/plan.md",
+            "owner_approval": "memory/rounds/R483/OWNER_APPROVED.json",
+            "routing_gate": "memory/rounds/R483/routing_gate.json",
+            "rehearsal": "memory/rounds/R483/rehearsal.json",
+            "capacity": "memory/rounds/R483/capacity.json",
+            "review_a": "memory/rounds/R483/review_a.json",
+            "review_b": "memory/rounds/R483/review_b.json",
+            "train_shard_list": "tmp/andes/r483_train_shards.json",
+            "eval_shard_list": "tmp/andes/r483_eval_shards.json",
+        },
+        "cells": [
+            {"arm_id": arm, "seed": seed}
+            for arm in runner.FACTORIAL_ARMS
+            for seed in runner.SEEDS
+        ],
+    }
+    path = tmp_path / "changed-policy.json"
+    path.write_text(json.dumps(payload), encoding="utf-8")
+    try:
+        runner.load_config(path)
+    except ValueError as exc:
+        assert "frozen R483 policy" in str(exc)
+    else:
+        raise AssertionError("changed R483 stop policy must fail closed")
 
 
 def test_resume_accepts_only_a_complete_hash_valid_cell(tmp_path: Path) -> None:
@@ -314,3 +388,28 @@ def test_resume_allows_abrupt_partial_but_blocks_retained_failure(
         assert "forbids retry" in str(exc)
     else:
         raise AssertionError("retained scientific/code failure must not be retried")
+
+
+def test_evaluation_resume_allows_only_abrupt_partial(tmp_path: Path) -> None:
+    config = {"_out": tmp_path / "out"}
+    attempt = config["_out"] / "evaluation_attempts/final/an_cn_r0/attempt1"
+    (attempt / "payload/seed501").mkdir(parents=True)
+    (attempt / "payload/seed501/partial.json").write_text("{}", encoding="utf-8")
+    try:
+        runner._assert_evaluation_recoverable(
+            config, "an_cn_r0", "final", resume=False
+        )
+    except RuntimeError as exc:
+        assert "require resume" in str(exc)
+    else:
+        raise AssertionError("evaluation partial must require explicit resume")
+    runner._assert_evaluation_recoverable(config, "an_cn_r0", "final", resume=True)
+    (attempt / "evaluation_failure.json").write_text("{}", encoding="utf-8")
+    try:
+        runner._assert_evaluation_recoverable(
+            config, "an_cn_r0", "final", resume=True
+        )
+    except RuntimeError as exc:
+        assert "forbids retry" in str(exc)
+    else:
+        raise AssertionError("retained evaluation failure must block retry")

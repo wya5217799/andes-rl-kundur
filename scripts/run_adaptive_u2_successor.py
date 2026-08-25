@@ -13,8 +13,12 @@ from __future__ import annotations
 import argparse
 import importlib.util
 import json
+import os
 import re
+import subprocess
 import sys
+from contextlib import contextmanager
+from datetime import UTC, datetime
 from dataclasses import asdict
 from pathlib import Path
 from typing import Any
@@ -47,6 +51,11 @@ ALLOWED_ARMS = tuple(
 RECOVERY_POLICY = "preserve_partial_new_attempt_reuse_completed"
 TERMINAL_ROUND_STATES = {"completed", "aborted", "superseded"}
 FACTORIAL_REWARD_SHA256 = "085ad375c203352d72e58847ca7b01297415b214adf41196dcb7783c7adb7bd9"
+SUCCESSOR_ROUND = "R483"
+FACTORIAL_ARMS = ALLOWED_ARMS[:-1]
+SEEDS = tuple(range(501, 527))
+EXPECTED_CELLS = {(arm, seed) for arm in FACTORIAL_ARMS for seed in SEEDS}
+FROZEN_STOP_CONFIG = AdaptiveStopConfig()
 
 
 def _resolve(value: str | Path) -> Path:
@@ -76,6 +85,7 @@ def _load_runtime() -> Any:
 
 
 def load_config(path: Path) -> dict[str, Any]:
+    path = _repo_path(path)
     payload = json.loads(path.read_text(encoding="utf-8"))
     required = {
         "schema_version",
@@ -90,6 +100,7 @@ def load_config(path: Path) -> dict[str, Any]:
         "stop_config",
         "cells",
         "recovery_policy",
+        "execution",
         "authority",
     }
     missing = sorted(required - payload.keys())
@@ -100,15 +111,15 @@ def load_config(path: Path) -> dict[str, Any]:
     round_id = payload["round"]
     if not isinstance(round_id, str) or re.fullmatch(r"R[0-9]+", round_id) is None:
         raise ValueError("invalid successor round id")
-    if round_id == SOURCE_ROUND or payload["source_round"] != SOURCE_ROUND:
-        raise ValueError("adaptive execution requires a fresh successor of R482")
+    if round_id != SUCCESSOR_ROUND or payload["source_round"] != SOURCE_ROUND:
+        raise ValueError("adaptive execution is frozen to the R483 successor of R482")
     if _repo_path(payload["source_out"]) != SOURCE_OUT.resolve():
         raise ValueError("source_out must be the immutable R482 result root")
     if payload["recovery_policy"] != RECOVERY_POLICY:
         raise ValueError("unsupported or unsealed recovery policy")
     stop = AdaptiveStopConfig(**dict(payload["stop_config"]))
-    if stop.min_steps <= stop.max_steps // 2:
-        raise ValueError("min_steps must preserve the max-budget half checkpoint")
+    if stop != FROZEN_STOP_CONFIG:
+        raise ValueError("adaptive stop parameters differ from the frozen R483 policy")
     cells = payload["cells"]
     if not isinstance(cells, list) or not cells:
         raise ValueError("cells must be a non-empty list")
@@ -130,6 +141,16 @@ def load_config(path: Path) -> dict[str, Any]:
             "adaptive cells must form a balanced arm-by-seed roster; "
             "fixed-budget source cells cannot fill adaptive gaps"
         )
+    if set(identities) != EXPECTED_CELLS or len(identities) != 208:
+        raise ValueError("R483 requires exactly eight factorial arms x seeds 501..526")
+    execution = payload["execution"]
+    expected_execution_keys = {"workers", "train_log_dir", "eval_log_dir"}
+    if not isinstance(execution, dict) or set(execution) != expected_execution_keys:
+        raise ValueError(f"execution must contain exactly {sorted(expected_execution_keys)}")
+    if int(execution["workers"]) != 16:
+        raise ValueError("R483 execution is frozen to 16 worker slots")
+    for key in ("train_log_dir", "eval_log_dir"):
+        execution[f"_{key}"] = _repo_path(execution[key])
     authority = payload["authority"]
     authority_keys = {
         "plan",
@@ -336,6 +357,44 @@ def rehearsal(config: dict[str, Any]) -> str:
         action_probe_drift=config["_stop"].action_probe_drift_tolerance + 0.01,
         tds_failures=0,
     )
+    max_monitor = AdaptiveStopMonitor(config["_stop"])
+    max_decision = None
+    for step in (*range(30_000, 43_000, 2_000), 43_200):
+        max_decision = max_monitor.observe(
+            interaction_steps=step,
+            curves=curves,
+            action_probe_drift=config["_stop"].action_probe_drift_tolerance + 0.01,
+            tds_failures=0,
+        )
+    if max_decision is None:
+        raise RuntimeError("max-budget rehearsal did not run")
+    with runtime.tempfile.TemporaryDirectory(dir=Path.cwd()) as folder:
+        recovery_config = {"_out": Path(folder) / "out"}
+        abrupt = (
+            recovery_config["_out"]
+            / "recovery_attempts"
+            / "an_cn_r0"
+            / "seed501"
+            / "abrupt"
+        )
+        abrupt.mkdir(parents=True)
+        (abrupt / "half.pt").write_bytes(b"abrupt-power-loss")
+        resume_required = False
+        try:
+            _assert_recoverable_attempts(
+                recovery_config, "an_cn_r0", 501, resume=False
+            )
+        except RuntimeError:
+            resume_required = True
+        _assert_recoverable_attempts(recovery_config, "an_cn_r0", 501, resume=True)
+        (abrupt / "initialization_failure.json").write_text("{}", encoding="utf-8")
+        scientific_failure_blocked = False
+        try:
+            _assert_recoverable_attempts(
+                recovery_config, "an_cn_r0", 501, resume=True
+            )
+        except RuntimeError:
+            scientific_failure_blocked = True
     adaptive_checks = {
         "earliest_stop_is_34000": decisions[-1].should_stop
         and decisions[-1].interaction_steps == 34_000,
@@ -345,6 +404,12 @@ def rehearsal(config: dict[str, Any]) -> str:
         == [1, 2, 3],
         "action_drift_fails_closed": not blocked.should_stop
         and blocked.consecutive_passes == 0,
+        "max_budget_stops_without_convergence": max_decision.should_stop
+        and not max_decision.converged
+        and max_decision.reason == "max_steps"
+        and max_decision.interaction_steps == 43_200,
+        "abrupt_partial_requires_explicit_resume": resume_required,
+        "scientific_failure_blocks_resume": scientific_failure_blocked,
         "source_base_count": len(source_inventory) == len(
             {seed for _arm, seed in config["_cells"]}
         ),
@@ -405,6 +470,24 @@ def _bound_files(config: dict[str, Any]) -> dict[str, Path]:
     }
 
 
+def _reviewed_files(config: dict[str, Any]) -> tuple[Path, ...]:
+    """Committed scientific/code inputs reviewed before post-review authority gates."""
+
+    return tuple(
+        dict.fromkeys(
+            (
+                *_implementation_files().values(),
+                config["authority"]["plan"],
+                config["_path"],
+                config["_power"],
+                config["_probe_bank"],
+                config["authority"]["train_shard_list"],
+                config["authority"]["eval_shard_list"],
+            )
+        )
+    )
+
+
 def load_seal(config: dict[str, Any], runtime: Any) -> dict[str, Any]:
     _preseal_authority(config)
     seal = verify_formal_seal(
@@ -417,7 +500,7 @@ def load_seal(config: dict[str, Any], runtime: Any) -> dict[str, Any]:
             config["authority"]["review_a"],
             config["authority"]["review_b"],
         ),
-        reviewed_files=tuple(_implementation_files().values()),
+        reviewed_files=_reviewed_files(config),
         expected_shards={
             "train": train_shard_ids(config),
             "eval": evaluation_shard_ids(config),
@@ -616,7 +699,43 @@ def run_shard(config: dict[str, Any], shard_id: str, *, resume: bool = False) ->
         )
 
 
-def evaluate_shard(config: dict[str, Any], shard_id: str) -> dict[str, Any]:
+def _assert_evaluation_recoverable(
+    config: dict[str, Any], arm: str, stage: str, *, resume: bool
+) -> None:
+    root = config["_out"] / "evaluation_attempts" / stage / arm
+    attempts = sorted(path for path in root.glob("*") if path.is_dir())
+    if not attempts:
+        return
+    if not resume:
+        raise RuntimeError(f"partial evaluation attempts require resume: {arm}|{stage}")
+    for attempt in attempts:
+        if (attempt / "evaluation_failure.json").exists():
+            raise RuntimeError(
+                f"retained evaluation failure forbids retry: {arm}|{stage}|{attempt.name}"
+            )
+
+
+@contextmanager
+def _evaluation_attempt_guard(core: Any, attempt: Path, identity: dict[str, Any]) -> Any:
+    try:
+        yield
+    except Exception as exc:
+        core._write_new_json(
+            attempt / "evaluation_failure.json",
+            {
+                "schema_version": 1,
+                **identity,
+                "failure_type": type(exc).__name__,
+                "failure": str(exc),
+                "created_utc": datetime.now(UTC).isoformat(),
+            },
+        )
+        raise
+
+
+def evaluate_shard(
+    config: dict[str, Any], shard_id: str, *, resume: bool = False
+) -> dict[str, Any]:
     """Evaluate one arm-stage shard without copying R482 donor manifests."""
 
     parts = shard_id.split("|")
@@ -632,16 +751,39 @@ def evaluate_shard(config: dict[str, Any], shard_id: str) -> dict[str, Any]:
     seal = load_seal(config, runtime)
     core = runtime.base.base.base.core
     core._assert_wsl_scratch()
+    final_root = config["_out"] / "eval" / stage / arm
+    if final_root.exists():
+        raise FileExistsError(f"adaptive evaluation already published: {arm}|{stage}")
+    _assert_evaluation_recoverable(config, arm, stage, resume=resume)
+    attempt_id = datetime.now(UTC).strftime("%Y%m%dT%H%M%S.%fZ") + f"-{os.getpid()}"
+    attempt = config["_out"] / "evaluation_attempts" / stage / arm / attempt_id
+    payload_root = attempt / "payload"
+    payload_root.mkdir(parents=True)
     contract = runtime.build_contract()
     factors = runtime.arm_factors(arm)
     profiles = [row for row in contract["profiles"] if row["split"] == "evaluation"]
     created = 0
-    with runtime._terminal_guarded_environment():
+    with _evaluation_attempt_guard(
+        core,
+        attempt,
+        {"round": config["round"], "arm_id": arm, "stage": stage},
+    ), runtime._terminal_guarded_environment():
         for seed in seeds:
             source = seal["source_base_inventory"][str(seed)]
             source_manifest = core._read_hashed_json(ROOT / source["manifest_path"])
+            training_manifest_sha = _validate_completed(config, arm, seed)
+            if training_manifest_sha is None:
+                raise RuntimeError(f"missing adaptive training cell: {arm}|{seed}")
+            training_manifest = core._read_hashed_json(
+                config["_out"] / "train" / arm / f"seed{seed}" / "manifest.json"
+            )
             checkpoint = config["_out"] / "train" / arm / f"seed{seed}" / f"{stage}.pt"
             checkpoint_sha = sha256_file(checkpoint)
+            checkpoint_key = f"{stage}_checkpoint_sha256"
+            if checkpoint_sha != training_manifest.get(checkpoint_key):
+                raise RuntimeError(
+                    f"eval checkpoint contradicts training manifest: {arm}|{seed}|{stage}"
+                )
             wrapper = core.FactorialWrapper(arm)
             metadata = wrapper.load(checkpoint)
             if metadata["base_state_sha256"] != source_manifest["base_state_sha256"]:
@@ -721,6 +863,7 @@ def evaluate_shard(config: dict[str, Any], shard_id: str) -> dict[str, Any]:
                                 "stage": stage,
                                 "training_seed": seed,
                                 "checkpoint_sha256": checkpoint_sha,
+                                "training_manifest_sha256": training_manifest_sha,
                                 "identity": identity,
                                 "initial_freq_hz_physical": initial_frequency,
                                 "steps": rows,
@@ -733,7 +876,11 @@ def evaluate_shard(config: dict[str, Any], shard_id: str) -> dict[str, Any]:
                                 "training_mode": "adaptive_stop_v1",
                             }
                         )
-                    folder = config["_out"] / "eval" / stage / arm / f"seed{seed}"
+                    if any(not row["completed"] or row["tds_failed"] for row in records):
+                        raise RuntimeError(
+                            f"scientifically invalid evaluation: {arm}|{seed}|{stage}"
+                        )
+                    folder = payload_root / f"seed{seed}"
                     core._write_new_json(
                         folder / f"{profile['profile_id']}.json", {"records": records}
                     )
@@ -744,11 +891,51 @@ def evaluate_shard(config: dict[str, Any], shard_id: str) -> dict[str, Any]:
                         env.close()
                     except Exception:
                         pass
+    expected = len(seeds) * len(profiles)
+    if created != expected:
+        core._write_new_json(
+            attempt / "evaluation_failure.json",
+            {
+                "schema_version": 1,
+                "round": config["round"],
+                "arm_id": arm,
+                "stage": stage,
+                "failure_type": "profile_file_count_mismatch",
+                "created": created,
+                "expected": expected,
+                "created_utc": datetime.now(UTC).isoformat(),
+            },
+        )
+        raise RuntimeError(
+            f"adaptive evaluation file count mismatch: {created} != {expected}"
+        )
+    final_root.parent.mkdir(parents=True, exist_ok=True)
+    payload_root.replace(final_root)
+    core._write_new_json(
+        attempt / "published.json",
+        {
+            "schema_version": 1,
+            "round": config["round"],
+            "arm_id": arm,
+            "stage": stage,
+            "final_root": final_root.relative_to(ROOT).as_posix(),
+            "profile_files": created,
+            "created_utc": datetime.now(UTC).isoformat(),
+        },
+    )
     return {"round": config["round"], "shard": shard_id, "profile_files": created}
 
 
 def _profile_endpoint(
-    runtime: Any, config: dict[str, Any], arm: str, seed: int, stage: str, profile: str
+    runtime: Any,
+    config: dict[str, Any],
+    arm: str,
+    seed: int,
+    stage: str,
+    profile: str,
+    *,
+    checkpoint_sha256: str,
+    training_manifest_sha256: str,
 ) -> float:
     core = runtime.base.base.base.core
     payload = core._read_hashed_json(
@@ -756,6 +943,14 @@ def _profile_endpoint(
     )
     if any(not row["completed"] or row["tds_failed"] for row in payload["records"]):
         raise RuntimeError(f"invalid eval record: {arm}|{seed}|{stage}|{profile}")
+    if any(
+        row.get("checkpoint_sha256") != checkpoint_sha256
+        or row.get("training_manifest_sha256") != training_manifest_sha256
+        for row in payload["records"]
+    ):
+        raise RuntimeError(
+            f"evaluation provenance mismatch: {arm}|{seed}|{stage}|{profile}"
+        )
     return core.parent._arm_endpoints(payload["records"], runtime.build_contract())[
         runtime.PRIMARY
     ]
@@ -773,15 +968,19 @@ def aggregate(config: dict[str, Any]) -> str:
     seeds = tuple(sorted({seed for _arm, seed in config["_cells"]}))
     if set(arms) != set(runtime.FACTORIAL_ARMS):
         raise RuntimeError("adaptive analysis requires the complete eight-arm factorial")
-    errors: list[str] = []
+    missing: list[str] = []
+    integrity_errors: list[str] = []
     base_hashes = {seed: set() for seed in seeds}
     stop_rows = []
+    training_provenance: dict[tuple[str, int], dict[str, str]] = {}
     for arm, seed in config["_cells"]:
+        manifest_path = config["_out"] / "train" / arm / f"seed{seed}" / "manifest.json"
+        if not manifest_path.is_file():
+            missing.append(f"training {arm}|{seed}")
+            continue
         try:
             _validate_completed(config, arm, seed)
-            row = core._read_hashed_json(
-                config["_out"] / "train" / arm / f"seed{seed}" / "manifest.json"
-            )
+            row = core._read_hashed_json(manifest_path)
             base_hashes[seed].add(str(row["base_state_sha256"]))
             if row.get("reward_function_sha256") != FACTORIAL_REWARD_SHA256:
                 raise RuntimeError("factorial reward hash mismatch")
@@ -794,11 +993,20 @@ def aggregate(config: dict[str, Any]) -> str:
                     "converged": bool(row["converged"]),
                 }
             )
+            training_provenance[(arm, seed)] = {
+                "manifest": sha256_file(
+                    config["_out"] / "train" / arm / f"seed{seed}" / "manifest.json"
+                ),
+                "half": str(row["half_checkpoint_sha256"]),
+                "final": str(row["final_checkpoint_sha256"]),
+            }
         except Exception as exc:
-            errors.append(f"training {arm}|{seed}: {exc}")
+            integrity_errors.append(f"training {arm}|{seed}: {exc}")
     for seed, hashes in base_hashes.items():
+        if not hashes:
+            continue
         if len(hashes) != 1:
-            errors.append(f"base state mismatch seed{seed}")
+            integrity_errors.append(f"base state mismatch seed{seed}")
     profiles = tuple(runtime.PROFILES)
     factorial: dict[str, dict[int, float]] = {}
     stage_means: dict[str, dict[int, float]] = {}
@@ -808,12 +1016,34 @@ def aggregate(config: dict[str, Any]) -> str:
             factors = runtime.arm_factors(arm)
             for seed in seeds:
                 for profile in profiles:
+                    eval_path = (
+                        config["_out"]
+                        / "eval"
+                        / stage
+                        / arm
+                        / f"seed{seed}"
+                        / f"{profile}.json"
+                    )
+                    if not eval_path.is_file():
+                        missing.append(f"evaluation {arm}|{seed}|{stage}|{profile}")
+                        continue
                     try:
                         endpoint = _profile_endpoint(
-                            runtime, config, arm, seed, stage, profile
+                            runtime,
+                            config,
+                            arm,
+                            seed,
+                            stage,
+                            profile,
+                            checkpoint_sha256=training_provenance[(arm, seed)][stage],
+                            training_manifest_sha256=training_provenance[(arm, seed)][
+                                "manifest"
+                            ],
                         )
                     except Exception as exc:
-                        errors.append(f"evaluation {arm}|{seed}|{stage}|{profile}: {exc}")
+                        integrity_errors.append(
+                            f"evaluation {arm}|{seed}|{stage}|{profile}: {exc}"
+                        )
                         continue
                     rows.append(
                         {
@@ -826,7 +1056,7 @@ def aggregate(config: dict[str, Any]) -> str:
                             runtime.PRIMARY: endpoint,
                         }
                     )
-        if errors:
+        if missing or integrity_errors:
             continue
         effects = runtime.sfd.seed_effects(
             rows,
@@ -841,14 +1071,27 @@ def aggregate(config: dict[str, Any]) -> str:
             stage_means = effects
     test_rows = (
         runtime.r482_analysis.boundary_test_rows(factorial, runtime.MATERIALITY_LOG)
-        if factorial and not errors
+        if factorial and not missing and not integrity_errors
         else {}
     )
+    if test_rows:
+        holm = runtime.sfd.holm_decisions(
+            {name: row["p_one_sided"] for name, row in test_rows.items()}
+        )
+        for name, row in test_rows.items():
+            row.update(
+                {
+                    "holm_threshold": holm[name]["holm_threshold"],
+                    "holm_adjusted_p": holm[name]["adjusted_p"],
+                    "holm_reject": holm[name]["reject"],
+                }
+            )
+    routing = core._read_hashed_json(config["authority"]["routing_gate"])
     classification = runtime.r482_analysis.classify_r482(
-        design_valid=True,
-        missing_shards=[] if not errors else errors,
-        integrity_errors=errors,
-        dynamics_stable=not errors,
+        design_valid=bool(routing.get("passed")),
+        missing_shards=missing,
+        integrity_errors=integrity_errors,
+        dynamics_stable=not missing and not integrity_errors,
         factorial_rows=test_rows,
         phase3_rows=None,
     )
@@ -861,7 +1104,11 @@ def aggregate(config: dict[str, Any]) -> str:
         "fixed_budget_r482_cells_included": False,
         "contract_sha256": core.contract_sha256(),
         "seal_sha256": sha256_file(config["_seal"]),
-        "integrity": {"valid": not errors, "errors": errors},
+        "execution": {"complete": not missing, "missing": missing},
+        "integrity": {
+            "valid": not integrity_errors,
+            "errors": integrity_errors,
+        },
         "adaptive_stops": stop_rows,
         "factorial_materiality_tests": test_rows,
         "factorial_half_stage_means": {
@@ -929,7 +1176,10 @@ def formal_manifest(config: dict[str, Any]) -> str:
             not path.is_file()
             or path.name == "formal_manifest.json"
             or path.name.endswith(".sha256")
-            or "recovery_attempts" in path.relative_to(config["_out"]).parts
+            or any(
+                part in {"recovery_attempts", "evaluation_attempts"}
+                for part in path.relative_to(config["_out"]).parts
+            )
         ):
             continue
         sidecar = Path(f"{path}.sha256")
@@ -958,6 +1208,45 @@ def formal_manifest(config: dict[str, Any]) -> str:
     )
 
 
+def launch_queue(config: dict[str, Any], kind: str, *, resume: bool) -> dict[str, Any]:
+    """Launch the seal-bound 16-slot queue; callers cannot override its budget."""
+
+    if kind not in {"train", "eval"}:
+        raise ValueError(f"unknown adaptive queue kind: {kind}")
+    runtime = _load_runtime()
+    bind_runtime(runtime, config)
+    load_seal(config, runtime)
+    runtime.base.base.base.core._assert_wsl_scratch()
+    shard_path = config["authority"][f"{kind}_shard_list"]
+    log_dir = config["execution"][f"_{kind}_log_dir"]
+    command = [
+        sys.executable,
+        str(ROOT / "scripts/adaptive_shard_driver.py"),
+        "--runner",
+        str(Path(__file__).resolve()),
+        "--runner-arg=--config",
+        f"--runner-arg={config['_path'].relative_to(ROOT).as_posix()}",
+        "--shards",
+        str(shard_path),
+        "--workers",
+        str(config["execution"]["workers"]),
+        "--round",
+        config["round"],
+        "--log-dir",
+        str(log_dir),
+    ]
+    if resume:
+        command.append("--resume")
+    completed = subprocess.run(command, cwd=ROOT, check=False)
+    return {
+        "round": config["round"],
+        "kind": kind,
+        "resume": resume,
+        "workers": config["execution"]["workers"],
+        "exit_code": int(completed.returncode),
+    }
+
+
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", required=True, type=Path)
@@ -974,6 +1263,8 @@ def _parser() -> argparse.ArgumentParser:
             "check",
             "aggregate",
             "manifest",
+            "launch-train",
+            "launch-eval",
         ),
     )
     parser.add_argument("shard_id", nargs="?")
@@ -1012,17 +1303,23 @@ def main() -> int:
                 "manifest_sha256": run_shard(config, args.shard_id, resume=args.resume)
             }
         else:
-            if args.resume:
-                raise RuntimeError("evaluation resume must use create-only shard checks")
-            payload = evaluate_shard(config, args.shard_id)
+            payload = evaluate_shard(config, args.shard_id, resume=args.resume)
     elif args.command == "check":
         payload = check_results(config)
     elif args.command == "aggregate":
         payload = {"formal_analysis_sha256": aggregate(config)}
-    else:
+    elif args.command == "manifest":
         payload = {"formal_manifest_sha256": formal_manifest(config)}
+    elif args.command == "launch-train":
+        payload = launch_queue(config, "train", resume=args.resume)
+    else:
+        payload = launch_queue(config, "eval", resume=args.resume)
     print(json.dumps(payload, indent=2, sort_keys=True), flush=True)
-    return 0 if not isinstance(payload, dict) or not payload.get("errors") else 1
+    if isinstance(payload, dict) and payload.get("errors"):
+        return 1
+    if isinstance(payload, dict) and int(payload.get("exit_code", 0)) != 0:
+        return 1
+    return 0
 
 
 if __name__ == "__main__":

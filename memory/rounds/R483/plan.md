@@ -64,14 +64,14 @@ Train a complete new adaptive factorial: 8 arms x 26 seeds = 208 cells. Each cel
 1. Finish implementation: reusable adaptive monitor and cell trainer; R483 runner; dynamic queue; adaptive-aware evaluation, four-effect aggregation, result audit and formal manifest.
 2. Freeze exact config, balanced cell list, evaluation shards, power artifact, deterministic probe bank, recovery policy and result root. No R482 learned checkpoint is an input.
 3. Focused tests and R482 regression; repository health; `round_preflight.py R483`.
-4. Two independent reviews over one committed snapshot. Both reviews must name the exact reviewed commit and all authority/source/implementation/test files. Any P0/P1 blocks.
+4. Two independent reviews over one committed snapshot. Both reviews must name the exact reviewed commit and cover the plan, config, power, probe, exact shard lists, source/implementation/test files. Post-review owner approval, routing, rehearsal, capacity, seal and the review records themselves are semantic-validated and hash-bound; they are not self-reviewed. Any P0/P1 blocks.
 5. Owner approval; same-entry WSL rehearsal covering source hashes, installed package/case, probe semantics, one simulated early stop, one max-budget fallback, interruption recovery and output absence; then one 16x8 capacity confirmation.
 6. Generate formal seal through the shared verifier and commit the seal point. Any post-seal source/config change aborts R483 and requires a successor.
 7. Only after a separate launch notification, start the detached dynamic queue. No result-driven threshold or roster change.
 
 ## Formal launch contract
 
-- formal_entry: `/home/wya/andes_venv/bin/python scripts/andes_scratch.py scripts/run_adaptive_u2_successor.py --config memory/rounds/R483/adaptive_config.json <command>`
+- formal_entry: `/home/wya/andes_venv/bin/python scripts/andes_scratch.py scripts/run_adaptive_u2_successor.py --config memory/rounds/R483/adaptive_config.json <command>`; training launch command = `launch-train`, evaluation launch command = `launch-eval`; both read seal-bound shard paths, log roots and exactly 16 workers from the config, with `--resume` permitted only under the frozen recovery policy.
 - rehearsal_command: same formal entry `rehearse`; same pre-attempt verification path; no formal attempt/result creation.
 - rehearsal_scope: R483 runner, config, probe, queue, R482 sealed source inputs, installed ANDES case/package, recovery and adaptive-stop semantics.
 - rehearsal_checks: source/plan/config/probe/review hashes; R482 terminal state and seal/base audit; installed package/case; output absence; action-probe definition; convergence and max-budget decisions; recoverable abrupt partial versus blocking scientific failure.
