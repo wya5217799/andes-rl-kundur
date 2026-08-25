@@ -6,6 +6,7 @@ import importlib.util
 import json
 import sys
 from pathlib import Path
+from types import SimpleNamespace
 
 from andes_rl_kundur.training.adaptive_stop import AdaptiveStopConfig
 from andes_rl_kundur.training.adaptive_u2 import config_sha256, sha256_file
@@ -413,3 +414,65 @@ def test_evaluation_resume_allows_only_abrupt_partial(tmp_path: Path) -> None:
         assert "forbids retry" in str(exc)
     else:
         raise AssertionError("retained evaluation failure must block retry")
+
+
+def test_completed_evaluation_resume_is_validated_and_skipped(
+    tmp_path: Path, monkeypatch: object
+) -> None:
+    core = SimpleNamespace(_assert_wsl_scratch=lambda: None)
+    runtime = SimpleNamespace(
+        base=SimpleNamespace(
+            base=SimpleNamespace(base=SimpleNamespace(core=core))
+        )
+    )
+    monkeypatch.setattr(runner, "_load_runtime", lambda: runtime)
+    monkeypatch.setattr(runner, "bind_runtime", lambda runtime, config: None)
+    monkeypatch.setattr(runner, "load_seal", lambda config, runtime: {})
+    monkeypatch.setattr(
+        runner,
+        "_validate_published_evaluation",
+        lambda config, runtime, arm, stage: 104,
+    )
+    final_root = tmp_path / "out/eval/final/an_cn_r0"
+    final_root.mkdir(parents=True)
+    config = {
+        "round": "R483",
+        "_out": tmp_path / "out",
+        "_cells": (("an_cn_r0", 501),),
+    }
+    result = runner.evaluate_shard(
+        config, "eval|an_cn_r0|final", resume=True
+    )
+    assert result["reused_completed"] is True
+    assert result["profile_files"] == 104
+
+
+def test_formal_manifest_rechecks_every_evaluation_shard(
+    tmp_path: Path, monkeypatch: object
+) -> None:
+    runtime = SimpleNamespace()
+    monkeypatch.setattr(runner, "_load_runtime", lambda: runtime)
+    monkeypatch.setattr(runner, "bind_runtime", lambda runtime, config: None)
+    monkeypatch.setattr(runner, "load_seal", lambda config, runtime: {})
+    monkeypatch.setattr(
+        runner,
+        "check_results",
+        lambda config: {"errors": [], "valid_cells": 1},
+    )
+    monkeypatch.setattr(
+        runner,
+        "_validate_published_evaluation",
+        lambda config, runtime, arm, stage: (_ for _ in ()).throw(
+            FileNotFoundError("deleted eval")
+        ),
+    )
+    config = {
+        "_cells": (("an_cn_r0", 501),),
+        "_out": tmp_path / "out",
+    }
+    try:
+        runner.formal_manifest(config)
+    except FileNotFoundError as exc:
+        assert "deleted eval" in str(exc)
+    else:
+        raise AssertionError("formal manifest must reject a deleted eval shard")
