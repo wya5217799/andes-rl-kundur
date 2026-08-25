@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "round": "R483",
+  "approved": true,
+  "source": "Owner message on 2026-08-25: 继续 R483 自适应批次，希望你快点启动训练",
+  "approved_scope": "R483 adaptive 8-arm x 26-seed training, gated preparation, detached launch, and registered evaluation after training",
+  "fixed_budget_r482_cells_included": false,
+  "long_execution_authorized": true
+}
