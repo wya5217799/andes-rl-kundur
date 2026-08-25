@@ -11,6 +11,7 @@ and exact shard list through the repository's shared formal-seal verifier.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import importlib.util
 import json
 import os
@@ -753,7 +754,15 @@ def evaluate_shard(
     core._assert_wsl_scratch()
     final_root = config["_out"] / "eval" / stage / arm
     if final_root.exists():
-        raise FileExistsError(f"adaptive evaluation already published: {arm}|{stage}")
+        if not resume:
+            raise FileExistsError(f"adaptive evaluation already published: {arm}|{stage}")
+        validated = _validate_published_evaluation(config, runtime, arm, stage)
+        return {
+            "round": config["round"],
+            "shard": shard_id,
+            "profile_files": validated,
+            "reused_completed": True,
+        }
     _assert_evaluation_recoverable(config, arm, stage, resume=resume)
     attempt_id = datetime.now(UTC).strftime("%Y%m%dT%H%M%S.%fZ") + f"-{os.getpid()}"
     attempt = config["_out"] / "evaluation_attempts" / stage / arm / attempt_id
@@ -956,6 +965,65 @@ def _profile_endpoint(
     ]
 
 
+def _validate_published_evaluation(
+    config: dict[str, Any], runtime: Any, arm: str, stage: str
+) -> int:
+    """Revalidate every published eval file against current training bytes."""
+
+    profiles = tuple(runtime.PROFILES)
+    seeds = tuple(sorted(seed for candidate, seed in config["_cells"] if candidate == arm))
+    final_root = config["_out"] / "eval" / stage / arm
+    if not final_root.is_dir():
+        raise FileNotFoundError(f"missing published evaluation: {arm}|{stage}")
+    validated = 0
+    core = runtime.base.base.base.core
+    for seed in seeds:
+        manifest_path = config["_out"] / "train" / arm / f"seed{seed}" / "manifest.json"
+        manifest_sha = _validate_completed(config, arm, seed)
+        if manifest_sha is None:
+            raise RuntimeError(f"published eval lacks training cell: {arm}|{seed}|{stage}")
+        manifest = core._read_hashed_json(manifest_path)
+        for profile in profiles:
+            _profile_endpoint(
+                runtime,
+                config,
+                arm,
+                seed,
+                stage,
+                profile,
+                checkpoint_sha256=str(manifest[f"{stage}_checkpoint_sha256"]),
+                training_manifest_sha256=manifest_sha,
+            )
+            validated += 1
+    expected = len(seeds) * len(profiles)
+    if validated != expected:
+        raise RuntimeError(
+            f"published evaluation count mismatch: {arm}|{stage}|{validated}!={expected}"
+        )
+    return validated
+
+
+def _evaluation_set_sha256(config: dict[str, Any], runtime: Any) -> str:
+    rows = []
+    arms = tuple(dict.fromkeys(arm for arm, _seed in config["_cells"]))
+    seeds = tuple(sorted({seed for _arm, seed in config["_cells"]}))
+    for stage in ("half", "final"):
+        for arm in arms:
+            for seed in seeds:
+                for profile in runtime.PROFILES:
+                    path = (
+                        config["_out"]
+                        / "eval"
+                        / stage
+                        / arm
+                        / f"seed{seed}"
+                        / f"{profile}.json"
+                    )
+                    rows.append((path.relative_to(config["_out"]).as_posix(), sha256_file(path)))
+    encoded = json.dumps(rows, separators=(",", ":"), ensure_ascii=True).encode("ascii")
+    return hashlib.sha256(encoded).hexdigest()
+
+
 def aggregate(config: dict[str, Any]) -> str:
     """Run the registered four-effect analysis on adaptive cells only."""
 
@@ -1110,6 +1178,11 @@ def aggregate(config: dict[str, Any]) -> str:
             "errors": integrity_errors,
         },
         "adaptive_stops": stop_rows,
+        "evaluation_set_sha256": (
+            _evaluation_set_sha256(config, runtime)
+            if not missing and not integrity_errors
+            else None
+        ),
         "factorial_materiality_tests": test_rows,
         "factorial_half_stage_means": {
             name: float(runtime.np.mean(list(by_seed.values())))
@@ -1163,8 +1236,14 @@ def formal_manifest(config: dict[str, Any]) -> str:
     checked = check_results(config)
     if checked["errors"] or checked["valid_cells"] != len(config["_cells"]):
         raise RuntimeError("cannot finalize incomplete adaptive training")
+    arms = tuple(dict.fromkeys(arm for arm, _seed in config["_cells"]))
+    for stage in ("half", "final"):
+        for arm in arms:
+            _validate_published_evaluation(config, runtime, arm, stage)
     analysis_path = config["_out"] / "formal_analysis.json"
     analysis = runtime.base.base.base.core._read_hashed_json(analysis_path)
+    if analysis.get("evaluation_set_sha256") != _evaluation_set_sha256(config, runtime):
+        raise RuntimeError("formal analysis does not match the current evaluation set")
     required = {"design": "VALID", "execution": "COMPLETE", "integrity": "PASS"}
     classification = analysis.get("classification", {})
     if any(classification.get(key) != value for key, value in required.items()):

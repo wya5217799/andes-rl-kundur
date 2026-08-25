@@ -62,10 +62,10 @@ Train a complete new adaptive factorial: 8 arms x 26 seeds = 208 cells. Each cel
 ## Methodology
 
 1. Finish implementation: reusable adaptive monitor and cell trainer; R483 runner; dynamic queue; adaptive-aware evaluation, four-effect aggregation, result audit and formal manifest.
-2. Freeze exact config, balanced cell list, evaluation shards, power artifact, deterministic probe bank, recovery policy and result root. No R482 learned checkpoint is an input.
-3. Focused tests and R482 regression; repository health; `round_preflight.py R483`.
-4. Two independent reviews over one committed snapshot. Both reviews must name the exact reviewed commit and cover the plan, config, power, probe, exact shard lists, source/implementation/test files. Post-review owner approval, routing, rehearsal, capacity, seal and the review records themselves are semantic-validated and hash-bound; they are not self-reviewed. Any P0/P1 blocks.
-5. Owner approval; same-entry WSL rehearsal covering source hashes, installed package/case, probe semantics, one simulated early stop, one max-budget fallback, interruption recovery and output absence; then one 16x8 capacity confirmation.
+2. Run focused tests, R482 regression, preflight and a committed preliminary code review. Record owner approval before any WSL probe.
+3. Generate the deterministic physical probe, then freeze exact config, balanced train/evaluation shard lists, power artifact, recovery policy and result root. No R482 learned checkpoint is an input.
+4. Run the seal-authoritative two independent reviews over this final committed snapshot. Both name the exact commit and cover the plan, config, power, probe, exact shard lists, source/implementation/test files. Post-review routing, rehearsal, capacity, seal and the review records themselves are semantic-validated and hash-bound; they are not self-reviewed. Any P0/P1 blocks.
+5. Run the same-entry WSL rehearsal covering source hashes, installed package/case, probe semantics, one simulated early stop, one max-budget fallback, interruption recovery and output absence; then one 16x8 capacity confirmation.
 6. Generate formal seal through the shared verifier and commit the seal point. Any post-seal source/config change aborts R483 and requires a successor.
 7. Only after a separate launch notification, start the detached dynamic queue. No result-driven threshold or roster change.
 

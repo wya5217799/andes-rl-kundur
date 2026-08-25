@@ -7,7 +7,7 @@
 
 ## TL;DR
 
-R482 stopped prospectively after two complete fixed-budget waves. Thirty-two hash-valid 43,200-step cells were retained, with zero TDS failures, but waves 3–15 and all evaluation jobs were not run. The registered factorial and Phase-3 analyses are therefore not computable; R482 supplies no scientific verdict and cannot resume in the same round.
+R482 stopped prospectively after two complete fixed-budget waves. The remaining training and all evaluation jobs were not run, so the registered analyses are not computable. R482 supplies no scientific verdict and cannot resume in the same round.
 
 ## Questions opened (this round)
 
@@ -21,7 +21,7 @@ R482 stopped prospectively after two complete fixed-budget waves. Thirty-two has
 
 - Q-0112 remains open; R482 did not address it.
 
-Feed: `(none; EXECUTION-INCOMPLETE before the registered evaluation and aggregate)`
+Feed: `paper/yang_md_decoupling_marl/reports/R482.md`
 
 ## 给 PI 的话
 

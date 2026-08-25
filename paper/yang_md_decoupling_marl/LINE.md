@@ -78,6 +78,7 @@ evidence_refs:
   - "CLM-1495 -> paper/yang_md_decoupling_marl/reports/R480.md"
   - "CLM-1500 -> paper/yang_md_decoupling_marl/reports/R480.md"
   - "CLM-1505 -> paper/yang_md_decoupling_marl/reports/R481.md"
+  - "CLM-1510 -> paper/yang_md_decoupling_marl/reports/R482.md"
 required_reading: [paper/yang_md_decoupling_marl/LINE.md]
 verification: ["Zero action preserves runtime M/D; corrected objects stay non-pooled."]
 stop_when: ["R483 needs dual review, preflight, approval, rehearsal, capacity and seal before training; drift or scientific failure stops."]
