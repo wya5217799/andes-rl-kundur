@@ -390,10 +390,22 @@
     "owner": "andes-runtime"
    },
    {
-    "pattern": "scripts/soft_spot_shard_driver.py",
+   "pattern": "scripts/soft_spot_shard_driver.py",
+   "role": "operation",
+   "state": "active",
+    "owner": "andes-runtime"
+   },
+   {
+    "pattern": "scripts/adaptive_shard_driver.py",
     "role": "operation",
     "state": "active",
     "owner": "andes-runtime"
+   },
+   {
+    "pattern": "scripts/run_adaptive_u2_successor.py",
+    "role": "round-runner",
+    "state": "active",
+    "owner": "yang-md-decoupling-marl"
    },
    {
     "pattern": "scripts/launch_detached.py",

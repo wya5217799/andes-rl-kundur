@@ -1,12 +1,14 @@
 ---
 round: R482
-state: active
+state: aborted
 manuscript_line: yang-md-decoupling-marl
 opened: '2026-08-25'
-closed: null
+closed: '2026-08-25'
 supersedes_rounds: []
 superseded_by_round: null
-abort_reason: null
+abort_reason: 'EXECUTION-INCOMPLETE: owner stopped after two completed waves; 32 valid
+  fixed-budget cells preserved; waves 3-15 and evaluation not run; same-round resume
+  forbidden'
 superseded_note: null
 ---
 # R482 plan — corrected-card learning re-verification + all-fresh source factorial (final high-cost experiment)
