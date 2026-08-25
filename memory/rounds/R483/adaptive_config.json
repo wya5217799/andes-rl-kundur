@@ -6,8 +6,8 @@
   "source_out": "results/research_loop/r482_u2_confirmatory",
   "seal": "memory/rounds/R483/formal_seal.json",
   "power": "paper/yang_md_decoupling_marl/working/source_factorial_power_plan.json",
-  "probe_bank": "memory/rounds/R483/probe_bank.npz",
-  "probe_bank_sha256": "c9ca1964e3230015da69c7acd69bdb6494efcff0004569883ca0e52d677e2a06",
+  "probe_bank": "memory/rounds/R483/probe_bank_v2.npz",
+  "probe_bank_sha256": "84c40e3d81eec23cf55e56fa152b035b93f392fd0344e47c1837208a95820fbf",
   "stop_config": {
     "min_steps": 30000,
     "max_steps": 43200,

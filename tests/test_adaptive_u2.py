@@ -270,6 +270,7 @@ def test_probe_bank_samples_full_trajectory_and_previous_action_contexts(
     tmp_path: Path,
 ) -> None:
     runtime, _source, _probe = _runtime(tmp_path)
+    runtime.base.base.base.core.r431._joint_obs = lambda observation: observation.reshape(-1)
     path = tmp_path / "trajectory_probe.npz"
     adaptive_u2.create_probe_bank(runtime, path)
     with np.load(path, allow_pickle=False) as payload:

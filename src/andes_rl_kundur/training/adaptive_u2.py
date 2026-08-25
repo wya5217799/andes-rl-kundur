@@ -81,12 +81,18 @@ def create_probe_bank(runtime: Any, path: Path) -> str:
             for scenario in profile["scenarios"]:
                 observation = env.reset(delta_u=dict(scenario["delta_u"]))
                 for time_index in range(steps):
-                    joint = core.r431._joint_obs(observation)
+                    joint = np.asarray(core.r431._joint_obs(observation), dtype=np.float32)
+                    if joint.shape == (28,):
+                        joint = joint.reshape(4, 7)
+                    if joint.shape != (4, 7):
+                        raise RuntimeError(
+                            f"unexpected physical probe observation shape: {joint.shape}"
+                        )
                     if not np.all(np.isfinite(joint)):
                         raise RuntimeError("non-finite observation in probe bank")
                     if time_index in sample_steps:
                         for context_name, previous in contexts:
-                            observations.append(np.asarray(joint, dtype=np.float32))
+                            observations.append(joint.copy())
                             previous_actions.append(previous.copy())
                             labels.append(str(scenario["scenario_id"]))
                             time_labels.append(time_index)
