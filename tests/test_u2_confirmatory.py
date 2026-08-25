@@ -48,6 +48,13 @@ def test_commit_hash_allows_only_cross_platform_newline_conversion(
     digest = git_commit_file_sha256(tmp_path, COMMIT, "source.py")
     assert digest == hashlib.sha256(committed).hexdigest()
 
+    binary_committed = b"PK\x03\x04payload\r\n"
+    binary_current = b"PK\x03\x04payload\n"
+    (tmp_path / "probe.npz").write_bytes(binary_current)
+    committed = binary_committed
+    digest = git_commit_file_sha256(tmp_path, COMMIT, "probe.npz")
+    assert digest == hashlib.sha256(binary_committed).hexdigest()
+
 
 def _sha(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()

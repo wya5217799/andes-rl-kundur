@@ -194,9 +194,12 @@ def git_commit_file_sha256(repo_root: Path, commit: str, relative_path: str) -> 
         current = current_path.read_bytes()
     except OSError as error:
         raise RuntimeError(f"cannot read reviewed working file: {current_path}: {error}") from error
+    text_suffixes = {".json", ".md", ".py", ".sh", ".toml", ".txt", ".yaml", ".yml"}
+    is_text_path = current_path.suffix.lower() in text_suffixes
     normalized_blob = blob.replace(b"\r\n", b"\n")
     normalized_current = current.replace(b"\r\n", b"\n")
-    accepted = current if normalized_current == normalized_blob else blob
+    newline_only_change = is_text_path and normalized_current == normalized_blob
+    accepted = current if newline_only_change else blob
     return hashlib.sha256(accepted).hexdigest()
 
 
