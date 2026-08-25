@@ -24,27 +24,29 @@ from andes_rl_kundur.evaluation.u2_confirmatory import (
 COMMIT = "a" * 40
 
 
-def test_commit_hash_uses_worktree_filters_for_cross_platform_bytes(
+def test_commit_hash_allows_only_cross_platform_newline_conversion(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    filtered = b"line1\r\nline2\r\n"
+    committed = b"line1\nline2\n"
+    current = b"line1\r\nline2\r\n"
+    (tmp_path / "source.py").write_bytes(current)
     calls: list[list[str]] = []
 
     def fake_run(command: list[str], **kwargs: object) -> SimpleNamespace:
         del kwargs
         calls.append(command)
-        return SimpleNamespace(returncode=0, stdout=filtered, stderr=b"")
+        return SimpleNamespace(returncode=0, stdout=committed, stderr=b"")
 
     monkeypatch.setattr(
         "andes_rl_kundur.evaluation.u2_confirmatory.subprocess.run", fake_run
     )
     digest = git_commit_file_sha256(tmp_path, COMMIT, "source.py")
-    assert digest == hashlib.sha256(filtered).hexdigest()
-    assert calls[0][-3:] == [
-        "--filters",
-        "--path=source.py",
-        f"{COMMIT}:source.py",
-    ]
+    assert digest == hashlib.sha256(current).hexdigest()
+    assert calls[0][-2:] == ["show", f"{COMMIT}:source.py"]
+
+    (tmp_path / "source.py").write_bytes(b"changed\r\n")
+    digest = git_commit_file_sha256(tmp_path, COMMIT, "source.py")
+    assert digest == hashlib.sha256(committed).hexdigest()
 
 
 def _sha(path: Path) -> str:

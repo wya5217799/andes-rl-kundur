@@ -164,14 +164,14 @@ def validate_review_coverage(
 
 
 def git_commit_file_sha256(repo_root: Path, commit: str, relative_path: str) -> str:
-    """Hash one reviewed file after Git's working-tree filters.
+    """Hash reviewed bytes while allowing only checkout newline conversion.
 
-    Formal reviews bind the bytes executed from the working tree.  On Windows,
-    ``core.autocrlf`` can make those bytes differ from the LF-only blob even
-    when the committed content is identical.  ``cat-file --filters`` replays
-    the commit through the same checkout filters without trusting the current
-    file, so cross-platform newline conversion is accepted but content drift
-    still fails closed.
+    A Windows checkout may contain a mix of LF and CRLF files even with
+    ``core.autocrlf`` enabled, so neither raw blobs nor unconditional smudge
+    filters reproduce every executed file.  Compare the current file with the
+    reviewed blob after canonicalizing CRLF to LF.  Return the current-byte
+    digest only when that is the sole difference; any content drift retains
+    the blob digest and therefore fails the caller's current-hash comparison.
     """
 
     result = subprocess.run(
@@ -179,9 +179,7 @@ def git_commit_file_sha256(repo_root: Path, commit: str, relative_path: str) -> 
             "git",
             "-C",
             str(repo_root),
-            "cat-file",
-            "--filters",
-            f"--path={relative_path}",
+            "show",
             f"{commit}:{relative_path}",
         ],
         check=False,
@@ -190,7 +188,16 @@ def git_commit_file_sha256(repo_root: Path, commit: str, relative_path: str) -> 
     if result.returncode != 0:
         detail = result.stderr.decode("utf-8", errors="replace").strip()
         raise RuntimeError(f"cannot read reviewed commit {commit}: {relative_path}: {detail}")
-    return hashlib.sha256(result.stdout).hexdigest()
+    blob = result.stdout
+    current_path = repo_root / relative_path
+    try:
+        current = current_path.read_bytes()
+    except OSError as error:
+        raise RuntimeError(f"cannot read reviewed working file: {current_path}: {error}") from error
+    normalized_blob = blob.replace(b"\r\n", b"\n")
+    normalized_current = current.replace(b"\r\n", b"\n")
+    accepted = current if normalized_current == normalized_blob else blob
+    return hashlib.sha256(accepted).hexdigest()
 
 
 def verify_formal_seal(
