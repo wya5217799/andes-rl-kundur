@@ -1,0 +1,40 @@
+{
+  "schema_version": 2,
+  "round": "R484",
+  "source_capacity_evidence": {
+    "path": "memory/rounds/R484/capacity_evidence.json",
+    "sha256": "fba0c10bb3a0b16a5e07bc4196610150afd2ac75d048dd571e99d464d0e78690"
+  },
+  "host": {
+    "logical_processors": 32,
+    "physical_memory_bytes": 33518587904
+  },
+  "wsl": {
+    "memory_total_bytes": 29423165440,
+    "memory_available_bytes": 21955973120
+  },
+  "empirical_anchor": {
+    "concurrent_workers": 8,
+    "native_threads_per_worker": 1,
+    "all_records_valid": true,
+    "jobs": 8,
+    "steps_per_job": 150,
+    "wall_seconds": 77.54906641499838
+  },
+  "capacity_canary": {
+    "accepted": true,
+    "accepted_worker_budget": 18,
+    "formal_workers": 16,
+    "launcher_and_driver_processes": 2,
+    "projected_sixteen_worker_rss_bytes": 9636675584,
+    "required_available_bytes_with_25pct_and_2gib_reserve": 14193328128,
+    "measured_available_bytes": 21955973120,
+    "basis": "8 valid 150-step jobs, measured per-worker RSS projection, and the frozen R452-R483 16-worker same-host precedent"
+  },
+  "native_threads_per_process": 1,
+  "other_reserved_processes": 0,
+  "whole_host_python_process_budget": 18,
+  "safe_for_formal_launch": true,
+  "capacity_trace_role": "non-claim-bearing schema-normalized capacity authority",
+  "created_utc": "2026-08-27T09:05:22.913775+00:00"
+}

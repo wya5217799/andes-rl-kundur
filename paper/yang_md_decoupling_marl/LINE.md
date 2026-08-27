@@ -2,13 +2,13 @@
 line_id: yang-md-decoupling-marl
 status: active
 priority: 4
-stage: learning-reverification-round
+stage: learning-tail-evaluation-preparation
 artifact_manifest: paper/yang_md_decoupling_marl/ARTIFACTS.json
 scope: {write_roots: [paper/yang_md_decoupling_marl], shared_read_roots: [paper/paralleled_vsg_marl, paper/icems2026, paper/decoupling_marl_model_first, memory, results, docs/research, src/andes_rl_kundur]}
 venue: {kind: conference, status: locked, primary: 'ICEMS 2026', decision_record: 'paper/yang_md_decoupling_marl/working/icems2026_official_requirements.md', official_source_status: current, last_checked: 2026-08-16, review_triggers: ['after evidence-bounded conference-draft review or any authorized topology-robustness gate', 'before 2026-08-28 author registration and 2026-09-07 final-paper upload']}
 working_title: "Decoupling-Oriented Coordination of Paralleled  VSGs With Multi-Agent Reinforcement Learning"
 title_policy: "Fixed wording; same-object evidence per term; prospective till gate passes."
-objective: "R482 closed incomplete after two preserved waves. R483 owns a new adaptive 8-arm x 26-seed factorial; R482 learned cells stay excluded."
+objective: "R483 complete. Authorized evaluation-only successor: 208 finals plus frozen deterministic/zero, 30 s full guards; no retraining/tuning."
 decision_refs: ["docs/adr/0019-separate-yang-md-decoupling-marl-successor.md#decision", "paper/yang_md_decoupling_marl/working/gpt_pro_unresolved_math_solution_20260821/IMPORT_NOTE.md#manuscript-disposition", "paper/yang_md_decoupling_marl/working/corrected_md_revalidation_experiment_plan_20260824.md#decision", "paper/yang_md_decoupling_marl/working/md_parameter_card_20260824.json#owner_decision", "paper/yang_md_decoupling_marl/working/prospective_direct_md_successor_decision_20260825.md#status", "paper/yang_md_decoupling_marl/working/learning_reverification_launch_decision_20260825.md#status"]
 evidence_refs:
   - "CLM-1135 -> paper/yang_md_decoupling_marl/reports/R398.md"
@@ -79,7 +79,8 @@ evidence_refs:
   - "CLM-1500 -> paper/yang_md_decoupling_marl/reports/R480.md"
   - "CLM-1505 -> paper/yang_md_decoupling_marl/reports/R481.md"
   - "CLM-1510 -> paper/yang_md_decoupling_marl/reports/R482.md"
+  - "CLM-1515 -> paper/yang_md_decoupling_marl/reports/R483.md"
 required_reading: [paper/yang_md_decoupling_marl/LINE.md]
-verification: ["Zero action preserves runtime M/D; corrected objects stay non-pooled."]
-stop_when: ["R483 needs dual review, preflight, approval, rehearsal, capacity and seal before training; drift or scientific failure stops."]
+verification: ["R483 sealed; 6 s primary and 30 s sensitivity stay non-pooled."]
+stop_when: ["Successor requires dual review, preflight, approval, rehearsal, capacity and seal; drift stops."]
 ---

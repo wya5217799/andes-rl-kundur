@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "round": "R484",
+  "approved": true,
+  "source": "Owner message on 2026-08-27: 先启动这些必要补充实验吧，预计时间多少；并明确低硬件需求即可进行",
+  "approved_scope": "evaluation-only 30-second full-guard sensitivity of all 208 frozen R483 final checkpoints plus frozen deterministic and zero comparators; no retraining or tuning",
+  "long_execution_authorized": true
+}

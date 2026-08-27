@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "round": "R484",
+  "out": "results/research_loop/r484_30s_tail_guard",
+  "recovery_policy": "preserve_partial_attempt_reuse_completed_only_with_resume",
+  "factorial_arms": [
+    "an_cn_r0",
+    "an_cn_r1",
+    "an_cp_r0",
+    "an_cp_r1",
+    "ap_cn_r0",
+    "ap_cn_r1",
+    "ap_cp_r0",
+    "ap_cp_r1"
+  ],
+  "seeds": [
+    501,
+    502,
+    503,
+    504,
+    505,
+    506,
+    507,
+    508,
+    509,
+    510,
+    511,
+    512,
+    513,
+    514,
+    515,
+    516,
+    517,
+    518,
+    519,
+    520,
+    521,
+    522,
+    523,
+    524,
+    525,
+    526
+  ],
+  "contract": {
+    "steps": 150,
+    "dt_seconds": 0.2,
+    "canary_profiles": [
+      "canary_eval_a",
+      "canary_eval_b",
+      "canary_eval_c",
+      "canary_eval_d"
+    ],
+    "fresh_profiles": [
+      "fresh_eva_a",
+      "fresh_eva_b",
+      "fresh_eva_c",
+      "fresh_eva_d"
+    ],
+    "comparators": [
+      "zero",
+      "local_neighbour_md_km2_kd2"
+    ],
+    "training_authorized": false,
+    "tuning_authorized": false
+  },
+  "execution": {
+    "workers": 16,
+    "eval_log_dir": "tmp/andes/r484_eval_logs"
+  },
+  "identity_inputs": {
+    "r483_config": {
+      "path": "memory/rounds/R483/adaptive_config.json",
+      "sha256": "2fb1ecc77b995ffa66396105f1df6b7477b7792892da3219840f333190305c21"
+    },
+    "r483_formal_seal": {
+      "path": "memory/rounds/R483/formal_seal_v2.json",
+      "sha256": "b468f705480fd3fb32207a242c236d600f71a2deaa79ba3e29633f3f54d086f7"
+    },
+    "r483_formal_manifest": {
+      "path": "results/research_loop/r483_adaptive_u2/formal_manifest.json",
+      "sha256": "e1efa8915e8f2210be2e3150178d440ccfbab7cb1a50eeb04e12224d1c65535e"
+    },
+    "r481_contract": {
+      "path": "memory/rounds/R481/contract.json",
+      "sha256": "4c7f21ad86438f09832a1f3d956e8c938839db9dbfac1b457eb36b3df02611b0"
+    },
+    "r481_formal_seal": {
+      "path": "memory/rounds/R481/formal_seal.json",
+      "sha256": "f228eea10e555675b524ceb9e2b7eded5b0767902667c05daf7859dd9905541c"
+    },
+    "r481_formal_analysis": {
+      "path": "results/research_loop/r481_direct_md/formal_analysis.json",
+      "sha256": "d6de9e9830421c39c49f0c80f76ee68f106f5c1cb47dd4271c091e30106c5db8"
+    },
+    "r481_formal_execution": {
+      "path": "results/research_loop/r481_direct_md/formal_execution.json",
+      "sha256": "0998efe9f2531a8addf6aea117b9f33323b643c652a72f0ee4a79fdf1767a6f5"
+    }
+  },
+  "authority": {
+    "plan": "memory/rounds/R484/plan.md",
+    "owner_approval": "memory/rounds/R484/OWNER_APPROVED.json",
+    "routing_gate": "memory/rounds/R484/routing_gate.json",
+    "rehearsal": "memory/rounds/R484/rehearsal.json",
+    "capacity": "memory/rounds/R484/capacity_evidence_v2.json",
+    "review_a": "memory/rounds/R484/code_review_a.json",
+    "review_b": "memory/rounds/R484/code_review_b.json",
+    "seal": "memory/rounds/R484/formal_seal.json",
+    "shards": "memory/rounds/R484/shards.json"
+  }
+}
