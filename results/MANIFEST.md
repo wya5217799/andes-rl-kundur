@@ -180,8 +180,9 @@ locator before calling these artifacts durably archived.
 | R481 | `results/research_loop/r481_direct_md/` | `formal_analysis.json` | `d6de9e9830421c39c49f0c80f76ee68f106f5c1cb47dd4271c091e30106c5db8` |
 | R482 | `results/research_loop/r482_u2_confirmatory/` | `closeout_audit.json` | `e0d35dd06fd3e8336b126b01344731ad6c9ae0ce5141b41e44b0feef8c87d8d0` |
 | R483 | `results/research_loop/r483_adaptive_u2/` | `formal_analysis.json` | `ad63a80e6ac64ec42900799f7f63b359f9eda36ebd12b86feadc4a2719820b9e` |
+| R484 | `results/research_loop/r484_30s_tail_guard/` | `formal_analysis.json` | `ed40dc4c114527730f1ac37b8998addb766db7094bc496ebd0143378931f8b1d` |
 
-The one hundred and eleven roots currently occupy 8,581,672,997 bytes. R286, R287, R291, R292,
+The one hundred and twelve roots currently occupy 9,961,610,050 bytes. R286, R287, R291, R292,
 R294, R295, R296, R297, R298, R299, and R300 raw traces remain ignored; their retained trace hashes are indexed by
 each round's decision and provenance artifacts.
 
