@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "round": "R484",
+  "phase": "same-pre-attempt-path-rehearsal",
+  "checks": {
+    "source_hash": true,
+    "parent_hash": true,
+    "checkpoint_inventory": true,
+    "installed_package": true,
+    "installed_case": true,
+    "output_absence": true,
+    "active_plan": true,
+    "owner_approved": true,
+    "shard_roster": true,
+    "trajectory_count": true
+  },
+  "runtime": {
+    "python": "3.12.3 (main, Jun 19 2026, 12:46:00) [GCC 13.3.0]",
+    "python_executable": "/usr/bin/python3.12",
+    "andes_version": "2.0.0",
+    "andes_module": "/home/wya/andes_venv/lib/python3.12/site-packages/andes/__init__.py",
+    "case_path": "/home/wya/andes_venv/lib/python3.12/site-packages/andes/cases/kundur/kundur_full.xlsx",
+    "case_sha256": "f725e03ba12d8207616f68acdd606bbd35e7c4a68f13e66d7db43925adac2ed8"
+  },
+  "rehearsal_scope": "one canary zero-action trajectory at 150 steps",
+  "representative": {
+    "profile_id": "canary_eval_a",
+    "scenario_id": "canary_eval_a_common_positive",
+    "completed_steps": 150,
+    "completed": true,
+    "tds_failed": false,
+    "configured_steps_per_episode": 150,
+    "done_indices": [
+      149
+    ],
+    "done_only_at_step_149": true
+  },
+  "elapsed_seconds": 57.026291850954294,
+  "formal_attempt_created": false,
+  "formal_outputs_created": false,
+  "created_utc": "2026-08-27T09:03:44.062625+00:00"
+}

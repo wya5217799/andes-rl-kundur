@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "round": "R484",
+  "quick_confirm": {
+    "workers": 16,
+    "jobs": 8,
+    "steps_per_job": 150,
+    "wall_seconds": 77.54906641499838,
+    "all_records_valid": true,
+    "job_mix": {
+      "learned_final": 4,
+      "comparator": 4
+    },
+    "job_ids": [
+      "learned|an_cn_r0|501|canary_eval_a",
+      "learned|an_cp_r0|508|canary_eval_b",
+      "learned|ap_cn_r1|517|canary_eval_c",
+      "learned|ap_cp_r1|526|canary_eval_d",
+      "comparator|zero|canary_eval_a",
+      "comparator|local_neighbour_md_km2_kd2|canary_eval_b",
+      "comparator|zero|fresh_eva_a",
+      "comparator|local_neighbour_md_km2_kd2|fresh_eva_b"
+    ],
+    "failures": []
+  },
+  "memory": {
+    "before": {
+      "mem_total_kib": 28733560,
+      "mem_available_kib": 21441380,
+      "mem_total_gib": 27.40245819091797,
+      "mem_available_gib": 20.44809341430664,
+      "logical_cpus": 32
+    },
+    "after": {
+      "mem_total_kib": 28733560,
+      "mem_available_kib": 21430240,
+      "mem_total_gib": 27.40245819091797,
+      "mem_available_gib": 20.437469482421875,
+      "logical_cpus": 32
+    },
+    "worker_max_rss_kib": [
+      580064,
+      581400,
+      581028,
+      588176,
+      483848,
+      481844,
+      485288,
+      482808
+    ],
+    "maximum_worker_rss_kib": 588176,
+    "median_worker_rss_kib": 532676.0,
+    "projected_sixteen_worker_rss_gib": 8.974853515625,
+    "required_available_gib_with_25pct_and_2gib_reserve": 13.21856689453125,
+    "memory_safe": true
+  },
+  "output": {
+    "estimated_json_bytes": 920747,
+    "estimated_json_bytes_per_second": 11873.089420221864
+  },
+  "selected": {
+    "workers": 16,
+    "launcher_processes": 1,
+    "native_threads_per_process": 1,
+    "reason": "R452-R483 16-worker precedent plus this round's 16x8 150-step quick confirmation"
+  },
+  "whole_host_python_process_budget": 18,
+  "other_reserved_processes": 0,
+  "safe_for_formal_launch": true,
+  "capacity_trace_role": "non-claim-bearing quick confirmation",
+  "created_utc": "2026-08-27T09:05:22.913775+00:00"
+}

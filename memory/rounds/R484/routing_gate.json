@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "round": "R484",
+  "created_utc": "2026-08-27T09:00:41.3755917Z",
+  "passed": true,
+  "failure_semantics": "any false flag = DESIGN-INVALID; no evaluation starts",
+  "checks": {
+    "reviewed_commit": "3f960f14128f152d712f4b620df0f67ded323bf7",
+    "independent_reviews_passed": true,
+    "exact_factorial_arms": 8,
+    "exact_training_seeds": 26,
+    "exact_learned_policies": 208,
+    "exact_evaluation_shards": 16,
+    "worker_slots": 16,
+    "expected_trajectories": 5088,
+    "expected_blocks": 848,
+    "prefix_isolation": true,
+    "streaming_blocks": true,
+    "source_rounds_completed": true,
+    "output_absent": true,
+    "no_training_or_tuning": true,
+    "process_budget": 18
+  }
+}

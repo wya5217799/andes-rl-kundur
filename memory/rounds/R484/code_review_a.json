@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "reviewer_id": "R484-frozen-python-review",
+  "decision": "PASS",
+  "open_p0_count": 0,
+  "open_p1_count": 0,
+  "reviewed_commit": "3f960f14128f152d712f4b620df0f67ded323bf7",
+  "reviewed_files": {
+    "scripts/run_r484_30s_tail_guard.py": "24ae86364c22515c119bb15cfc6379634d1edc46099cdde4c28b05102939e5ad",
+    "src/andes_rl_kundur/evaluation/r484_tail_guard.py": "542577246db1635417981b6be197821e8d85bc4b60b73a715c9802faa4553fe9",
+    "tests/test_run_r484_30s_tail_guard.py": "20c5d3e4b8431536395851397512eea3e7150311b0f191e82e2af56161faf647",
+    "tests/test_r484_tail_guard.py": "4e7bb0d7882f4c96965a81b84320f45a7fbb4ce1bfcfce4ef66c56f5fe05a46b",
+    "scripts/adaptive_shard_driver.py": "17913c862f5d55974a1b85006fdf4efd659050e6bcd3d7cabd43a00faae6c112",
+    "scripts/andes_scratch.py": "bc5ed1a7978ca0f19d7cb053c32f59f46281dc91c1e2f68b730118e2b5b5fe62",
+    "scripts/run_adaptive_u2_successor.py": "1a0b7daefab4dc14d02a8f8038c8dd2842eed062f2b38b16c4b19007709d00ea",
+    "scripts/run_r481_direct_md.py": "8fd0d763e779f193e7e8101b064d8b1df1cc89dc90cce511ba5218f3de86f556",
+    "src/andes_rl_kundur/evaluation/cd_matd3_canary.py": "811ffd314a450e3c700270158437e7326d0d1bbdebc26fdb81f2783a53129f78",
+    "src/andes_rl_kundur/evaluation/r481_fresh_profiles.py": "e43da13e30e6fe09eb13abd0f763a771209ad080539eb028440b7743c5be613f",
+    "src/andes_rl_kundur/evaluation/md_decoupling_headroom.py": "bb5cb7aafe4b03b556dbeca24773cfecc4d31955e4e6eb7e94b379107a6bb87c",
+    "src/andes_rl_kundur/evaluation/source_factorial_design.py": "959b699fb166c73ea05932cd1057bbfe4b3547c4f6ce36ec9ea1feb78e9b0223",
+    "src/andes_rl_kundur/evaluation/u2_confirmatory.py": "8ce23c12f5cbe6058c7b66fc5cecf6e65e53a524fedcd886ae9fbb95588ae7d1",
+    "src/andes_rl_kundur/control/per_vsg_md.py": "830122cbc2c4cbba96bd892197f95a5991e3f4c4e514d2c28d370ca589a29c5d",
+    "src/andes_rl_kundur/env/andes/andes_vsg_env_v4.py": "5595857f587dbc09c6b67c7255fe4d2cdda50d1279f26ef0ce145259726ed138",
+    "memory/rounds/R484/config.json": "54a689f1b5b6b387b0ff297a212db83d383d6ec42b6759d471bb06be79a58213",
+    "memory/rounds/R484/shards.json": "dc9dcbd714ee45e8a33c4562fc2d01cc7b3a25004ea586075f2e685020883ff4",
+    "memory/rounds/R484/plan.md": "6ed64c195f21e16de08b09a8f35c27d8b6ab58256c7260b5f5be3350caa23af3",
+    "memory/rounds/R483/plan.md": "9fa05fc5f5cc5fa32771356f140ed213fc960c58664316eba29d828655585aa3",
+    "memory/rounds/R481/plan.md": "b7cff9985dbea7c97cacb7d77d7d49b37522ab2403d6d31b200b8030e8f22ac4"
+  }
+}
