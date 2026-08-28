@@ -319,7 +319,7 @@ policy), never by visual attractiveness.
   `train_shards.json`, then `eval_shards.json` with
   `/home/wya/andes_venv/bin/python scripts/soft_spot_shard_driver.py --runner scripts/run_r485_60hz_source_factorial.py --shards <sealed-stage-list> --workers 16 --round R485`; no `--resume`
 - rehearsal_command: `/home/wya/andes_venv/bin/python scripts/andes_scratch.py scripts/run_r485_60hz_source_factorial.py rehearse`
-- rehearsal_scope: validate one canary zero-action six-scenario 150-step profile through the production trace/schema path; no formal output
+- rehearsal_scope: same-pre-attempt-path; validate one canary zero-action six-scenario 150-step profile through the production trace/schema path; no formal output
 - rehearsal_checks: source_hash,parent_hash,installed_package,installed_case,output_absence,shard_roster,trajectory_count,representative_schema
 - result_root: `results/research_loop/r485_60hz_source_factorial/<sealed-attempt-id>/`
 - capacity_evidence: `memory/rounds/R485/capacity_evidence.json`
