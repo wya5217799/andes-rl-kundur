@@ -259,8 +259,9 @@ def classify_learned_guard(
     deterministic_reference_gate: Mapping[str, Any] | None = None,
     round_id: str = ROUND_ID,
     policy_label: str = "R483",
+    require_complete_policy_roster: bool = True,
 ) -> dict[str, Any]:
-    """Classify the complete 208-policy x four-profile physical guard bank."""
+    """Classify complete profile blocks for the supplied policy roster."""
 
     try:
         policy_roster = tuple(sorted(_normalise_policy(value) for value in policies))
@@ -268,8 +269,13 @@ def classify_learned_guard(
         return _invalid_result("learned_complete_guard", [str(exc)])
     profile_roster = tuple(sorted(str(value) for value in profiles))
     errors: list[str] = []
-    if set(policy_roster) != EXPECTED_R483_POLICIES or len(policy_roster) != EXPECTED_POLICY_COUNT:
+    if require_complete_policy_roster and (
+        set(policy_roster) != EXPECTED_R483_POLICIES
+        or len(policy_roster) != EXPECTED_POLICY_COUNT
+    ):
         errors.append("policy_roster_must_match_the_exact_208_R483_final_policies")
+    elif not policy_roster or len(set(policy_roster)) != len(policy_roster):
+        errors.append("policy_roster_must_be_nonempty_and_unique")
     if set(profile_roster) != set(EXPECTED_CANARY_PROFILES) or len(profile_roster) != EXPECTED_PROFILE_COUNT:
         errors.append("profile_roster_must_match_the_four_registered_canary_profiles")
 

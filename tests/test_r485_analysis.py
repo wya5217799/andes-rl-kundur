@@ -428,7 +428,8 @@ def test_rehearsal_checks_live_60hz_observation_identity_exactly_once() -> None:
                     str(index): raw[index].tolist() for index in range(4)
                 },
                 "canonical_observation": canonical.tolist(),
-                "frequency_deviation_hz": frequency_deviation.tolist(),
+                "observation_frequency_deviation_hz": frequency_deviation.tolist(),
+                "frequency_deviation_hz": (frequency_deviation + 0.01).tolist(),
             }
         ]
     }
@@ -436,6 +437,50 @@ def test_rehearsal_checks_live_60hz_observation_identity_exactly_once() -> None:
     assert canonical_observation_readback([record]) is True
     record["steps"][0]["canonical_observation"][0][1] *= 1.2
     assert canonical_observation_readback([record]) is False
+
+
+def test_tds_path_classifies_only_unaffected_complete_policies(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import andes_rl_kundur.evaluation.r485_experiment as analysis
+
+    profiles = ("p1", "p2")
+    reference = "local_neighbour_md_km2_kd2"
+    summaries = [
+        {"profile_id": profile, "arm_id": reference, "training_seed": None}
+        for profile in profiles
+    ]
+    summaries.extend(
+        {"profile_id": profile, "arm_id": "a", "training_seed": 1}
+        for profile in profiles
+    )
+    summaries.append({"profile_id": "p1", "arm_id": "b", "training_seed": 2})
+    observed: dict[str, object] = {}
+
+    def classify(rows, **kwargs):
+        observed["rows"] = rows
+        observed.update(kwargs)
+        return {"classification": "AVAILABLE", "scientific_outcome": "AVAILABLE"}
+
+    monkeypatch.setattr(analysis, "classify_learned_guard", classify)
+    result = analysis.classify_available_policy_qualification(
+        summaries,
+        policies=(("a", 1), ("b", 2)),
+        profiles=profiles,
+        deterministic_reference_gate={"gate": {"passed_4_of_4": True}},
+        contract={
+            "parameter_card": {
+                "threshold_sensitivity": {
+                    "primary": {"frequency": 1.03, "action": 1.1}
+                }
+            }
+        },
+    )
+
+    assert observed["policies"] == (("a", 1),)
+    assert observed["require_complete_policy_roster"] is False
+    assert result["available_policy_count"] == 1
+    assert result["excluded_policy_count"] == 1
 
 
 def test_statistics_contract_has_no_data_dependent_fallback() -> None:
@@ -600,13 +645,33 @@ def test_outcome_mapping_keeps_source_effect_separate_from_policy_result() -> No
             ],
         },
     )
+    invalid_reference = classify_registered_outcome(
+        factorial={"status": "COMPLETE", "tests": {}},
+        guard={
+            "classification": "LEARNED-COMPLETE-GUARD-REFERENCE-INVALID",
+            "scientific_outcome": "NOT_TESTED",
+            "passing_count": 1,
+            "policy_decisions": [
+                {
+                    "aggregate_joint_endpoint_target": {
+                        "off_diagonal_response_energy": True,
+                        "disturbance_differential_energy": True,
+                    }
+                }
+            ],
+        },
+    )
 
     assert source_only["status"] == "VALID-NEGATIVE"
+    assert source_only["source_inference"]["status"] == "MATERIAL-EFFECT"
     assert source_only["source_inference"]["material_effect_established"] is True
     assert complete_without_source["status"] == "VALID-POSITIVE"
-    assert complete_without_source["source_inference"]["material_effect_established"] is False
+    assert complete_without_source["source_inference"]["status"] == (
+        "MATERIAL-EFFECT-NOT-ESTABLISHED"
+    )
     assert endpoint_only["status"] == "VALID-MIXED"
     assert endpoint_only["source_inference"]["status"] == "ASSUMPTION-LIMITED"
+    assert invalid_reference["status"] == "INTEGRITY-INVALID"
 
 
 def test_threshold_and_claim_contracts_are_frozen_before_results() -> None:

@@ -87,6 +87,8 @@ def objective_gate_flags(probe: Mapping[str, Any]) -> dict[str, bool]:
             probe.get("replay_actor_rows_are_canonical")
             and probe.get("replay_critic_rows_are_canonical")
             and probe.get("placebo_is_same_time_registered_row_permutation")
+            and probe.get("every_source_tuple_changed")
+            and probe.get("no_p_source_is_true_neighbour")
         ),
         "executed_action_bellman_passed": bool(
             probe.get("current_critic_uses_executed_action")
@@ -113,10 +115,29 @@ def run_objective_semantics_probe(
     before = tensor_hash(member)
     first_actor = first_critic = None
     placebo_permutation_valid = True
+    every_source_tuple_changed = True
+    authentic_source_ids = ((1, 3), (0, 2), (1, 3), (2, 0))
+    row_permutation = (1, 2, 3, 0)
+    placebo_source_ids = tuple(
+        authentic_source_ids[row_permutation[index]] for index in range(4)
+    )
+    no_p_source_is_true_neighbour = all(
+        source not in authentic_source_ids[recipient]
+        for recipient in range(4)
+        for source in placebo_source_ids[recipient]
+    )
     for index in range(member.batch_size):
         raw_observation = {
             actor: np.asarray(
-                [actor + index / 1000.0, 0.01, -0.02, 0.03, -0.04, 0.05, -0.06],
+                [
+                    actor + index / 1000.0,
+                    0.01 + actor,
+                    -0.02 - actor,
+                    0.03 + 4 * actor,
+                    -0.04 - 4 * actor,
+                    0.05 + 8 * actor,
+                    -0.06 - 8 * actor,
+                ],
                 dtype=np.float32,
             )
             for actor in range(4)
@@ -128,6 +149,13 @@ def run_objective_semantics_probe(
         expected_placebo[:, 3:7] = canonical[[1, 2, 3, 0], 3:7]
         placebo_permutation_valid &= bool(
             np.array_equal(route_source(canonical, "P"), expected_placebo)
+        )
+        every_source_tuple_changed &= all(
+            not np.array_equal(
+                route_source(canonical, "P")[actor, 3:7],
+                route_source(canonical, "N")[actor, 3:7],
+            )
+            for actor in range(4)
         )
         previous = np.asarray([0.05, -0.05], dtype=np.float32)
         raw_action = np.asarray([0.4, -0.4], dtype=np.float32)
@@ -155,6 +183,8 @@ def run_objective_semantics_probe(
         "replay_actor_rows_are_canonical": bool(np.array_equal(member.buffer.actor_obs[0], first_actor)),
         "replay_critic_rows_are_canonical": bool(np.array_equal(member.buffer.critic_obs[0], first_critic)),
         "placebo_is_same_time_registered_row_permutation": placebo_permutation_valid,
+        "every_source_tuple_changed": every_source_tuple_changed,
+        "no_p_source_is_true_neighbour": no_p_source_is_true_neighbour,
         "current_critic_uses_executed_action": bool(torch.equal(paths["critic_current_action_input"], batch["executed_actions"])),
         "target_critic_uses_projected_action": bool(torch.equal(paths["critic_target_action_input"], paths["target_projected_action"])),
         "actor_critic_uses_projected_action": bool(torch.equal(paths["actor_critic_action_input"], paths["actor_projected_action"])),
@@ -252,6 +282,10 @@ def evaluate_trajectory(
             for index in range(4)
         }
         canonical = canonicalize(raw_observation)
+        observation_frequency = (
+            np.asarray(env._get_vsg_omega(), dtype=float)
+            * float(env.andes_nominal_frequency_hz)
+        )
         if learned:
             if policy is None or factors is None:
                 raise RuntimeError("learned trajectory inputs are incomplete")
@@ -278,7 +312,7 @@ def evaluate_trajectory(
         frequency = np.asarray(info["freq_hz_physical"], dtype=float)
         frequency_deviation = frequency - 60.0
         action_delta = executed - previous
-        steps.append({"step_index": step_index, "time": float(info["time"]), "raw_observation": {str(index): raw_observation[index].astype(float).tolist() for index in range(4)}, "canonical_observation": canonical.tolist(), "raw_action_norm": raw.tolist(), "projected_action_norm": executed.tolist(), "action_norm": executed.tolist(), "action_delta_norm": action_delta.tolist(), "action_squared": np.square(executed).tolist(), "action_abs_delta": np.abs(action_delta).tolist(), "raw_action_saturated": (np.abs(raw) >= 1.0 - 1.0e-6).tolist(), "M_commanded": np.asarray(info["M_target_es"], dtype=float).tolist(), "D_commanded": np.asarray(info["D_target_es"], dtype=float).tolist(), "M_es": np.asarray(info["M_es"], dtype=float).tolist(), "D_es": np.asarray(info["D_es"], dtype=float).tolist(), "delta_M": np.asarray(info["delta_M"], dtype=float).tolist(), "delta_D": np.asarray(info["delta_D"], dtype=float).tolist(), "freq_hz_physical": frequency.tolist(), "frequency_deviation_hz": frequency_deviation.tolist(), "differential_frequency_deviation_hz": (transform @ frequency_deviation).tolist(), "rocof_hz_s_physical": (np.asarray(info["omega_dot"], dtype=float) * 60.0).tolist(), "common_frequency_deviation_hz": float(np.mean(frequency_deviation)), "reward_components": reward_parts, "tds_failed": bool(info["tds_failed"]), "done": bool(done)})
+        steps.append({"step_index": step_index, "time": float(info["time"]), "raw_observation": {str(index): raw_observation[index].astype(float).tolist() for index in range(4)}, "canonical_observation": canonical.tolist(), "observation_frequency_deviation_hz": (observation_frequency - 60.0).tolist(), "raw_action_norm": raw.tolist(), "projected_action_norm": executed.tolist(), "action_norm": executed.tolist(), "action_delta_norm": action_delta.tolist(), "action_squared": np.square(executed).tolist(), "action_abs_delta": np.abs(action_delta).tolist(), "raw_action_saturated": (np.abs(raw) >= 1.0 - 1.0e-6).tolist(), "M_commanded": np.asarray(info["M_target_es"], dtype=float).tolist(), "D_commanded": np.asarray(info["D_target_es"], dtype=float).tolist(), "M_es": np.asarray(info["M_es"], dtype=float).tolist(), "D_es": np.asarray(info["D_es"], dtype=float).tolist(), "delta_M": np.asarray(info["delta_M"], dtype=float).tolist(), "delta_D": np.asarray(info["delta_D"], dtype=float).tolist(), "freq_hz_physical": frequency.tolist(), "frequency_deviation_hz": frequency_deviation.tolist(), "differential_frequency_deviation_hz": (transform @ frequency_deviation).tolist(), "rocof_hz_s_physical": (np.asarray(info["omega_dot"], dtype=float) * 60.0).tolist(), "common_frequency_deviation_hz": float(np.mean(frequency_deviation)), "reward_components": reward_parts, "tds_failed": bool(info["tds_failed"]), "done": bool(done)})
         previous = executed
         if info["tds_failed"]:
             tds_failed = True
@@ -470,6 +504,21 @@ def classify_registered_outcome(
 ) -> dict[str, Any]:
     """Keep learner qualification and source-factor inference independent."""
 
+    if (
+        guard.get("scientific_outcome") == "NOT_TESTED"
+        or guard.get("classification")
+        in {"INTEGRITY-INVALID", "LEARNED-COMPLETE-GUARD-REFERENCE-INVALID"}
+    ):
+        return {
+            "status": "INTEGRITY-INVALID",
+            "learner_qualification": {"status": "NOT-TESTED"},
+            "source_inference": {
+                "status": "NOT-TESTED",
+                "material_effect_established": None,
+                "rejected_effects": [],
+            },
+        }
+
     decisions = list(guard.get("policy_decisions", ()))
     endpoint_qualified_count = 0
     for decision in decisions:
@@ -495,6 +544,13 @@ def classify_registered_outcome(
             if bool(holm["reject"]):
                 rejected_effects.append(str(name))
         material_effect_established = bool(rejected_effects)
+        source_status = (
+            "MATERIAL-EFFECT"
+            if material_effect_established
+            else "MATERIAL-EFFECT-NOT-ESTABLISHED"
+        )
+    else:
+        source_status = factorial_status
 
     if complete_contract_count > 0:
         status = "VALID-POSITIVE"
@@ -513,10 +569,80 @@ def classify_registered_outcome(
             "complete_contract_passing_count": complete_contract_count,
         },
         "source_inference": {
-            "status": factorial_status,
+            "status": source_status,
+            "factorial_status": factorial_status,
             "material_effect_established": material_effect_established,
             "rejected_effects": rejected_effects,
         },
+    }
+
+
+def classify_available_policy_qualification(
+    summaries: Sequence[Mapping[str, Any]],
+    *,
+    policies: Sequence[tuple[str, int]],
+    profiles: Sequence[str],
+    deterministic_reference_gate: Mapping[str, Any],
+    contract: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Classify complete unaffected policies when TDS makes the factorial partial."""
+
+    keys = {
+        (
+            str(row.get("profile_id", "")),
+            str(row.get("arm_id", "")),
+            row.get("training_seed"),
+        )
+        for row in summaries
+    }
+    available = tuple(
+        (arm, seed)
+        for arm, seed in policies
+        if all((profile, arm, seed) in keys for profile in profiles)
+    )
+    reference = "local_neighbour_md_km2_kd2"
+    references_complete = all(
+        (profile, reference, None) in keys for profile in profiles
+    )
+    if not available or not references_complete:
+        return {
+            "classification": "NOT-TESTED",
+            "scientific_outcome": "NOT_TESTED",
+            "available_policy_count": len(available),
+            "excluded_policy_count": len(policies) - len(available),
+        }
+    selected = [
+        row
+        for row in summaries
+        if (
+            str(row.get("arm_id", "")),
+            row.get("training_seed"),
+        )
+        in set(available)
+        or (
+            str(row.get("arm_id", "")) == reference
+            and row.get("training_seed") is None
+            and str(row.get("profile_id", "")) in profiles
+        )
+    ]
+    primary = contract["parameter_card"]["threshold_sensitivity"]["primary"]
+    result = classify_learned_guard(
+        selected,
+        policies=available,
+        profiles=profiles,
+        deterministic_reference_gate=deterministic_reference_gate,
+        thresholds={
+            "maximum_common_harm": float(primary["frequency"]) - 1.0,
+            "maximum_action_stress_harm": float(primary["action"]) - 1.0,
+        },
+        round_id=ROUND_ID,
+        policy_label=ROUND_ID,
+        require_complete_policy_roster=False,
+    )
+    return {
+        **result,
+        "available_policy_count": len(available),
+        "excluded_policy_count": len(policies) - len(available),
     }
 
 
@@ -853,7 +979,9 @@ def canonical_observation_readback(records: Sequence[Mapping[str, Any]]) -> bool
                 [np.asarray(raw_map[str(index)], dtype=float) for index in range(4)]
             )
             canonical = np.asarray(step.get("canonical_observation", ()), dtype=float)
-            frequency = np.asarray(step.get("frequency_deviation_hz", ()), dtype=float)
+            frequency = np.asarray(
+                step.get("observation_frequency_deviation_hz", ()), dtype=float
+            )
             if raw.shape != (4, 7) or canonical.shape != (4, 7) or frequency.shape != (4,):
                 return False
             if not np.array_equal(canonical[:, 0], raw[:, 0]):
@@ -1308,23 +1436,6 @@ def _analyse_complete_artifacts(
             "tail_inference": {"status": "NOT-TESTED"},
             "available_case_analysis_performed": False,
         }
-    if tds_blocks:
-        status = (
-            "INTEGRITY-INVALID"
-            if any(row["status"] == "INTEGRITY-INVALID" for row in tds_blocks)
-            else "VALID-BOUNDED-GUARD-FAIL"
-        )
-        return {
-            "schema_version": 1,
-            "round": ROUND_ID,
-            "scope": scope,
-            "status": status,
-            "inventory": inventory,
-            "tds_blocks": tds_blocks,
-            "primary_inference": {"status": "ASSUMPTION-LIMITED"},
-            "tail_inference": {"status": "ASSUMPTION-LIMITED"},
-            "available_case_analysis_performed": False,
-        }
     profiles = tuple(
         str(row["profile_id"])
         for row in contracts["same"]["profiles"]
@@ -1332,6 +1443,58 @@ def _analyse_complete_artifacts(
     )
     seeds = tuple(int(seed) for seed in config["formal_seeds"])
     policies = tuple((str(arm), seed) for arm in config["arms"] for seed in seeds)
+    if tds_blocks:
+        if any(row["status"] == "INTEGRITY-INVALID" for row in tds_blocks):
+            return {
+                "schema_version": 1,
+                "round": ROUND_ID,
+                "scope": scope,
+                "status": "INTEGRITY-INVALID",
+                "inventory": inventory,
+                "tds_blocks": tds_blocks,
+                "primary_inference": {"status": "NOT-TESTED"},
+                "tail_inference": {"status": "NOT-TESTED"},
+                "available_case_analysis_performed": False,
+            }
+        same_references = [
+            row
+            for row in summaries_30
+            if row["arm_id"] in REFERENCE_ARMS and row["profile_id"] in profiles
+        ]
+        same_gate = classify_deterministic_tail(
+            same_references,
+            contract=contracts["same"],
+            expected_profiles=profiles,
+            bank_name="canary",
+            round_id=ROUND_ID,
+        )
+        available = classify_available_policy_qualification(
+            summaries_30,
+            policies=policies,
+            profiles=profiles,
+            deterministic_reference_gate=same_gate,
+            contract=config,
+        )
+        return {
+            "schema_version": 1,
+            "round": ROUND_ID,
+            "scope": scope,
+            "status": "ASSUMPTION-LIMITED",
+            "inventory": inventory,
+            "tds_blocks": tds_blocks,
+            "learner_qualification": available,
+            "source_inference": {
+                "status": "ASSUMPTION-LIMITED",
+                "material_effect_established": None,
+                "rejected_effects": [],
+            },
+            "primary_inference": {"status": "ASSUMPTION-LIMITED"},
+            "tail_inference": {"status": "ASSUMPTION-LIMITED"},
+            "same_bank_deterministic_gate": same_gate,
+            "available_case_analysis_performed": (
+                available.get("scientific_outcome") != "NOT_TESTED"
+            ),
+        }
     primary = factorial_inference(
         _factorial_rows(summaries_6),
         expected_seeds=seeds,

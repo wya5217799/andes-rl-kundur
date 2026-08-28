@@ -215,6 +215,8 @@ def test_objective_semantics_probe_binds_executed_action_paths() -> None:
     assert result["replay_actor_rows_are_canonical"] is True
     assert result["replay_critic_rows_are_canonical"] is True
     assert result["placebo_is_same_time_registered_row_permutation"] is True
+    assert result["every_source_tuple_changed"] is True
+    assert result["no_p_source_is_true_neighbour"] is True
     assert result["current_critic_uses_executed_action"] is True
     assert result["target_critic_uses_projected_action"] is True
     assert result["actor_critic_uses_projected_action"] is True
