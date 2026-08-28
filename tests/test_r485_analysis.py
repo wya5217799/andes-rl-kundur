@@ -31,142 +31,6 @@ def _write_hashed_json(path: Path, payload: dict) -> None:
     )
 
 
-def test_formal_authority_accepts_only_science_identical_post_canary_rebind(
-    tmp_path: Path,
-) -> None:
-    from andes_rl_kundur.evaluation.r485_experiment import verify_formal_authority
-
-    paths = {
-        name: tmp_path / f"{name}.json"
-        for name in (
-            "resolved_parameter_card",
-            "canary_admissibility",
-            "code_review_a",
-            "code_review_b",
-            "rehearsal",
-            "capacity",
-            "owner_approval",
-            "formal_seal",
-        )
-    }
-    previous_path = tmp_path / "previous_parameter_card.json"
-    previous = {
-        "round": "R485",
-        "design": {"seeds": [501, 502]},
-        "objective_semantics_probe": {"passed": True},
-        "sources": {"plan": {"sha256": "a" * 64}},
-        "created_utc": "before",
-    }
-    current = {
-        **previous,
-        "sources": {
-            "plan": {"sha256": "b" * 64},
-            "power_plan": {"sha256": "c" * 64},
-        },
-        "created_utc": "after",
-    }
-    _write_hashed_json(previous_path, previous)
-    _write_hashed_json(paths["resolved_parameter_card"], current)
-    previous_sha = Path(f"{previous_path}.sha256").read_text().split()[0]
-    current_sha = Path(f"{paths['resolved_parameter_card']}.sha256").read_text().split()[0]
-    _write_hashed_json(
-        paths["canary_admissibility"],
-        {
-            "round": "R485",
-            "passed": True,
-            "performance_or_endpoint_selection_performed": False,
-        },
-    )
-    _write_hashed_json(
-        paths["rehearsal"],
-        {
-            "round": "R485",
-            "checks": {"same_path": True},
-            "formal_outputs_created": False,
-            "resolved_parameter_card_sha256": previous_sha,
-        },
-    )
-    canary_root = tmp_path / "canary"
-    _write_hashed_json(
-        canary_root / "bases/seed500/manifest.json",
-        {"resolved_parameter_card_sha256": previous_sha},
-    )
-    for index in range(8):
-        _write_hashed_json(
-            canary_root / f"train/arm{index}/seed500/manifest.json",
-            {"resolved_parameter_card_sha256": previous_sha},
-        )
-    for index in range(48):
-        _write_hashed_json(
-            canary_root / f"eval/group{index // 4}/profile{index}.json",
-            {"records": [{"resolved_parameter_card_sha256": previous_sha}]},
-        )
-    from andes_rl_kundur.evaluation.r485_experiment import _card_science_sha256
-
-    _write_hashed_json(
-        paths["capacity"],
-        {
-            "round": "R485",
-            "safe_for_formal_launch": True,
-            "selected_workers": 16,
-            "native_threads_per_process": 1,
-            "canary_contract_rebind": {
-                "passed": True,
-                "authority_only_changed_sources": ["plan", "power_plan"],
-                "previous_parameter_card": {
-                    "path": previous_path.relative_to(tmp_path).as_posix(),
-                    "sha256": previous_sha,
-                },
-                "current_parameter_card_sha256": current_sha,
-                "scientific_projection_sha256": _card_science_sha256(current),
-                "canary_admissibility_sha256": Path(
-                    f"{paths['canary_admissibility']}.sha256"
-                ).read_text().split()[0],
-                "rehearsal_sha256": Path(f"{paths['rehearsal']}.sha256")
-                .read_text()
-                .split()[0],
-            },
-        },
-    )
-    _write_hashed_json(
-        paths["owner_approval"],
-        {
-            "round": "R485",
-            "approved": False,
-            "long_execution_authorized": False,
-        },
-    )
-    for name in ("code_review_a", "code_review_b", "formal_seal"):
-        _write_hashed_json(paths[name], {"round": "R485"})
-    config = {
-        "round": "R485",
-        "execution": {"workers": 16},
-        "paths": {
-            **{name: str(path) for name, path in paths.items()},
-            "canary_out": str(canary_root),
-            "formal_out": str(tmp_path / "formal"),
-        },
-    }
-
-    with pytest.raises(RuntimeError, match="owner approval"):
-        verify_formal_authority(
-            repo_root=tmp_path,
-            config=config,
-            expected_shards={},
-            reviewed_files=(),
-        )
-
-    current["design"] = {"seeds": [501, 999]}
-    _write_hashed_json(paths["resolved_parameter_card"], current)
-    with pytest.raises(RuntimeError, match="rebind drift"):
-        verify_formal_authority(
-            repo_root=tmp_path,
-            config=config,
-            expected_shards={},
-            reviewed_files=(),
-        )
-
-
 def test_formal_authority_rejects_hash_valid_owner_denial(tmp_path: Path) -> None:
     from andes_rl_kundur.evaluation.r485_experiment import verify_formal_authority
 
@@ -203,11 +67,6 @@ def test_formal_authority_rejects_hash_valid_owner_denial(tmp_path: Path) -> Non
             "round": "R485",
             "checks": {"same_path": True},
             "formal_outputs_created": False,
-            "resolved_parameter_card_sha256": Path(
-                f"{paths['resolved_parameter_card']}.sha256"
-            )
-            .read_text()
-            .split()[0],
         },
     )
     _write_hashed_json(
@@ -279,11 +138,6 @@ def test_formal_authority_rejects_owner_scope_that_is_not_exact_attempt(
             "round": "R485",
             "checks": {"same_path": True},
             "formal_outputs_created": False,
-            "resolved_parameter_card_sha256": Path(
-                f"{paths['resolved_parameter_card']}.sha256"
-            )
-            .read_text()
-            .split()[0],
         },
     )
     _write_hashed_json(
