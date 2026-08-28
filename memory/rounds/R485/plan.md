@@ -210,15 +210,19 @@ scientific kernels：V4 env/M/D convention、executed-action/source-factorial
 SAC、source routing、reward formula、factorial statistics、endpoint/action
 guards、artifact/seal helpers。历史 checkpoint/result 不随代码复用。
 
-R485 新实现限于：一个 thin round adapter、一个 config、1--2 个 focused
-test files，以及本轮必要的 seal/review/shard artifacts。adapter 只拥有
+R485 新实现限于：一个 thin round adapter、一个 R485-only analysis/authority
+helper、一个 config、2 个 focused test files，以及本轮必要的
+seal/review/shard artifacts。adapter 只拥有
 round identity、fixed roster、43,200-step cell loop、30-s evaluation binding、
-canonical observation wrapper 和 create-only output；现有
+canonical observation wrapper 和 create-only output；helper 只拥有 exact
+roster/lineage validation、learner-admissibility、resolved TDS reproduction、
+6/30 analysis、frozen statistics 与 formal authority，不形成通用 framework。现有
 `adapt_v4_observations_to_physical()` 是唯一 50->60 observation transform，
 不得再写第二套转换器。
 
-若避免复制 guard 代码确有必要，只允许一次小型、向后兼容的 R484 analysis
-参数化；其默认 R484 行为与 focused regression 必须保持。以下任一出现即暂停
+为避免复制 guard/authority/I/O，只允许向后兼容地参数化 R484 round label、
+公开既有 U2 authority reader，并复用既有 race-safe artifact I/O；默认旧行为与
+focused regression 必须保持。以下任一出现即暂停
 实现并回报 owner，不得顺势扩张：新 production code 明显超过 800 lines、改动
 超过两个 existing scientific-kernel modules、复制整个旧 runner、继续动态套娃
 旧 round、或引入通用 runner/DAG/plugin/scheduler abstraction。600--800 lines
@@ -285,12 +289,14 @@ policy), never by visual attractiveness.
 
 ## Formal launch contract
 
-- formal_entry: `/home/wya/andes_venv/bin/python scripts/andes_scratch.py scripts/run_r485_60hz_source_factorial.py --config memory/rounds/R485/config.json shard <sealed-shard-id>`
-- rehearsal_command: `TBD_R485_IMPLEMENTATION_BLOCKER`
-- rehearsal_scope: same-pre-attempt-path; no scientific trajectory
-- rehearsal_checks: source_hash,parent_hash,installed_package,installed_case,output_absence
-- result_root: `results/research_loop/r485_60hz_source_factorial/`
-- capacity_evidence: `TBD_R485_MEASURED_CAPACITY_BLOCKER`
+- formal_entry: sequentially run the sealed `donor_shards.json`, then
+  `train_shards.json`, then `eval_shards.json` with
+  `/home/wya/andes_venv/bin/python scripts/soft_spot_shard_driver.py --runner scripts/run_r485_60hz_source_factorial.py --shards <sealed-stage-list> --workers 16 --round R485`; no `--resume`
+- rehearsal_command: `/home/wya/andes_venv/bin/python scripts/andes_scratch.py scripts/run_r485_60hz_source_factorial.py rehearse`
+- rehearsal_scope: validate one canary zero-action six-scenario 150-step profile through the production trace/schema path; no formal output
+- rehearsal_checks: source_hash,parent_hash,installed_package,installed_case,output_absence,shard_roster,trajectory_count,representative_schema
+- result_root: `results/research_loop/r485_60hz_source_factorial/<sealed-attempt-id>/`
+- capacity_evidence: `memory/rounds/R485/capacity_evidence.json`
 - host_process_budget: `TBD_R485_MEASURED_CAPACITY_BLOCKER`
 - wsl_python_processes: 17
 - native_threads_per_process: 1
@@ -322,8 +328,10 @@ may infer that plan approval equals launch approval.
 - Preserve the manuscript/review/figure/ARTIFACTS batch frozen at commit
   `692766f`; R485 implementation must not amend, revert or rewrite that batch.
 - R485 implementation is limited to `scripts/run_r485_60hz_source_factorial.py`,
-  `memory/rounds/R485/config.json`, the two R485 focused test files, and the
-  minimal fail-closed placeholder repair in `memory/tools/round_preflight.py`.
+  `src/andes_rl_kundur/evaluation/r485_experiment.py`,
+  `memory/rounds/R485/config.json`, the two R485 focused test files, the
+  minimal fail-closed placeholder repair in `memory/tools/round_preflight.py`,
+  and the narrowly compatible reuse edits to R484/U2 analysis authority.
 - No new framework, repository cleanup, runner consolidation or unrelated
   governance repair. The workspace-freeze governance findings were cleared
   before this plan's commit and do not authorise further R485 infrastructure.

@@ -79,6 +79,9 @@ def _read_hashed_json(path: Path) -> dict[str, Any]:
     return payload
 
 
+read_hashed_json = _read_hashed_json
+
+
 def _repo_relative(path: Path, repo_root: Path) -> str:
     resolved = path.resolve()
     root = repo_root.resolve()

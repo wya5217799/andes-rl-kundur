@@ -64,6 +64,8 @@
       "null_boundary": "theta_HL <= log(1.10)",
       "test": "exact_one_sided_wilcoxon_signed_rank",
       "multiplicity": "Holm_family_of_four",
+      "symmetry_diagnostic": "boundary_centered_standardized_third_moment",
+      "symmetry_absolute_threshold": 1.0,
       "ties_zeros_or_symmetry_failure": "ASSUMPTION-LIMITED",
       "fallback": null,
       "primary_horizon_seconds": 6.0,
@@ -106,8 +108,9 @@
     "formal_seal": "memory/rounds/R485/formal_seal.json",
     "formal_out": "results/research_loop/r485_60hz_source_factorial",
     "canary_out": "results/research_loop/r485_60hz_source_factorial_canary",
-    "train_shards": "tmp/andes/r485_train_shards.json",
-    "eval_shards": "tmp/andes/r485_eval_shards.json"
+    "donor_shards": "memory/rounds/R485/donor_shards.json",
+    "train_shards": "memory/rounds/R485/train_shards.json",
+    "eval_shards": "memory/rounds/R485/eval_shards.json"
   },
   "source_files": {
     "source_factorial_sac": "src/andes_rl_kundur/agents/source_factorial_sac.py",
@@ -130,7 +133,17 @@
     "scratch_launcher": "scripts/andes_scratch.py",
     "shard_driver": "scripts/soft_spot_shard_driver.py",
     "round_preflight": "memory/tools/round_preflight.py",
-    "round_preflight_tests": "memory/tools/tests/test_round_preflight.py"
+    "round_preflight_tests": "memory/tools/tests/test_round_preflight.py",
+    "artifact_io": "memory/tools/artifact_io.py",
+    "artifact_io_tests": "memory/tools/tests/test_artifact_io.py",
+    "r485_experiment": "src/andes_rl_kundur/evaluation/r485_experiment.py",
+    "authority_kernel": "src/andes_rl_kundur/evaluation/u2_confirmatory.py",
+    "reward_reference": "scripts/run_r438_sac_message_channels.py"
+  },
+  "parent_files": {
+    "r481_contract": "memory/rounds/R481/contract.json",
+    "r481_formal_analysis": "results/research_loop/r481_direct_md/formal_analysis.json",
+    "r481_formal_seal": "memory/rounds/R481/formal_seal.json"
   },
   "execution": {
     "workers": 16,

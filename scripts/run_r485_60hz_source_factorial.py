@@ -5,13 +5,14 @@ artifacts, and the training/evaluation bindings.  Scientific kernels remain in
 the package modules imported below.  Formal execution is seal- and owner-gated.
 """
 
+# ruff: noqa: E402, I001
+
 from __future__ import annotations
 
 import argparse
 import copy
 import hashlib
 import json
-import math
 import os
 import random
 import sys
@@ -20,10 +21,23 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+SCIENTIFIC_ENVIRONMENT = {
+    "N_SUBSTEPS": "5",
+    "DISABLE_TOGGLER": "1",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1",
+}
+for _name, _value in SCIENTIFIC_ENVIRONMENT.items():
+    os.environ[_name] = _value
+
 import numpy as np
 import torch
 
 ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 if str(ROOT / "src") not in sys.path:
     sys.path.insert(0, str(ROOT / "src"))
 
@@ -37,6 +51,21 @@ from andes_rl_kundur.control.per_vsg_md import (  # noqa: E402
 from andes_rl_kundur.evaluation.cd_matd3_canary import (  # noqa: E402
     build_contract as build_physical_contract,
 )
+from andes_rl_kundur.evaluation.r485_experiment import (  # noqa: E402
+    analyse_result_root,
+    attempt_output_root,
+    build_canary_admissibility,
+    build_rehearsal_evidence,
+    donor_marginal_audit,
+    evaluate_trajectory as _evaluate_trajectory,
+    evaluation_contracts,
+    learner_metrics as _learner_metrics,
+    registered_shards,
+    resolve_tds,
+    run_objective_semantics_probe,
+    verify_formal_authority,
+)
+from memory.tools.artifact_io import write_new_json  # noqa: E402
 
 ROUND_ID = "R485"
 CONFIG_PATH = ROOT / "memory/rounds/R485/config.json"
@@ -196,53 +225,6 @@ def step_rewards(
     }
 
 
-def extract_prefix(record: Mapping[str, Any]) -> dict[str, Any]:
-    steps = record.get("steps")
-    if not isinstance(steps, list) or len(steps) != 150:
-        raise ValueError("R485 prefix requires one complete 150-step trace")
-    result = copy.deepcopy(dict(record))
-    result["steps"] = copy.deepcopy(steps[:30])
-    result["completed_steps"] = 30
-    result["completed"] = True
-    result["derived_from_30s_trace"] = True
-    result["source_trace_steps"] = 150
-    return result
-
-
-def classify_tds(kind: str, *, reproducible: bool) -> str:
-    if kind != "tds_divergence":
-        return "INTEGRITY-INVALID"
-    return "COMPLETE-GUARD-FAIL" if reproducible else "REPRODUCTION-REQUIRED"
-
-
-def assess_learner_admissibility(metrics: Mapping[str, Any]) -> dict[str, Any]:
-    """Outcome-blind gate: numerical learning health, never endpoint quality."""
-
-    failures: list[str] = []
-    checks = {
-        "weights_changed": metrics.get("weights_changed") is True,
-        "update_count": int(metrics.get("update_count", -1)) == 43_200 - 255,
-        "all_finite": metrics.get("all_finite") is True,
-        "actor_grad_nonzero": float(metrics.get("actor_grad_nonzero_fraction", 0.0)) >= 0.99,
-        "reward_variation": float(metrics.get("reward_std", 0.0)) > 1.0e-8,
-        "td_target_variation": float(metrics.get("td_target_std", 0.0)) > 1.0e-8,
-        "policy_state_sensitivity": float(metrics.get("policy_state_sensitivity", 0.0)) > 1.0e-6,
-        "executed_action_variation": float(metrics.get("executed_action_std", 0.0)) > 1.0e-6,
-        "not_jointly_saturated": float(metrics.get("action_saturation_fraction", 1.0)) < 0.999,
-        "log_std_not_frozen": float(metrics.get("log_std_at_lower_bound_fraction", 1.0)) < 0.999,
-        "routing_oracle": metrics.get("routing_oracle_passed") is True,
-        "executed_action_bellman": metrics.get("executed_action_bellman_passed") is True,
-    }
-    failures.extend(name for name, passed in checks.items() if not passed)
-    return {
-        "passed": not failures,
-        "checks": checks,
-        "failures": failures,
-        "alpha_at_floor": metrics.get("alpha_at_floor") is True,
-        "alpha_floor_alone_is_failure": False,
-    }
-
-
 def _tensor_hash(agent: SourceFactorialSACAgent) -> str:
     digest = hashlib.sha256()
     for group in (agent.actor, agent.critic, agent.critic_target):
@@ -271,56 +253,12 @@ def _new_member() -> SourceFactorialSACAgent:
 
 
 def objective_semantics_probe() -> dict[str, Any]:
-    """Cheap independent probe for the only Bellman/data-flow seam R485 changes."""
-
-    np.random.seed(485)
-    torch.manual_seed(485)
-    member = _new_member()
-    before = _tensor_hash(member)
-    first_actor = first_critic = None
-    for index in range(member.batch_size):
-        raw_observation = {
-            actor: np.asarray(
-                [actor + index / 1000.0, 0.01, -0.02, 0.03, -0.04, 0.05, -0.06],
-                dtype=np.float32,
-            )
-            for actor in range(4)
-        }
-        canonical = canonical_rows(raw_observation)
-        donor = np.roll(canonical, 2, axis=0)
-        actor_row = source_rows(canonical, donor, "N")[0]
-        critic_row = source_rows(canonical, donor, "P")[0]
-        previous = np.asarray([0.05, -0.05], dtype=np.float32)
-        raw_action = np.asarray([0.4, -0.4], dtype=np.float32)
-        executed = member.execute_action(previous, raw_action)
-        member.store_source_transition(
-            actor_row,
-            critic_row,
-            previous,
-            raw_action,
-            executed,
-            -0.1 - index / 1000.0,
-            actor_row + 0.001,
-            critic_row - 0.001,
-            False,
-        )
-        if index == 0:
-            first_actor, first_critic = actor_row.copy(), critic_row.copy()
-    batch = member.buffer.sample(member.batch_size, "cpu", indices=np.arange(member.batch_size))
-    torch.manual_seed(486)
-    paths = member.source_loss_inputs(batch, deterministic_target=True)
-    diagnostics = member.update()
-    result = {
-        "replay_actor_rows_are_canonical": bool(np.array_equal(member.buffer.actor_obs[0], first_actor)),
-        "replay_critic_rows_are_canonical": bool(np.array_equal(member.buffer.critic_obs[0], first_critic)),
-        "current_critic_uses_executed_action": bool(torch.equal(paths["critic_current_action_input"], batch["executed_actions"])),
-        "target_critic_uses_projected_action": bool(torch.equal(paths["critic_target_action_input"], paths["target_projected_action"])),
-        "actor_critic_uses_projected_action": bool(torch.equal(paths["actor_critic_action_input"], paths["actor_projected_action"])),
-        "weights_changed": _tensor_hash(member) != before,
-        "update_finite": bool(diagnostics and all(math.isfinite(value) for value in diagnostics.values())),
-    }
-    result["passed"] = all(result.values())
-    return result
+    return run_objective_semantics_probe(
+        new_member=_new_member,
+        tensor_hash=_tensor_hash,
+        canonicalize=canonical_rows,
+        route_source=source_rows,
+    )
 
 
 def _hash_valid(path: Path) -> bool:
@@ -360,14 +298,27 @@ def require_authority(config: Mapping[str, Any], *, scope: str) -> None:
         raise RuntimeError(f"{scope} authority failed: {errors}")
     card_path = ROOT / str(config["paths"]["resolved_parameter_card"])
     card = json.loads(card_path.read_text(encoding="utf-8"))
-    for name, row in card.get("sources", {}).items():
-        source = ROOT / str(row.get("path", ""))
-        if not source.is_file() or _sha256(source) != row.get("sha256"):
-            raise RuntimeError(f"{scope} authority failed: resolved source drift: {name}")
+    for group in ("sources", "parents"):
+        rows = card.get(group)
+        if not isinstance(rows, dict) or not rows:
+            raise RuntimeError(f"{scope} authority failed: resolved {group} missing")
+        for name, row in rows.items():
+            source = ROOT / str(row.get("path", ""))
+            if not source.is_file() or _sha256(source) != row.get("sha256"):
+                raise RuntimeError(f"{scope} authority failed: resolved {group} drift: {name}")
     installed_case = card.get("installed_case") or {}
     case_path = Path(str(installed_case.get("path", "")))
     if not case_path.is_file() or _sha256(case_path) != installed_case.get("sha256"):
         raise RuntimeError(f"{scope} authority failed: installed case drift")
+    if scope == "formal":
+        verify_formal_authority(
+            repo_root=ROOT,
+            config=config,
+            expected_shards=registered_shards(config, scope="formal"),
+            reviewed_files=tuple(
+                ROOT / str(row["path"]) for row in card["sources"].values()
+            ),
+        )
 
 
 def build_parameter_card() -> dict[str, Any]:
@@ -377,9 +328,11 @@ def build_parameter_card() -> dict[str, Any]:
     card.update({
         "schema_version": 1,
         "round": ROUND_ID,
+        "scientific_environment": dict(SCIENTIFIC_ENVIRONMENT),
         "design": {"arms": list(ARM_IDS), "formal_seeds": list(FORMAL_SEEDS), "canary_seed": CANARY_SEED, "interaction_steps": 43_200, "evaluation_steps": 150, "prefix_steps": 30, "dt_seconds": 0.2},
         "action": {"normalized_bounds": [-1.0, 1.0], "slew_limit": float(physical["action_slew_limit"]), "decoder": copy.deepcopy(physical["decoder"])},
         "profiles": copy.deepcopy(physical["profiles"]),
+        "evaluation_contracts": evaluation_contracts(),
         "training_schedule": copy.deepcopy(physical["training_contract"]["development_scenario_order"]),
     })
     return card
@@ -390,22 +343,15 @@ def _sha256(path: Path) -> str:
 
 
 def _write_new_json(path: Path, payload: Mapping[str, Any]) -> str:
-    if path.exists() or Path(f"{path}.sha256").exists():
-        raise FileExistsError(f"create-only artifact exists: {path}")
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(
-        json.dumps(payload, sort_keys=True, separators=(",", ":"), allow_nan=False) + "\n",
-        encoding="utf-8",
-    )
-    digest = _sha256(path)
-    Path(f"{path}.sha256").write_text(f"{digest}  {path.name}\n", encoding="ascii")
-    return digest
+    return write_new_json(path, payload)
 
 
 def resolve_parameter_card(config: Mapping[str, Any]) -> str:
+    _assert_physical_runtime()
     import andes
 
     sources = {name: ROOT / path for name, path in config["source_files"].items()}
+    parents = {name: ROOT / path for name, path in config["parent_files"].items()}
     sources.update(runner=Path(__file__).resolve(), config=Path(config["_path"]), plan=ROOT / str(config["paths"]["plan"]))
     probe = _new_member()
     optimizer = probe.actor_optimizer.param_groups[0]
@@ -427,11 +373,25 @@ def resolve_parameter_card(config: Mapping[str, Any]) -> str:
         name: {"path": path.relative_to(ROOT).as_posix(), "sha256": _sha256(path)}
         for name, path in sorted(sources.items())
     }
+    card["parents"] = {
+        name: {"path": path.relative_to(ROOT).as_posix(), "sha256": _sha256(path)}
+        for name, path in sorted(parents.items())
+    }
     card["objective_semantics_probe"] = objective_semantics_probe()
     card["created_utc"] = datetime.now(UTC).isoformat()
     if card["objective_semantics_probe"]["passed"] is not True:
         raise RuntimeError("R485 objective semantics probe failed")
     return _write_new_json(ROOT / str(config["paths"]["resolved_parameter_card"]), card)
+
+
+def write_rosters(config: Mapping[str, Any]) -> dict[str, str]:
+    shards = registered_shards(config, scope="formal")
+    return {
+        name: _write_new_json(
+            ROOT / str(config["paths"][f"{name}_shards"]), list(values)
+        )
+        for name, values in shards.items()
+    }
 
 
 class FactorialPolicy:
@@ -478,6 +438,13 @@ def _seed_all(seed: int) -> None:
 
 
 def _assert_physical_runtime() -> None:
+    drift = {
+        name: os.environ.get(name)
+        for name, expected in SCIENTIFIC_ENVIRONMENT.items()
+        if os.environ.get(name) != expected
+    }
+    if drift:
+        raise RuntimeError(f"R485 scientific environment drift: {drift}")
     if os.name != "posix" or Path.cwd().resolve() == ROOT.resolve():
         raise RuntimeError("R485 physical work is WSL-only through scripts/andes_scratch.py")
     torch.set_num_threads(1)
@@ -501,17 +468,13 @@ def _build_env(profile: Mapping[str, Any], *, steps: int) -> Any:
         14: {"p0": float(profile["steady_loads"]["PQ_Bus14"]), "q0": 0.0},
         15: {"p0": float(profile["steady_loads"]["PQ_Bus15"]), "q0": 0.0},
     }
-    env.seed(int(build_physical_contract()["bank_seed"]))
+    env.seed(int(profile["environment_seed"]))
     env.STEPS_PER_EPISODE = steps
     return env
 
 
 def _scope_root(config: Mapping[str, Any], scope: str) -> Path:
-    if scope == "canary":
-        return Path(config["_canary_out"])
-    if scope == "formal":
-        return Path(config["_formal_out"])
-    raise ValueError("scope must be canary or formal")
+    return attempt_output_root(ROOT, config, scope=scope)
 
 
 def generate_donor(config: Mapping[str, Any], *, scope: str, seed: int) -> str:
@@ -521,11 +484,12 @@ def generate_donor(config: Mapping[str, Any], *, scope: str, seed: int) -> str:
     if seed not in allowed:
         raise ValueError("unregistered donor seed")
     root = _scope_root(config, scope)
+    card_sha = _sha256(ROOT / str(config["paths"]["resolved_parameter_card"]))
     folder = root / "donors" / f"seed{seed}"
     if folder.exists():
         raise FileExistsError(f"donor output exists: {folder}")
     folder.mkdir(parents=True)
-    contract = build_physical_contract()
+    contract = evaluation_contracts()["same"]
     split_rows: dict[str, Any] = {}
     rng = np.random.default_rng(100_000 + seed)
     for split in ("development", "evaluation"):
@@ -554,13 +518,24 @@ def generate_donor(config: Mapping[str, Any], *, scope: str, seed: int) -> str:
             finally:
                 env.close()
         path = folder / f"{split}.npz"
+        audit = donor_marginal_audit(trajectories)
+        if not all(
+            audit[key]
+            for key in (
+                "pi_fixed_point_free",
+                "placebo_nodes_are_non_neighbours",
+                "every_semantic_donor_changed",
+                "slot_feature_scenario_time_pools_equal",
+            )
+        ):
+            raise RuntimeError(f"donor marginal audit failed: {audit}")
         np.savez_compressed(path, trajectories=trajectories, scenario_ids=np.asarray([str(row[1]["scenario_id"]) for row in scenarios]))
-        split_rows[split] = {"path": path.relative_to(ROOT).as_posix(), "sha256": _sha256(path), "shape": list(trajectories.shape)}
+        split_rows[split] = {"path": path.relative_to(ROOT).as_posix(), "sha256": _sha256(path), "shape": list(trajectories.shape), "marginal_audit": audit}
     _seed_all(seed)
     base = FactorialPolicy(ARM_IDS[0]).export()
     base_path = folder / "base_state.pt"
     torch.save({"kind": "r485-common-base", "seed": seed, "members": base}, str(base_path))
-    return _write_new_json(folder / "manifest.json", {"schema_version": 1, "round": ROUND_ID, "scope": scope, "seed": seed, "base_state": {"path": base_path.relative_to(ROOT).as_posix(), "sha256": _sha256(base_path)}, "splits": split_rows})
+    return _write_new_json(folder / "manifest.json", {"schema_version": 1, "round": ROUND_ID, "scope": scope, "seed": seed, "resolved_parameter_card_sha256": card_sha, "base_state": {"path": base_path.relative_to(ROOT).as_posix(), "sha256": _sha256(base_path)}, "splits": split_rows})
 
 
 def _donor_bundle(config: Mapping[str, Any], scope: str, seed: int, split: str) -> tuple[dict[str, Any], np.ndarray, dict[str, int]]:
@@ -570,7 +545,21 @@ def _donor_bundle(config: Mapping[str, Any], scope: str, seed: int, split: str) 
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     if manifest.get("round") != ROUND_ID or manifest.get("scope") != scope or int(manifest.get("seed", -1)) != seed:
         raise RuntimeError("donor identity mismatch")
+    card_path = ROOT / str(config["paths"]["resolved_parameter_card"])
+    if manifest.get("resolved_parameter_card_sha256") != _sha256(card_path):
+        raise RuntimeError("donor parameter-card lineage mismatch")
     entry = manifest["splits"][split]
+    audit = entry.get("marginal_audit", {})
+    if not all(
+        audit.get(key) is True
+        for key in (
+            "pi_fixed_point_free",
+            "placebo_nodes_are_non_neighbours",
+            "every_semantic_donor_changed",
+            "slot_feature_scenario_time_pools_equal",
+        )
+    ):
+        raise RuntimeError("donor marginal audit is missing or failed")
     path = ROOT / entry["path"]
     if _sha256(path) != entry["sha256"]:
         raise RuntimeError("donor bank hash mismatch")
@@ -586,42 +575,6 @@ def _save_policy(path: Path, policy: FactorialPolicy, *, scope: str, arm: str, s
     digest = _sha256(path)
     Path(f"{path}.sha256").write_text(f"{digest}  {path.name}\n", encoding="ascii")
     return digest
-
-
-def _learner_metrics(policy: FactorialPolicy, initial_hashes: list[str], curves: dict[str, list[float]], rewards: list[np.ndarray], actions: list[np.ndarray], update_count: int) -> dict[str, Any]:
-    td_targets: list[np.ndarray] = []
-    sensitivities: list[float] = []
-    lower = total = 0
-    for member in policy.members:
-        batch = member.buffer.sample(256, "cpu", indices=np.arange(256))
-        paths = member.source_loss_inputs(batch, deterministic_target=True)
-        td_targets.append(paths["td_target"].detach().cpu().numpy())
-        with torch.no_grad():
-            mean, log_std = member.actor(paths["actor_state"])
-            deterministic = torch.tanh(mean).cpu().numpy()
-            log_std_np = log_std.cpu().numpy()
-        sensitivities.append(float(np.std(deterministic, axis=0).mean()))
-        lower += int(np.count_nonzero(log_std_np <= -20.0 + 1.0e-6))
-        total += int(log_std_np.size)
-    action_array = np.asarray(actions, dtype=float)
-    reward_array = np.asarray(rewards, dtype=float)
-    grad = np.asarray(curves["actor_grad_norm"], dtype=float)
-    metrics = {
-        "weights_changed": all(_tensor_hash(member) != initial_hashes[index] for index, member in enumerate(policy.members)),
-        "update_count": update_count,
-        "all_finite": bool(np.all(np.isfinite(action_array)) and np.all(np.isfinite(reward_array)) and all(np.all(np.isfinite(values)) for values in curves.values())),
-        "actor_grad_nonzero_fraction": float(np.mean(grad > 1.0e-12)),
-        "reward_std": float(np.std(reward_array)),
-        "td_target_std": float(np.std(np.concatenate(td_targets))),
-        "policy_state_sensitivity": min(sensitivities),
-        "executed_action_std": min(float(np.std(action_array[:, index])) for index in range(4)),
-        "action_saturation_fraction": float(np.mean(np.abs(action_array) >= 0.999)),
-        "log_std_at_lower_bound_fraction": lower / total,
-        "alpha_at_floor": all(math.isclose(float(member.alpha.detach()), 0.005, abs_tol=1.0e-9) for member in policy.members),
-        "routing_oracle_passed": True,
-        "executed_action_bellman_passed": True,
-    }
-    return {**metrics, "assessment": assess_learner_admissibility(metrics)}
 
 
 def train_cell(config: Mapping[str, Any], *, scope: str, arm: str, seed: int) -> str:
@@ -641,7 +594,7 @@ def train_cell(config: Mapping[str, Any], *, scope: str, arm: str, seed: int) ->
     for member, state in zip(policy.members, base["members"], strict=True):
         member.import_state(state)
     initial = [_tensor_hash(member) for member in policy.members]
-    contract = build_physical_contract()
+    contract = evaluation_contracts()["same"]
     profiles = [row for row in contract["profiles"] if row["split"] == "development"]
     envs = {str(row["profile_id"]): _build_env(row, steps=30) for row in profiles}
     scenarios = {str(s["scenario_id"]): (p, s) for p in profiles for s in p["scenarios"]}
@@ -684,24 +637,38 @@ def train_cell(config: Mapping[str, Any], *, scope: str, arm: str, seed: int) ->
                 if info["tds_failed"]:
                     tds_failures += 1
                     break
+                if done and time_index != 29:
+                    raise RuntimeError(
+                        f"premature training terminal at step {time_index} of 30"
+                    )
+                if steps >= 43_200:
+                    break
             episodes += 1
     finally:
         for env in envs.values():
             env.close()
     final_sha = _save_policy(folder / "final.pt", policy, scope=scope, arm=arm, seed=seed, stage="final")
-    metrics = _learner_metrics(policy, initial, curves, rewards_seen, actions_seen, update_count)
+    card_path = ROOT / str(config["paths"]["resolved_parameter_card"])
+    card = json.loads(card_path.read_text(encoding="utf-8"))
+    metrics = _learner_metrics(
+        policy,
+        initial,
+        curves,
+        rewards_seen,
+        actions_seen,
+        update_count,
+        card.get("objective_semantics_probe", {}),
+        _tensor_hash,
+    )
     np.savez_compressed(folder / "curves.npz", **{key: np.asarray(value) for key, value in curves.items()})
-    return _write_new_json(folder / "manifest.json", {"schema_version": 1, "round": ROUND_ID, "scope": scope, "arm_id": arm, "factors": factors, "seed": seed, "interaction_steps": steps, "episodes": episodes, "tds_failed_episodes": tds_failures, "half_checkpoint_sha256": half_sha, "final_checkpoint_sha256": final_sha, "curves_sha256": _sha256(folder / "curves.npz"), "learner_admissibility": metrics, "valid": steps == 43_200 and half_sha is not None and metrics["assessment"]["passed"]})
+    donor_manifest_path = _scope_root(config, scope) / "donors" / f"seed{seed}" / "manifest.json"
+    return _write_new_json(folder / "manifest.json", {"schema_version": 1, "round": ROUND_ID, "scope": scope, "arm_id": arm, "factors": factors, "seed": seed, "resolved_parameter_card_sha256": _sha256(card_path), "donor_manifest_sha256": _sha256(donor_manifest_path), "base_state_sha256": donor_manifest["base_state"]["sha256"], "development_donor_sha256": donor_manifest["splits"]["development"]["sha256"], "interaction_steps": steps, "episodes": episodes, "tds_failed_episodes": tds_failures, "half_checkpoint_sha256": half_sha, "final_checkpoint_sha256": final_sha, "curves_sha256": _sha256(folder / "curves.npz"), "learner_admissibility": metrics, "valid": steps == 43_200 and half_sha is not None and metrics["assessment"]["passed"]})
 
 
 def _profiles(bank: str) -> list[dict[str, Any]]:
-    if bank == "same":
-        contract = build_physical_contract()
-    elif bank == "fresh":
-        from andes_rl_kundur.evaluation.r481_fresh_profiles import build_contract
-        contract = build_contract()
-    else:
+    if bank not in {"same", "fresh"}:
         raise ValueError("bank must be same or fresh")
+    contract = evaluation_contracts()[bank]
     return [row for row in contract["profiles"] if row["split"] == "evaluation"]
 
 
@@ -712,7 +679,11 @@ def evaluate(config: Mapping[str, Any], *, scope: str, bank: str, arm: str, seed
     if learned != (seed is not None) or learned and bank != "same":
         raise ValueError("learned evaluation requires a seed and the same bank")
     policy = FactorialPolicy(arm) if learned else None
-    training_sha = checkpoint_sha = None
+    factors = None
+    donors = None
+    donor_index = None
+    controller = None
+    training_sha = checkpoint_sha = donor_manifest_sha = evaluation_donor_sha = None
     if learned:
         manifest_path = _scope_root(config, scope) / "train" / arm / f"seed{seed}" / "manifest.json"
         if not _hash_valid(manifest_path):
@@ -720,13 +691,21 @@ def evaluate(config: Mapping[str, Any], *, scope: str, bank: str, arm: str, seed
         training = json.loads(manifest_path.read_text(encoding="utf-8"))
         if training.get("valid") is not True:
             raise RuntimeError("training cell is not learner-admissible")
+        card_sha = _sha256(ROOT / str(config["paths"]["resolved_parameter_card"]))
+        if training.get("resolved_parameter_card_sha256") != card_sha:
+            raise RuntimeError("training parameter-card lineage mismatch")
         checkpoint = manifest_path.with_name("final.pt")
         checkpoint_sha = _sha256(checkpoint)
         if checkpoint_sha != training["final_checkpoint_sha256"]:
             raise RuntimeError("training checkpoint hash mismatch")
         policy.load(checkpoint)
         training_sha = _sha256(manifest_path)
-        _donor_manifest, donors, donor_index = _donor_bundle(config, scope, int(seed), "evaluation")
+        donor_manifest, donors, donor_index = _donor_bundle(config, scope, int(seed), "evaluation")
+        donor_manifest_path = _scope_root(config, scope) / "donors" / f"seed{seed}" / "manifest.json"
+        donor_manifest_sha = _sha256(donor_manifest_path)
+        evaluation_donor_sha = donor_manifest["splits"]["evaluation"]["sha256"]
+        if training.get("donor_manifest_sha256") != donor_manifest_sha:
+            raise RuntimeError("training donor-manifest lineage mismatch")
         factors = arm_factors(arm)
     else:
         from andes_rl_kundur.control.per_vsg_md import (
@@ -741,53 +720,55 @@ def evaluate(config: Mapping[str, Any], *, scope: str, bank: str, arm: str, seed
             raise ValueError("unknown deterministic reference")
     hashes: list[str] = []
     card_sha = _sha256(ROOT / str(config["paths"]["resolved_parameter_card"]))
-    physical = build_physical_contract()
-    transform = np.asarray(physical["differential_transform"], dtype=float)
+    bank_contract = evaluation_contracts()[bank]
+    transform = np.asarray(bank_contract["differential_transform"], dtype=float)
     for profile in _profiles(bank):
         env = _build_env(profile, steps=150)
         records: list[dict[str, Any]] = []
         try:
             for scenario_index, scenario in enumerate(profile["scenarios"]):
-                observation = env.reset(delta_u=dict(scenario["delta_u"]))
-                positions = list(env._vsg_pos)
-                identity = {
-                    "n_agents": int(env.N_AGENTS),
-                    "vsg_idx": [str(value) for value in env.vsg_idx],
-                    "vsg_buses": [int(env.ss.GENCLS.bus.v[position]) for position in positions],
-                    "obs_dim": int(env.OBS_DIM),
-                    "baseline_m0": [float(value) for value in profile["baseline_m0"]],
-                    "baseline_d0": [float(value) for value in profile["baseline_d0"]],
-                    "control_nominal_frequency_hz": float(env.FN),
-                    "physical_nominal_frequency_hz": float(env.andes_nominal_frequency_hz),
-                }
-                initial_frequency = (np.asarray(env._get_vsg_omega(), dtype=float) * float(env.andes_nominal_frequency_hz)).tolist()
-                previous = np.zeros((4, 2), dtype=np.float32)
-                if not learned and controller is not None:
-                    controller.reset()
-                steps: list[dict[str, Any]] = []
-                failure = None
-                for step_index in range(150):
-                    raw_observation = {i: np.asarray(observation[i], dtype=np.float32).copy() for i in range(4)}
-                    canonical = canonical_rows(raw_observation)
-                    if learned:
-                        donor = donors[donor_index[str(scenario["scenario_id"])], 1 - scenario_index % 2, step_index]
-                        raw, executed = policy.act(source_rows(canonical, donor, factors["actor_source"]), previous, deterministic=True)
-                    elif controller is None:
-                        raw = executed = np.zeros((4, 2), dtype=np.float32)
-                    else:
-                        raw = direct_md_raw_actions(canonical)
-                        executed = controller.act({i: canonical[i] for i in range(4)})
-                    observation, _reward, done, info = env.step({i: executed[i] for i in range(4)})
-                    _value, reward_parts = step_rewards(canonical, info["delta_M"], info["delta_D"], reward_access=bool(learned and factors["reward_access"]), return_components=True)
-                    frequency = np.asarray(info["freq_hz_physical"], dtype=float)
-                    frequency_deviation = frequency - 60.0
-                    action_delta = executed - previous
-                    steps.append({"step_index": step_index, "time": float(info["time"]), "raw_observation": {str(i): raw_observation[i].astype(float).tolist() for i in range(4)}, "canonical_observation": canonical.tolist(), "raw_action_norm": raw.tolist(), "projected_action_norm": executed.tolist(), "action_norm": executed.tolist(), "action_delta_norm": action_delta.tolist(), "action_squared": np.square(executed).tolist(), "action_abs_delta": np.abs(action_delta).tolist(), "raw_action_saturated": (np.abs(raw) >= 1.0 - 1.0e-6).tolist(), "M_commanded": np.asarray(info["M_target_es"], dtype=float).tolist(), "D_commanded": np.asarray(info["D_target_es"], dtype=float).tolist(), "M_es": np.asarray(info["M_es"], dtype=float).tolist(), "D_es": np.asarray(info["D_es"], dtype=float).tolist(), "delta_M": np.asarray(info["delta_M"], dtype=float).tolist(), "delta_D": np.asarray(info["delta_D"], dtype=float).tolist(), "freq_hz_physical": frequency.tolist(), "frequency_deviation_hz": frequency_deviation.tolist(), "differential_frequency_deviation_hz": (transform @ frequency_deviation).tolist(), "rocof_hz_s_physical": (np.asarray(info["omega_dot"], dtype=float) * 60.0).tolist(), "common_frequency_deviation_hz": float(np.mean(frequency_deviation)), "reward_components": reward_parts, "tds_failed": bool(info["tds_failed"]), "done": bool(done)})
-                    previous = executed
-                    if info["tds_failed"]:
-                        failure = "TDS failed"
-                        break
-                records.append({"round": ROUND_ID, "scope": scope, "bank": bank, "profile_id": str(profile["profile_id"]), "scenario_id": str(scenario["scenario_id"]), "pair_kind": str(scenario["pair_kind"]), "sign": str(scenario["sign"]), "magnitude": float(scenario["magnitude"]), "delta_u": dict(scenario["delta_u"]), "arm_id": arm, "training_seed": seed, "checkpoint_sha256": checkpoint_sha, "training_manifest_sha256": training_sha, "resolved_parameter_card_sha256": card_sha, "stage": "final", "identity": identity, "initial_freq_hz_physical": initial_frequency, "steps": steps, "completed_steps": len(steps), "completed": failure is None and len(steps) == 150, "tds_failed": failure is not None, "tds_classification": classify_tds("tds_divergence", reproducible=False) if failure else None, "failure": failure})
+                primary = _evaluate_trajectory(
+                    env=env,
+                    scenario=scenario,
+                    scenario_index=scenario_index,
+                    transform=transform,
+                    learned=learned,
+                    policy=policy,
+                    factors=factors,
+                    donors=donors,
+                    donor_index=donor_index,
+                    controller=controller,
+                    canonicalize=canonical_rows,
+                    route_source=source_rows,
+                    direct_action=direct_md_raw_actions,
+                    reward_function=step_rewards,
+                )
+                reproduction = None
+                if primary["tds_failed"]:
+                    reproduction = _evaluate_trajectory(
+                        env=env,
+                        scenario=scenario,
+                        scenario_index=scenario_index,
+                        transform=transform,
+                        learned=learned,
+                        policy=policy,
+                        factors=factors,
+                        donors=donors,
+                        donor_index=donor_index,
+                        controller=controller,
+                        canonicalize=canonical_rows,
+                        route_source=source_rows,
+                        direct_action=direct_md_raw_actions,
+                        reward_function=step_rewards,
+                    )
+                classification = resolve_tds(
+                    primary_failed=bool(primary["tds_failed"]),
+                    reproduction_failed=(
+                        None if reproduction is None else bool(reproduction["tds_failed"])
+                    ),
+                )
+                steps = primary["steps"]
+                records.append({"round": ROUND_ID, "scope": scope, "bank": bank, "bank_contract_sha256": bank_contract["sha256"], "environment_seed": int(profile["environment_seed"]), "profile_id": str(profile["profile_id"]), "scenario_id": str(scenario["scenario_id"]), "pair_kind": str(scenario["pair_kind"]), "sign": str(scenario["sign"]), "magnitude": float(scenario["magnitude"]), "delta_u": dict(scenario["delta_u"]), "arm_id": arm, "training_seed": seed, "checkpoint_sha256": checkpoint_sha, "training_manifest_sha256": training_sha, "donor_manifest_sha256": donor_manifest_sha, "evaluation_donor_sha256": evaluation_donor_sha, "resolved_parameter_card_sha256": card_sha, "stage": "final", "identity": {**primary["identity"], "baseline_m0": [float(value) for value in profile["baseline_m0"]], "baseline_d0": [float(value) for value in profile["baseline_d0"]]}, "initial_freq_hz_physical": primary["initial_freq_hz_physical"], "steps": steps, "completed_steps": len(steps), "completed": classification == "COMPLETE" and len(steps) == 150, "tds_failed": bool(primary["tds_failed"]), "tds_classification": classification if primary["tds_failed"] else None, "tds_reproduction": None if reproduction is None else {"tds_failed": bool(reproduction["tds_failed"]), "completed_steps": len(reproduction["steps"]), "steps": reproduction["steps"]}, "failure": "TDS failed" if primary["tds_failed"] else None})
         finally:
             env.close()
         suffix = f"seed{seed}" if seed is not None else "deterministic"
@@ -801,54 +782,46 @@ def assess_canary(config: Mapping[str, Any]) -> str:
 
     require_authority(config, scope="canary")
     root = _scope_root(config, "canary")
-    cells: dict[str, Any] = {}
-    failures: list[str] = []
-    expected_profiles = {str(row["profile_id"]) for row in _profiles("same")}
-    for arm in ARM_IDS:
-        manifest_path = root / "train" / arm / f"seed{CANARY_SEED}" / "manifest.json"
-        if not _hash_valid(manifest_path):
-            failures.append(f"{arm}:training_manifest")
-            continue
-        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-        assessment = manifest.get("learner_admissibility", {}).get("assessment", {})
-        if manifest.get("valid") is not True or assessment.get("passed") is not True:
-            failures.append(f"{arm}:learner_admissibility")
-        profiles: list[str] = []
-        for profile_id in sorted(expected_profiles):
-            path = root / "eval" / "same" / arm / f"seed{CANARY_SEED}" / f"{profile_id}.json"
-            if not _hash_valid(path):
-                failures.append(f"{arm}:{profile_id}:evaluation_artifact")
-                continue
-            records = json.loads(path.read_text(encoding="utf-8")).get("records")
-            if not isinstance(records, list) or len(records) != 6 or any(
-                row.get("arm_id") != arm or row.get("training_seed") != CANARY_SEED
-                for row in records
-            ):
-                failures.append(f"{arm}:{profile_id}:evaluation_identity")
-                continue
-            profiles.append(profile_id)
-        cells[arm] = {
-            "training_manifest_sha256": _sha256(manifest_path),
-            "evaluation_profiles": profiles,
-            "learner_checks": assessment.get("checks", {}),
-        }
-    payload = {
-        "schema_version": 1,
-        "round": ROUND_ID,
-        "seed": CANARY_SEED,
-        "arms": cells,
-        "passed": not failures and set(cells) == set(ARM_IDS),
-        "failures": failures,
-        "performance_or_endpoint_selection_performed": False,
-    }
+    card_sha = _sha256(ROOT / str(config["paths"]["resolved_parameter_card"]))
+    contract = evaluation_contracts()["same"]
+    payload = build_canary_admissibility(
+        root=root,
+        card_sha256=card_sha,
+        arms=ARM_IDS,
+        seed=CANARY_SEED,
+        profile_ids=tuple(str(row["profile_id"]) for row in _profiles("same")),
+        contract=contract,
+    )
     return _write_new_json(ROOT / str(config["paths"]["canary_admissibility"]), payload)
+
+
+def rehearse(config: Mapping[str, Any]) -> str:
+    _assert_physical_runtime()
+    require_authority(config, scope="canary")
+    import andes
+
+    payload = build_rehearsal_evidence(
+        repo_root=ROOT,
+        config=config,
+        runtime={
+            "python": sys.version,
+            "python_executable": sys.executable,
+            "andes_version": getattr(andes, "__version__", "unknown"),
+            "andes_module": str(Path(andes.__file__).resolve()),
+            "scientific_environment": dict(SCIENTIFIC_ENVIRONMENT),
+        },
+    )
+    if not all(payload["checks"].values()):
+        raise RuntimeError(f"R485 rehearsal failed: {payload['checks']}")
+    payload["created_utc"] = datetime.now(UTC).isoformat()
+    return _write_new_json(ROOT / str(config["paths"]["rehearsal"]), payload)
 
 
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "command",
-        choices=("show-card", "resolve-card", "preflight", "assess-canary", "shard"),
+        choices=("show-card", "resolve-card", "write-rosters", "preflight", "assess-canary", "rehearse", "analyse-formal", "shard"),
     )
     parser.add_argument("shard_id", nargs="?")
     parser.add_argument("--config", type=Path, default=CONFIG_PATH)
@@ -863,15 +836,46 @@ def main(argv: Sequence[str] | None = None) -> int:
         payload: Any = build_parameter_card()
     elif args.command == "resolve-card":
         payload = {"resolved_parameter_card_sha256": resolve_parameter_card(config)}
+    elif args.command == "write-rosters":
+        payload = {"roster_sha256": write_rosters(config)}
     elif args.command == "preflight":
         errors = authority_errors(config, scope="formal")
-        payload = {"round": ROUND_ID, "passed": not errors and not config["_formal_out"].exists(), "authority_errors": errors, "formal_output_absent": not config["_formal_out"].exists()}
+        try:
+            formal_root = _scope_root(config, "formal")
+        except (FileNotFoundError, RuntimeError):
+            formal_root = config["_formal_out"]
+        payload = {"round": ROUND_ID, "passed": not errors and not formal_root.exists(), "authority_errors": errors, "formal_output_absent": not formal_root.exists(), "formal_attempt_root": str(formal_root)}
     elif args.command == "assess-canary":
         payload = {"canary_admissibility_sha256": assess_canary(config)}
+    elif args.command == "rehearse":
+        payload = {"rehearsal_sha256": rehearse(config)}
+    elif args.command == "analyse-formal":
+        require_authority(config, scope="formal")
+        result = analyse_result_root(
+            repo_root=ROOT,
+            config=config,
+            root=_scope_root(config, "formal"),
+            scope="formal",
+        )
+        if result["status"] in {"EXECUTION-INCOMPLETE", "INTEGRITY-INVALID"}:
+            raise RuntimeError(f"R485 formal analysis blocked: {result['status']}")
+        payload = {
+            "formal_analysis_sha256": _write_new_json(
+                _scope_root(config, "formal") / "formal_analysis.json", result
+            )
+        }
     else:
         if args.resume or not args.shard_id:
             raise RuntimeError("R485 forbids partial-cell resume and requires a shard id")
         parts = args.shard_id.split("|")
+        allowed = {
+            shard
+            for scope in ("canary", "formal")
+            for values in registered_shards(config, scope=scope).values()
+            for shard in values
+        }
+        if args.shard_id not in allowed:
+            raise ValueError(f"unregistered R485 shard: {args.shard_id}")
         if len(parts) == 3 and parts[0] == "donor":
             payload = {"manifest_sha256": generate_donor(config, scope=parts[1], seed=int(parts[2]))}
         elif len(parts) == 4 and parts[0] == "train":

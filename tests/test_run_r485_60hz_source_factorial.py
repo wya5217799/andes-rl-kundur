@@ -40,6 +40,45 @@ def test_config_closes_exact_roster_and_fixed_budget() -> None:
     assert config["evaluation"]["prefix_steps"] == 30
 
 
+def test_evaluation_contract_freezes_same_and_fresh_bank_seeds() -> None:
+    from andes_rl_kundur.evaluation.r485_experiment import evaluation_contracts
+
+    contracts = evaluation_contracts()
+
+    assert contracts["same"]["environment_seed"] == 401
+    assert contracts["fresh"]["environment_seed"] == 42
+    assert contracts["same"]["steps"] == contracts["fresh"]["steps"] == 150
+    assert {row["environment_seed"] for row in contracts["same"]["profiles"]} == {401}
+    assert {row["environment_seed"] for row in contracts["fresh"]["profiles"]} == {42}
+    assert {row["bank"] for row in contracts["same"]["profiles"]} == {"same"}
+    assert {row["bank"] for row in contracts["fresh"]["profiles"]} == {"fresh"}
+
+
+def test_runner_overrides_scientific_environment_and_records_it(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("N_SUBSTEPS", "1")
+    monkeypatch.setenv("DISABLE_TOGGLER", "0")
+
+    runner = _load_runner()
+    card = runner.build_parameter_card()
+
+    assert runner.os.environ["N_SUBSTEPS"] == "5"
+    assert runner.os.environ["DISABLE_TOGGLER"] == "1"
+    assert card["scientific_environment"] == {
+        "N_SUBSTEPS": "5",
+        "DISABLE_TOGGLER": "1",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+    }
+
+    monkeypatch.setenv("N_SUBSTEPS", "1")
+    with pytest.raises(RuntimeError, match="scientific environment drift"):
+        runner._assert_physical_runtime()
+
+
 def test_relative_config_path_is_anchored_to_repository(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -153,14 +192,14 @@ def test_direct_md_comparator_matches_independent_raw_and_projection_oracle() ->
 
 
 def test_prefix_is_a_field_exact_view_not_a_second_simulation() -> None:
-    runner = _load_runner()
+    from andes_rl_kundur.evaluation.r485_experiment import extract_prefix
     record = {
         "steps": [{"step_index": i, "time": 0.2 * (i + 1), "value": [i, i + 1]} for i in range(150)],
         "completed_steps": 150,
         "completed": True,
     }
 
-    prefix = runner.extract_prefix(record)
+    prefix = extract_prefix(record)
 
     assert prefix["steps"] == record["steps"][:30]
     assert prefix["completed_steps"] == 30
@@ -199,6 +238,20 @@ def test_formal_authority_fails_closed_before_card_canary_review_and_seal() -> N
         runner.require_authority(config, scope="formal")
 
 
+def test_shard_cli_rejects_identity_outside_registered_roster() -> None:
+    runner = _load_runner()
+
+    with pytest.raises(ValueError, match="unregistered R485 shard"):
+        runner.main(
+            [
+                "shard",
+                "train|formal|bogus_arm|501",
+                "--config",
+                str(CONFIG),
+            ]
+        )
+
+
 def test_canary_authority_rejects_source_drift_after_parameter_card(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -215,6 +268,9 @@ def test_canary_authority_rejects_source_drift_after_parameter_card(
                 "sources": {
                     "source": {"path": "source.py", "sha256": runner._sha256(source)}
                 },
+                "parents": {
+                    "parent": {"path": "source.py", "sha256": runner._sha256(source)}
+                },
                 "installed_case": {"path": str(case), "sha256": runner._sha256(case)},
             }
         ),
@@ -228,11 +284,11 @@ def test_canary_authority_rejects_source_drift_after_parameter_card(
     runner.require_authority(config, scope="canary")
     source.write_text("frozen = False\n", encoding="utf-8")
 
-    with pytest.raises(RuntimeError, match="resolved source drift: source"):
+    with pytest.raises(RuntimeError, match="resolved sources drift: source"):
         runner.require_authority(config, scope="canary")
 
 
-def test_canary_aggregate_checks_only_health_identity_and_completeness(
+def test_canary_aggregate_rejects_identity_only_trace_shells(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     runner = _load_runner()
@@ -256,15 +312,24 @@ def test_canary_aggregate_checks_only_health_identity_and_completeness(
             "sources": {
                 "source": {"path": "source.py", "sha256": runner._sha256(source)}
             },
+            "parents": {
+                "parent": {"path": "source.py", "sha256": runner._sha256(source)}
+            },
             "installed_case": {"path": str(case), "sha256": runner._sha256(case)},
         },
     )
+    card_sha = runner._sha256(tmp_path / "card.json")
     out = tmp_path / "canary-results"
     for arm in runner.ARM_IDS:
         write_hashed(
             out / "train" / arm / "seed500" / "manifest.json",
-            {
-                "valid": True,
+                {
+                    "round": "R485",
+                    "scope": "canary",
+                    "arm_id": arm,
+                    "seed": 500,
+                    "resolved_parameter_card_sha256": card_sha,
+                    "valid": True,
                 "learner_admissibility": {
                     "assessment": {"passed": True, "checks": {"weights_changed": True}}
                 },
@@ -279,6 +344,7 @@ def test_canary_aggregate_checks_only_health_identity_and_completeness(
         "paths": {
             "resolved_parameter_card": "card.json",
             "canary_admissibility": "canary_admissibility.json",
+            "canary_out": str(out),
         },
     }
 
@@ -286,6 +352,7 @@ def test_canary_aggregate_checks_only_health_identity_and_completeness(
     payload = json.loads((tmp_path / "canary_admissibility.json").read_text())
 
     assert digest == runner._sha256(tmp_path / "canary_admissibility.json")
-    assert payload["passed"] is True
+    assert payload["passed"] is False
     assert payload["performance_or_endpoint_selection_performed"] is False
     assert set(payload["arms"]) == set(runner.ARM_IDS)
+    assert all("evaluation_schema" in failure for failure in payload["failures"])

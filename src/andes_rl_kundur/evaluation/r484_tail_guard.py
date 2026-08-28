@@ -105,6 +105,7 @@ def summarise_30s_profile(
     *,
     contract: Mapping[str, Any],
     expected_steps: int = EXPECTED_STEPS,
+    round_id: str = ROUND_ID,
 ) -> dict[str, Any]:
     """Summarise one complete six-scenario, 30-second profile block.
 
@@ -162,7 +163,7 @@ def summarise_30s_profile(
     summary = dict(summarise_profile(records, contract=contract))
     summary.update(
         {
-            "round": ROUND_ID,
+            "round": str(round_id),
             "expected_steps": expected_steps,
             "horizon_seconds": expected_steps * DT_SECONDS,
             "completion_pass": True,
@@ -256,6 +257,8 @@ def classify_learned_guard(
     deterministic_arm: str = DETERMINISTIC_ARM,
     thresholds: Mapping[str, float] | None = None,
     deterministic_reference_gate: Mapping[str, Any] | None = None,
+    round_id: str = ROUND_ID,
+    policy_label: str = "R483",
 ) -> dict[str, Any]:
     """Classify the complete 208-policy x four-profile physical guard bank."""
 
@@ -454,9 +457,9 @@ def classify_learned_guard(
         if row["passed_complete_guard"]
     ]
     raw_guard_classification = (
-        "R483-FROZEN-POLICIES-ALL-FAIL-COMPLETE-GUARD"
+        f"{policy_label}-FROZEN-POLICIES-ALL-FAIL-COMPLETE-GUARD"
         if not passing
-        else "R483-FROZEN-POLICIES-SOME-PASS-COMPLETE-GUARD"
+        else f"{policy_label}-FROZEN-POLICIES-SOME-PASS-COMPLETE-GUARD"
     )
     gate_payload: Mapping[str, Any] = (
         deterministic_reference_gate.get("gate", deterministic_reference_gate)
@@ -490,7 +493,7 @@ def classify_learned_guard(
     )
     return {
         "schema_version": 1,
-        "round": ROUND_ID,
+        "round": str(round_id),
         "analysis_kind": "learned_complete_guard",
         "classification": classification,
         "scientific_outcome": (
@@ -510,7 +513,7 @@ def classify_learned_guard(
         "policy_decisions": policy_decisions,
         "passing_count": len(passing),
         "passing_roster": passing,
-        "claim_scope": "208 frozen R483 final policies on four registered canary profiles only",
+        "claim_scope": f"208 frozen {policy_label} final policies on four registered canary profiles only",
     }
 
 
@@ -521,6 +524,7 @@ def classify_deterministic_tail(
     selected_arm: str = DETERMINISTIC_ARM,
     expected_profiles: Sequence[str],
     bank_name: str,
+    round_id: str = ROUND_ID,
 ) -> dict[str, Any]:
     """Apply the exact R481 Phase-1A gate to one four-profile 30-second bank."""
 
@@ -590,7 +594,7 @@ def classify_deterministic_tail(
         )
     return {
         "schema_version": 1,
-        "round": ROUND_ID,
+        "round": str(round_id),
         "analysis_kind": f"deterministic_{normalized_bank}_tail",
         "classification": classification,
         "scientific_outcome": classification,
