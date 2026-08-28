@@ -1,0 +1,92 @@
+{
+  "schema_version": 1,
+  "created_date": "2026-08-28",
+  "paper_title": "Decoupling-Oriented Coordination of Paralleled  VSGs With Multi-Agent Reinforcement Learning",
+  "venue_target": "ICEMS 2026",
+  "package_path": "paper/yang_md_decoupling_marl/working/yang_md_decoupling_marl_icems2026_source_20260828.zip",
+  "package_bytes": 365037,
+  "package_sha256": "7252A22D35D10C7B8DBC053C1660F2EE25BB7BD205264370217BF75818AA1AD2",
+  "allowlist": [
+    {
+      "archive_path": "main.tex",
+      "source_path": "paper/yang_md_decoupling_marl/manuscript/main.tex",
+      "purpose": "submission-source",
+      "bytes": 33992,
+      "sha256": "33FE35DFEA68ACD12C729388FBA5A8F2A02E3A641875C43E31C66415D01834BD"
+    },
+    {
+      "archive_path": "references.bib",
+      "source_path": "paper/yang_md_decoupling_marl/manuscript/references.bib",
+      "purpose": "bibliography",
+      "bytes": 8835,
+      "sha256": "791F768DC4CF1E3B4A80B808855EA50F0587854942BA054420A8A7EC37D9367B"
+    },
+    {
+      "archive_path": "build_figures.py",
+      "source_path": "paper/yang_md_decoupling_marl/manuscript/build_figures.py",
+      "purpose": "figure-generator-provenance",
+      "bytes": 8928,
+      "sha256": "85040DCE7721DC7DDD83C9BD6C2AED14FA5B0DA874832D090FD61AC895AB51BB"
+    },
+    {
+      "archive_path": "main.pdf",
+      "source_path": "paper/yang_md_decoupling_marl/manuscript/main.pdf",
+      "purpose": "submission-render",
+      "bytes": 327742,
+      "sha256": "609C2D607DEEE395EBBCA54DB5B7EDCA82BE87B70A4128774F24DB0EB99B66D1"
+    },
+    {
+      "archive_path": "figures/direct_md_fresh_horizon.pdf",
+      "source_path": "paper/yang_md_decoupling_marl/manuscript/figures/direct_md_fresh_horizon.pdf",
+      "purpose": "current-vector-figure",
+      "bytes": 15705,
+      "sha256": "28BD87D225612A7E234A9C708A02B65E2A80880FFC65EC15EF0D3495BDD91B30"
+    },
+    {
+      "archive_path": "figures/learned_contract_tradeoff.pdf",
+      "source_path": "paper/yang_md_decoupling_marl/manuscript/figures/learned_contract_tradeoff.pdf",
+      "purpose": "current-vector-figure",
+      "bytes": 35405,
+      "sha256": "14A3198935D0B79FD4CB4E1D76F6B92DD5D1AE8F9BD1B40F625AD327DA181B68"
+    }
+  ],
+  "build_contract": {
+    "standalone_latex_compile": true,
+    "standalone_figure_regeneration": false,
+    "latex_sequence": [
+      "pdflatex -interaction=nonstopmode -halt-on-error main.tex",
+      "bibtex main",
+      "pdflatex -interaction=nonstopmode -halt-on-error main.tex",
+      "pdflatex -interaction=nonstopmode -halt-on-error main.tex"
+    ],
+    "figure_generator_external_inputs": [
+      "results/research_loop/r481_direct_md/formal_analysis.json",
+      "results/research_loop/r484_30s_tail_guard/formal_analysis.json"
+    ],
+    "note": "The two frozen vector PDFs make the LaTeX source self-contained. build_figures.py is included for provenance, but exact figure regeneration also requires the two external sealed analyses listed above."
+  },
+  "verification": {
+    "archive_entry_count": 6,
+    "entry_names_and_hashes_match_allowlist": true,
+    "clean_extraction_compile_passed": true,
+    "clean_extraction_page_count": 6,
+    "clean_extraction_page_size": "A4",
+    "semantic_float_order": "Results and first Fig. 2/Fig. 3 callouts p4; Fig. 2 p4; Fig. 3 p5; Discussion p5; Conclusion and References p6",
+    "figures_cited_before_appearance": true,
+    "all_body_figures_before_conclusion": true,
+    "undefined_citations_or_references": 0,
+    "overfull_boxes": 0,
+    "note": "The rebuilt PDF is content-equivalent but not byte-identical because the local TeX toolchain emits nondeterministic PDF metadata."
+  },
+  "preserved_but_excluded": [
+    "paper/yang_md_decoupling_marl/manuscript/figures/repair_tradeoff.pdf",
+    "paper/yang_md_decoupling_marl/manuscript/figures/repair_tradeoff.png",
+    "paper/yang_md_decoupling_marl/manuscript/figures/source_effect.pdf",
+    "paper/yang_md_decoupling_marl/manuscript/figures/source_effect.png",
+    "paper/yang_md_decoupling_marl/manuscript/figures/direct_md_fresh_horizon.png",
+    "paper/yang_md_decoupling_marl/manuscript/figures/learned_contract_tradeoff.png",
+    "paper/yang_md_decoupling_marl/manuscript/supplement",
+    "paper/yang_md_decoupling_marl/manuscript/manuscript.md"
+  ],
+  "scope_note": "This is a clean submission-source allowlist, not the multi-gigabyte sealed research archive and not a public reproducibility deposit."
+}

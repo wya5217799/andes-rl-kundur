@@ -1,239 +1,257 @@
-"""Build manuscript figures from authoritative frozen analysis artifacts."""
+"""Build corrected-card manuscript figures from frozen R481/R483/R484 analyses."""
 
 from __future__ import annotations
 
 import hashlib
 import json
-import math
+from collections import Counter
 from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.patches import Rectangle
 from matplotlib.ticker import PercentFormatter
 
 
 ROOT = Path(__file__).resolve().parents[3]
-ANALYSIS = ROOT / "results/research_loop/r477_u2_confirmatory/formal_analysis.json"
+R481_ANALYSIS = ROOT / "results/research_loop/r481_direct_md/formal_analysis.json"
+R484_ANALYSIS = ROOT / "results/research_loop/r484_30s_tail_guard/formal_analysis.json"
 OUT_DIR = Path(__file__).resolve().parent / "figures"
-R431_EVAL = ROOT / "results/research_loop/r431_sac_slew/eval"
-R433_EVAL = ROOT / "results/research_loop/r433_sac_stress_penalty/eval"
-TRACE_PROFILE = "canary_eval_a"
-TRACE_SCENARIO = "canary_eval_a_common_positive"
+
+COLORS = {
+    "blue": "#0072B2",
+    "orange": "#D55E00",
+    "green": "#009E73",
+    "grey": "#777777",
+    "light_grey": "#D9D9D9",
+    "black": "#333333",
+}
 
 
-def pct(log_effect: float) -> float:
-    """Convert a log-ratio effect to a signed fractional geometric effect."""
-
-    return math.exp(log_effect) - 1.0
-
-
-def build_source_effect() -> None:
-    data = json.loads(ANALYSIS.read_text(encoding="utf-8"))
-    rows = data["primary_materiality_tests"]
-    labels = ["Actor source", "Critic source"]
-    keys = ["actor", "critic"]
-    means = [pct(rows[key]["mean_log_effect"]) for key in keys]
-    lows = [pct(rows[key]["bootstrap_ci95_descriptive"][0]) for key in keys]
-    highs = [pct(rows[key]["bootstrap_ci95_descriptive"][1]) for key in keys]
-    errors = [
-        [means[i] - lows[i] for i in range(len(keys))],
-        [highs[i] - means[i] for i in range(len(keys))],
-    ]
-
+def _set_style() -> None:
     plt.rcParams.update(
         {
             "font.family": "serif",
             "font.size": 8,
             "axes.labelsize": 8,
-            "xtick.labelsize": 7.5,
-            "ytick.labelsize": 8,
-            "legend.fontsize": 7.5,
+            "axes.titlesize": 8,
+            "xtick.labelsize": 7,
+            "ytick.labelsize": 7,
+            "legend.fontsize": 7,
             "pdf.fonttype": 42,
             "ps.fonttype": 42,
         }
     )
-    fig, ax = plt.subplots(figsize=(3.45, 1.75), constrained_layout=True)
-    colors = ["#0072B2", "#D55E00"]
-    markers = ["o", "s"]
-    y = [1, 0]
-    for i in range(2):
-        ax.errorbar(
-            means[i],
-            y[i],
-            xerr=[[errors[0][i]], [errors[1][i]]],
-            fmt=markers[i],
-            color=colors[i],
-            markerfacecolor="white",
-            markeredgewidth=1.2,
-            markersize=5,
-            elinewidth=1.2,
-            capsize=3,
-            zorder=3,
-        )
-        ax.text(
-            means[i],
-            y[i] + 0.22,
-            f"{100 * means[i]:+.2f}%",
-            color=colors[i],
-            ha="center",
-            va="bottom",
-            fontsize=7.5,
-        )
-
-    ax.axvline(0.0, color="#555555", linewidth=0.8, linestyle="-")
-    ax.axvline(0.10, color="#009E73", linewidth=1.1, linestyle="--")
-    ax.text(
-        0.096,
-        1.36,
-        "10% materiality",
-        color="#00734f",
-        ha="right",
-        va="bottom",
-        fontsize=7.2,
-    )
-    ax.set_yticks(y, labels)
-    ax.set_ylim(-0.45, 1.55)
-    ax.set_xlim(-0.115, 0.13)
-    ax.xaxis.set_major_formatter(PercentFormatter(xmax=1.0, decimals=0))
-    ax.set_xlabel("Signed source effect (geometric)")
-    ax.grid(axis="x", color="#d9d9d9", linewidth=0.5)
-    ax.spines[["top", "right", "left"]].set_visible(False)
-    ax.tick_params(axis="y", length=0)
-
-    OUT_DIR.mkdir(parents=True, exist_ok=True)
-    fig.savefig(OUT_DIR / "source_effect.pdf", bbox_inches="tight")
-    fig.savefig(OUT_DIR / "source_effect.png", dpi=240, bbox_inches="tight")
-    plt.close(fig)
 
 
 def _read_hashed_json(path: Path) -> dict:
-    """Read one sealed evaluation file after checking its SHA-256 sidecar."""
+    """Read a frozen JSON artifact only after its SHA-256 sidecar matches."""
 
     sidecar = path.with_name(path.name + ".sha256")
-    expected = sidecar.read_text(encoding="utf-8").split()[0]
+    expected = sidecar.read_text(encoding="utf-8").split()[0].lower()
     actual = hashlib.sha256(path.read_bytes()).hexdigest()
     if actual != expected:
         raise RuntimeError(f"hash mismatch for {path}")
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def _trace(path: Path) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-    data = _read_hashed_json(path)
-    record = next(
-        row for row in data["records"] if row["scenario_id"] == TRACE_SCENARIO
-    )
-    if not record["completed"] or record["tds_failed"]:
-        raise RuntimeError(f"incomplete physical trace in {path}")
-    steps = record["steps"]
-    if len(steps) != 30:
-        raise RuntimeError(f"unexpected trace length in {path}: {len(steps)}")
-    time = np.asarray([row["time"] for row in steps], dtype=float)
-    frequency = np.asarray([row["freq_hz_physical"] for row in steps], dtype=float)
-    action = np.asarray([row["action_norm"] for row in steps], dtype=float)
-    common_deviation_mhz = 1000.0 * (60.0 - frequency.mean(axis=1))
-    executed_action_rms = np.sqrt(np.mean(np.square(action), axis=(1, 2)))
-    return time, common_deviation_mhz, executed_action_rms
+def build_direct_md_horizon() -> None:
+    """Show the selected deterministic law on the same fresh profiles at 6 and 30 s."""
 
-
-def _seed_traces(root: Path) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-    traces = [
-        _trace(
-            root
-            / "cd_matd3_message"
-            / f"seed{seed}"
-            / f"{TRACE_PROFILE}.json"
-        )
-        for seed in range(401, 406)
+    r481 = _read_hashed_json(R481_ANALYSIS)["phase1a_gate"]
+    r484 = _read_hashed_json(R484_ANALYSIS)["deterministic_fresh_tail"]["gate"]
+    if not r481["passed_4_of_4"] or not r484["passed_4_of_4"]:
+        raise RuntimeError("the deterministic fresh-bank verdict changed")
+    profiles = ["fresh_eva_a", "fresh_eva_b", "fresh_eva_c", "fresh_eva_d"]
+    labels = ["Fresh A", "Fresh B", "Fresh C", "Fresh D"]
+    metrics = [
+        ("off_diagonal_ratio_to_zero", "Off-diagonal ratio to zero action"),
+        ("differential_ratio_to_zero", "Differential ratio to zero action"),
     ]
-    time = traces[0][0]
-    if any(not np.array_equal(time, row[0]) for row in traces[1:]):
-        raise RuntimeError("seed traces do not share the registered time grid")
-    return time, np.stack([row[1] for row in traces]), np.stack(
-        [row[2] for row in traces]
-    )
 
-
-def build_repair_tradeoff() -> None:
-    """Plot a non-data-selected physical trace from the repair ladder."""
-
-    deterministic = _trace(
-        R431_EVAL
-        / "local_neighbour_md_km2_kd2"
-        / "deterministic"
-        / f"{TRACE_PROFILE}.json"
-    )
-    projected = _seed_traces(R431_EVAL)
-    penalized = _seed_traces(R433_EVAL)
-
-    fig, axes = plt.subplots(2, 1, figsize=(3.45, 3.05), sharex=True)
-    colors = {"projected": "#0072B2", "penalized": "#D55E00"}
-    line_styles = {"projected": "-", "penalized": "--"}
-    markers = {"projected": "o", "penalized": "s"}
-    labels = {
-        "projected": "Projected SAC",
-        "penalized": "SAC + RMS penalty",
-    }
-    for axis, trace_index in zip(axes, (1, 2), strict=True):
-        axis.plot(
-            deterministic[0],
-            deterministic[trace_index],
-            color="#222222",
-            linewidth=1.15,
-            label="Deterministic",
-            zorder=4,
+    _set_style()
+    fig, axes = plt.subplots(2, 1, figsize=(3.45, 2.75), constrained_layout=True)
+    y = np.arange(len(profiles))[::-1]
+    for panel, (ax, (metric, xlabel)) in enumerate(zip(axes, metrics)):
+        six = np.asarray([r481["per_profile"][profile][metric] for profile in profiles])
+        thirty = np.asarray([r484["per_profile"][profile][metric] for profile in profiles])
+        for pos, left, right in zip(y, six, thirty):
+            ax.plot([left, right], [pos, pos], color=COLORS["light_grey"], linewidth=1.0, zorder=1)
+        ax.scatter(
+            six,
+            y,
+            marker="o",
+            s=28,
+            facecolors="white",
+            edgecolors=COLORS["blue"],
+            linewidths=1.0,
+            zorder=3,
+            label="6 s primary window",
         )
-        for name, traces in (("projected", projected), ("penalized", penalized)):
-            values = traces[trace_index]
-            axis.fill_between(
-                traces[0],
-                values.min(axis=0),
-                values.max(axis=0),
-                color=colors[name],
-                alpha=0.13,
-                linewidth=0,
-            )
-            axis.plot(
-                traces[0],
-                np.median(values, axis=0),
-                color=colors[name],
-                linewidth=1.15,
-                linestyle=line_styles[name],
-                marker=markers[name],
-                markevery=5,
-                markersize=2.8,
-                label=labels[name],
-                zorder=3,
-            )
-        axis.grid(color="#dddddd", linewidth=0.45)
-        axis.spines[["top", "right"]].set_visible(False)
-        axis.margins(x=0)
-
-    axes[0].set_ylabel("Common deviation\n(mHz)")
-    axes[1].set_ylabel("Executed action\nRMS")
-    axes[1].set_xlabel("Time (s)")
-    axes[0].text(0.02, 0.92, "(a)", transform=axes[0].transAxes, fontweight="bold")
-    axes[1].text(0.02, 0.92, "(b)", transform=axes[1].transAxes, fontweight="bold")
-    handles, legend_labels = axes[0].get_legend_handles_labels()
-    fig.legend(
-        handles,
-        legend_labels,
-        loc="upper center",
-        ncol=3,
-        frameon=False,
-        fontsize=6.8,
-        handlelength=1.25,
-        handletextpad=0.35,
-        columnspacing=0.8,
-        borderaxespad=0.0,
-    )
-    fig.tight_layout(rect=(0, 0, 1, 0.93), pad=0.45, h_pad=0.25)
+        ax.scatter(
+            thirty,
+            y,
+            marker="^",
+            s=30,
+            color=COLORS["orange"],
+            linewidths=0.7,
+            zorder=3,
+            label="30 s tail",
+        )
+        ax.axvline(1.0, color=COLORS["black"], linestyle=":", linewidth=0.9)
+        ax.set_yticks(y, labels)
+        ax.set_xlim(0.25, 1.05)
+        ax.set_xlabel(xlabel)
+        ax.text(0.01, 0.94, f"({chr(97 + panel)})", transform=ax.transAxes, ha="left", va="top", fontsize=7.5)
+        ax.grid(axis="x", color=COLORS["light_grey"], linewidth=0.45)
+        ax.spines[["top", "right", "left"]].set_visible(False)
+        ax.tick_params(axis="y", length=0)
+    axes[0].legend(loc="lower right", frameon=True, borderpad=0.3, handletextpad=0.35)
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
-    fig.savefig(OUT_DIR / "repair_tradeoff.pdf", bbox_inches="tight")
-    fig.savefig(OUT_DIR / "repair_tradeoff.png", dpi=240, bbox_inches="tight")
+    fig.savefig(OUT_DIR / "direct_md_fresh_horizon.pdf", bbox_inches="tight")
+    fig.savefig(OUT_DIR / "direct_md_fresh_horizon.png", dpi=300, bbox_inches="tight")
     plt.close(fig)
 
 
+def build_policy_guard() -> None:
+    """Show endpoint qualification and the guards that reverse that verdict."""
+
+    data = _read_hashed_json(R484_ANALYSIS)["learned_guard"]
+    decisions = data["policy_decisions"]
+    blocks = data["per_profile_blocks"]
+    if len(decisions) != 208 or len(blocks) != 832:
+        raise RuntimeError("unexpected R484 roster size")
+
+    endpoint_pass = np.asarray(
+        [
+            row["aggregate_joint_endpoint_target"]["off_diagonal_response_energy"]
+            and row["aggregate_joint_endpoint_target"]["disturbance_differential_energy"]
+            for row in decisions
+        ],
+        dtype=bool,
+    )
+    complete_pass = np.asarray([row["passed_complete_guard"] for row in decisions], dtype=bool)
+    x = np.asarray(
+        [row["aggregate_endpoint_ratios_to_deterministic"]["off_diagonal_response_energy"] for row in decisions]
+    )
+    y = np.asarray(
+        [row["aggregate_endpoint_ratios_to_deterministic"]["disturbance_differential_energy"] for row in decisions]
+    )
+
+    failure_counts: Counter[str] = Counter()
+    for row in blocks:
+        failure_counts.update(row["failed_guards"])
+    guard_keys = [
+        "action_rms_no_harm",
+        "action_variation_no_harm",
+        "rocof_no_harm",
+        "worst_peak_no_harm",
+    ]
+    counts = [failure_counts[key] for key in guard_keys]
+    if endpoint_pass.sum() != 126 or complete_pass.sum() != 0:
+        raise RuntimeError("R484 policy decision counts changed")
+    if counts != [832, 832, 408, 45]:
+        raise RuntimeError(f"R484 guard counts changed: {counts}")
+
+    _set_style()
+    fig, (ax0, ax1) = plt.subplots(1, 2, figsize=(7.1, 2.55), constrained_layout=True)
+
+    target_region = Rectangle(
+        (0.3, 0.4),
+        0.65,
+        0.55,
+        facecolor="none",
+        edgecolor="#B8B8B8",
+        hatch="////",
+        linewidth=0.0,
+        zorder=0,
+    )
+    ax0.add_patch(target_region)
+    ax0.scatter(
+        x[~endpoint_pass],
+        y[~endpoint_pass],
+        s=17,
+        facecolors="none",
+        edgecolors=COLORS["grey"],
+        alpha=0.7,
+        linewidths=0.65,
+        label="Endpoint target not met",
+    )
+    ax0.scatter(
+        x[endpoint_pass],
+        y[endpoint_pass],
+        s=15,
+        color=COLORS["blue"],
+        alpha=0.76,
+        linewidths=0,
+        label="Both endpoint targets met",
+    )
+    for value, style, colour in [(0.95, "--", COLORS["green"]), (1.0, ":", COLORS["black"])]:
+        ax0.axvline(value, color=colour, linestyle=style, linewidth=0.85)
+        ax0.axhline(value, color=colour, linestyle=style, linewidth=0.85)
+    ax0.set_xscale("log")
+    ax0.set_yscale("log")
+    ax0.set_xlim(0.3, 10.5)
+    ax0.set_ylim(0.4, 4.1)
+    ax0.set_xlabel("Off-diagonal ratio to direct M/D")
+    ax0.set_ylabel("Differential ratio to direct M/D")
+    ax0.grid(color=COLORS["light_grey"], linewidth=0.4, which="both")
+    ax0.text(
+        0.02,
+        0.97,
+        "(a) Endpoint outcomes\n126/208 meet both targets; 0/208 complete",
+        transform=ax0.transAxes,
+        ha="left",
+        va="top",
+        fontsize=7.2,
+        color=COLORS["black"],
+    )
+    ax0.legend(loc="lower right", frameon=True, borderpad=0.3, handletextpad=0.35)
+
+    labels = ["Action RMS", "Action variation", "RoCoF", "Worst peak"]
+    positions = np.arange(len(labels))
+    rates = 100.0 * np.asarray(counts) / len(blocks)
+    bars = ax1.barh(
+        positions,
+        rates,
+        color=["#B8B8B8", "#B8B8B8", "white", "white"],
+        edgecolor=COLORS["black"],
+        linewidth=0.7,
+        height=0.62,
+    )
+    for bar, hatch in zip(bars, ["////", "////", "..", ".."]):
+        bar.set_hatch(hatch)
+    for pos, count, rate in zip(positions, counts, rates):
+        ax1.text(
+            min(rate + 2.0, 98.0) if count else 1.5,
+            pos,
+            f"{count}/832",
+            va="center",
+            ha="right" if rate > 92 else "left",
+            color=COLORS["black"],
+            fontsize=7.2,
+        )
+    ax1.set_yticks(positions, labels)
+    ax1.invert_yaxis()
+    ax1.set_xlim(0, 105)
+    ax1.xaxis.set_major_formatter(PercentFormatter(xmax=100, decimals=0))
+    ax1.set_xlabel("Failed policy-profile blocks")
+    ax1.set_title("(b) Complete-guard failures", loc="left", pad=3)
+    ax1.grid(axis="x", color=COLORS["light_grey"], linewidth=0.45)
+    ax1.spines[["top", "right", "left"]].set_visible(False)
+    ax1.tick_params(axis="y", length=0)
+
+    OUT_DIR.mkdir(parents=True, exist_ok=True)
+    fig.savefig(OUT_DIR / "learned_contract_tradeoff.pdf", bbox_inches="tight")
+    fig.savefig(OUT_DIR / "learned_contract_tradeoff.png", dpi=300, bbox_inches="tight")
+    plt.close(fig)
+
+
+def main() -> None:
+    build_direct_md_horizon()
+    build_policy_guard()
+
+
 if __name__ == "__main__":
-    build_source_effect()
-    build_repair_tradeoff()
+    main()

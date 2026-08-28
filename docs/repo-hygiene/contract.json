@@ -200,8 +200,11 @@
     "derived": [
      "paper/yang_md_decoupling_marl/manuscript/main.pdf",
      "paper/yang_md_decoupling_marl/manuscript/figures"
-    ]
-   }
+     ],
+     "release": [
+      "paper/yang_md_decoupling_marl/working/yang_md_decoupling_marl_icems2026_source_20260828.zip"
+     ]
+    }
   },
   {
    "id": "external-a-research-report",
