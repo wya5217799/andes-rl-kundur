@@ -22,14 +22,37 @@ CLM-1515/R483 source factorial; CLM-1520/R484 30-s complete guard.
 
 一次性训练 `8 arms x 26 seeds = 208` 个 all-fresh learner cells。唯一科学
 修正是 learner 从 training 到 evaluation 全链统一 60-Hz frequency/RoCoF
-contract；算法、reward、action object、factorial、budget、bank、comparator、
-guards 固定。训练后同一批 final checkpoints 只跑一次 30-s trace bank；6-s
-结果取其冻结 prefix，不当独立 replication。结果正负都结束大规模实验，不因
-performance 调 reward、补 seed、延长 budget 或重训。
+contract；reward 公式与数值系数固定，但其 frequency/RoCoF 输入改为正确的
+60-Hz 物理量。算法、action object、factorial、budget、bank、comparator law
+与 guards 固定。训练后同一批 final checkpoints 只跑一次 30-s trace bank；
+6-s 结果取其冻结 prefix，不当独立 replication。结果正负都结束大规模实验，
+不因 performance 调 reward、补 seed、延长 budget 或重训。
+
+本设计是会议论文的**最小充分方案**，不是算法或实验设计的最优性声明。它只
+冻结会导致昂贵返工的 method 与数据边界；结果出来后的统计、图和 discussion
+可以继续改进，但不得反过来修改已冻结实验。
 
 当前 authority = **DESIGN-ONLY**。本 plan、审计或测试都不授权 WSL、ANDES、
 training、evaluation、capacity probe 或 formal attempt。启动需要 owner 在未来
 消息明确说长任务并点名 sealed R485 attempt。
+
+## Paper-facing experiment card
+
+**一句话目的**：在完全一致的 60-Hz learner contract 下，检验 actor source、
+critic source 与 reward access 是否能改善多 VSG 的 M/D 解耦，并区分 endpoint
+改善与完整物理/action guard 通过。
+
+| 类别 | 冻结内容 |
+|---|---|
+| 本轮只改 | frequency/RoCoF learner path 由 legacy 50-Hz 语义改为 physical 60 Hz，且只转换一次；全部 learner 重新训练 |
+| 坚决不改 | 算法族、8-arm factorial、26 seeds、43,200 steps、reward 公式与数值系数、action object、profile/scenario bank、direct-M/D law、判定阈值 |
+| 旧两轮可用 | 代码/数据路径风险、运行时间、并行容量、产物 schema、失败恢复经验 |
+| 旧两轮禁用 | checkpoint、optimizer、replay、curve、evaluation row、performance 数字，以及据其结果挑 arm/seed/threshold |
+| 完成 | 208 个 fresh training cells 与冻结 evaluation roster 全部 hash-valid；随后无论 positive、mixed 或 negative 都结束本论文的大规模计算 |
+
+论文 method 主要由本卡、下述参数卡和 factorial/metric 定义生成；discussion
+主要解释 endpoint 与 complete guard 是否一致、哪些 source factor 有效、以及
+有限拓扑/有限 bank 的边界。不得写成 50-versus-60 因果实验或最优算法搜索。
 
 ## Snapshot at plan-time (oracle as of 2026-08-28)
 
@@ -88,13 +111,16 @@ Stay-out:
   based extension or stopping claim.
 - Algorithm/object: frozen R483 learner family, executed-action Markov state,
   projector, action decoder, clamps, slew and four-agent information pattern.
-- Reward: frozen endpoint-oriented legacy reward. No RMS penalty, TV penalty,
-  reward redesign, coefficient selection or hyperparameter search. The known
-  fleet-average M/D cancellation is an explicit audited property, not hidden
-  training alignment with the complete guard.
+- Reward: 公式、聚合方式和数值系数冻结；frequency/RoCoF 输入改为 canonical
+  60-Hz 物理行，所以数值 objective 会随正确输入改变，不能写成“reward 数值
+  完全不变”。No RMS penalty, TV penalty, coefficient selection or
+  hyperparameter search. The known fleet-average M/D cancellation is an
+  explicit audited property, not hidden training alignment with the complete
+  guard.
 - Comparator: frozen development-selected direct-M/D law from R481, bound to
-  `results/research_loop/r481_direct_md/formal_analysis.json`; no outcome-
-  visible reselection or fallback.
+  `results/research_loop/r481_direct_md/formal_analysis.json`; law 不重选，但
+  comparator 必须在 R485 同一 physical path 重新执行。R481/R484 旧比值不得当
+  R485 分母；identity test 必须证明 legacy adapter 没有造成 60/50 double scale。
 - Profiles/scenarios: preserve the registered R483/R484 finite bank and six
   signed common/differential/localised scenarios. Because the rows are already
   historical/outcome-visible, call them a frozen benchmark, never fresh
@@ -104,6 +130,17 @@ Stay-out:
   separately and never counted as independent replications.
 - No Phase-3B/RMS arm. The old 26-cell branch addressed magnitude penalty only,
   did not target action variation and is outside the decoupling-centred paper.
+
+参数卡（seal 前必须绑定到 exact source/config）：
+
+| 对象 | R485 规则 | 不允许的做法 |
+|---|---|---|
+| plant/report frequency | physical 60 Hz | 把 plant 当 50 Hz |
+| learner frequency/RoCoF | canonical 60-Hz transform exactly once | 漏转或重复乘 `60/50` |
+| reward | 公式与数值系数固定，输入使用同一 canonical 60-Hz rows | 用补偿系数偷偷恢复旧 objective |
+| M/D/H | 按 device/system base 与单位重新核对；不作统一 `x1.2` | 把 M、D、H 全部按频率比例缩放 |
+| p.u. power/voltage, time, seeds, network/optimizer | 保持冻结值 | 因 canary performance 修改 |
+| direct-M/D comparator | law 固定，同路径重跑，adapter 只生效一次 | 复用旧 denominator 或 double conversion |
 
 ### 3. End-to-end 60-Hz contract
 
@@ -127,37 +164,45 @@ Required contract:
 
 ### 4. NO-RUN gates
 
-Any failure below blocks prepare/seal and executes zero formal cells.
+Any failure below blocks prepare/seal and executes zero formal cells. Only five
+load-bearing checks are required; do not build a new documentation framework.
 
-1. **Physical card**: device/system base, H/M/D units, reset anchor, runtime
-   readback, action map, clamp and slew pass zero/nonzero/reset/round-trip/
-   heterogeneity invariants. H0=100 s is labelled project calibration/numerical
-   stress regime; no hardware equivalence is claimed.
-2. **Golden state**: one known physical state produces identical 60-Hz learner
-   rows in actor, critic, target, replay, reward and evaluator paths.
-3. **Mutation falsification**: restore 50-Hz semantics in each path one at a
-   time; every mutation must fail the parity test.
-4. **Episode trace**: one bounded development episode proves step-by-step
-   observation -> raw action -> projected/executed action -> M/D readback ->
-   reward components -> replay -> next observation continuity.
-5. **Reward identity**: paper equation and production code match numerically;
-   sign, units, aggregation and cancellation example are pinned by tests.
-6. **Routing purity**: per time/slot/scenario, N/P source multisets equal; P is
-   fixed-point-free, no P donor is a true neighbour, both read the same
-   contemporaneous state pool, and only registered factor columns differ.
-7. **Train/eval parity**: the evaluator loads final checkpoint identity and
-   uses the same observation/action contract; raw versus executed actions
-   cannot be substituted.
-8. **Data sufficiency**: a rehearsal proves every field needed for offline
-   reanalysis is stored before long execution.
-9. **Independent review**: exact frozen plan/code/config receives one
-   confirmatory diff/data-flow review and one adversarial premise/estimand/
-   domain review. Any P0/P1 blocks seal.
-10. **Formal-entry rehearsal**: same pre-attempt path verifies source/parent/
-    config/case hashes, installed package, output absence and checkpoint/base
-    inventory without creating formal output.
+1. **60 Hz exactly once**: one golden physical state produces identical
+   canonical rows in actor, current/target critic, replay, reward and evaluator;
+   restoring 50-Hz semantics or adding a second `60/50` conversion must make the
+   test fail. The same test covers units, reset anchor and M/D readback.
+2. **Comparator identity**: at a fixed physical state, the production-path
+   direct-M/D action equals an independently computed frozen-law action. A test
+   fixture combining canonical transform with the legacy adapter must fail if
+   it applies `60/50` twice; otherwise comparator execution blocks.
+3. **6/30 prefix parity**: for the same controller/profile/scenario, every saved
+   field in the 6-s result equals the first 30 rows of the 30-s trace. No second
+   6-s simulation is allowed.
+4. **Factor/data parity**: routing purity, reward equation/code identity,
+   train/eval checkpoint contract, raw/projected/executed action distinction and
+   full offline-analysis schema pass focused tests plus one bounded episode.
+5. **Short teach-back + rehearsal**: two independent reviewers each use the
+   experiment card to explain in plain language what changes, what stays fixed,
+   what is compared and what may be claimed; any disagreement or P0/P1 blocks.
+   The formal-entry rehearsal separately verifies hashes, installed package/
+   case, output absence and complete roster without creating formal output.
 
-### 5. Evaluation and saved data
+### 5. Engineering canary
+
+Before seal, run development seed `500` through all eight arms at the same
+43,200-step budget and then through the same evaluation path: exactly eight
+development training cells, outside formal seeds `501..526`. The canary may
+inspect only data flow, numerical health, artifact completeness and resource
+behaviour; its returns/endpoints cannot select coefficients, arms, checkpoints,
+thresholds, budget or paper claims.
+
+The canary is excluded from formal inference and stored outside the formal
+result root. Any source/config change affecting the path invalidates it and
+requires a new canary before seal. This canary and all simulation/training still
+require a future explicit owner long-task authorisation; plan approval alone
+does not launch it.
+
+### 6. Evaluation and saved data
 
 For every final policy/profile/scenario trace, store create-only full-step data:
 
@@ -168,6 +213,11 @@ For every final policy/profile/scenario trace, store create-only full-step data:
 - every reward component;
 - endpoint integrands, action RMS/TV inputs, validity/done/TDS flags;
 - arm, seed, base, profile, scenario, checkpoint, source/config/code hashes.
+
+Exact roster mirrors the frozen two-bank comparison: `4,992` learned traces +
+`48` same-bank zero/direct-M/D traces + `48` fresh-bank zero/direct-M/D traces =
+`5,088` trajectories. Missing, duplicate or hash-invalid cell/profile/scenario
+blocks inference; no seed replacement or partial-result verdict is allowed.
 
 Primary factorial uses final-checkpoint 6-s prefix and seed as inference unit.
 Preserve the four registered source contrasts, direct `log(1.10)` materiality
@@ -189,7 +239,7 @@ Representative frequency, M(t) and D(t) plots are selected by a frozen rule
 (comparator + median endpoint-qualified policy + worst complete-contract
 policy), never by visual attractiveness.
 
-### 6. Outcome-blind stop rule
+### 7. Outcome-blind stop rule
 
 - Design/integrity/execution invalidity: no scientific verdict; preserve all
   artifacts; successor only after new owner decision. No in-place patch/retry.
@@ -201,8 +251,13 @@ policy), never by visual attractiveness.
   domain audit and manuscript revision only.
 - A new simulation is permissible only for a newly authorised expanded claim,
   never as post-hoc rescue of R485.
+- Pure operational interruption may reuse a completed create-only artifact only
+  when its seal/hash/manifest are valid. A partial training cell restarts from
+  step zero; no mid-cell resume without replay identity. Semantic, scientific
+  or hash failure stops the attempt and preserves evidence; it never triggers
+  result-based rerun or seed replacement.
 
-### 7. Formal launch contract (blocked until implementation)
+### 8. Formal launch contract (blocked until implementation)
 
 - formal_entry: `TBD_R485_IMPLEMENTATION_BLOCKER`
 - rehearsal_command: `TBD_R485_IMPLEMENTATION_BLOCKER`

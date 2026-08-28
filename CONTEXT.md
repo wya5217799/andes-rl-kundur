@@ -31,6 +31,18 @@ disturbance-driven inter-VSG differential motion improve with common-mode
 no-harm. A coordinate transform, reward increase, or P/Q terminology is not
 this claim.
 
+### `corrected 60-Hz learner contract`
+Every dimensional frequency and RoCoF learner path uses the physical 60-Hz
+scale exactly once. Reward formula and numeric coefficients stay fixed without
+50-Hz compensation; this does not mean every parameter scales by 60/50, and it
+does not create a causal 50-versus-60 comparison.
+
+### `engineering canary`
+A development-only run that checks every registered arm's data path, numerical
+health, artifacts, and resource behaviour before the formal roster is sealed.
+Its performance cannot select parameters, stop rules, checkpoints, or claims,
+and none of its artifacts enters formal inference.
+
 ### `evidence line`
 A frozen manuscript line retained for its bounded claims, negative results,
 implementation assets, and methodological lessons.  It is not selectable for
