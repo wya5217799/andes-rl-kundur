@@ -12,9 +12,10 @@ superseded_note: null
 # R485 plan — final 60-Hz learner factorial for the Yang M/D conference paper
 
 **Opened**: 2026-08-28
+- Workload: `evidence`
 **Driver**: R483/R484 的 208-policy audit 使用 legacy 50-Hz learner
 observation/reward 语义，而 plant 与 physical endpoints 为 60 Hz；owner
-授权沉淀一次最终 corrected successor 的设计，不授权本轮训练或 ANDES。
+已授权本轮实现、测试与 development canary，但未授权 sealed 208-cell formal attempt。
 **Parent**: CLM-1505/R481 deterministic direct-M/D feasibility;
 CLM-1515/R483 source factorial; CLM-1520/R484 30-s complete guard.
 
@@ -22,8 +23,8 @@ CLM-1515/R483 source factorial; CLM-1520/R484 30-s complete guard.
 
 一次性训练 `8 arms x 26 seeds = 208` 个 all-fresh learner cells。唯一科学
 修正是 learner 从 training 到 evaluation 全链统一 60-Hz frequency/RoCoF
-contract；reward 公式与数值系数固定，但其 frequency/RoCoF 输入改为正确的
-60-Hz 物理量。算法、action object、factorial、budget、bank、comparator law
+contract；reward 公式与数值系数固定，其实际读取的 frequency slots 改为正确的
+60-Hz 物理量（该 reward 不读取 RoCoF slots）。算法、action object、factorial、budget、bank、comparator law
 与 guards 固定。训练后同一批 final checkpoints 只跑一次 30-s trace bank；
 6-s 结果取其冻结 prefix，不当独立 replication。结果正负都结束大规模实验，
 不因 performance 调 reward、补 seed、延长 budget 或重训。
@@ -32,9 +33,9 @@ contract；reward 公式与数值系数固定，但其 frequency/RoCoF 输入改
 冻结会导致昂贵返工的 method 与数据边界；结果出来后的统计、图和 discussion
 可以继续改进，但不得反过来修改已冻结实验。
 
-当前 authority = **DESIGN-ONLY**。本 plan、审计或测试都不授权 WSL、ANDES、
-training、evaluation、capacity probe 或 formal attempt。启动需要 owner 在未来
-消息明确说长任务并点名 sealed R485 attempt。
+当前 authority = **IMPLEMENTATION+DEVELOPMENT-CANARY**。owner 已明确授权长任务
+实现、测试、development canary、rehearsal 与 capacity；该授权不包含 sealed
+208-cell formal attempt。正式启动仍需 owner 在未来消息单独点名授权。
 
 ## Paper-facing experiment card
 
@@ -111,8 +112,8 @@ Stay-out:
   based extension or stopping claim.
 - Algorithm/object: frozen R483 learner family, executed-action Markov state,
   projector, action decoder, clamps, slew and four-agent information pattern.
-- Reward: 公式、聚合方式和数值系数冻结；frequency/RoCoF 输入改为 canonical
-  60-Hz 物理行，所以数值 objective 会随正确输入改变，不能写成“reward 数值
+- Reward: 公式、聚合方式和数值系数冻结；reward 实际读取的 frequency slots
+  改为 canonical 60-Hz 物理行（不读取 RoCoF slots），所以数值 objective 会随正确输入改变，不能写成“reward 数值
   完全不变”。No RMS penalty, TV penalty, coefficient selection or
   hyperparameter search. The known fleet-average M/D cancellation is an
   explicit audited property, not hidden training alignment with the complete
@@ -198,9 +199,9 @@ thresholds, budget or paper claims.
 
 The canary is excluded from formal inference and stored outside the formal
 result root. Any source/config change affecting the path invalidates it and
-requires a new canary before seal. This canary and all simulation/training still
-require a future explicit owner long-task authorisation; plan approval alone
-does not launch it.
+requires a new canary before seal. Owner granted the required long-task
+authorisation for implementation and this development canary on 2026-08-28;
+that authorisation does not extend to the formal 208-cell attempt.
 
 ### 5.1 Minimal implementation boundary (not a launch plan)
 
@@ -282,31 +283,28 @@ policy), never by visual attractiveness.
   or hash failure stops the attempt and preserves evidence; it never triggers
   result-based rerun or seed replacement.
 
-### 8. Formal launch contract (blocked until implementation)
+## Formal launch contract
 
-- formal_entry: `TBD_R485_IMPLEMENTATION_BLOCKER`
+- formal_entry: `/home/wya/andes_venv/bin/python scripts/andes_scratch.py scripts/run_r485_60hz_source_factorial.py --config memory/rounds/R485/config.json shard <sealed-shard-id>`
 - rehearsal_command: `TBD_R485_IMPLEMENTATION_BLOCKER`
-- rehearsal_scope: exact formal pre-attempt path; no scientific trajectory
-- rehearsal_checks: source/parent/config/case hashes, installed package/case,
-  output absence, base/seed/shard identity, 60-Hz contract and data schema
+- rehearsal_scope: same-pre-attempt-path; no scientific trajectory
+- rehearsal_checks: source_hash,parent_hash,installed_package,installed_case,output_absence
 - result_root: `results/research_loop/r485_60hz_source_factorial/`
 - capacity_evidence: `TBD_R485_MEASURED_CAPACITY_BLOCKER`
 - host_process_budget: `TBD_R485_MEASURED_CAPACITY_BLOCKER`
-- wsl_python_processes: at most 16 training workers plus one launcher, subject
-  to fresh measured capacity and owner launch authorisation
+- wsl_python_processes: 17
 - native_threads_per_process: 1
-- other_reserved_processes: remeasure immediately before seal; current design
-  session observed no WSL job
+- other_reserved_processes: `TBD_R485_MEASURED_CAPACITY_BLOCKER`
 - expected compute: estimate only until same-path measurement; historical
   scale is about 42 h training plus complete evaluation, not a deadline
 
-The current `round_preflight.py` validates plan structure but does not inspect
-`TBD` values; a green design-stage preflight is therefore **not launch
-readiness**. Launch readiness requires zero `TBD`, the two frozen-hash reviews,
+The current `round_preflight.py` rejects prefixed `TBD_*` placeholders and this
+contract therefore remains fail-closed until rehearsal and capacity are real.
+Launch readiness requires zero `TBD`, the two frozen-hash reviews,
 same-path rehearsal, measured capacity, formal seal and a new explicit owner
-long-task authorisation. Removing TBDs, implementing/reviewing tests, running
-rehearsal, sealing or launching are future explicit tasks; this design-only
-turn does none of them.
+long-task authorisation. Implementation, review, development canary, rehearsal
+and capacity are in the current authorised task. Sealing the final formal inputs
+and launching the 208-cell attempt still require the later owner decision above.
 
 ## Gate
 
@@ -323,8 +321,9 @@ may infer that plan approval equals launch approval.
   data as corrected 60-Hz evidence.
 - Preserve the manuscript/review/figure/ARTIFACTS batch frozen at commit
   `692766f`; R485 implementation must not amend, revert or rewrite that batch.
-- R485 adds only its round artifacts until a separately authorised
-  implementation task names exact code/tests/config files.
+- R485 implementation is limited to `scripts/run_r485_60hz_source_factorial.py`,
+  `memory/rounds/R485/config.json`, the two R485 focused test files, and the
+  minimal fail-closed placeholder repair in `memory/tools/round_preflight.py`.
 - No new framework, repository cleanup, runner consolidation or unrelated
   governance repair. The workspace-freeze governance findings were cleared
   before this plan's commit and do not authorise further R485 infrastructure.

@@ -1,0 +1,140 @@
+{
+  "schema_version": 1,
+  "round": "R485",
+  "manuscript_line": "yang-md-decoupling-marl",
+  "formal_seeds": [501, 502, 503, 504, 505, 506, 507, 508, 509, 510, 511, 512, 513, 514, 515, 516, 517, 518, 519, 520, 521, 522, 523, 524, 525, 526],
+  "canary_seed": 500,
+  "arms": ["an_cn_r0", "an_cn_r1", "an_cp_r0", "an_cp_r1", "ap_cn_r0", "ap_cn_r1", "ap_cp_r0", "ap_cp_r1"],
+  "training": {
+    "interaction_steps": 43200,
+    "checkpoint_steps": [21600, 43200],
+    "adaptive_stop": false,
+    "resume_partial_cell": false
+  },
+  "evaluation": {
+    "steps": 150,
+    "dt_seconds": 0.2,
+    "prefix_steps": 30,
+    "independent_prefix_simulation": false
+  },
+  "parameter_card": {
+    "observation": {
+      "raw_shape": [4, 7],
+      "frequency_and_rocof_slots": [1, 2, 3, 4, 5, 6],
+      "transform": "adapt_v4_observations_to_physical",
+      "control_nominal_frequency_hz": 50.0,
+      "physical_nominal_frequency_hz": 60.0,
+      "scale": 1.2,
+      "application_count": 1
+    },
+    "learner": {
+      "family": "four_independent_source_factorial_executed_action_sac_agents",
+      "actor_state_dim": 9,
+      "critic_state_dim": 9,
+      "action_dim": 2,
+      "hidden_sizes": [128, 128, 128, 128],
+      "activation": "ReLU",
+      "actor": "Gaussian-tanh",
+      "log_std_bounds": [-20.0, 2.0],
+      "twin_q": true,
+      "lr": 0.0003,
+      "gamma": 0.99,
+      "tau": 0.005,
+      "replay_capacity": 10000,
+      "batch_size": 256,
+      "alpha_initial": 1.0,
+      "alpha_bounds": [0.005, 5.0],
+      "target_entropy": -2.0,
+      "max_grad_norm": 1.0,
+      "updates_per_environment_step_after_warmup": 1,
+      "training_policy": "stochastic",
+      "evaluation_policy": "deterministic_mean"
+    },
+    "reward": {
+      "formula": "R438_channel_step_rewards",
+      "coefficients": {"phi_f": 100.0, "phi_abs": 50.0, "phi_h": 0.0056, "phi_d": 0.0056},
+      "fleet_mean_m_d_divisor": 600.0,
+      "frequency_slots": [1, 3, 4],
+      "rocof_slots": [],
+      "input": "canonical_60hz_rows"
+    },
+    "statistics": {
+      "inference_unit": "seed",
+      "estimand": "seed_level_hodges_lehmann_location_pseudomedian",
+      "null_boundary": "theta_HL <= log(1.10)",
+      "test": "exact_one_sided_wilcoxon_signed_rank",
+      "multiplicity": "Holm_family_of_four",
+      "ties_zeros_or_symmetry_failure": "ASSUMPTION-LIMITED",
+      "fallback": null,
+      "primary_horizon_seconds": 6.0,
+      "tail_horizon_seconds": 30.0,
+      "horizons_pooled": false
+    },
+    "threshold_sensitivity": {
+      "frequency_multipliers": [1.0, 1.03, 1.05, 1.1],
+      "action_multipliers": [1.1, 1.2, 1.5, 2.0],
+      "primary": {"frequency": 1.03, "action": 1.1},
+      "break_even": "max_block_action_rms_or_tv_ratio",
+      "complete_contract_break_even_requires_all_non_action_guards": true,
+      "otherwise": "NA_for_complete_contract_but_report_action_only_break_even",
+      "zero_denominator": "NA",
+      "post_result_threshold_additions": false
+    },
+    "tds_ontology": {
+      "infrastructure_hash_or_code_failure": "INTEGRITY-INVALID",
+      "reproducible_controller_tds_divergence": "COMPLETE-GUARD-FAIL",
+      "continuous_endpoint": "NOT-COMPUTABLE",
+      "source_inference_with_missing_endpoint": "ASSUMPTION-LIMITED"
+    },
+    "outcome_to_claim": {
+      "VALID-POSITIVE": "finite-design improvement under the registered complete contract",
+      "VALID-MIXED": "endpoint and complete-contract qualifications disagree; report both",
+      "VALID-NEGATIVE": "material improvement not established for this frozen learner and budget",
+      "ASSUMPTION-LIMITED": "registered inference not tested; retain descriptive guard outcome",
+      "INTEGRITY-INVALID": "no scientific result"
+    }
+  },
+  "paths": {
+    "plan": "memory/rounds/R485/plan.md",
+    "resolved_parameter_card": "memory/rounds/R485/resolved_parameter_card.json",
+    "canary_admissibility": "memory/rounds/R485/canary_admissibility.json",
+    "code_review_a": "memory/rounds/R485/code_review_a.json",
+    "code_review_b": "memory/rounds/R485/code_review_b.json",
+    "rehearsal": "memory/rounds/R485/rehearsal.json",
+    "capacity": "memory/rounds/R485/capacity_evidence.json",
+    "owner_approval": "memory/rounds/R485/OWNER_APPROVED.json",
+    "formal_seal": "memory/rounds/R485/formal_seal.json",
+    "formal_out": "results/research_loop/r485_60hz_source_factorial",
+    "canary_out": "results/research_loop/r485_60hz_source_factorial_canary",
+    "train_shards": "tmp/andes/r485_train_shards.json",
+    "eval_shards": "tmp/andes/r485_eval_shards.json"
+  },
+  "source_files": {
+    "source_factorial_sac": "src/andes_rl_kundur/agents/source_factorial_sac.py",
+    "executed_action_sac": "src/andes_rl_kundur/agents/executed_action_sac.py",
+    "networks": "src/andes_rl_kundur/agents/networks.py",
+    "observation_transform": "src/andes_rl_kundur/control/per_vsg_md.py",
+    "physical_contract": "src/andes_rl_kundur/evaluation/cd_matd3_canary.py",
+    "tail_analysis": "src/andes_rl_kundur/evaluation/r484_tail_guard.py",
+    "six_second_analysis": "src/andes_rl_kundur/evaluation/r482_analysis.py",
+    "endpoint_analysis": "src/andes_rl_kundur/evaluation/md_decoupling_headroom.py",
+    "factorial_analysis": "src/andes_rl_kundur/evaluation/source_factorial_design.py",
+    "fresh_profiles": "src/andes_rl_kundur/evaluation/r481_fresh_profiles.py",
+    "environment": "src/andes_rl_kundur/env/andes/andes_vsg_env_v4.py",
+    "environment_base": "src/andes_rl_kundur/env/andes/base_env.py",
+    "environment_config": "src/andes_rl_kundur/env/andes/v4_config.py",
+    "md_convention": "src/andes_rl_kundur/env/andes/md_convention.py",
+    "scenario_contract": "src/andes_rl_kundur/scenarios/contract.py",
+    "runner_tests": "tests/test_run_r485_60hz_source_factorial.py",
+    "analysis_tests": "tests/test_r485_analysis.py",
+    "scratch_launcher": "scripts/andes_scratch.py",
+    "shard_driver": "scripts/soft_spot_shard_driver.py",
+    "round_preflight": "memory/tools/round_preflight.py",
+    "round_preflight_tests": "memory/tools/tests/test_round_preflight.py"
+  },
+  "execution": {
+    "workers": 16,
+    "native_threads_per_process": 1,
+    "formal_launch_authorized": false
+  }
+}

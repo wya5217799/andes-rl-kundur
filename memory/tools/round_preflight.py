@@ -396,9 +396,10 @@ def _contract_field(section: str, name: str) -> str | None:
     if not match:
         return None
     value = match.group(1).strip()
-    if not value or re.fullmatch(
-        r"(?i)(?:todo|tbd|none|n/a|\(?fill(?:\s+in)?\)?)", value
-    ):
+    normalized = value.strip("`\"' ")
+    if not normalized or re.fullmatch(
+        r"(?i)(?:none|n/a|\(?fill(?:\s+in)?\)?)", normalized
+    ) or re.search(r"(?i)(?:^|[^a-z0-9])(?:todo|tbd)(?:[^a-z0-9]|$)", normalized):
         return None
     return value
 
