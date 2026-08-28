@@ -202,6 +202,31 @@ requires a new canary before seal. This canary and all simulation/training still
 require a future explicit owner long-task authorisation; plan approval alone
 does not launch it.
 
+### 5.1 Minimal implementation boundary (not a launch plan)
+
+目标是正确完成最后一轮大实验，不建设通用实验平台。R485 复用现有
+scientific kernels：V4 env/M/D convention、executed-action/source-factorial
+SAC、source routing、reward formula、factorial statistics、endpoint/action
+guards、artifact/seal helpers。历史 checkpoint/result 不随代码复用。
+
+R485 新实现限于：一个 thin round adapter、一个 config、1--2 个 focused
+test files，以及本轮必要的 seal/review/shard artifacts。adapter 只拥有
+round identity、fixed roster、43,200-step cell loop、30-s evaluation binding、
+canonical observation wrapper 和 create-only output；现有
+`adapt_v4_observations_to_physical()` 是唯一 50->60 observation transform，
+不得再写第二套转换器。
+
+若避免复制 guard 代码确有必要，只允许一次小型、向后兼容的 R484 analysis
+参数化；其默认 R484 行为与 focused regression 必须保持。以下任一出现即暂停
+实现并回报 owner，不得顺势扩张：新 production code 明显超过 800 lines、改动
+超过两个 existing scientific-kernel modules、复制整个旧 runner、继续动态套娃
+旧 round、或引入通用 runner/DAG/plugin/scheduler abstraction。600--800 lines
+是工程告警区间，不是必须写满的预算。
+
+明确排除 adaptive stop、parameter search、RMS/TV reward branch、historical
+runner cleanup、全仓重构和 future-proof CLI branches。本节不冻结启动命令、
+容量、seal 或正式执行顺序；这些按项目流程在后续 implementation task 单独完成。
+
 ### 6. Evaluation and saved data
 
 For every final policy/profile/scenario trace, store create-only full-step data:

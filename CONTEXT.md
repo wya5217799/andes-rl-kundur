@@ -1,7 +1,7 @@
 # CONTEXT — andes-rl-kundur
 
 **Purpose:** canonical domain glossary for this repo.
-**Glossary last updated:** 2026-08-12.
+**Glossary last updated:** 2026-08-28.
 **Navigation role clarified:** 2026-07-29.
 
 This file captures terms and decisions that are not derivable from the code
@@ -42,6 +42,17 @@ A development-only run that checks every registered arm's data path, numerical
 health, artifacts, and resource behaviour before the formal roster is sealed.
 Its performance cannot select parameters, stop rules, checkpoints, or claims,
 and none of its artifacts enters formal inference.
+
+### `scientific kernel`
+Reusable code that defines the learner, physical action, source routing,
+metrics, or statistical calculation without owning a round identity. Reusing a
+scientific kernel transfers implementation, never historical evidence.
+
+### `round adapter`
+A thin experiment-specific layer that binds one frozen round's roster,
+identity, paths, and create-only outputs to scientific kernels. It may be
+disposable, but it is not a general experiment framework and owns no alternate
+scientific formula.
 
 ### `evidence line`
 A frozen manuscript line retained for its bounded claims, negative results,
