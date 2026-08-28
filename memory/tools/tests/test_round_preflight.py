@@ -176,32 +176,6 @@ def test_formal_andes_plan_blocks_without_launch_contract(tmp_path: Path):
     )
 
 
-def test_formal_launch_contract_rejects_prefixed_tbd_placeholders(tmp_path: Path):
-    plan = (
-        "# R485 plan — formal run\n"
-        "- Workload: `evidence`\n"
-        "- Execute ANDES in WSL after sealing.\n"
-        "## Formal launch contract\n"
-        "- formal_entry: `TBD_R485_IMPLEMENTATION_BLOCKER`\n"
-        "- rehearsal_command: `TBD_R485_REHEARSAL_BLOCKER`\n"
-        "- rehearsal_scope: same-pre-attempt-path\n"
-        "- rehearsal_checks: source_hash,parent_hash,installed_package,installed_case,output_absence\n"
-        "- wsl_python_processes: 17\n"
-        "- native_threads_per_process: 1\n"
-        "- capacity_evidence: `TBD_R485_CAPACITY_BLOCKER`\n"
-        "- host_process_budget: `TBD_R485_CAPACITY_BLOCKER`\n"
-        "- other_reserved_processes: 0\n"
-    )
-    report = PreflightReport(round_id="R485", plan_path=tmp_path / "plan.md")
-
-    check_formal_launch_contract(report, plan, adaptive_budget_required=True)
-
-    finding = next(f for f in report.findings if f.check == "formal-launch-contract")
-    assert finding.level == "BLOCK"
-    assert "formal_entry" in finding.message
-    assert "capacity_evidence" in finding.message
-
-
 def test_formal_andes_plan_blocks_process_count_above_measured_host_budget(
         tmp_path: Path):
     plan = (

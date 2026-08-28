@@ -88,6 +88,14 @@ Allowed if valid:
 - `N` versus `P` as total algorithm/source intervention, not pure neighbour-
   information value.
 
+The learner qualification and source-factor inference are separate outputs.
+`VALID-POSITIVE/MIXED/NEGATIVE` answer the primary endpoint-plus-guard question:
+complete-contract pass / endpoint-only pass / no joint-endpoint qualification.
+They are never inferred from a source-factor rejection. Source inference reports
+its own `MATERIAL-EFFECT` or `MATERIAL-EFFECT-NOT-ESTABLISHED` result; an
+assumption-limited source test does not erase an otherwise valid endpoint/guard
+classification.
+
 Stay-out:
 
 - causal 50->60 scaling effect; historical R483 values are descriptive only;
@@ -112,6 +120,11 @@ Stay-out:
   based extension or stopping claim.
 - Algorithm/object: frozen R483 learner family, executed-action Markov state,
   projector, action decoder, clamps, slew and four-agent information pattern.
+- Source intervention: `N` uses the authentic same-time rows; `P` preserves
+  recipient-owned slots and applies the frozen `rho(i)=(i+1) mod 4` row
+  permutation to the same-time authentic neighbour 4-tuples. No exogenous
+  donor bank exists. Per-seed preparation creates only the fresh common base
+  state shared by all eight arms.
 - Reward: 公式、聚合方式和数值系数冻结；reward 实际读取的 frequency slots
   改为 canonical 60-Hz 物理行（不读取 RoCoF slots），所以数值 objective 会随正确输入改变，不能写成“reward 数值
   完全不变”。No RMS penalty, TV penalty, coefficient selection or
@@ -197,6 +210,10 @@ inspect only data flow, numerical health, artifact completeness and resource
 behaviour; its returns/endpoints cannot select coefficients, arms, checkpoints,
 thresholds, budget or paper claims.
 
+The canary also executes and schema-validates zero/direct-M/D references on
+both same and fresh banks. These deterministic traces test comparator and bank
+plumbing only; their endpoint values remain ineligible for selection or claims.
+
 The canary is excluded from formal inference and stored outside the formal
 result root. Any source/config change affecting the path invalidates it and
 requires a new canary before seal. Owner granted the required long-task
@@ -220,13 +237,13 @@ roster/lineage validation、learner-admissibility、resolved TDS reproduction、
 `adapt_v4_observations_to_physical()` 是唯一 50->60 observation transform，
 不得再写第二套转换器。
 
-为避免复制 guard/authority/I/O，只允许向后兼容地参数化 R484 round label、
-公开既有 U2 authority reader，并复用既有 race-safe artifact I/O；默认旧行为与
-focused regression 必须保持。以下任一出现即暂停
-实现并回报 owner，不得顺势扩张：新 production code 明显超过 800 lines、改动
-超过两个 existing scientific-kernel modules、复制整个旧 runner、继续动态套娃
-旧 round、或引入通用 runner/DAG/plugin/scheduler abstraction。600--800 lines
-是工程告警区间，不是必须写满的预算。
+为避免复制 guard/authority/I/O，优先复用既有 race-safe artifact I/O 与
+scientific kernels；默认旧行为与 focused regression 必须保持。Production code
+超过 800 lines 只触发一次 scope/simplicity review，不再作为科学硬门：若删除会
+损失显式 roster、lineage、TDS、learner-admissibility 或 complete-contract 检查，
+则保留并在 review 中说明。以下任一仍须暂停并回报 owner，不得顺势扩张：复制
+整个旧 runner、继续动态套娃旧 round、或引入通用 runner/DAG/plugin/scheduler
+abstraction。600--800 lines 是工程告警区间，不是必须写满的预算。
 
 明确排除 adaptive stop、parameter search、RMS/TV reward branch、historical
 runner cleanup、全仓重构和 future-proof CLI branches。本节不冻结启动命令、
@@ -254,6 +271,12 @@ Preserve the four registered source contrasts, direct `log(1.10)` materiality
 boundary and Holm family of four; exact formulas/test/fallback must pass an
 independent statistical audit before seal. The 30-s result is separate
 complete-contract evidence and source sensitivity, never pooled with 6 s.
+For the two main effects the registered coordinate is explicitly
+`log(loss_P / loss_N)`, where `N` is the authentic source and `P` is the
+row-permuted placebo; a positive value therefore means the authentic source
+has lower loss. The two interaction signs follow the exact registered
+ratio-of-ratios in `source_factorial_design.seed_effects` and must be labelled
+as interactions, not silently renamed as main-effect improvement.
 
 Complete-contract reporting must include continuous margins/distributions,
 not binary counts alone:
@@ -289,7 +312,7 @@ policy), never by visual attractiveness.
 
 ## Formal launch contract
 
-- formal_entry: sequentially run the sealed `donor_shards.json`, then
+- formal_entry: sequentially run the sealed `base_shards.json`, then
   `train_shards.json`, then `eval_shards.json` with
   `/home/wya/andes_venv/bin/python scripts/soft_spot_shard_driver.py --runner scripts/run_r485_60hz_source_factorial.py --shards <sealed-stage-list> --workers 16 --round R485`; no `--resume`
 - rehearsal_command: `/home/wya/andes_venv/bin/python scripts/andes_scratch.py scripts/run_r485_60hz_source_factorial.py rehearse`

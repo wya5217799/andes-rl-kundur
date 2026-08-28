@@ -133,17 +133,16 @@ def test_reward_uses_canonical_frequency_rows_and_frozen_coefficients() -> None:
     assert components["fleet_mean_d"] == expected_d
 
 
-def test_source_routing_changes_only_registered_neighbour_slots() -> None:
+def test_source_routing_uses_registered_same_time_row_permutation() -> None:
     runner = _load_runner()
     current = np.arange(28, dtype=np.float32).reshape(4, 7)
-    donor = (100 + np.arange(28, dtype=np.float32)).reshape(4, 7)
 
-    assert np.array_equal(runner.source_rows(current, donor, "N"), current)
-    placebo = runner.source_rows(current, donor, "P")
+    assert np.array_equal(runner.source_rows(current, "N"), current)
+    placebo = runner.source_rows(current, "P")
     assert np.array_equal(placebo[:, :3], current[:, :3])
     for actor in range(4):
-        assert np.array_equal(placebo[actor, 3:5], donor[actor, 1:3])
-        assert np.array_equal(placebo[actor, 5:7], donor[(actor + 2) % 4, 1:3])
+        assert np.array_equal(placebo[actor, 3:7], current[(actor + 1) % 4, 3:7])
+    assert sorted(map(tuple, placebo[:, 3:7])) == sorted(map(tuple, current[:, 3:7]))
 
 
 def test_direct_md_comparator_matches_independent_raw_and_projection_oracle() -> None:
@@ -215,10 +214,30 @@ def test_objective_semantics_probe_binds_executed_action_paths() -> None:
     assert result["passed"] is True
     assert result["replay_actor_rows_are_canonical"] is True
     assert result["replay_critic_rows_are_canonical"] is True
+    assert result["placebo_is_same_time_registered_row_permutation"] is True
     assert result["current_critic_uses_executed_action"] is True
     assert result["target_critic_uses_projected_action"] is True
     assert result["actor_critic_uses_projected_action"] is True
     assert result["weights_changed"] is True
+
+
+def test_parameter_card_is_checked_against_the_live_learner() -> None:
+    runner = _load_runner()
+    card = runner.build_parameter_card()
+    member = runner._new_member()
+
+    resolved = runner.validate_parameter_card_against_member(card, member)
+
+    assert resolved["hidden_sizes"] == [128, 128, 128, 128]
+    assert resolved["actor_state_dim"] == 9
+    assert resolved["critic_state_dim"] == 9
+    assert resolved["action_dim"] == 2
+    assert resolved["twin_q"] is True
+
+    tampered = json.loads(json.dumps(card))
+    tampered["learner"]["hidden_sizes"] = [256, 256]
+    with pytest.raises(RuntimeError, match="learner.hidden_sizes"):
+        runner.validate_parameter_card_against_member(tampered, member)
 
 
 def test_formal_authority_fails_closed_before_card_canary_review_and_seal() -> None:
@@ -236,6 +255,30 @@ def test_formal_authority_fails_closed_before_card_canary_review_and_seal() -> N
     assert "formal_seal" in errors
     with pytest.raises(RuntimeError, match="formal authority failed"):
         runner.require_authority(config, scope="formal")
+
+
+def test_preflight_reports_semantic_authority_failure(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    runner = _load_runner()
+    config = runner.load_config(CONFIG)
+    monkeypatch.setattr(runner, "load_config", lambda _path: config)
+    monkeypatch.setattr(
+        runner,
+        "require_authority",
+        lambda *_args, **_kwargs: (_ for _ in ()).throw(
+            RuntimeError("capacity evidence is not safe for R485 formal launch")
+        ),
+    )
+
+    exit_code = runner.main(["preflight"])
+    payload = json.loads(capsys.readouterr().out)
+
+    assert exit_code == 1
+    assert payload["passed"] is False
+    assert payload["authority_errors"] == [
+        "capacity evidence is not safe for R485 formal launch"
+    ]
 
 
 def test_shard_cli_rejects_identity_outside_registered_roster() -> None:
@@ -355,4 +398,5 @@ def test_canary_aggregate_rejects_identity_only_trace_shells(
     assert payload["passed"] is False
     assert payload["performance_or_endpoint_selection_performed"] is False
     assert set(payload["arms"]) == set(runner.ARM_IDS)
-    assert all("evaluation_schema" in failure for failure in payload["failures"])
+    assert any("evaluation_schema" in failure for failure in payload["failures"])
+    assert any("reference_schema" in failure for failure in payload["failures"])

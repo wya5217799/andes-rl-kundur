@@ -3,6 +3,10 @@
 This round adapter owns only R485 identity, roster, fixed budgets, create-only
 artifacts, and the training/evaluation bindings.  Scientific kernels remain in
 the package modules imported below.  Formal execution is seal- and owner-gated.
+
+Usage: ``python scripts/run_r485_60hz_source_factorial.py <command>``.
+``preflight`` exits 1 when any semantic authority gate or output-absence check
+fails; execution commands raise without their required hashed authority files.
 """
 
 # ruff: noqa: E402, I001
@@ -41,9 +45,12 @@ if str(ROOT) not in sys.path:
 if str(ROOT / "src") not in sys.path:
     sys.path.insert(0, str(ROOT / "src"))
 
-from andes_rl_kundur.agents.executed_action_sac import project_action_numpy  # noqa: E402
 from andes_rl_kundur.agents.source_factorial_sac import (  # noqa: E402
     SourceFactorialSACAgent,
+)
+from andes_rl_kundur.agents.networks import (  # noqa: E402
+    LOG_STD_MAX,
+    LOG_STD_MIN,
 )
 from andes_rl_kundur.control.per_vsg_md import (  # noqa: E402
     adapt_v4_observations_to_physical,
@@ -56,7 +63,6 @@ from andes_rl_kundur.evaluation.r485_experiment import (  # noqa: E402
     attempt_output_root,
     build_canary_admissibility,
     build_rehearsal_evidence,
-    donor_marginal_audit,
     evaluate_trajectory as _evaluate_trajectory,
     evaluation_contracts,
     learner_metrics as _learner_metrics,
@@ -146,17 +152,17 @@ def canonical_rows(observations: Mapping[int, Sequence[float] | np.ndarray]) -> 
     return np.stack([converted[index] for index in range(4)]).astype(np.float32)
 
 
-def source_rows(current: np.ndarray, donor: np.ndarray, source: str) -> np.ndarray:
+def source_rows(current: np.ndarray, source: str) -> np.ndarray:
+    """Route the same-time authentic rows or their registered row permutation."""
+
     current_rows = np.asarray(current, dtype=np.float32).reshape(4, 7)
     if source == "N":
         return current_rows.copy()
     if source != "P":
         raise ValueError(f"unknown source: {source}")
-    donor_rows = np.asarray(donor, dtype=np.float32).reshape(4, 7)
     rows = current_rows.copy()
     for actor in range(4):
-        rows[actor, 3:5] = donor_rows[actor, 1:3]
-        rows[actor, 5:7] = donor_rows[(actor + 2) % 4, 1:3]
+        rows[actor, 3:7] = current_rows[(actor + 1) % 4, 3:7]
     return rows
 
 
@@ -250,6 +256,89 @@ def _new_member() -> SourceFactorialSACAgent:
         alpha_min=0.005,
         alpha_max=5.0,
     )
+
+
+def validate_parameter_card_against_member(
+    card: Mapping[str, Any], member: SourceFactorialSACAgent
+) -> dict[str, Any]:
+    """Resolve the frozen learner contract from a live production member."""
+
+    actor_hidden = [
+        int(layer.out_features)
+        for layer in member.actor.net
+        if isinstance(layer, torch.nn.Linear)
+    ]
+    actor_activations = [
+        type(layer).__name__
+        for layer in member.actor.net
+        if isinstance(layer, torch.nn.ReLU)
+    ]
+    q1_linears = [
+        layer for layer in member.critic.q1.net if isinstance(layer, torch.nn.Linear)
+    ]
+    q2_linears = [
+        layer for layer in member.critic.q2.net if isinstance(layer, torch.nn.Linear)
+    ]
+    actor_lr = float(member.actor_optimizer.param_groups[0]["lr"])
+    critic_lr = float(member.critic_optimizer.param_groups[0]["lr"])
+    alpha_lr = float(member.alpha_optimizer.param_groups[0]["lr"])
+    if len({actor_lr, critic_lr, alpha_lr}) != 1:
+        raise RuntimeError("live learner optimizers do not share the frozen learning rate")
+    resolved = {
+        "family": "four_independent_source_factorial_executed_action_sac_agents",
+        "actor_state_dim": int(member.state_dim),
+        "critic_state_dim": int(member.state_dim),
+        "action_dim": int(member.action_dim),
+        "hidden_sizes": actor_hidden,
+        "activation": (
+            "ReLU" if len(actor_activations) == len(actor_hidden) else actor_activations
+        ),
+        "actor": "Gaussian-tanh",
+        "log_std_bounds": [float(LOG_STD_MIN), float(LOG_STD_MAX)],
+        "twin_q": bool(
+            member.critic.q1 is not member.critic.q2
+            and [layer.in_features for layer in q1_linears]
+            == [layer.in_features for layer in q2_linears]
+            and [layer.out_features for layer in q1_linears]
+            == [layer.out_features for layer in q2_linears]
+        ),
+        "lr": actor_lr,
+        "gamma": float(member.gamma),
+        "tau": float(member.tau),
+        "replay_capacity": int(member.buffer.capacity),
+        "batch_size": int(member.batch_size),
+        "alpha_initial": float(member.alpha.detach().cpu()),
+        "alpha_bounds": [
+            float(np.exp(member._log_alpha_min)),
+            float(np.exp(member._log_alpha_max)),
+        ],
+        "target_entropy": float(member.target_entropy),
+        "max_grad_norm": float(member.max_grad_norm),
+        "updates_per_environment_step_after_warmup": 1,
+        "training_policy": "stochastic",
+        "evaluation_policy": "deterministic_mean",
+    }
+    frozen = card.get("learner", {})
+
+    def matches(left: Any, right: Any) -> bool:
+        if isinstance(left, (int, float)) and isinstance(right, (int, float)):
+            return bool(np.isclose(left, right, rtol=1.0e-12, atol=1.0e-12))
+        if isinstance(left, (list, tuple)) and isinstance(right, (list, tuple)):
+            return len(left) == len(right) and all(
+                matches(a, b) for a, b in zip(left, right, strict=True)
+            )
+        return left == right
+
+    mismatches = [
+        f"learner.{name}"
+        for name, value in resolved.items()
+        if not matches(frozen.get(name), value)
+    ]
+    if mismatches:
+        raise RuntimeError(
+            "parameter card/live learner mismatch: " + ", ".join(mismatches)
+        )
+    return resolved
 
 
 def objective_semantics_probe() -> dict[str, Any]:
@@ -356,6 +445,7 @@ def resolve_parameter_card(config: Mapping[str, Any]) -> str:
     probe = _new_member()
     optimizer = probe.actor_optimizer.param_groups[0]
     card = build_parameter_card()
+    card["resolved_learner"] = validate_parameter_card_against_member(card, probe)
     card["runtime"] = {
         "python": sys.version.split()[0],
         "numpy": np.__version__,
@@ -477,95 +567,42 @@ def _scope_root(config: Mapping[str, Any], scope: str) -> Path:
     return attempt_output_root(ROOT, config, scope=scope)
 
 
-def generate_donor(config: Mapping[str, Any], *, scope: str, seed: int) -> str:
+def generate_base(config: Mapping[str, Any], *, scope: str, seed: int) -> str:
     _assert_physical_runtime()
     require_authority(config, scope=scope)
     allowed = (CANARY_SEED,) if scope == "canary" else FORMAL_SEEDS
     if seed not in allowed:
-        raise ValueError("unregistered donor seed")
+        raise ValueError("unregistered base seed")
     root = _scope_root(config, scope)
     card_sha = _sha256(ROOT / str(config["paths"]["resolved_parameter_card"]))
-    folder = root / "donors" / f"seed{seed}"
+    folder = root / "bases" / f"seed{seed}"
     if folder.exists():
-        raise FileExistsError(f"donor output exists: {folder}")
+        raise FileExistsError(f"base output exists: {folder}")
     folder.mkdir(parents=True)
-    contract = evaluation_contracts()["same"]
-    split_rows: dict[str, Any] = {}
-    rng = np.random.default_rng(100_000 + seed)
-    for split in ("development", "evaluation"):
-        profiles = [profile for profile in contract["profiles"] if profile["split"] == split]
-        scenarios = [(profile, scenario) for profile in profiles for scenario in profile["scenarios"]]
-        steps = 30 if split == "development" else 150
-        trajectories = np.zeros((len(scenarios), 2, steps + 1, 4, 7), dtype=np.float32)
-        for scenario_index, (profile, scenario) in enumerate(scenarios):
-            env = _build_env(profile, steps=steps)
-            try:
-                for episode in range(2):
-                    observation = env.reset(delta_u=dict(scenario["delta_u"]))
-                    previous = np.zeros((4, 2), dtype=np.float32)
-                    trajectories[scenario_index, episode, 0] = canonical_rows(observation)
-                    for time_index in range(steps):
-                        raw = np.tanh(rng.normal(0.0, 0.35, size=(4, 2))).astype(np.float32)
-                        executed = np.stack([
-                            project_action_numpy(previous[i], raw[i], slew_limit=0.25)
-                            for i in range(4)
-                        ])
-                        observation, _reward, done, info = env.step({i: executed[i] for i in range(4)})
-                        trajectories[scenario_index, episode, time_index + 1] = canonical_rows(observation)
-                        previous = executed
-                        if done and time_index != steps - 1 or info["tds_failed"]:
-                            raise RuntimeError(f"donor trajectory failed: {split}|{scenario_index}|{episode}|{time_index}")
-            finally:
-                env.close()
-        path = folder / f"{split}.npz"
-        audit = donor_marginal_audit(trajectories)
-        if not all(
-            audit[key]
-            for key in (
-                "pi_fixed_point_free",
-                "placebo_nodes_are_non_neighbours",
-                "every_semantic_donor_changed",
-                "slot_feature_scenario_time_pools_equal",
-            )
-        ):
-            raise RuntimeError(f"donor marginal audit failed: {audit}")
-        np.savez_compressed(path, trajectories=trajectories, scenario_ids=np.asarray([str(row[1]["scenario_id"]) for row in scenarios]))
-        split_rows[split] = {"path": path.relative_to(ROOT).as_posix(), "sha256": _sha256(path), "shape": list(trajectories.shape), "marginal_audit": audit}
     _seed_all(seed)
     base = FactorialPolicy(ARM_IDS[0]).export()
     base_path = folder / "base_state.pt"
     torch.save({"kind": "r485-common-base", "seed": seed, "members": base}, str(base_path))
-    return _write_new_json(folder / "manifest.json", {"schema_version": 1, "round": ROUND_ID, "scope": scope, "seed": seed, "resolved_parameter_card_sha256": card_sha, "base_state": {"path": base_path.relative_to(ROOT).as_posix(), "sha256": _sha256(base_path)}, "splits": split_rows})
+    return _write_new_json(folder / "manifest.json", {"schema_version": 1, "round": ROUND_ID, "scope": scope, "seed": seed, "resolved_parameter_card_sha256": card_sha, "source_routing": {"authentic": "same_time_rows_unchanged", "placebo": "same_time_row_permutation_rho_i_plus_1", "exogenous_donor_bank": False}, "base_state": {"path": base_path.relative_to(ROOT).as_posix(), "sha256": _sha256(base_path)}})
 
 
-def _donor_bundle(config: Mapping[str, Any], scope: str, seed: int, split: str) -> tuple[dict[str, Any], np.ndarray, dict[str, int]]:
-    manifest_path = _scope_root(config, scope) / "donors" / f"seed{seed}" / "manifest.json"
+def _base_manifest(config: Mapping[str, Any], scope: str, seed: int) -> dict[str, Any]:
+    manifest_path = _scope_root(config, scope) / "bases" / f"seed{seed}" / "manifest.json"
     if not _hash_valid(manifest_path):
-        raise RuntimeError("donor manifest is missing or hash-invalid")
+        raise RuntimeError("base manifest is missing or hash-invalid")
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     if manifest.get("round") != ROUND_ID or manifest.get("scope") != scope or int(manifest.get("seed", -1)) != seed:
-        raise RuntimeError("donor identity mismatch")
+        raise RuntimeError("base identity mismatch")
     card_path = ROOT / str(config["paths"]["resolved_parameter_card"])
     if manifest.get("resolved_parameter_card_sha256") != _sha256(card_path):
-        raise RuntimeError("donor parameter-card lineage mismatch")
-    entry = manifest["splits"][split]
-    audit = entry.get("marginal_audit", {})
-    if not all(
-        audit.get(key) is True
-        for key in (
-            "pi_fixed_point_free",
-            "placebo_nodes_are_non_neighbours",
-            "every_semantic_donor_changed",
-            "slot_feature_scenario_time_pools_equal",
-        )
-    ):
-        raise RuntimeError("donor marginal audit is missing or failed")
-    path = ROOT / entry["path"]
-    if _sha256(path) != entry["sha256"]:
-        raise RuntimeError("donor bank hash mismatch")
-    payload = np.load(path, allow_pickle=False)
-    ids = [str(value) for value in payload["scenario_ids"].tolist()]
-    return manifest, payload["trajectories"], {value: index for index, value in enumerate(ids)}
+        raise RuntimeError("base parameter-card lineage mismatch")
+    if manifest.get("source_routing", {}).get("exogenous_donor_bank") is not False:
+        raise RuntimeError("base manifest permits an exogenous donor bank")
+    base = manifest.get("base_state", {})
+    path = ROOT / str(base.get("path", ""))
+    if not path.is_file() or _sha256(path) != base.get("sha256"):
+        raise RuntimeError("base-state hash mismatch")
+    return manifest
 
 
 def _save_policy(path: Path, policy: FactorialPolicy, *, scope: str, arm: str, seed: int, stage: str) -> str:
@@ -581,16 +618,14 @@ def train_cell(config: Mapping[str, Any], *, scope: str, arm: str, seed: int) ->
     _assert_physical_runtime()
     require_authority(config, scope=scope)
     factors = arm_factors(arm)
-    donor_manifest, donors, donor_index = _donor_bundle(config, scope, seed, "development")
+    base_manifest = _base_manifest(config, scope, seed)
     folder = _scope_root(config, scope) / "train" / arm / f"seed{seed}"
     if folder.exists():
         raise FileExistsError(f"training output exists: {folder}")
     folder.mkdir(parents=True)
     _seed_all(seed)
     policy = FactorialPolicy(arm)
-    base = torch.load(str(ROOT / donor_manifest["base_state"]["path"]), map_location="cpu", weights_only=True)
-    if _sha256(ROOT / donor_manifest["base_state"]["path"]) != donor_manifest["base_state"]["sha256"]:
-        raise RuntimeError("base-state hash mismatch")
+    base = torch.load(str(ROOT / base_manifest["base_state"]["path"]), map_location="cpu", weights_only=True)
     for member, state in zip(policy.members, base["members"], strict=True):
         member.import_state(state)
     initial = [_tensor_hash(member) for member in policy.members]
@@ -610,19 +645,16 @@ def train_cell(config: Mapping[str, Any], *, scope: str, arm: str, seed: int) ->
             profile, scenario = scenarios[scenario_id]
             observation = envs[str(profile["profile_id"])].reset(delta_u=dict(scenario["delta_u"]))
             previous = np.zeros((4, 2), dtype=np.float32)
-            donor_scenario = donor_index[scenario_id]
             for time_index in range(30):
                 current = canonical_rows(observation)
-                donor = donors[donor_scenario, 1 - episodes % 2, time_index]
-                actor_rows = source_rows(current, donor, factors["actor_source"])
-                critic_rows = source_rows(current, donor, factors["critic_source"])
+                actor_rows = source_rows(current, factors["actor_source"])
+                critic_rows = source_rows(current, factors["critic_source"])
                 raw, executed = policy.act(actor_rows, previous, deterministic=False)
                 observation, _reward, done, info = envs[str(profile["profile_id"])].step({i: executed[i] for i in range(4)})
                 steps += 1
                 next_current = canonical_rows(observation)
-                next_donor = donors[donor_scenario, 1 - episodes % 2, time_index + 1]
                 reward = step_rewards(current, info["delta_M"], info["delta_D"], reward_access=factors["reward_access"])
-                policy.store(actor_rows, critic_rows, previous, raw, executed, reward, source_rows(next_current, next_donor, factors["actor_source"]), source_rows(next_current, next_donor, factors["critic_source"]), bool(done) or bool(info["tds_failed"]))
+                policy.store(actor_rows, critic_rows, previous, raw, executed, reward, source_rows(next_current, factors["actor_source"]), source_rows(next_current, factors["critic_source"]), bool(done) or bool(info["tds_failed"]))
                 diagnostics = policy.update()
                 if diagnostics is not None:
                     update_count += 1
@@ -661,8 +693,8 @@ def train_cell(config: Mapping[str, Any], *, scope: str, arm: str, seed: int) ->
         _tensor_hash,
     )
     np.savez_compressed(folder / "curves.npz", **{key: np.asarray(value) for key, value in curves.items()})
-    donor_manifest_path = _scope_root(config, scope) / "donors" / f"seed{seed}" / "manifest.json"
-    return _write_new_json(folder / "manifest.json", {"schema_version": 1, "round": ROUND_ID, "scope": scope, "arm_id": arm, "factors": factors, "seed": seed, "resolved_parameter_card_sha256": _sha256(card_path), "donor_manifest_sha256": _sha256(donor_manifest_path), "base_state_sha256": donor_manifest["base_state"]["sha256"], "development_donor_sha256": donor_manifest["splits"]["development"]["sha256"], "interaction_steps": steps, "episodes": episodes, "tds_failed_episodes": tds_failures, "half_checkpoint_sha256": half_sha, "final_checkpoint_sha256": final_sha, "curves_sha256": _sha256(folder / "curves.npz"), "learner_admissibility": metrics, "valid": steps == 43_200 and half_sha is not None and metrics["assessment"]["passed"]})
+    base_manifest_path = _scope_root(config, scope) / "bases" / f"seed{seed}" / "manifest.json"
+    return _write_new_json(folder / "manifest.json", {"schema_version": 1, "round": ROUND_ID, "scope": scope, "arm_id": arm, "factors": factors, "seed": seed, "resolved_parameter_card_sha256": _sha256(card_path), "base_manifest_sha256": _sha256(base_manifest_path), "base_state_sha256": base_manifest["base_state"]["sha256"], "interaction_steps": steps, "episodes": episodes, "tds_failed_episodes": tds_failures, "half_checkpoint_sha256": half_sha, "final_checkpoint_sha256": final_sha, "curves_sha256": _sha256(folder / "curves.npz"), "learner_admissibility": metrics, "valid": steps == 43_200 and half_sha is not None and metrics["assessment"]["passed"]})
 
 
 def _profiles(bank: str) -> list[dict[str, Any]]:
@@ -680,10 +712,8 @@ def evaluate(config: Mapping[str, Any], *, scope: str, bank: str, arm: str, seed
         raise ValueError("learned evaluation requires a seed and the same bank")
     policy = FactorialPolicy(arm) if learned else None
     factors = None
-    donors = None
-    donor_index = None
     controller = None
-    training_sha = checkpoint_sha = donor_manifest_sha = evaluation_donor_sha = None
+    training_sha = checkpoint_sha = base_manifest_sha = None
     if learned:
         manifest_path = _scope_root(config, scope) / "train" / arm / f"seed{seed}" / "manifest.json"
         if not _hash_valid(manifest_path):
@@ -700,12 +730,13 @@ def evaluate(config: Mapping[str, Any], *, scope: str, bank: str, arm: str, seed
             raise RuntimeError("training checkpoint hash mismatch")
         policy.load(checkpoint)
         training_sha = _sha256(manifest_path)
-        donor_manifest, donors, donor_index = _donor_bundle(config, scope, int(seed), "evaluation")
-        donor_manifest_path = _scope_root(config, scope) / "donors" / f"seed{seed}" / "manifest.json"
-        donor_manifest_sha = _sha256(donor_manifest_path)
-        evaluation_donor_sha = donor_manifest["splits"]["evaluation"]["sha256"]
-        if training.get("donor_manifest_sha256") != donor_manifest_sha:
-            raise RuntimeError("training donor-manifest lineage mismatch")
+        base_manifest = _base_manifest(config, scope, int(seed))
+        base_manifest_path = _scope_root(config, scope) / "bases" / f"seed{seed}" / "manifest.json"
+        base_manifest_sha = _sha256(base_manifest_path)
+        if training.get("base_manifest_sha256") != base_manifest_sha:
+            raise RuntimeError("training base-manifest lineage mismatch")
+        if training.get("base_state_sha256") != base_manifest["base_state"]["sha256"]:
+            raise RuntimeError("training base-state lineage mismatch")
         factors = arm_factors(arm)
     else:
         from andes_rl_kundur.control.per_vsg_md import (
@@ -726,17 +757,14 @@ def evaluate(config: Mapping[str, Any], *, scope: str, bank: str, arm: str, seed
         env = _build_env(profile, steps=150)
         records: list[dict[str, Any]] = []
         try:
-            for scenario_index, scenario in enumerate(profile["scenarios"]):
+            for scenario in profile["scenarios"]:
                 primary = _evaluate_trajectory(
                     env=env,
                     scenario=scenario,
-                    scenario_index=scenario_index,
                     transform=transform,
                     learned=learned,
                     policy=policy,
                     factors=factors,
-                    donors=donors,
-                    donor_index=donor_index,
                     controller=controller,
                     canonicalize=canonical_rows,
                     route_source=source_rows,
@@ -748,13 +776,10 @@ def evaluate(config: Mapping[str, Any], *, scope: str, bank: str, arm: str, seed
                     reproduction = _evaluate_trajectory(
                         env=env,
                         scenario=scenario,
-                        scenario_index=scenario_index,
                         transform=transform,
                         learned=learned,
                         policy=policy,
                         factors=factors,
-                        donors=donors,
-                        donor_index=donor_index,
                         controller=controller,
                         canonicalize=canonical_rows,
                         route_source=source_rows,
@@ -768,7 +793,7 @@ def evaluate(config: Mapping[str, Any], *, scope: str, bank: str, arm: str, seed
                     ),
                 )
                 steps = primary["steps"]
-                records.append({"round": ROUND_ID, "scope": scope, "bank": bank, "bank_contract_sha256": bank_contract["sha256"], "environment_seed": int(profile["environment_seed"]), "profile_id": str(profile["profile_id"]), "scenario_id": str(scenario["scenario_id"]), "pair_kind": str(scenario["pair_kind"]), "sign": str(scenario["sign"]), "magnitude": float(scenario["magnitude"]), "delta_u": dict(scenario["delta_u"]), "arm_id": arm, "training_seed": seed, "checkpoint_sha256": checkpoint_sha, "training_manifest_sha256": training_sha, "donor_manifest_sha256": donor_manifest_sha, "evaluation_donor_sha256": evaluation_donor_sha, "resolved_parameter_card_sha256": card_sha, "stage": "final", "identity": {**primary["identity"], "baseline_m0": [float(value) for value in profile["baseline_m0"]], "baseline_d0": [float(value) for value in profile["baseline_d0"]]}, "initial_freq_hz_physical": primary["initial_freq_hz_physical"], "steps": steps, "completed_steps": len(steps), "completed": classification == "COMPLETE" and len(steps) == 150, "tds_failed": bool(primary["tds_failed"]), "tds_classification": classification if primary["tds_failed"] else None, "tds_reproduction": None if reproduction is None else {"tds_failed": bool(reproduction["tds_failed"]), "completed_steps": len(reproduction["steps"]), "steps": reproduction["steps"]}, "failure": "TDS failed" if primary["tds_failed"] else None})
+                records.append({"round": ROUND_ID, "scope": scope, "bank": bank, "bank_contract_sha256": bank_contract["sha256"], "environment_seed": int(profile["environment_seed"]), "profile_id": str(profile["profile_id"]), "scenario_id": str(scenario["scenario_id"]), "pair_kind": str(scenario["pair_kind"]), "sign": str(scenario["sign"]), "magnitude": float(scenario["magnitude"]), "delta_u": dict(scenario["delta_u"]), "arm_id": arm, "training_seed": seed, "checkpoint_sha256": checkpoint_sha, "training_manifest_sha256": training_sha, "base_manifest_sha256": base_manifest_sha, "resolved_parameter_card_sha256": card_sha, "stage": "final", "identity": {**primary["identity"], "baseline_m0": [float(value) for value in profile["baseline_m0"]], "baseline_d0": [float(value) for value in profile["baseline_d0"]]}, "initial_freq_hz_physical": primary["initial_freq_hz_physical"], "steps": steps, "completed_steps": len(steps), "completed": classification == "COMPLETE" and len(steps) == 150, "tds_failed": bool(primary["tds_failed"]), "tds_classification": classification if primary["tds_failed"] else None, "tds_reproduction": None if reproduction is None else {"tds_failed": bool(reproduction["tds_failed"]), "completed_steps": len(reproduction["steps"]), "steps": reproduction["steps"]}, "failure": "TDS failed" if primary["tds_failed"] else None})
         finally:
             env.close()
         suffix = f"seed{seed}" if seed is not None else "deterministic"
@@ -783,14 +808,12 @@ def assess_canary(config: Mapping[str, Any]) -> str:
     require_authority(config, scope="canary")
     root = _scope_root(config, "canary")
     card_sha = _sha256(ROOT / str(config["paths"]["resolved_parameter_card"]))
-    contract = evaluation_contracts()["same"]
     payload = build_canary_admissibility(
         root=root,
         card_sha256=card_sha,
         arms=ARM_IDS,
         seed=CANARY_SEED,
-        profile_ids=tuple(str(row["profile_id"]) for row in _profiles("same")),
-        contract=contract,
+        contracts=evaluation_contracts(),
     )
     return _write_new_json(ROOT / str(config["paths"]["canary_admissibility"]), payload)
 
@@ -839,7 +862,12 @@ def main(argv: Sequence[str] | None = None) -> int:
     elif args.command == "write-rosters":
         payload = {"roster_sha256": write_rosters(config)}
     elif args.command == "preflight":
-        errors = authority_errors(config, scope="formal")
+        try:
+            require_authority(config, scope="formal")
+        except RuntimeError as exc:
+            errors = [str(exc)]
+        else:
+            errors = []
         try:
             formal_root = _scope_root(config, "formal")
         except (FileNotFoundError, RuntimeError):
@@ -876,8 +904,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         }
         if args.shard_id not in allowed:
             raise ValueError(f"unregistered R485 shard: {args.shard_id}")
-        if len(parts) == 3 and parts[0] == "donor":
-            payload = {"manifest_sha256": generate_donor(config, scope=parts[1], seed=int(parts[2]))}
+        if len(parts) == 3 and parts[0] == "base":
+            payload = {"manifest_sha256": generate_base(config, scope=parts[1], seed=int(parts[2]))}
         elif len(parts) == 4 and parts[0] == "train":
             payload = {"manifest_sha256": train_cell(config, scope=parts[1], arm=parts[2], seed=int(parts[3]))}
         elif len(parts) == 5 and parts[0] == "eval":

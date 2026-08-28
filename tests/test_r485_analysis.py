@@ -197,7 +197,7 @@ def test_registered_formal_shards_close_208_cells_and_5088_traces() -> None:
 
     shards = registered_shards(config, scope="formal")
 
-    assert len(shards["donor"]) == 26
+    assert len(shards["base"]) == 26
     assert len(shards["train"]) == 208
     assert len(shards["eval"]) == 212
     assert len(set().union(*[set(values) for values in shards.values()])) == 446
@@ -205,20 +205,25 @@ def test_registered_formal_shards_close_208_cells_and_5088_traces() -> None:
     assert "train|formal|an_cn_r0|501" in shards["train"]
     assert "eval|formal|fresh|local_neighbour_md_km2_kd2|none" in shards["eval"]
     artifacts = expected_artifacts(config, root=ROOT / "unused", scope="formal")
-    assert len(artifacts["donor"]) == 26
+    assert len(artifacts["base"]) == 26
     assert len(artifacts["train"]) == 208
     assert len(artifacts["eval"]) == 212 * 4
 
 
-def test_donor_marginal_audit_proves_placebo_pool_equality() -> None:
-    from andes_rl_kundur.evaluation.r485_experiment import donor_marginal_audit
+def test_registered_shards_prepare_base_states_without_a_donor_bank() -> None:
+    from andes_rl_kundur.evaluation.r485_experiment import registered_shards
 
-    tensor = np.arange(2 * 2 * 3 * 4 * 7, dtype=np.float32).reshape(2, 2, 3, 4, 7)
-    audit = donor_marginal_audit(tensor)
+    runner = _load_runner()
+    config = runner.load_config(ROOT / "memory/rounds/R485/config.json")
 
-    assert audit["every_semantic_donor_changed"] is True
-    assert audit["slot_feature_scenario_time_pools_equal"] is True
-    assert audit["comparisons"] == 2 * 3 * 2 * 2
+    shards = registered_shards(config, scope="formal")
+
+    assert "base|formal|501" in shards["base"]
+    assert "donor" not in shards
+    assert config["parameter_card"]["source_routing"]["placebo"] == (
+        "same_time_row_permutation_rho_i_plus_1"
+    )
+    assert config["parameter_card"]["source_routing"]["exogenous_donor_bank"] is False
 
 
 def test_formal_output_is_attempt_scoped_and_partial_attempt_is_not_resumed(
@@ -330,6 +335,31 @@ def test_learner_gate_accepts_floor_alpha_only_when_other_signals_are_live() -> 
     assert "executed_action_variation" in result["failures"]
 
 
+def test_canary_requires_deterministic_same_and_fresh_reference_paths(
+    tmp_path: Path,
+) -> None:
+    from andes_rl_kundur.evaluation.r485_experiment import (
+        build_canary_admissibility,
+        evaluation_contracts,
+    )
+
+    result = build_canary_admissibility(
+        root=tmp_path,
+        card_sha256="a" * 64,
+        arms=(),
+        seed=500,
+        contracts=evaluation_contracts(),
+    )
+
+    assert result["passed"] is False
+    assert set(result["references"]) == {"same", "fresh"}
+    assert any("same:zero" in failure for failure in result["failures"])
+    assert any(
+        "fresh:local_neighbour_md_km2_kd2" in failure
+        for failure in result["failures"]
+    )
+
+
 def test_learner_objective_flags_are_derived_from_probe_not_constants() -> None:
     from andes_rl_kundur.evaluation.r485_experiment import objective_gate_flags
     probe = {
@@ -357,6 +387,57 @@ def test_tds_ontology_separates_integrity_from_controller_failure() -> None:
         resolve_tds(primary_failed=False, reproduction_failed=True)
 
 
+def test_zero_action_rehearsal_checks_command_and_runtime_md_readback() -> None:
+    from andes_rl_kundur.evaluation.r485_experiment import zero_action_md_readback
+
+    record = {
+        "identity": {
+            "baseline_m0": [140.0, 260.0, 200.0, 220.0],
+            "baseline_d0": [50.0, 150.0, 90.0, 130.0],
+        },
+        "steps": [
+            {
+                "raw_action_norm": [[0.0, 0.0]] * 4,
+                "projected_action_norm": [[0.0, 0.0]] * 4,
+                "M_commanded": [140.0, 260.0, 200.0, 220.0],
+                "D_commanded": [50.0, 150.0, 90.0, 130.0],
+                "M_es": [140.0, 260.0, 200.0, 220.0],
+                "D_es": [50.0, 150.0, 90.0, 130.0],
+            }
+        ],
+    }
+
+    assert zero_action_md_readback([record]) is True
+    record["steps"][0]["M_es"][0] = 70.0
+    assert zero_action_md_readback([record]) is False
+
+
+def test_rehearsal_checks_live_60hz_observation_identity_exactly_once() -> None:
+    from andes_rl_kundur.evaluation.r485_experiment import (
+        canonical_observation_readback,
+    )
+
+    raw = np.asarray([[0.5, 0.1, -0.2, 0.3, -0.4, 0.5, -0.6]] * 4)
+    canonical = raw.copy()
+    canonical[:, 1:] *= 1.2
+    frequency_deviation = canonical[:, 1] * 3.0 / (2.0 * np.pi)
+    record = {
+        "steps": [
+            {
+                "raw_observation": {
+                    str(index): raw[index].tolist() for index in range(4)
+                },
+                "canonical_observation": canonical.tolist(),
+                "frequency_deviation_hz": frequency_deviation.tolist(),
+            }
+        ]
+    }
+
+    assert canonical_observation_readback([record]) is True
+    record["steps"][0]["canonical_observation"][0][1] *= 1.2
+    assert canonical_observation_readback([record]) is False
+
+
 def test_statistics_contract_has_no_data_dependent_fallback() -> None:
     runner = _load_runner()
     contract = runner.build_parameter_card()["statistics"]
@@ -367,6 +448,9 @@ def test_statistics_contract_has_no_data_dependent_fallback() -> None:
     assert contract["multiplicity"] == "Holm_family_of_four"
     assert contract["ties_zeros_or_symmetry_failure"] == "ASSUMPTION-LIMITED"
     assert contract["fallback"] is None
+    assert contract["main_effect_coordinate"] == (
+        "log(placebo_P_loss / authentic_N_loss)"
+    )
 
 
 def _factorial_rows(*, tied: bool) -> list[dict]:
@@ -424,6 +508,27 @@ def test_factorial_inference_uses_hl_exact_rank_and_holm_without_fallback() -> N
     assert all("holm" in row for row in result["tests"].values())
 
 
+def test_factorial_inference_names_authentic_over_placebo_direction() -> None:
+    from andes_rl_kundur.evaluation.r485_experiment import factorial_inference
+
+    result = factorial_inference(
+        _factorial_rows(tied=False),
+        expected_seeds=range(501, 527),
+        expected_profiles=("p1", "p2", "p3", "p4"),
+    )
+
+    assert result["effect_coordinate"] == (
+        "positive main effects mean the authentic N source lowers loss relative "
+        "to the row-permuted P placebo; interaction signs follow each registered "
+        "ratio-of-ratios"
+    )
+    assert result["tests"]["actor_main"]["contrast_ratio"] == (
+        "placebo_loss / authentic_loss"
+    )
+    assert result["tests"]["actor_main"]["geometric_location_ratio"] > 1.10
+    assert result["tests"]["actor_main"]["holm"]["reject"] is True
+
+
 def test_factorial_inference_marks_tied_exact_ranks_assumption_limited() -> None:
     from andes_rl_kundur.evaluation.r485_experiment import factorial_inference
 
@@ -437,6 +542,71 @@ def test_factorial_inference_marks_tied_exact_ranks_assumption_limited() -> None
     assert result["fallback"] is None
     assert all(row["p_one_sided"] is None for row in result["tests"].values())
     assert all("holm" not in row for row in result["tests"].values())
+
+
+def test_outcome_mapping_keeps_source_effect_separate_from_policy_result() -> None:
+    from andes_rl_kundur.evaluation.r485_experiment import (
+        classify_registered_outcome,
+    )
+
+    source_only = classify_registered_outcome(
+        factorial={
+            "status": "COMPLETE",
+            "tests": {
+                "actor_main": {"holm": {"reject": True}},
+                "critic_main": {"holm": {"reject": False}},
+            },
+        },
+        guard={
+            "passing_count": 0,
+            "policy_decisions": [
+                {
+                    "aggregate_joint_endpoint_target": {
+                        "off_diagonal_response_energy": False,
+                        "disturbance_differential_energy": False,
+                    }
+                }
+            ],
+        },
+    )
+    complete_without_source = classify_registered_outcome(
+        factorial={
+            "status": "COMPLETE",
+            "tests": {"actor_main": {"holm": {"reject": False}}},
+        },
+        guard={
+            "passing_count": 1,
+            "policy_decisions": [
+                {
+                    "aggregate_joint_endpoint_target": {
+                        "off_diagonal_response_energy": True,
+                        "disturbance_differential_energy": True,
+                    }
+                }
+            ],
+        },
+    )
+    endpoint_only = classify_registered_outcome(
+        factorial={"status": "ASSUMPTION-LIMITED", "tests": {}},
+        guard={
+            "passing_count": 0,
+            "policy_decisions": [
+                {
+                    "aggregate_joint_endpoint_target": {
+                        "off_diagonal_response_energy": True,
+                        "disturbance_differential_energy": True,
+                    }
+                }
+            ],
+        },
+    )
+
+    assert source_only["status"] == "VALID-NEGATIVE"
+    assert source_only["source_inference"]["material_effect_established"] is True
+    assert complete_without_source["status"] == "VALID-POSITIVE"
+    assert complete_without_source["source_inference"]["material_effect_established"] is False
+    assert endpoint_only["status"] == "VALID-MIXED"
+    assert endpoint_only["source_inference"]["status"] == "ASSUMPTION-LIMITED"
 
 
 def test_threshold_and_claim_contracts_are_frozen_before_results() -> None:
@@ -454,3 +624,11 @@ def test_threshold_and_claim_contracts_are_frozen_before_results() -> None:
         "ASSUMPTION-LIMITED",
         "INTEGRITY-INVALID",
     }
+    assert card["outcome_to_claim"]["VALID-POSITIVE"] == (
+        "at least one frozen policy satisfies both endpoint targets and the "
+        "registered complete guard; source inference is reported separately"
+    )
+    assert card["outcome_to_claim"]["VALID-MIXED"] == (
+        "at least one frozen policy satisfies both endpoint targets, but none "
+        "satisfies the registered complete guard"
+    )

@@ -27,6 +27,13 @@
       "scale": 1.2,
       "application_count": 1
     },
+    "source_routing": {
+      "authentic": "same_time_rows_unchanged",
+      "placebo": "same_time_row_permutation_rho_i_plus_1",
+      "recipient_owned_slots": [0, 1, 2],
+      "permuted_neighbour_slots": [3, 4, 5, 6],
+      "exogenous_donor_bank": false
+    },
     "learner": {
       "family": "four_independent_source_factorial_executed_action_sac_agents",
       "actor_state_dim": 9,
@@ -61,6 +68,9 @@
     "statistics": {
       "inference_unit": "seed",
       "estimand": "seed_level_hodges_lehmann_location_pseudomedian",
+      "main_effect_coordinate": "log(placebo_P_loss / authentic_N_loss)",
+      "main_effect_positive_direction": "authentic_N_source_lowers_loss_relative_to_row_permuted_P_placebo",
+      "interaction_direction": "registered_ratio_of_ratios_as_defined_by_source_factorial_design.seed_effects",
       "null_boundary": "theta_HL <= log(1.10)",
       "test": "exact_one_sided_wilcoxon_signed_rank",
       "multiplicity": "Holm_family_of_four",
@@ -89,10 +99,10 @@
       "source_inference_with_missing_endpoint": "ASSUMPTION-LIMITED"
     },
     "outcome_to_claim": {
-      "VALID-POSITIVE": "finite-design improvement under the registered complete contract",
-      "VALID-MIXED": "endpoint and complete-contract qualifications disagree; report both",
-      "VALID-NEGATIVE": "material improvement not established for this frozen learner and budget",
-      "ASSUMPTION-LIMITED": "registered inference not tested; retain descriptive guard outcome",
+      "VALID-POSITIVE": "at least one frozen policy satisfies both endpoint targets and the registered complete guard; source inference is reported separately",
+      "VALID-MIXED": "at least one frozen policy satisfies both endpoint targets, but none satisfies the registered complete guard",
+      "VALID-NEGATIVE": "no frozen policy satisfies both registered endpoint targets under this benchmark and budget; source inference is reported separately",
+      "ASSUMPTION-LIMITED": "registered source inference is not tested; learner endpoint and guard qualification remains separately reportable",
       "INTEGRITY-INVALID": "no scientific result"
     }
   },
@@ -108,7 +118,7 @@
     "formal_seal": "memory/rounds/R485/formal_seal.json",
     "formal_out": "results/research_loop/r485_60hz_source_factorial",
     "canary_out": "results/research_loop/r485_60hz_source_factorial_canary",
-    "donor_shards": "memory/rounds/R485/donor_shards.json",
+    "base_shards": "memory/rounds/R485/base_shards.json",
     "train_shards": "memory/rounds/R485/train_shards.json",
     "eval_shards": "memory/rounds/R485/eval_shards.json"
   },

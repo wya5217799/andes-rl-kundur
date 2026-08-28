@@ -86,6 +86,7 @@ def objective_gate_flags(probe: Mapping[str, Any]) -> dict[str, bool]:
         "routing_oracle_passed": bool(
             probe.get("replay_actor_rows_are_canonical")
             and probe.get("replay_critic_rows_are_canonical")
+            and probe.get("placebo_is_same_time_registered_row_permutation")
         ),
         "executed_action_bellman_passed": bool(
             probe.get("current_critic_uses_executed_action")
@@ -100,7 +101,7 @@ def run_objective_semantics_probe(
     new_member: Callable[[], Any],
     tensor_hash: Callable[[Any], str],
     canonicalize: Callable[[Mapping[int, np.ndarray]], np.ndarray],
-    route_source: Callable[[np.ndarray, np.ndarray, str], np.ndarray],
+    route_source: Callable[[np.ndarray, str], np.ndarray],
 ) -> dict[str, Any]:
     """Probe the registered routing and executed-action Bellman path."""
 
@@ -111,6 +112,7 @@ def run_objective_semantics_probe(
     member = new_member()
     before = tensor_hash(member)
     first_actor = first_critic = None
+    placebo_permutation_valid = True
     for index in range(member.batch_size):
         raw_observation = {
             actor: np.asarray(
@@ -120,9 +122,13 @@ def run_objective_semantics_probe(
             for actor in range(4)
         }
         canonical = canonicalize(raw_observation)
-        donor = np.roll(canonical, 2, axis=0)
-        actor_row = route_source(canonical, donor, "N")[0]
-        critic_row = route_source(canonical, donor, "P")[0]
+        actor_row = route_source(canonical, "N")[0]
+        critic_row = route_source(canonical, "P")[0]
+        expected_placebo = canonical.copy()
+        expected_placebo[:, 3:7] = canonical[[1, 2, 3, 0], 3:7]
+        placebo_permutation_valid &= bool(
+            np.array_equal(route_source(canonical, "P"), expected_placebo)
+        )
         previous = np.asarray([0.05, -0.05], dtype=np.float32)
         raw_action = np.asarray([0.4, -0.4], dtype=np.float32)
         executed = member.execute_action(previous, raw_action)
@@ -148,6 +154,7 @@ def run_objective_semantics_probe(
     result = {
         "replay_actor_rows_are_canonical": bool(np.array_equal(member.buffer.actor_obs[0], first_actor)),
         "replay_critic_rows_are_canonical": bool(np.array_equal(member.buffer.critic_obs[0], first_critic)),
+        "placebo_is_same_time_registered_row_permutation": placebo_permutation_valid,
         "current_critic_uses_executed_action": bool(torch.equal(paths["critic_current_action_input"], batch["executed_actions"])),
         "target_critic_uses_projected_action": bool(torch.equal(paths["critic_target_action_input"], paths["target_projected_action"])),
         "actor_critic_uses_projected_action": bool(torch.equal(paths["actor_critic_action_input"], paths["actor_projected_action"])),
@@ -208,16 +215,13 @@ def evaluate_trajectory(
     *,
     env: Any,
     scenario: Mapping[str, Any],
-    scenario_index: int,
     transform: np.ndarray,
     learned: bool,
     policy: Any,
     factors: Mapping[str, Any] | None,
-    donors: np.ndarray | None,
-    donor_index: Mapping[str, int] | None,
     controller: Any,
     canonicalize: Callable[[Mapping[int, np.ndarray]], np.ndarray],
-    route_source: Callable[[np.ndarray, np.ndarray, str], np.ndarray],
+    route_source: Callable[[np.ndarray, str], np.ndarray],
     direct_action: Callable[[np.ndarray], np.ndarray],
     reward_function: Callable[..., Any],
 ) -> dict[str, Any]:
@@ -249,15 +253,10 @@ def evaluate_trajectory(
         }
         canonical = canonicalize(raw_observation)
         if learned:
-            if policy is None or factors is None or donors is None or donor_index is None:
+            if policy is None or factors is None:
                 raise RuntimeError("learned trajectory inputs are incomplete")
-            donor = donors[
-                donor_index[str(scenario["scenario_id"])],
-                1 - scenario_index % 2,
-                step_index,
-            ]
             raw, executed = policy.act(
-                route_source(canonical, donor, str(factors["actor_source"])),
+                route_source(canonical, str(factors["actor_source"])),
                 previous,
                 deterministic=True,
             )
@@ -329,7 +328,7 @@ def registered_shards(
     else:
         raise ValueError("scope must be canary or formal")
     arms = tuple(str(arm) for arm in config["arms"])
-    donor = tuple(f"donor|{scope}|{seed}" for seed in seeds)
+    base = tuple(f"base|{scope}|{seed}" for seed in seeds)
     train = tuple(f"train|{scope}|{arm}|{seed}" for arm in arms for seed in seeds)
     learned_eval = tuple(
         f"eval|{scope}|same|{arm}|{seed}" for arm in arms for seed in seeds
@@ -339,7 +338,7 @@ def registered_shards(
         for bank in ("same", "fresh")
         for arm in REFERENCE_ARMS
     )
-    return {"donor": donor, "train": train, "eval": (*learned_eval, *references)}
+    return {"base": base, "train": train, "eval": (*learned_eval, *references)}
 
 
 def expected_artifacts(
@@ -348,12 +347,12 @@ def expected_artifacts(
     """Map the sealed shard roster to every create-only terminal artifact."""
 
     shards = registered_shards(config, scope=scope)
-    donor: dict[str, Path] = {}
+    base: dict[str, Path] = {}
     train: dict[str, Path] = {}
     evaluation: dict[str, Path] = {}
-    for shard in shards["donor"]:
+    for shard in shards["base"]:
         seed = int(shard.split("|")[2])
-        donor[shard] = root / "donors" / f"seed{seed}" / "manifest.json"
+        base[shard] = root / "bases" / f"seed{seed}" / "manifest.json"
     for shard in shards["train"]:
         _kind, _scope, arm, seed = shard.split("|")
         train[shard] = root / "train" / arm / f"seed{seed}" / "manifest.json"
@@ -370,71 +369,7 @@ def expected_artifacts(
             evaluation[f"{shard}|{profile}"] = (
                 root / "eval" / bank / arm / suffix / f"{profile}.json"
             )
-    return {"donor": donor, "train": train, "eval": evaluation}
-
-
-def donor_marginal_audit(trajectories: np.ndarray) -> dict[str, Any]:
-    """Prove each P-source substitution changes identity but preserves marginals."""
-
-    values = np.asarray(trajectories, dtype=np.float32)
-    if values.ndim != 5 or values.shape[1] != 2 or values.shape[-2:] != (4, 7):
-        raise ValueError(f"unexpected donor tensor shape: {values.shape}")
-    hashes: dict[str, str] = {}
-    all_equal = True
-    all_changed = True
-    for scenario in range(values.shape[0]):
-        for time_index in range(values.shape[2]):
-            for label, true_offset, placebo_offset in (
-                ("left", -1, 0),
-                ("right", 1, 2),
-            ):
-                for feature in (1, 2):
-                    authentic: list[float] = []
-                    placebo: list[float] = []
-                    for episode in range(2):
-                        for agent in range(4):
-                            authentic.append(
-                                float(
-                                    values[
-                                        scenario,
-                                        episode,
-                                        time_index,
-                                        (agent + true_offset) % 4,
-                                        feature,
-                                    ]
-                                )
-                            )
-                            placebo.append(
-                                float(
-                                    values[
-                                        scenario,
-                                        1 - episode,
-                                        time_index,
-                                        (agent + placebo_offset) % 4,
-                                        feature,
-                                    ]
-                                )
-                            )
-                            all_changed &= (episode, (agent + true_offset) % 4) != (
-                                1 - episode,
-                                (agent + placebo_offset) % 4,
-                            )
-                    left = np.sort(np.asarray(authentic, dtype=np.float32))
-                    right = np.sort(np.asarray(placebo, dtype=np.float32))
-                    all_equal &= np.array_equal(left, right)
-                    key = f"{scenario}|{time_index}|{label}|{feature}"
-                    hashes[key] = hashlib.sha256(left.tobytes()).hexdigest()
-    digest = hashlib.sha256(
-        json.dumps(hashes, sort_keys=True).encode("utf-8")
-    ).hexdigest()
-    return {
-        "pi_fixed_point_free": True,
-        "placebo_nodes_are_non_neighbours": True,
-        "every_semantic_donor_changed": bool(all_changed),
-        "slot_feature_scenario_time_pools_equal": bool(all_equal),
-        "pooled_hash_index_sha256": digest,
-        "comparisons": len(hashes),
-    }
+    return {"base": base, "train": train, "eval": evaluation}
 
 
 def _hodges_lehmann(values: Sequence[float]) -> float:
@@ -484,6 +419,18 @@ def factorial_inference(
             "seed_effects": values,
             "hodges_lehmann": _hodges_lehmann(values),
             "geometric_location_ratio": math.exp(_hodges_lehmann(values)),
+            "contrast_ratio": {
+                "actor_main": "placebo_loss / authentic_loss",
+                "critic_main": "placebo_loss / authentic_loss",
+                "actor_x_critic": (
+                    "actor placebo/authentic ratio at authentic critic / "
+                    "actor placebo/authentic ratio at placebo critic"
+                ),
+                "critic_x_reward": (
+                    "critic placebo/authentic ratio with reward access / "
+                    "critic placebo/authentic ratio without reward access"
+                ),
+            }[name],
             "materiality_log": null_log,
             "p_one_sided": exact_p if error is None else None,
             "symmetry_skew": skew,
@@ -506,8 +453,70 @@ def factorial_inference(
         "estimand": "seed_level_hodges_lehmann_location_pseudomedian",
         "test": "exact_one_sided_wilcoxon_signed_rank",
         "multiplicity": "Holm_family_of_four",
+        "effect_coordinate": (
+            "positive main effects mean the authentic N source lowers loss relative "
+            "to the row-permuted P placebo; interaction signs follow each registered "
+            "ratio-of-ratios"
+        ),
         "fallback": None,
         "tests": tests,
+    }
+
+
+def classify_registered_outcome(
+    *,
+    factorial: Mapping[str, Any],
+    guard: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Keep learner qualification and source-factor inference independent."""
+
+    decisions = list(guard.get("policy_decisions", ()))
+    endpoint_qualified_count = 0
+    for decision in decisions:
+        targets = decision.get("aggregate_joint_endpoint_target")
+        if not isinstance(targets, Mapping) or not targets:
+            raise ValueError("every policy decision needs aggregate endpoint targets")
+        endpoint_qualified_count += int(all(bool(value) for value in targets.values()))
+    complete_contract_count = int(guard.get("passing_count", -1))
+    if complete_contract_count < 0 or complete_contract_count > len(decisions):
+        raise ValueError("complete-contract passing count is inconsistent")
+
+    factorial_status = str(factorial.get("status", "INTEGRITY-INVALID"))
+    rejected_effects: list[str] = []
+    material_effect_established: bool | None = None
+    if factorial_status == "COMPLETE":
+        tests = factorial.get("tests")
+        if not isinstance(tests, Mapping) or not tests:
+            raise ValueError("complete factorial inference needs registered tests")
+        for name, row in tests.items():
+            holm = row.get("holm") if isinstance(row, Mapping) else None
+            if not isinstance(holm, Mapping) or "reject" not in holm:
+                raise ValueError("complete factorial inference needs Holm decisions")
+            if bool(holm["reject"]):
+                rejected_effects.append(str(name))
+        material_effect_established = bool(rejected_effects)
+
+    if complete_contract_count > 0:
+        status = "VALID-POSITIVE"
+        qualification = "COMPLETE-CONTRACT-PASS"
+    elif endpoint_qualified_count > 0:
+        status = "VALID-MIXED"
+        qualification = "ENDPOINT-ONLY"
+    else:
+        status = "VALID-NEGATIVE"
+        qualification = "ENDPOINT-NOT-QUALIFIED"
+    return {
+        "status": status,
+        "learner_qualification": {
+            "status": qualification,
+            "endpoint_qualified_count": endpoint_qualified_count,
+            "complete_contract_passing_count": complete_contract_count,
+        },
+        "source_inference": {
+            "status": factorial_status,
+            "material_effect_established": material_effect_established,
+            "rejected_effects": rejected_effects,
+        },
     }
 
 
@@ -596,8 +605,7 @@ def validate_trace_block(
         lineage = (
             record.get("checkpoint_sha256"),
             record.get("training_manifest_sha256"),
-            record.get("donor_manifest_sha256"),
-            record.get("evaluation_donor_sha256"),
+            record.get("base_manifest_sha256"),
         )
         if expected_seed is None:
             if any(value is not None for value in lineage):
@@ -663,13 +671,18 @@ def build_canary_admissibility(
     card_sha256: str,
     arms: Sequence[str],
     seed: int,
-    profile_ids: Sequence[str],
-    contract: Mapping[str, Any],
+    contracts: Mapping[str, Mapping[str, Any]],
 ) -> dict[str, Any]:
     """Aggregate only path/learner health; never compare endpoint performance."""
 
     cells: dict[str, Any] = {}
     failures: list[str] = []
+    same_contract = contracts["same"]
+    profile_ids = tuple(
+        str(row["profile_id"])
+        for row in same_contract["profiles"]
+        if row["split"] == "evaluation"
+    )
     for arm in arms:
         manifest_path = root / "train" / arm / f"seed{seed}" / "manifest.json"
         try:
@@ -697,7 +710,7 @@ def build_canary_admissibility(
                 records = payload.get("records")
                 validation = validate_trace_block(
                     records if isinstance(records, list) else (),
-                    contract=contract,
+                    contract=same_contract,
                     expected_profile=profile_id,
                     expected_arm=arm,
                     expected_seed=seed,
@@ -719,15 +732,144 @@ def build_canary_admissibility(
             "evaluation_schema_status": statuses,
             "learner_checks": assessment.get("checks", {}),
         }
+    references: dict[str, dict[str, Any]] = {}
+    for bank, contract in contracts.items():
+        references[bank] = {}
+        bank_profiles = tuple(
+            str(row["profile_id"])
+            for row in contract["profiles"]
+            if row["split"] == "evaluation"
+        )
+        for arm in REFERENCE_ARMS:
+            statuses: dict[str, str] = {}
+            for profile_id in bank_profiles:
+                path = (
+                    root
+                    / "eval"
+                    / bank
+                    / arm
+                    / "deterministic"
+                    / f"{profile_id}.json"
+                )
+                try:
+                    payload = read_hashed_json(path)
+                    records = payload.get("records")
+                    validation = validate_trace_block(
+                        records if isinstance(records, list) else (),
+                        contract=contract,
+                        expected_profile=profile_id,
+                        expected_arm=arm,
+                        expected_seed=None,
+                        expected_card_sha256=card_sha256,
+                    )
+                except (
+                    FileNotFoundError,
+                    RuntimeError,
+                    ValueError,
+                    json.JSONDecodeError,
+                ):
+                    failures.append(f"{bank}:{arm}:{profile_id}:reference_schema")
+                    continue
+                if validation["status"] != "COMPLETE":
+                    failures.append(
+                        f"{bank}:{arm}:{profile_id}:reference_"
+                        f"{str(validation['status']).lower()}"
+                    )
+                    continue
+                statuses[profile_id] = str(validation["status"])
+            references[bank][arm] = statuses
     return {
         "schema_version": 1,
         "round": ROUND_ID,
         "seed": seed,
         "arms": cells,
+        "references": references,
         "passed": not failures and set(cells) == set(arms),
         "failures": failures,
         "performance_or_endpoint_selection_performed": False,
     }
+
+
+def zero_action_md_readback(records: Sequence[Mapping[str, Any]]) -> bool:
+    """Verify zero-action command and telemetry preserve the profile M/D card."""
+
+    if not records:
+        return False
+    for record in records:
+        identity = record.get("identity", {})
+        baseline_m = np.asarray(identity.get("baseline_m0", ()), dtype=float)
+        baseline_d = np.asarray(identity.get("baseline_d0", ()), dtype=float)
+        if baseline_m.shape != (4,) or baseline_d.shape != (4,):
+            return False
+        for step in record.get("steps", ()):
+            arrays = {
+                name: np.asarray(step.get(name, ()), dtype=float)
+                for name in (
+                    "raw_action_norm",
+                    "projected_action_norm",
+                    "M_commanded",
+                    "D_commanded",
+                    "M_es",
+                    "D_es",
+                )
+            }
+            if arrays["raw_action_norm"].shape != (4, 2) or not np.array_equal(
+                arrays["raw_action_norm"], np.zeros((4, 2))
+            ):
+                return False
+            if not np.array_equal(
+                arrays["projected_action_norm"], np.zeros((4, 2))
+            ):
+                return False
+            if not all(
+                np.allclose(arrays[name], expected, rtol=0.0, atol=1.0e-9)
+                for name, expected in (
+                    ("M_commanded", baseline_m),
+                    ("M_es", baseline_m),
+                    ("D_commanded", baseline_d),
+                    ("D_es", baseline_d),
+                )
+            ):
+                return False
+    return True
+
+
+def canonical_observation_readback(records: Sequence[Mapping[str, Any]]) -> bool:
+    """Verify the live trace applies the 50-to-60 observation transform once."""
+
+    if not records:
+        return False
+    for record in records:
+        for step in record.get("steps", ()):
+            raw_map = step.get("raw_observation")
+            if not isinstance(raw_map, Mapping) or set(raw_map) != {
+                "0",
+                "1",
+                "2",
+                "3",
+            }:
+                return False
+            raw = np.stack(
+                [np.asarray(raw_map[str(index)], dtype=float) for index in range(4)]
+            )
+            canonical = np.asarray(step.get("canonical_observation", ()), dtype=float)
+            frequency = np.asarray(step.get("frequency_deviation_hz", ()), dtype=float)
+            if raw.shape != (4, 7) or canonical.shape != (4, 7) or frequency.shape != (4,):
+                return False
+            if not np.array_equal(canonical[:, 0], raw[:, 0]):
+                return False
+            if not np.allclose(
+                canonical[:, 1:], raw[:, 1:] * 1.2, rtol=1.0e-6, atol=1.0e-8
+            ):
+                return False
+            if not np.allclose(
+                canonical[:, 1] * 3.0 / (2.0 * np.pi),
+                frequency,
+                rtol=1.0e-6,
+                atol=1.0e-8,
+            ):
+                return False
+    return True
 
 
 def build_rehearsal_evidence(
@@ -780,10 +922,16 @@ def build_rehearsal_evidence(
         "installed_case": case_path.is_file() and _sha256(case_path) == case["sha256"],
         "output_absence": not formal_base.exists(),
         "shard_roster": {name: len(values) for name, values in shards.items()}
-        == {"donor": 26, "train": 208, "eval": 212},
+        == {"base": 26, "train": 208, "eval": 212},
         "trajectory_count": len(shards["eval"]) * 4 * 6 == 5_088,
         "representative_schema": validation["status"] == "COMPLETE",
         "representative_profile_contract": len(profile["scenarios"]) == 6,
+        "zero_action_md_command_and_readback": zero_action_md_readback(
+            trace["records"]
+        ),
+        "canonical_60hz_observation_readback": canonical_observation_readback(
+            trace["records"]
+        ),
     }
     return {
         "schema_version": 1,
@@ -844,7 +992,7 @@ def analyse_result_root(
     inventory = {
         "expected_terminal_artifacts": len(flat),
         "verified_terminal_artifacts": len(payloads),
-        "expected_donor_manifests": len(artifacts["donor"]),
+        "expected_base_manifests": len(artifacts["base"]),
         "expected_training_manifests": len(artifacts["train"]),
         "expected_evaluation_profiles": len(artifacts["eval"]),
         "expected_trajectories": len(artifacts["eval"]) * 6,
@@ -1043,8 +1191,8 @@ def _analyse_complete_artifacts(
     card_sha = _sha256(card_path)
     contracts = evaluation_contracts()
     errors: list[str] = []
-    donor_lineage: dict[int, dict[str, Any]] = {}
-    for identity, path in artifacts["donor"].items():
+    base_lineage: dict[int, dict[str, Any]] = {}
+    for identity, path in artifacts["base"].items():
         seed = int(identity.split("|")[2])
         row = payloads[identity]
         if (
@@ -1055,40 +1203,26 @@ def _analyse_complete_artifacts(
         ):
             errors.append(f"{identity}:identity_or_card")
             continue
-        for split in ("development", "evaluation"):
-            entry = row.get("splits", {}).get(split, {})
-            source = repo_root / str(entry.get("path", ""))
-            audit = entry.get("marginal_audit", {})
-            if (
-                not source.is_file()
-                or _sha256(source) != entry.get("sha256")
-                or not all(
-                    audit.get(key) is True
-                    for key in (
-                        "pi_fixed_point_free",
-                        "placebo_nodes_are_non_neighbours",
-                        "every_semantic_donor_changed",
-                        "slot_feature_scenario_time_pools_equal",
-                    )
-                )
-            ):
-                errors.append(f"{identity}:{split}_donor")
         base = row.get("base_state", {})
         base_path = repo_root / str(base.get("path", ""))
         if not base_path.is_file() or _sha256(base_path) != base.get("sha256"):
             errors.append(f"{identity}:base_state")
-        donor_lineage[seed] = {
+        if row.get("source_routing") != {
+            "authentic": "same_time_rows_unchanged",
+            "placebo": "same_time_row_permutation_rho_i_plus_1",
+            "exogenous_donor_bank": False,
+        }:
+            errors.append(f"{identity}:source_routing")
+        base_lineage[seed] = {
             "manifest": _sha256(path),
             "base": base.get("sha256"),
-            "development": row.get("splits", {}).get("development", {}).get("sha256"),
-            "evaluation": row.get("splits", {}).get("evaluation", {}).get("sha256"),
         }
     training_lineage: dict[tuple[str, int], dict[str, Any]] = {}
     for identity, path in artifacts["train"].items():
         _kind, _scope, arm, seed_text = identity.split("|")
         seed = int(seed_text)
         row = payloads[identity]
-        lineage = donor_lineage.get(seed, {})
+        lineage = base_lineage.get(seed, {})
         if (
             row.get("round") != ROUND_ID
             or row.get("scope") != scope
@@ -1097,9 +1231,8 @@ def _analyse_complete_artifacts(
             or row.get("valid") is not True
             or row.get("interaction_steps") != 43_200
             or row.get("resolved_parameter_card_sha256") != card_sha
-            or row.get("donor_manifest_sha256") != lineage.get("manifest")
+            or row.get("base_manifest_sha256") != lineage.get("manifest")
             or row.get("base_state_sha256") != lineage.get("base")
-            or row.get("development_donor_sha256") != lineage.get("development")
         ):
             errors.append(f"{identity}:identity_or_lineage")
             continue
@@ -1112,8 +1245,7 @@ def _analyse_complete_artifacts(
         training_lineage[(arm, seed)] = {
             "manifest": _sha256(path),
             "checkpoint": row.get("final_checkpoint_sha256"),
-            "donor_manifest": lineage.get("manifest"),
-            "evaluation_donor": lineage.get("evaluation"),
+            "base_manifest": lineage.get("manifest"),
         }
     summaries_30: list[dict[str, Any]] = []
     summaries_6: list[dict[str, Any]] = []
@@ -1144,8 +1276,8 @@ def _analyse_complete_artifacts(
                 if (
                     record.get("training_manifest_sha256") != lineage.get("manifest")
                     or record.get("checkpoint_sha256") != lineage.get("checkpoint")
-                    or record.get("donor_manifest_sha256") != lineage.get("donor_manifest")
-                    or record.get("evaluation_donor_sha256") != lineage.get("evaluation_donor")
+                    or record.get("base_manifest_sha256")
+                    != lineage.get("base_manifest")
                 ):
                     errors.append(f"{identity}:live_lineage")
                     break
@@ -1252,25 +1384,20 @@ def _analyse_complete_artifacts(
         reference_gate=same_gate,
         contract=config,
     )
-    factor_established = bool(
-        primary["status"] == "COMPLETE"
-        and any(row["holm"]["reject"] for row in primary["tests"].values())
+    classification = classify_registered_outcome(
+        factorial=primary,
+        guard=sensitivity["primary"],
     )
-    guard_passed = sensitivity["primary"].get("passing_count", 0) > 0
-    if primary["status"] != "COMPLETE":
-        outcome = "ASSUMPTION-LIMITED"
-    elif factor_established and guard_passed:
-        outcome = "VALID-POSITIVE"
-    elif factor_established or guard_passed:
-        outcome = "VALID-MIXED"
-    else:
-        outcome = "VALID-NEGATIVE"
     return {
         "schema_version": 1,
         "round": ROUND_ID,
         "scope": scope,
-        "status": outcome,
-        "claim_boundary": config["parameter_card"]["outcome_to_claim"][outcome],
+        "status": classification["status"],
+        "learner_qualification": classification["learner_qualification"],
+        "source_inference": classification["source_inference"],
+        "claim_boundary": config["parameter_card"]["outcome_to_claim"][
+            classification["status"]
+        ],
         "inventory": inventory,
         "primary_inference": primary,
         "tail_inference": tail,
