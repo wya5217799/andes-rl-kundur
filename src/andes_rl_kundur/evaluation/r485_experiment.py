@@ -338,6 +338,46 @@ def _sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def _card_science_sha256(card: Mapping[str, Any]) -> str:
+    """Hash experiment semantics while excluding authority-only provenance."""
+
+    projection = {
+        key: value
+        for key, value in card.items()
+        if key not in {"sources", "created_utc"}
+    }
+    encoded = json.dumps(
+        projection, sort_keys=True, separators=(",", ":"), allow_nan=False
+    ).encode("utf-8")
+    return hashlib.sha256(encoded).hexdigest()
+
+
+_POST_CANARY_AUTHORITY_SOURCE_CHANGES = frozenset(
+    {
+        "analysis_tests",
+        "config",
+        "plan",
+        "power_plan",
+        "r485_experiment",
+        "runner_tests",
+    }
+)
+
+
+def _changed_card_sources(
+    previous_card: Mapping[str, Any], current_card: Mapping[str, Any]
+) -> set[str]:
+    previous = previous_card.get("sources")
+    current = current_card.get("sources")
+    if not isinstance(previous, Mapping) or not isinstance(current, Mapping):
+        raise RuntimeError("parameter-card source inventory is missing")
+    return {
+        str(name)
+        for name in previous.keys() | current.keys()
+        if previous.get(name) != current.get(name)
+    }
+
+
 def _finite_tree(value: Any) -> bool:
     if isinstance(value, bool) or value is None or isinstance(value, str):
         return True
@@ -1611,6 +1651,60 @@ def verify_formal_authority(
         raise RuntimeError("capacity evidence is not safe for R485 formal launch")
     if capacity.get("native_threads_per_process") != 1:
         raise RuntimeError("capacity native-thread contract drift")
+    current_card_sha = _sha256(card_path)
+    rehearsal_card_sha = rehearsal.get("resolved_parameter_card_sha256")
+    if rehearsal_card_sha != current_card_sha:
+        rebind = capacity.get("canary_contract_rebind")
+        if not isinstance(rebind, Mapping) or rebind.get("passed") is not True:
+            raise RuntimeError("post-canary parameter-card rebind is missing")
+        previous = rebind.get("previous_parameter_card")
+        if not isinstance(previous, Mapping):
+            raise RuntimeError("previous parameter-card authority is missing")
+        relative = Path(str(previous.get("path", "")))
+        if relative.is_absolute() or ".." in relative.parts:
+            raise RuntimeError("previous parameter-card path escapes repository")
+        previous_path = (repo_root / relative).resolve()
+        try:
+            previous_path.relative_to(repo_root.resolve())
+        except ValueError as error:
+            raise RuntimeError("previous parameter-card path escapes repository") from error
+        previous_card = read_hashed_json(previous_path)
+        previous_sha = _sha256(previous_path)
+        science_sha = _card_science_sha256(card)
+        changed_sources = _changed_card_sources(previous_card, card)
+        declared_changes = rebind.get("authority_only_changed_sources")
+        if (
+            previous.get("sha256") != previous_sha
+            or rebind.get("current_parameter_card_sha256") != current_card_sha
+            or rebind.get("scientific_projection_sha256") != science_sha
+            or _card_science_sha256(previous_card) != science_sha
+            or declared_changes != sorted(changed_sources)
+            or not changed_sources <= _POST_CANARY_AUTHORITY_SOURCE_CHANGES
+            or rebind.get("canary_admissibility_sha256") != _sha256(canary_path)
+            or rebind.get("rehearsal_sha256") != _sha256(rehearsal_path)
+            or rehearsal_card_sha != previous_sha
+        ):
+            raise RuntimeError("post-canary parameter-card rebind drift")
+        canary_root = _path(repo_root, config, "canary_out")
+        base_manifests = sorted(canary_root.glob("bases/seed*/manifest.json"))
+        train_manifests = sorted(canary_root.glob("train/*/seed*/manifest.json"))
+        evaluation_files = sorted(canary_root.glob("eval/**/*.json"))
+        if (len(base_manifests), len(train_manifests), len(evaluation_files)) != (
+            1,
+            8,
+            48,
+        ):
+            raise RuntimeError("post-canary parameter-card rebind roster drift")
+        for path in (*base_manifests, *train_manifests):
+            if read_hashed_json(path).get("resolved_parameter_card_sha256") != previous_sha:
+                raise RuntimeError("post-canary manifest card lineage drift")
+        for path in evaluation_files:
+            records = read_hashed_json(path).get("records")
+            if not isinstance(records, list) or not records or any(
+                row.get("resolved_parameter_card_sha256") != previous_sha
+                for row in records
+            ):
+                raise RuntimeError("post-canary evaluation card lineage drift")
     if owner.get("round") != ROUND_ID or owner.get("approved") is not True or owner.get("long_execution_authorized") is not True:
         raise RuntimeError("owner approval does not authorize R485 formal launch")
     if (

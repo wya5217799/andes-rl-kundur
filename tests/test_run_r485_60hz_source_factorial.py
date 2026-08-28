@@ -242,9 +242,22 @@ def test_parameter_card_is_checked_against_the_live_learner() -> None:
         runner.validate_parameter_card_against_member(tampered, member)
 
 
-def test_formal_authority_fails_closed_before_card_canary_review_and_seal() -> None:
+def test_formal_authority_fails_closed_before_card_canary_review_and_seal(
+    tmp_path: Path,
+) -> None:
     runner = _load_runner()
     config = runner.load_config(CONFIG)
+    for name in (
+        "resolved_parameter_card",
+        "canary_admissibility",
+        "code_review_a",
+        "code_review_b",
+        "rehearsal",
+        "capacity",
+        "formal_seal",
+        "owner_approval",
+    ):
+        config["paths"][name] = str(tmp_path / f"{name}.json")
 
     errors = runner.authority_errors(config, scope="formal")
 

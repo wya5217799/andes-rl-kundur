@@ -271,6 +271,9 @@ Preserve the four registered source contrasts, direct `log(1.10)` materiality
 boundary and Holm family of four; exact formulas/test/fallback must pass an
 independent statistical audit before seal. The 30-s result is separate
 complete-contract evidence and source sensitivity, never pooled with 6 s.
+The prospective sample-size authority is
+`paper/yang_md_decoupling_marl/working/source_factorial_power_plan.json`
+(`n_star=26`); it is design-only and contributes no R485 outcome rows.
 For the two main effects the registered coordinate is explicitly
 `log(loss_P / loss_N)`, where `N` is the authentic source and `P` is the
 row-permuted placebo; a positive value therefore means the authentic source
@@ -320,10 +323,10 @@ policy), never by visual attractiveness.
 - rehearsal_checks: source_hash,parent_hash,installed_package,installed_case,output_absence,shard_roster,trajectory_count,representative_schema
 - result_root: `results/research_loop/r485_60hz_source_factorial/<sealed-attempt-id>/`
 - capacity_evidence: `memory/rounds/R485/capacity_evidence.json`
-- host_process_budget: `TBD_R485_MEASURED_CAPACITY_BLOCKER`
+- host_process_budget: 17
 - wsl_python_processes: 17
 - native_threads_per_process: 1
-- other_reserved_processes: `TBD_R485_MEASURED_CAPACITY_BLOCKER`
+- other_reserved_processes: 0
 - expected compute: estimate only until same-path measurement; historical
   scale is about 42 h training plus complete evaluation, not a deadline
 

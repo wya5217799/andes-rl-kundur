@@ -148,7 +148,8 @@
     "artifact_io_tests": "memory/tools/tests/test_artifact_io.py",
     "r485_experiment": "src/andes_rl_kundur/evaluation/r485_experiment.py",
     "authority_kernel": "src/andes_rl_kundur/evaluation/u2_confirmatory.py",
-    "reward_reference": "scripts/run_r438_sac_message_channels.py"
+    "reward_reference": "scripts/run_r438_sac_message_channels.py",
+    "power_plan": "paper/yang_md_decoupling_marl/working/source_factorial_power_plan.json"
   },
   "parent_files": {
     "r481_contract": "memory/rounds/R481/contract.json",
