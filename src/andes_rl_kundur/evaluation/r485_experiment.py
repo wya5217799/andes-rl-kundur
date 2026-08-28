@@ -907,6 +907,7 @@ def build_canary_admissibility(
     return {
         "schema_version": 1,
         "round": ROUND_ID,
+        "resolved_parameter_card_sha256": card_sha256,
         "seed": seed,
         "arms": cells,
         "references": references,
@@ -1600,11 +1601,16 @@ def verify_formal_authority(
         raise RuntimeError("canary admissibility did not pass")
     if canary.get("performance_or_endpoint_selection_performed") is not False:
         raise RuntimeError("canary inspected scientific performance")
+    card_sha = _sha256(card_path)
+    if canary.get("resolved_parameter_card_sha256") != card_sha:
+        raise RuntimeError("canary parameter-card lineage drift")
     checks = rehearsal.get("checks")
     if rehearsal.get("round") != ROUND_ID or not isinstance(checks, dict) or not checks or not all(checks.values()):
         raise RuntimeError("rehearsal did not pass every registered check")
     if rehearsal.get("formal_outputs_created") is not False:
         raise RuntimeError("rehearsal created formal output")
+    if rehearsal.get("resolved_parameter_card_sha256") != card_sha:
+        raise RuntimeError("rehearsal parameter-card lineage drift")
     workers = int(config["execution"]["workers"])
     measured_workers = int(capacity.get("selected_workers", capacity.get("capacity_canary", {}).get("formal_workers", -1)))
     if capacity.get("round") != ROUND_ID or capacity.get("safe_for_formal_launch") is not True or measured_workers < workers:

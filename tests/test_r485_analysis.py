@@ -53,12 +53,14 @@ def test_formal_authority_rejects_hash_valid_owner_denial(tmp_path: Path) -> Non
         paths["resolved_parameter_card"],
         {"round": "R485", "objective_semantics_probe": {"passed": True}},
     )
+    card_sha = Path(f"{paths['resolved_parameter_card']}.sha256").read_text().split()[0]
     _write_hashed_json(
         paths["canary_admissibility"],
         {
             "round": "R485",
             "passed": True,
             "performance_or_endpoint_selection_performed": False,
+            "resolved_parameter_card_sha256": card_sha,
         },
     )
     _write_hashed_json(
@@ -67,6 +69,7 @@ def test_formal_authority_rejects_hash_valid_owner_denial(tmp_path: Path) -> Non
             "round": "R485",
             "checks": {"same_path": True},
             "formal_outputs_created": False,
+            "resolved_parameter_card_sha256": card_sha,
         },
     )
     _write_hashed_json(
@@ -92,6 +95,32 @@ def test_formal_authority_rejects_hash_valid_owner_denial(tmp_path: Path) -> Non
         "execution": {"workers": 16},
         "paths": {name: str(path) for name, path in paths.items()},
     }
+
+    canary = json.loads(paths["canary_admissibility"].read_text())
+    canary["resolved_parameter_card_sha256"] = "b" * 64
+    _write_hashed_json(paths["canary_admissibility"], canary)
+    with pytest.raises(RuntimeError, match="canary parameter-card lineage drift"):
+        verify_formal_authority(
+            repo_root=tmp_path,
+            config=config,
+            expected_shards={},
+            reviewed_files=(),
+        )
+    canary["resolved_parameter_card_sha256"] = card_sha
+    _write_hashed_json(paths["canary_admissibility"], canary)
+
+    rehearsal = json.loads(paths["rehearsal"].read_text())
+    rehearsal["resolved_parameter_card_sha256"] = "b" * 64
+    _write_hashed_json(paths["rehearsal"], rehearsal)
+    with pytest.raises(RuntimeError, match="rehearsal parameter-card lineage drift"):
+        verify_formal_authority(
+            repo_root=tmp_path,
+            config=config,
+            expected_shards={},
+            reviewed_files=(),
+        )
+    rehearsal["resolved_parameter_card_sha256"] = card_sha
+    _write_hashed_json(paths["rehearsal"], rehearsal)
 
     with pytest.raises(RuntimeError, match="owner approval"):
         verify_formal_authority(
@@ -124,12 +153,14 @@ def test_formal_authority_rejects_owner_scope_that_is_not_exact_attempt(
         paths["resolved_parameter_card"],
         {"round": "R485", "objective_semantics_probe": {"passed": True}},
     )
+    card_sha = Path(f"{paths['resolved_parameter_card']}.sha256").read_text().split()[0]
     _write_hashed_json(
         paths["canary_admissibility"],
         {
             "round": "R485",
             "passed": True,
             "performance_or_endpoint_selection_performed": False,
+            "resolved_parameter_card_sha256": card_sha,
         },
     )
     _write_hashed_json(
@@ -138,6 +169,7 @@ def test_formal_authority_rejects_owner_scope_that_is_not_exact_attempt(
             "round": "R485",
             "checks": {"same_path": True},
             "formal_outputs_created": False,
+            "resolved_parameter_card_sha256": card_sha,
         },
     )
     _write_hashed_json(
