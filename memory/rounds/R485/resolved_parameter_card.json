@@ -1,0 +1,2913 @@
+{
+  "observation": {
+    "raw_shape": [
+      4,
+      7
+    ],
+    "frequency_and_rocof_slots": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "transform": "adapt_v4_observations_to_physical",
+    "control_nominal_frequency_hz": 50.0,
+    "physical_nominal_frequency_hz": 60.0,
+    "scale": 1.2,
+    "application_count": 1
+  },
+  "source_routing": {
+    "authentic": "same_time_rows_unchanged",
+    "placebo": "same_time_row_permutation_rho_i_plus_1",
+    "recipient_owned_slots": [
+      0,
+      1,
+      2
+    ],
+    "permuted_neighbour_slots": [
+      3,
+      4,
+      5,
+      6
+    ],
+    "exogenous_donor_bank": false
+  },
+  "learner": {
+    "family": "four_independent_source_factorial_executed_action_sac_agents",
+    "actor_state_dim": 9,
+    "critic_state_dim": 9,
+    "action_dim": 2,
+    "hidden_sizes": [
+      128,
+      128,
+      128,
+      128
+    ],
+    "activation": "ReLU",
+    "actor": "Gaussian-tanh",
+    "log_std_bounds": [
+      -20.0,
+      2.0
+    ],
+    "twin_q": true,
+    "lr": 0.0003,
+    "gamma": 0.99,
+    "tau": 0.005,
+    "replay_capacity": 10000,
+    "batch_size": 256,
+    "alpha_initial": 1.0,
+    "alpha_bounds": [
+      0.005,
+      5.0
+    ],
+    "target_entropy": -2.0,
+    "max_grad_norm": 1.0,
+    "updates_per_environment_step_after_warmup": 1,
+    "training_policy": "stochastic",
+    "evaluation_policy": "deterministic_mean"
+  },
+  "reward": {
+    "formula": "R438_channel_step_rewards",
+    "coefficients": {
+      "phi_f": 100.0,
+      "phi_abs": 50.0,
+      "phi_h": 0.0056,
+      "phi_d": 0.0056
+    },
+    "fleet_mean_m_d_divisor": 600.0,
+    "frequency_slots": [
+      1,
+      3,
+      4
+    ],
+    "rocof_slots": [],
+    "input": "canonical_60hz_rows"
+  },
+  "statistics": {
+    "inference_unit": "seed",
+    "estimand": "seed_level_hodges_lehmann_location_pseudomedian",
+    "main_effect_coordinate": "log(placebo_P_loss / authentic_N_loss)",
+    "main_effect_positive_direction": "authentic_N_source_lowers_loss_relative_to_row_permuted_P_placebo",
+    "interaction_direction": "registered_ratio_of_ratios_as_defined_by_source_factorial_design.seed_effects",
+    "null_boundary": "theta_HL <= log(1.10)",
+    "test": "exact_one_sided_wilcoxon_signed_rank",
+    "multiplicity": "Holm_family_of_four",
+    "symmetry_diagnostic": "boundary_centered_standardized_third_moment",
+    "symmetry_absolute_threshold": 1.0,
+    "ties_zeros_or_symmetry_failure": "ASSUMPTION-LIMITED",
+    "fallback": null,
+    "primary_horizon_seconds": 6.0,
+    "tail_horizon_seconds": 30.0,
+    "horizons_pooled": false
+  },
+  "threshold_sensitivity": {
+    "frequency_multipliers": [
+      1.0,
+      1.03,
+      1.05,
+      1.1
+    ],
+    "action_multipliers": [
+      1.1,
+      1.2,
+      1.5,
+      2.0
+    ],
+    "primary": {
+      "frequency": 1.03,
+      "action": 1.1
+    },
+    "break_even": "max_block_action_rms_or_tv_ratio",
+    "complete_contract_break_even_requires_all_non_action_guards": true,
+    "otherwise": "NA_for_complete_contract_but_report_action_only_break_even",
+    "zero_denominator": "NA",
+    "post_result_threshold_additions": false
+  },
+  "tds_ontology": {
+    "infrastructure_hash_or_code_failure": "INTEGRITY-INVALID",
+    "reproducible_controller_tds_divergence": "COMPLETE-GUARD-FAIL",
+    "continuous_endpoint": "NOT-COMPUTABLE",
+    "source_inference_with_missing_endpoint": "ASSUMPTION-LIMITED"
+  },
+  "outcome_to_claim": {
+    "VALID-POSITIVE": "at least one frozen policy satisfies both endpoint targets and the registered complete guard; source inference is reported separately",
+    "VALID-MIXED": "at least one frozen policy satisfies both endpoint targets, but none satisfies the registered complete guard",
+    "VALID-NEGATIVE": "no frozen policy satisfies both registered endpoint targets under this benchmark and budget; source inference is reported separately",
+    "ASSUMPTION-LIMITED": "registered source inference is not tested; learner endpoint and guard qualification remains separately reportable",
+    "INTEGRITY-INVALID": "no scientific result"
+  },
+  "schema_version": 1,
+  "round": "R485",
+  "scientific_environment": {
+    "N_SUBSTEPS": "5",
+    "DISABLE_TOGGLER": "1",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1"
+  },
+  "design": {
+    "arms": [
+      "an_cn_r0",
+      "an_cn_r1",
+      "an_cp_r0",
+      "an_cp_r1",
+      "ap_cn_r0",
+      "ap_cn_r1",
+      "ap_cp_r0",
+      "ap_cp_r1"
+    ],
+    "formal_seeds": [
+      501,
+      502,
+      503,
+      504,
+      505,
+      506,
+      507,
+      508,
+      509,
+      510,
+      511,
+      512,
+      513,
+      514,
+      515,
+      516,
+      517,
+      518,
+      519,
+      520,
+      521,
+      522,
+      523,
+      524,
+      525,
+      526
+    ],
+    "canary_seed": 500,
+    "interaction_steps": 43200,
+    "evaluation_steps": 150,
+    "prefix_steps": 30,
+    "dt_seconds": 0.2
+  },
+  "action": {
+    "normalized_bounds": [
+      -1.0,
+      1.0
+    ],
+    "slew_limit": 0.25,
+    "decoder": {
+      "delta_m_negative": -200.0,
+      "delta_m_positive": 600.0,
+      "delta_d_negative": -200.0,
+      "delta_d_positive": 600.0,
+      "m_lower_clamp": 20.0,
+      "d_lower_clamp": 10.0,
+      "mapping_atol": 3.0517578125e-05
+    }
+  },
+  "profiles": [
+    {
+      "profile_id": "canary_dev_a",
+      "split": "development",
+      "baseline_m0": [
+        150.0,
+        250.0,
+        170.0,
+        230.0
+      ],
+      "baseline_d0": [
+        60.0,
+        140.0,
+        80.0,
+        120.0
+      ],
+      "steady_loads": {
+        "PQ_Bus14": 2.24,
+        "PQ_Bus15": 0.42
+      },
+      "probe_magnitude": 0.85,
+      "localized_location": "PQ_1",
+      "localized_magnitude": 0.95,
+      "scenarios": [
+        {
+          "scenario_id": "canary_dev_a_common_positive",
+          "profile_id": "canary_dev_a",
+          "pair_kind": "common",
+          "sign": "positive",
+          "magnitude": 0.85,
+          "delta_u": {
+            "PQ_0": 0.2125,
+            "PQ_1": 0.2125,
+            "PQ_Bus14": 0.2125,
+            "PQ_Bus15": 0.2125
+          }
+        },
+        {
+          "scenario_id": "canary_dev_a_common_negative",
+          "profile_id": "canary_dev_a",
+          "pair_kind": "common",
+          "sign": "negative",
+          "magnitude": 0.85,
+          "delta_u": {
+            "PQ_0": -0.2125,
+            "PQ_1": -0.2125,
+            "PQ_Bus14": -0.2125,
+            "PQ_Bus15": -0.2125
+          }
+        },
+        {
+          "scenario_id": "canary_dev_a_differential_positive",
+          "profile_id": "canary_dev_a",
+          "pair_kind": "differential",
+          "sign": "positive",
+          "magnitude": 0.85,
+          "delta_u": {
+            "PQ_0": 0.2125,
+            "PQ_1": 0.2125,
+            "PQ_Bus14": -0.2125,
+            "PQ_Bus15": -0.2125
+          }
+        },
+        {
+          "scenario_id": "canary_dev_a_differential_negative",
+          "profile_id": "canary_dev_a",
+          "pair_kind": "differential",
+          "sign": "negative",
+          "magnitude": 0.85,
+          "delta_u": {
+            "PQ_0": -0.2125,
+            "PQ_1": -0.2125,
+            "PQ_Bus14": 0.2125,
+            "PQ_Bus15": 0.2125
+          }
+        },
+        {
+          "scenario_id": "canary_dev_a_localized_positive",
+          "profile_id": "canary_dev_a",
+          "pair_kind": "localized",
+          "sign": "positive",
+          "magnitude": 0.95,
+          "delta_u": {
+            "PQ_1": 0.95
+          }
+        },
+        {
+          "scenario_id": "canary_dev_a_localized_negative",
+          "profile_id": "canary_dev_a",
+          "pair_kind": "localized",
+          "sign": "negative",
+          "magnitude": 0.95,
+          "delta_u": {
+            "PQ_1": -0.95
+          }
+        }
+      ]
+    },
+    {
+      "profile_id": "canary_dev_b",
+      "split": "development",
+      "baseline_m0": [
+        230.0,
+        150.0,
+        250.0,
+        170.0
+      ],
+      "baseline_d0": [
+        120.0,
+        60.0,
+        140.0,
+        80.0
+      ],
+      "steady_loads": {
+        "PQ_Bus14": 2.02,
+        "PQ_Bus15": 0.66
+      },
+      "probe_magnitude": 1.05,
+      "localized_location": "PQ_Bus15",
+      "localized_magnitude": 1.15,
+      "scenarios": [
+        {
+          "scenario_id": "canary_dev_b_common_positive",
+          "profile_id": "canary_dev_b",
+          "pair_kind": "common",
+          "sign": "positive",
+          "magnitude": 1.05,
+          "delta_u": {
+            "PQ_0": 0.2625,
+            "PQ_1": 0.2625,
+            "PQ_Bus14": 0.2625,
+            "PQ_Bus15": 0.2625
+          }
+        },
+        {
+          "scenario_id": "canary_dev_b_common_negative",
+          "profile_id": "canary_dev_b",
+          "pair_kind": "common",
+          "sign": "negative",
+          "magnitude": 1.05,
+          "delta_u": {
+            "PQ_0": -0.2625,
+            "PQ_1": -0.2625,
+            "PQ_Bus14": -0.2625,
+            "PQ_Bus15": -0.2625
+          }
+        },
+        {
+          "scenario_id": "canary_dev_b_differential_positive",
+          "profile_id": "canary_dev_b",
+          "pair_kind": "differential",
+          "sign": "positive",
+          "magnitude": 1.05,
+          "delta_u": {
+            "PQ_0": 0.2625,
+            "PQ_1": 0.2625,
+            "PQ_Bus14": -0.2625,
+            "PQ_Bus15": -0.2625
+          }
+        },
+        {
+          "scenario_id": "canary_dev_b_differential_negative",
+          "profile_id": "canary_dev_b",
+          "pair_kind": "differential",
+          "sign": "negative",
+          "magnitude": 1.05,
+          "delta_u": {
+            "PQ_0": -0.2625,
+            "PQ_1": -0.2625,
+            "PQ_Bus14": 0.2625,
+            "PQ_Bus15": 0.2625
+          }
+        },
+        {
+          "scenario_id": "canary_dev_b_localized_positive",
+          "profile_id": "canary_dev_b",
+          "pair_kind": "localized",
+          "sign": "positive",
+          "magnitude": 1.15,
+          "delta_u": {
+            "PQ_Bus15": 1.15
+          }
+        },
+        {
+          "scenario_id": "canary_dev_b_localized_negative",
+          "profile_id": "canary_dev_b",
+          "pair_kind": "localized",
+          "sign": "negative",
+          "magnitude": 1.15,
+          "delta_u": {
+            "PQ_Bus15": -1.15
+          }
+        }
+      ]
+    },
+    {
+      "profile_id": "canary_dev_c",
+      "split": "development",
+      "baseline_m0": [
+        210.0,
+        190.0,
+        160.0,
+        240.0
+      ],
+      "baseline_d0": [
+        130.0,
+        70.0,
+        110.0,
+        90.0
+      ],
+      "steady_loads": {
+        "PQ_Bus14": 2.42,
+        "PQ_Bus15": 0.14
+      },
+      "probe_magnitude": 0.75,
+      "localized_location": "PQ_0",
+      "localized_magnitude": 0.85,
+      "scenarios": [
+        {
+          "scenario_id": "canary_dev_c_common_positive",
+          "profile_id": "canary_dev_c",
+          "pair_kind": "common",
+          "sign": "positive",
+          "magnitude": 0.75,
+          "delta_u": {
+            "PQ_0": 0.1875,
+            "PQ_1": 0.1875,
+            "PQ_Bus14": 0.1875,
+            "PQ_Bus15": 0.1875
+          }
+        },
+        {
+          "scenario_id": "canary_dev_c_common_negative",
+          "profile_id": "canary_dev_c",
+          "pair_kind": "common",
+          "sign": "negative",
+          "magnitude": 0.75,
+          "delta_u": {
+            "PQ_0": -0.1875,
+            "PQ_1": -0.1875,
+            "PQ_Bus14": -0.1875,
+            "PQ_Bus15": -0.1875
+          }
+        },
+        {
+          "scenario_id": "canary_dev_c_differential_positive",
+          "profile_id": "canary_dev_c",
+          "pair_kind": "differential",
+          "sign": "positive",
+          "magnitude": 0.75,
+          "delta_u": {
+            "PQ_0": 0.1875,
+            "PQ_1": 0.1875,
+            "PQ_Bus14": -0.1875,
+            "PQ_Bus15": -0.1875
+          }
+        },
+        {
+          "scenario_id": "canary_dev_c_differential_negative",
+          "profile_id": "canary_dev_c",
+          "pair_kind": "differential",
+          "sign": "negative",
+          "magnitude": 0.75,
+          "delta_u": {
+            "PQ_0": -0.1875,
+            "PQ_1": -0.1875,
+            "PQ_Bus14": 0.1875,
+            "PQ_Bus15": 0.1875
+          }
+        },
+        {
+          "scenario_id": "canary_dev_c_localized_positive",
+          "profile_id": "canary_dev_c",
+          "pair_kind": "localized",
+          "sign": "positive",
+          "magnitude": 0.85,
+          "delta_u": {
+            "PQ_0": 0.85
+          }
+        },
+        {
+          "scenario_id": "canary_dev_c_localized_negative",
+          "profile_id": "canary_dev_c",
+          "pair_kind": "localized",
+          "sign": "negative",
+          "magnitude": 0.85,
+          "delta_u": {
+            "PQ_0": -0.85
+          }
+        }
+      ]
+    },
+    {
+      "profile_id": "canary_dev_d",
+      "split": "development",
+      "baseline_m0": [
+        240.0,
+        160.0,
+        190.0,
+        210.0
+      ],
+      "baseline_d0": [
+        90.0,
+        110.0,
+        70.0,
+        130.0
+      ],
+      "steady_loads": {
+        "PQ_Bus14": 2.12,
+        "PQ_Bus15": 0.54
+      },
+      "probe_magnitude": 0.95,
+      "localized_location": "PQ_Bus14",
+      "localized_magnitude": 1.05,
+      "scenarios": [
+        {
+          "scenario_id": "canary_dev_d_common_positive",
+          "profile_id": "canary_dev_d",
+          "pair_kind": "common",
+          "sign": "positive",
+          "magnitude": 0.95,
+          "delta_u": {
+            "PQ_0": 0.2375,
+            "PQ_1": 0.2375,
+            "PQ_Bus14": 0.2375,
+            "PQ_Bus15": 0.2375
+          }
+        },
+        {
+          "scenario_id": "canary_dev_d_common_negative",
+          "profile_id": "canary_dev_d",
+          "pair_kind": "common",
+          "sign": "negative",
+          "magnitude": 0.95,
+          "delta_u": {
+            "PQ_0": -0.2375,
+            "PQ_1": -0.2375,
+            "PQ_Bus14": -0.2375,
+            "PQ_Bus15": -0.2375
+          }
+        },
+        {
+          "scenario_id": "canary_dev_d_differential_positive",
+          "profile_id": "canary_dev_d",
+          "pair_kind": "differential",
+          "sign": "positive",
+          "magnitude": 0.95,
+          "delta_u": {
+            "PQ_0": 0.2375,
+            "PQ_1": 0.2375,
+            "PQ_Bus14": -0.2375,
+            "PQ_Bus15": -0.2375
+          }
+        },
+        {
+          "scenario_id": "canary_dev_d_differential_negative",
+          "profile_id": "canary_dev_d",
+          "pair_kind": "differential",
+          "sign": "negative",
+          "magnitude": 0.95,
+          "delta_u": {
+            "PQ_0": -0.2375,
+            "PQ_1": -0.2375,
+            "PQ_Bus14": 0.2375,
+            "PQ_Bus15": 0.2375
+          }
+        },
+        {
+          "scenario_id": "canary_dev_d_localized_positive",
+          "profile_id": "canary_dev_d",
+          "pair_kind": "localized",
+          "sign": "positive",
+          "magnitude": 1.05,
+          "delta_u": {
+            "PQ_Bus14": 1.05
+          }
+        },
+        {
+          "scenario_id": "canary_dev_d_localized_negative",
+          "profile_id": "canary_dev_d",
+          "pair_kind": "localized",
+          "sign": "negative",
+          "magnitude": 1.05,
+          "delta_u": {
+            "PQ_Bus14": -1.05
+          }
+        }
+      ]
+    },
+    {
+      "profile_id": "canary_eval_a",
+      "split": "evaluation",
+      "baseline_m0": [
+        140.0,
+        260.0,
+        200.0,
+        220.0
+      ],
+      "baseline_d0": [
+        50.0,
+        150.0,
+        90.0,
+        130.0
+      ],
+      "steady_loads": {
+        "PQ_Bus14": 2.56,
+        "PQ_Bus15": 0.34
+      },
+      "probe_magnitude": 0.9,
+      "localized_location": "PQ_0",
+      "localized_magnitude": 1.0,
+      "scenarios": [
+        {
+          "scenario_id": "canary_eval_a_common_positive",
+          "profile_id": "canary_eval_a",
+          "pair_kind": "common",
+          "sign": "positive",
+          "magnitude": 0.9,
+          "delta_u": {
+            "PQ_0": 0.225,
+            "PQ_1": 0.225,
+            "PQ_Bus14": 0.225,
+            "PQ_Bus15": 0.225
+          }
+        },
+        {
+          "scenario_id": "canary_eval_a_common_negative",
+          "profile_id": "canary_eval_a",
+          "pair_kind": "common",
+          "sign": "negative",
+          "magnitude": 0.9,
+          "delta_u": {
+            "PQ_0": -0.225,
+            "PQ_1": -0.225,
+            "PQ_Bus14": -0.225,
+            "PQ_Bus15": -0.225
+          }
+        },
+        {
+          "scenario_id": "canary_eval_a_differential_positive",
+          "profile_id": "canary_eval_a",
+          "pair_kind": "differential",
+          "sign": "positive",
+          "magnitude": 0.9,
+          "delta_u": {
+            "PQ_0": 0.225,
+            "PQ_1": 0.225,
+            "PQ_Bus14": -0.225,
+            "PQ_Bus15": -0.225
+          }
+        },
+        {
+          "scenario_id": "canary_eval_a_differential_negative",
+          "profile_id": "canary_eval_a",
+          "pair_kind": "differential",
+          "sign": "negative",
+          "magnitude": 0.9,
+          "delta_u": {
+            "PQ_0": -0.225,
+            "PQ_1": -0.225,
+            "PQ_Bus14": 0.225,
+            "PQ_Bus15": 0.225
+          }
+        },
+        {
+          "scenario_id": "canary_eval_a_localized_positive",
+          "profile_id": "canary_eval_a",
+          "pair_kind": "localized",
+          "sign": "positive",
+          "magnitude": 1.0,
+          "delta_u": {
+            "PQ_0": 1.0
+          }
+        },
+        {
+          "scenario_id": "canary_eval_a_localized_negative",
+          "profile_id": "canary_eval_a",
+          "pair_kind": "localized",
+          "sign": "negative",
+          "magnitude": 1.0,
+          "delta_u": {
+            "PQ_0": -1.0
+          }
+        }
+      ]
+    },
+    {
+      "profile_id": "canary_eval_b",
+      "split": "evaluation",
+      "baseline_m0": [
+        260.0,
+        140.0,
+        220.0,
+        200.0
+      ],
+      "baseline_d0": [
+        150.0,
+        50.0,
+        130.0,
+        90.0
+      ],
+      "steady_loads": {
+        "PQ_Bus14": 2.06,
+        "PQ_Bus15": 0.26
+      },
+      "probe_magnitude": 0.8,
+      "localized_location": "PQ_Bus14",
+      "localized_magnitude": 0.9,
+      "scenarios": [
+        {
+          "scenario_id": "canary_eval_b_common_positive",
+          "profile_id": "canary_eval_b",
+          "pair_kind": "common",
+          "sign": "positive",
+          "magnitude": 0.8,
+          "delta_u": {
+            "PQ_0": 0.2,
+            "PQ_1": 0.2,
+            "PQ_Bus14": 0.2,
+            "PQ_Bus15": 0.2
+          }
+        },
+        {
+          "scenario_id": "canary_eval_b_common_negative",
+          "profile_id": "canary_eval_b",
+          "pair_kind": "common",
+          "sign": "negative",
+          "magnitude": 0.8,
+          "delta_u": {
+            "PQ_0": -0.2,
+            "PQ_1": -0.2,
+            "PQ_Bus14": -0.2,
+            "PQ_Bus15": -0.2
+          }
+        },
+        {
+          "scenario_id": "canary_eval_b_differential_positive",
+          "profile_id": "canary_eval_b",
+          "pair_kind": "differential",
+          "sign": "positive",
+          "magnitude": 0.8,
+          "delta_u": {
+            "PQ_0": 0.2,
+            "PQ_1": 0.2,
+            "PQ_Bus14": -0.2,
+            "PQ_Bus15": -0.2
+          }
+        },
+        {
+          "scenario_id": "canary_eval_b_differential_negative",
+          "profile_id": "canary_eval_b",
+          "pair_kind": "differential",
+          "sign": "negative",
+          "magnitude": 0.8,
+          "delta_u": {
+            "PQ_0": -0.2,
+            "PQ_1": -0.2,
+            "PQ_Bus14": 0.2,
+            "PQ_Bus15": 0.2
+          }
+        },
+        {
+          "scenario_id": "canary_eval_b_localized_positive",
+          "profile_id": "canary_eval_b",
+          "pair_kind": "localized",
+          "sign": "positive",
+          "magnitude": 0.9,
+          "delta_u": {
+            "PQ_Bus14": 0.9
+          }
+        },
+        {
+          "scenario_id": "canary_eval_b_localized_negative",
+          "profile_id": "canary_eval_b",
+          "pair_kind": "localized",
+          "sign": "negative",
+          "magnitude": 0.9,
+          "delta_u": {
+            "PQ_Bus14": -0.9
+          }
+        }
+      ]
+    },
+    {
+      "profile_id": "canary_eval_c",
+      "split": "evaluation",
+      "baseline_m0": [
+        180.0,
+        240.0,
+        150.0,
+        210.0
+      ],
+      "baseline_d0": [
+        70.0,
+        130.0,
+        60.0,
+        110.0
+      ],
+      "steady_loads": {
+        "PQ_Bus14": 1.96,
+        "PQ_Bus15": 0.64
+      },
+      "probe_magnitude": 1.0,
+      "localized_location": "PQ_Bus15",
+      "localized_magnitude": 1.1,
+      "scenarios": [
+        {
+          "scenario_id": "canary_eval_c_common_positive",
+          "profile_id": "canary_eval_c",
+          "pair_kind": "common",
+          "sign": "positive",
+          "magnitude": 1.0,
+          "delta_u": {
+            "PQ_0": 0.25,
+            "PQ_1": 0.25,
+            "PQ_Bus14": 0.25,
+            "PQ_Bus15": 0.25
+          }
+        },
+        {
+          "scenario_id": "canary_eval_c_common_negative",
+          "profile_id": "canary_eval_c",
+          "pair_kind": "common",
+          "sign": "negative",
+          "magnitude": 1.0,
+          "delta_u": {
+            "PQ_0": -0.25,
+            "PQ_1": -0.25,
+            "PQ_Bus14": -0.25,
+            "PQ_Bus15": -0.25
+          }
+        },
+        {
+          "scenario_id": "canary_eval_c_differential_positive",
+          "profile_id": "canary_eval_c",
+          "pair_kind": "differential",
+          "sign": "positive",
+          "magnitude": 1.0,
+          "delta_u": {
+            "PQ_0": 0.25,
+            "PQ_1": 0.25,
+            "PQ_Bus14": -0.25,
+            "PQ_Bus15": -0.25
+          }
+        },
+        {
+          "scenario_id": "canary_eval_c_differential_negative",
+          "profile_id": "canary_eval_c",
+          "pair_kind": "differential",
+          "sign": "negative",
+          "magnitude": 1.0,
+          "delta_u": {
+            "PQ_0": -0.25,
+            "PQ_1": -0.25,
+            "PQ_Bus14": 0.25,
+            "PQ_Bus15": 0.25
+          }
+        },
+        {
+          "scenario_id": "canary_eval_c_localized_positive",
+          "profile_id": "canary_eval_c",
+          "pair_kind": "localized",
+          "sign": "positive",
+          "magnitude": 1.1,
+          "delta_u": {
+            "PQ_Bus15": 1.1
+          }
+        },
+        {
+          "scenario_id": "canary_eval_c_localized_negative",
+          "profile_id": "canary_eval_c",
+          "pair_kind": "localized",
+          "sign": "negative",
+          "magnitude": 1.1,
+          "delta_u": {
+            "PQ_Bus15": -1.1
+          }
+        }
+      ]
+    },
+    {
+      "profile_id": "canary_eval_d",
+      "split": "evaluation",
+      "baseline_m0": [
+        220.0,
+        200.0,
+        260.0,
+        140.0
+      ],
+      "baseline_d0": [
+        110.0,
+        90.0,
+        150.0,
+        50.0
+      ],
+      "steady_loads": {
+        "PQ_Bus14": 2.32,
+        "PQ_Bus15": 0.46
+      },
+      "probe_magnitude": 1.1,
+      "localized_location": "PQ_1",
+      "localized_magnitude": 1.2,
+      "scenarios": [
+        {
+          "scenario_id": "canary_eval_d_common_positive",
+          "profile_id": "canary_eval_d",
+          "pair_kind": "common",
+          "sign": "positive",
+          "magnitude": 1.1,
+          "delta_u": {
+            "PQ_0": 0.275,
+            "PQ_1": 0.275,
+            "PQ_Bus14": 0.275,
+            "PQ_Bus15": 0.275
+          }
+        },
+        {
+          "scenario_id": "canary_eval_d_common_negative",
+          "profile_id": "canary_eval_d",
+          "pair_kind": "common",
+          "sign": "negative",
+          "magnitude": 1.1,
+          "delta_u": {
+            "PQ_0": -0.275,
+            "PQ_1": -0.275,
+            "PQ_Bus14": -0.275,
+            "PQ_Bus15": -0.275
+          }
+        },
+        {
+          "scenario_id": "canary_eval_d_differential_positive",
+          "profile_id": "canary_eval_d",
+          "pair_kind": "differential",
+          "sign": "positive",
+          "magnitude": 1.1,
+          "delta_u": {
+            "PQ_0": 0.275,
+            "PQ_1": 0.275,
+            "PQ_Bus14": -0.275,
+            "PQ_Bus15": -0.275
+          }
+        },
+        {
+          "scenario_id": "canary_eval_d_differential_negative",
+          "profile_id": "canary_eval_d",
+          "pair_kind": "differential",
+          "sign": "negative",
+          "magnitude": 1.1,
+          "delta_u": {
+            "PQ_0": -0.275,
+            "PQ_1": -0.275,
+            "PQ_Bus14": 0.275,
+            "PQ_Bus15": 0.275
+          }
+        },
+        {
+          "scenario_id": "canary_eval_d_localized_positive",
+          "profile_id": "canary_eval_d",
+          "pair_kind": "localized",
+          "sign": "positive",
+          "magnitude": 1.2,
+          "delta_u": {
+            "PQ_1": 1.2
+          }
+        },
+        {
+          "scenario_id": "canary_eval_d_localized_negative",
+          "profile_id": "canary_eval_d",
+          "pair_kind": "localized",
+          "sign": "negative",
+          "magnitude": 1.2,
+          "delta_u": {
+            "PQ_1": -1.2
+          }
+        }
+      ]
+    }
+  ],
+  "evaluation_contracts": {
+    "same": {
+      "schema_version": 1,
+      "round": "R401",
+      "manuscript_line": "yang-md-decoupling-marl",
+      "stage": "gate-a-three-seed-development-canary-contract",
+      "authority": "paper/yang_md_decoupling_marl/working/route_amendment_r400.md#gate-a----fresh-three-seed-development-canary",
+      "steps": 150,
+      "dt_seconds": 0.2,
+      "bank_seed": 401,
+      "physical_nominal_frequency_hz": 60.0,
+      "control_nominal_frequency_hz": 50.0,
+      "frequency_semantics": "physical endpoints use the installed ANDES 60-Hz base; the V4 controller slots remain on the protected legacy 50-Hz scale and are converted once by adapt_v4_observations_to_physical (slots 1..6 multiplied by 60/50) before any 60-Hz consumer",
+      "differential_transform": [
+        [
+          0.5,
+          0.5,
+          -0.5,
+          -0.5
+        ],
+        [
+          0.7071067811865475,
+          -0.7071067811865475,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.7071067811865475,
+          -0.7071067811865475
+        ]
+      ],
+      "action_bounds": [
+        -1.0,
+        1.0
+      ],
+      "action_slew_limit": 0.25,
+      "decoder": {
+        "delta_m_negative": -200.0,
+        "delta_m_positive": 600.0,
+        "delta_d_negative": -200.0,
+        "delta_d_positive": 600.0,
+        "m_lower_clamp": 20.0,
+        "d_lower_clamp": 10.0,
+        "mapping_atol": 3.0517578125e-05
+      },
+      "observation_contract": {
+        "local_actor_slots": [
+          0,
+          1,
+          2
+        ],
+        "neighbour_frequency_slots": [
+          3,
+          4
+        ],
+        "neighbour_rocof_slots": [
+          5,
+          6
+        ],
+        "slot_units": [
+          "active_power_pu_over_2",
+          "frequency_deviation_over_3",
+          "rocof_over_5",
+          "neighbour_frequency_deviation_over_3",
+          "neighbour_frequency_deviation_over_3",
+          "neighbour_rocof_over_5",
+          "neighbour_rocof_over_5"
+        ],
+        "message_arm_runtime_input": "full 7-slot V4 row",
+        "no_message_arm_runtime_input": "identical 7-slot network input with slots 3..6 zeroed by the env adapter at every step",
+        "joint_critic_input": "concatenated 4 x 7 observation rows plus 4 x 2 actions for every arm; training-only, never at runtime"
+      },
+      "reward_contract": {
+        "scalar_td3": {
+          "kind": "yang_compatible_scalar_reward_v4_defaults",
+          "phi_f": 100.0,
+          "phi_abs": 50.0,
+          "phi_h": 0.0056,
+          "phi_d": 0.0056,
+          "reward_scale": "50-Hz controller base",
+          "step_reward": "sum over the four agents of the V4 per-agent rewards",
+          "tds_failure_step_reward": -200.0
+        },
+        "cd_matd3": {
+          "kind": "two_component_common_differential_costs",
+          "sigma_f_hz": 0.15,
+          "sigma_p_pu": 0.25,
+          "sigma_rocof_hz_s": 1.0,
+          "differential_cost": "sum_k (z_d,k / sigma_f)^2 / 3 + sum_k (p_d,k / sigma_p)^2 / 3 with z_d = T_d (f - 60) and p_d = T_d P_es",
+          "common_cost": "mean_i ((f_i - 60) / sigma_f)^2 + mean_i (RoCoF_i / sigma_rocof)^2",
+          "tds_failure_costs": {
+            "common": 50.0,
+            "differential": 50.0
+          },
+          "lagrange_initial": 1.0,
+          "lagrange_maximum": 10.0,
+          "lagrange_step": 0.05,
+          "common_budget_per_episode": 3.0,
+          "multiplier_update": "after each episode: lambda = clip(lambda + 0.05 * (sum_t c_c(t) - 3.0), 0.0, 10.0)",
+          "actor_objective": "minimize -(Q_differential + lambda * Q_common)"
+        },
+        "reward_used_for_gate": false
+      },
+      "learner_contract": {
+        "actor": {
+          "input_dim": 7,
+          "output_dim": 2,
+          "hidden_sizes": [
+            256,
+            256
+          ],
+          "output": "tanh"
+        },
+        "critic": {
+          "input_dim": 36,
+          "output_dim": 2,
+          "hidden_sizes": [
+            256,
+            256
+          ],
+          "twin": true
+        },
+        "scalar_td3_critic_output_dim": 1,
+        "scalar_td3_critic_scope": "joint centralized critic over all four observation rows and actions; training-only",
+        "lr": 0.0003,
+        "gamma": 0.99,
+        "tau": 0.005,
+        "buffer_size": 200000,
+        "batch_size": 256,
+        "policy_noise": 0.2,
+        "noise_clip": 0.5,
+        "explore_noise": 0.1,
+        "policy_delay": 2,
+        "update_schedule": "critic update every step after the buffer holds at least batch_size transitions; actor and target updates every policy_delay critic updates",
+        "evaluation_policy": "deterministic (no exploration noise)"
+      },
+      "training_contract": {
+        "development_scenario_order": [
+          "canary_dev_a_common_positive",
+          "canary_dev_a_common_negative",
+          "canary_dev_a_differential_positive",
+          "canary_dev_a_differential_negative",
+          "canary_dev_a_localized_positive",
+          "canary_dev_a_localized_negative",
+          "canary_dev_b_common_positive",
+          "canary_dev_b_common_negative",
+          "canary_dev_b_differential_positive",
+          "canary_dev_b_differential_negative",
+          "canary_dev_b_localized_positive",
+          "canary_dev_b_localized_negative",
+          "canary_dev_c_common_positive",
+          "canary_dev_c_common_negative",
+          "canary_dev_c_differential_positive",
+          "canary_dev_c_differential_negative",
+          "canary_dev_c_localized_positive",
+          "canary_dev_c_localized_negative",
+          "canary_dev_d_common_positive",
+          "canary_dev_d_common_negative",
+          "canary_dev_d_differential_positive",
+          "canary_dev_d_differential_negative",
+          "canary_dev_d_localized_positive",
+          "canary_dev_d_localized_negative"
+        ],
+        "episode_schedule": "episode e uses development_scenario_order[e mod 24]; 60 full cycles; identical for every arm and seed",
+        "total_training_episodes": 1440,
+        "total_interaction_steps": 43200,
+        "convergence_rule": "fixed interaction budget, no early stopping; convergence diagnostics (episode returns, critic losses, lambda) are recorded but never used for selection",
+        "invalid_run_condition": "nonfinite critic loss or nonfinite action at any step marks the run invalid, which consumes the seed",
+        "checkpoint_rule": "final weights only for evaluation; weights snapshots saved every 240 episodes for provenance; no best-of selection",
+        "evaluation_access": "no evaluation-profile execution during training; evaluation runs only after all nine trainings complete"
+      },
+      "missing_run_rules": {
+        "restart_quota_per_arm_seed": 1,
+        "restart_condition": "host-side crash signature only (process killed, memory exhaustion, WSL halt); a restart trains from scratch with the same seed",
+        "missing_seed_after_quota": "CANARY-INVALID",
+        "evaluation_retry": "never; any missing or corrupt evaluation record is CANARY-INVALID"
+      },
+      "thresholds": {
+        "maximum_common_harm": 0.03,
+        "maximum_action_stress_harm": 0.1,
+        "maximum_action_saturation_fraction": 0.05,
+        "nonconstant_action_variation_floor": 1e-06,
+        "independent_action_dispersion_floor": 1e-06
+      },
+      "profiles": [
+        {
+          "profile_id": "canary_dev_a",
+          "split": "development",
+          "baseline_m0": [
+            150.0,
+            250.0,
+            170.0,
+            230.0
+          ],
+          "baseline_d0": [
+            60.0,
+            140.0,
+            80.0,
+            120.0
+          ],
+          "steady_loads": {
+            "PQ_Bus14": 2.24,
+            "PQ_Bus15": 0.42
+          },
+          "probe_magnitude": 0.85,
+          "localized_location": "PQ_1",
+          "localized_magnitude": 0.95,
+          "scenarios": [
+            {
+              "scenario_id": "canary_dev_a_common_positive",
+              "profile_id": "canary_dev_a",
+              "pair_kind": "common",
+              "sign": "positive",
+              "magnitude": 0.85,
+              "delta_u": {
+                "PQ_0": 0.2125,
+                "PQ_1": 0.2125,
+                "PQ_Bus14": 0.2125,
+                "PQ_Bus15": 0.2125
+              }
+            },
+            {
+              "scenario_id": "canary_dev_a_common_negative",
+              "profile_id": "canary_dev_a",
+              "pair_kind": "common",
+              "sign": "negative",
+              "magnitude": 0.85,
+              "delta_u": {
+                "PQ_0": -0.2125,
+                "PQ_1": -0.2125,
+                "PQ_Bus14": -0.2125,
+                "PQ_Bus15": -0.2125
+              }
+            },
+            {
+              "scenario_id": "canary_dev_a_differential_positive",
+              "profile_id": "canary_dev_a",
+              "pair_kind": "differential",
+              "sign": "positive",
+              "magnitude": 0.85,
+              "delta_u": {
+                "PQ_0": 0.2125,
+                "PQ_1": 0.2125,
+                "PQ_Bus14": -0.2125,
+                "PQ_Bus15": -0.2125
+              }
+            },
+            {
+              "scenario_id": "canary_dev_a_differential_negative",
+              "profile_id": "canary_dev_a",
+              "pair_kind": "differential",
+              "sign": "negative",
+              "magnitude": 0.85,
+              "delta_u": {
+                "PQ_0": -0.2125,
+                "PQ_1": -0.2125,
+                "PQ_Bus14": 0.2125,
+                "PQ_Bus15": 0.2125
+              }
+            },
+            {
+              "scenario_id": "canary_dev_a_localized_positive",
+              "profile_id": "canary_dev_a",
+              "pair_kind": "localized",
+              "sign": "positive",
+              "magnitude": 0.95,
+              "delta_u": {
+                "PQ_1": 0.95
+              }
+            },
+            {
+              "scenario_id": "canary_dev_a_localized_negative",
+              "profile_id": "canary_dev_a",
+              "pair_kind": "localized",
+              "sign": "negative",
+              "magnitude": 0.95,
+              "delta_u": {
+                "PQ_1": -0.95
+              }
+            }
+          ],
+          "bank": "same",
+          "environment_seed": 401
+        },
+        {
+          "profile_id": "canary_dev_b",
+          "split": "development",
+          "baseline_m0": [
+            230.0,
+            150.0,
+            250.0,
+            170.0
+          ],
+          "baseline_d0": [
+            120.0,
+            60.0,
+            140.0,
+            80.0
+          ],
+          "steady_loads": {
+            "PQ_Bus14": 2.02,
+            "PQ_Bus15": 0.66
+          },
+          "probe_magnitude": 1.05,
+          "localized_location": "PQ_Bus15",
+          "localized_magnitude": 1.15,
+          "scenarios": [
+            {
+              "scenario_id": "canary_dev_b_common_positive",
+              "profile_id": "canary_dev_b",
+              "pair_kind": "common",
+              "sign": "positive",
+              "magnitude": 1.05,
+              "delta_u": {
+                "PQ_0": 0.2625,
+                "PQ_1": 0.2625,
+                "PQ_Bus14": 0.2625,
+                "PQ_Bus15": 0.2625
+              }
+            },
+            {
+              "scenario_id": "canary_dev_b_common_negative",
+              "profile_id": "canary_dev_b",
+              "pair_kind": "common",
+              "sign": "negative",
+              "magnitude": 1.05,
+              "delta_u": {
+                "PQ_0": -0.2625,
+                "PQ_1": -0.2625,
+                "PQ_Bus14": -0.2625,
+                "PQ_Bus15": -0.2625
+              }
+            },
+            {
+              "scenario_id": "canary_dev_b_differential_positive",
+              "profile_id": "canary_dev_b",
+              "pair_kind": "differential",
+              "sign": "positive",
+              "magnitude": 1.05,
+              "delta_u": {
+                "PQ_0": 0.2625,
+                "PQ_1": 0.2625,
+                "PQ_Bus14": -0.2625,
+                "PQ_Bus15": -0.2625
+              }
+            },
+            {
+              "scenario_id": "canary_dev_b_differential_negative",
+              "profile_id": "canary_dev_b",
+              "pair_kind": "differential",
+              "sign": "negative",
+              "magnitude": 1.05,
+              "delta_u": {
+                "PQ_0": -0.2625,
+                "PQ_1": -0.2625,
+                "PQ_Bus14": 0.2625,
+                "PQ_Bus15": 0.2625
+              }
+            },
+            {
+              "scenario_id": "canary_dev_b_localized_positive",
+              "profile_id": "canary_dev_b",
+              "pair_kind": "localized",
+              "sign": "positive",
+              "magnitude": 1.15,
+              "delta_u": {
+                "PQ_Bus15": 1.15
+              }
+            },
+            {
+              "scenario_id": "canary_dev_b_localized_negative",
+              "profile_id": "canary_dev_b",
+              "pair_kind": "localized",
+              "sign": "negative",
+              "magnitude": 1.15,
+              "delta_u": {
+                "PQ_Bus15": -1.15
+              }
+            }
+          ],
+          "bank": "same",
+          "environment_seed": 401
+        },
+        {
+          "profile_id": "canary_dev_c",
+          "split": "development",
+          "baseline_m0": [
+            210.0,
+            190.0,
+            160.0,
+            240.0
+          ],
+          "baseline_d0": [
+            130.0,
+            70.0,
+            110.0,
+            90.0
+          ],
+          "steady_loads": {
+            "PQ_Bus14": 2.42,
+            "PQ_Bus15": 0.14
+          },
+          "probe_magnitude": 0.75,
+          "localized_location": "PQ_0",
+          "localized_magnitude": 0.85,
+          "scenarios": [
+            {
+              "scenario_id": "canary_dev_c_common_positive",
+              "profile_id": "canary_dev_c",
+              "pair_kind": "common",
+              "sign": "positive",
+              "magnitude": 0.75,
+              "delta_u": {
+                "PQ_0": 0.1875,
+                "PQ_1": 0.1875,
+                "PQ_Bus14": 0.1875,
+                "PQ_Bus15": 0.1875
+              }
+            },
+            {
+              "scenario_id": "canary_dev_c_common_negative",
+              "profile_id": "canary_dev_c",
+              "pair_kind": "common",
+              "sign": "negative",
+              "magnitude": 0.75,
+              "delta_u": {
+                "PQ_0": -0.1875,
+                "PQ_1": -0.1875,
+                "PQ_Bus14": -0.1875,
+                "PQ_Bus15": -0.1875
+              }
+            },
+            {
+              "scenario_id": "canary_dev_c_differential_positive",
+              "profile_id": "canary_dev_c",
+              "pair_kind": "differential",
+              "sign": "positive",
+              "magnitude": 0.75,
+              "delta_u": {
+                "PQ_0": 0.1875,
+                "PQ_1": 0.1875,
+                "PQ_Bus14": -0.1875,
+                "PQ_Bus15": -0.1875
+              }
+            },
+            {
+              "scenario_id": "canary_dev_c_differential_negative",
+              "profile_id": "canary_dev_c",
+              "pair_kind": "differential",
+              "sign": "negative",
+              "magnitude": 0.75,
+              "delta_u": {
+                "PQ_0": -0.1875,
+                "PQ_1": -0.1875,
+                "PQ_Bus14": 0.1875,
+                "PQ_Bus15": 0.1875
+              }
+            },
+            {
+              "scenario_id": "canary_dev_c_localized_positive",
+              "profile_id": "canary_dev_c",
+              "pair_kind": "localized",
+              "sign": "positive",
+              "magnitude": 0.85,
+              "delta_u": {
+                "PQ_0": 0.85
+              }
+            },
+            {
+              "scenario_id": "canary_dev_c_localized_negative",
+              "profile_id": "canary_dev_c",
+              "pair_kind": "localized",
+              "sign": "negative",
+              "magnitude": 0.85,
+              "delta_u": {
+                "PQ_0": -0.85
+              }
+            }
+          ],
+          "bank": "same",
+          "environment_seed": 401
+        },
+        {
+          "profile_id": "canary_dev_d",
+          "split": "development",
+          "baseline_m0": [
+            240.0,
+            160.0,
+            190.0,
+            210.0
+          ],
+          "baseline_d0": [
+            90.0,
+            110.0,
+            70.0,
+            130.0
+          ],
+          "steady_loads": {
+            "PQ_Bus14": 2.12,
+            "PQ_Bus15": 0.54
+          },
+          "probe_magnitude": 0.95,
+          "localized_location": "PQ_Bus14",
+          "localized_magnitude": 1.05,
+          "scenarios": [
+            {
+              "scenario_id": "canary_dev_d_common_positive",
+              "profile_id": "canary_dev_d",
+              "pair_kind": "common",
+              "sign": "positive",
+              "magnitude": 0.95,
+              "delta_u": {
+                "PQ_0": 0.2375,
+                "PQ_1": 0.2375,
+                "PQ_Bus14": 0.2375,
+                "PQ_Bus15": 0.2375
+              }
+            },
+            {
+              "scenario_id": "canary_dev_d_common_negative",
+              "profile_id": "canary_dev_d",
+              "pair_kind": "common",
+              "sign": "negative",
+              "magnitude": 0.95,
+              "delta_u": {
+                "PQ_0": -0.2375,
+                "PQ_1": -0.2375,
+                "PQ_Bus14": -0.2375,
+                "PQ_Bus15": -0.2375
+              }
+            },
+            {
+              "scenario_id": "canary_dev_d_differential_positive",
+              "profile_id": "canary_dev_d",
+              "pair_kind": "differential",
+              "sign": "positive",
+              "magnitude": 0.95,
+              "delta_u": {
+                "PQ_0": 0.2375,
+                "PQ_1": 0.2375,
+                "PQ_Bus14": -0.2375,
+                "PQ_Bus15": -0.2375
+              }
+            },
+            {
+              "scenario_id": "canary_dev_d_differential_negative",
+              "profile_id": "canary_dev_d",
+              "pair_kind": "differential",
+              "sign": "negative",
+              "magnitude": 0.95,
+              "delta_u": {
+                "PQ_0": -0.2375,
+                "PQ_1": -0.2375,
+                "PQ_Bus14": 0.2375,
+                "PQ_Bus15": 0.2375
+              }
+            },
+            {
+              "scenario_id": "canary_dev_d_localized_positive",
+              "profile_id": "canary_dev_d",
+              "pair_kind": "localized",
+              "sign": "positive",
+              "magnitude": 1.05,
+              "delta_u": {
+                "PQ_Bus14": 1.05
+              }
+            },
+            {
+              "scenario_id": "canary_dev_d_localized_negative",
+              "profile_id": "canary_dev_d",
+              "pair_kind": "localized",
+              "sign": "negative",
+              "magnitude": 1.05,
+              "delta_u": {
+                "PQ_Bus14": -1.05
+              }
+            }
+          ],
+          "bank": "same",
+          "environment_seed": 401
+        },
+        {
+          "profile_id": "canary_eval_a",
+          "split": "evaluation",
+          "baseline_m0": [
+            140.0,
+            260.0,
+            200.0,
+            220.0
+          ],
+          "baseline_d0": [
+            50.0,
+            150.0,
+            90.0,
+            130.0
+          ],
+          "steady_loads": {
+            "PQ_Bus14": 2.56,
+            "PQ_Bus15": 0.34
+          },
+          "probe_magnitude": 0.9,
+          "localized_location": "PQ_0",
+          "localized_magnitude": 1.0,
+          "scenarios": [
+            {
+              "scenario_id": "canary_eval_a_common_positive",
+              "profile_id": "canary_eval_a",
+              "pair_kind": "common",
+              "sign": "positive",
+              "magnitude": 0.9,
+              "delta_u": {
+                "PQ_0": 0.225,
+                "PQ_1": 0.225,
+                "PQ_Bus14": 0.225,
+                "PQ_Bus15": 0.225
+              }
+            },
+            {
+              "scenario_id": "canary_eval_a_common_negative",
+              "profile_id": "canary_eval_a",
+              "pair_kind": "common",
+              "sign": "negative",
+              "magnitude": 0.9,
+              "delta_u": {
+                "PQ_0": -0.225,
+                "PQ_1": -0.225,
+                "PQ_Bus14": -0.225,
+                "PQ_Bus15": -0.225
+              }
+            },
+            {
+              "scenario_id": "canary_eval_a_differential_positive",
+              "profile_id": "canary_eval_a",
+              "pair_kind": "differential",
+              "sign": "positive",
+              "magnitude": 0.9,
+              "delta_u": {
+                "PQ_0": 0.225,
+                "PQ_1": 0.225,
+                "PQ_Bus14": -0.225,
+                "PQ_Bus15": -0.225
+              }
+            },
+            {
+              "scenario_id": "canary_eval_a_differential_negative",
+              "profile_id": "canary_eval_a",
+              "pair_kind": "differential",
+              "sign": "negative",
+              "magnitude": 0.9,
+              "delta_u": {
+                "PQ_0": -0.225,
+                "PQ_1": -0.225,
+                "PQ_Bus14": 0.225,
+                "PQ_Bus15": 0.225
+              }
+            },
+            {
+              "scenario_id": "canary_eval_a_localized_positive",
+              "profile_id": "canary_eval_a",
+              "pair_kind": "localized",
+              "sign": "positive",
+              "magnitude": 1.0,
+              "delta_u": {
+                "PQ_0": 1.0
+              }
+            },
+            {
+              "scenario_id": "canary_eval_a_localized_negative",
+              "profile_id": "canary_eval_a",
+              "pair_kind": "localized",
+              "sign": "negative",
+              "magnitude": 1.0,
+              "delta_u": {
+                "PQ_0": -1.0
+              }
+            }
+          ],
+          "bank": "same",
+          "environment_seed": 401
+        },
+        {
+          "profile_id": "canary_eval_b",
+          "split": "evaluation",
+          "baseline_m0": [
+            260.0,
+            140.0,
+            220.0,
+            200.0
+          ],
+          "baseline_d0": [
+            150.0,
+            50.0,
+            130.0,
+            90.0
+          ],
+          "steady_loads": {
+            "PQ_Bus14": 2.06,
+            "PQ_Bus15": 0.26
+          },
+          "probe_magnitude": 0.8,
+          "localized_location": "PQ_Bus14",
+          "localized_magnitude": 0.9,
+          "scenarios": [
+            {
+              "scenario_id": "canary_eval_b_common_positive",
+              "profile_id": "canary_eval_b",
+              "pair_kind": "common",
+              "sign": "positive",
+              "magnitude": 0.8,
+              "delta_u": {
+                "PQ_0": 0.2,
+                "PQ_1": 0.2,
+                "PQ_Bus14": 0.2,
+                "PQ_Bus15": 0.2
+              }
+            },
+            {
+              "scenario_id": "canary_eval_b_common_negative",
+              "profile_id": "canary_eval_b",
+              "pair_kind": "common",
+              "sign": "negative",
+              "magnitude": 0.8,
+              "delta_u": {
+                "PQ_0": -0.2,
+                "PQ_1": -0.2,
+                "PQ_Bus14": -0.2,
+                "PQ_Bus15": -0.2
+              }
+            },
+            {
+              "scenario_id": "canary_eval_b_differential_positive",
+              "profile_id": "canary_eval_b",
+              "pair_kind": "differential",
+              "sign": "positive",
+              "magnitude": 0.8,
+              "delta_u": {
+                "PQ_0": 0.2,
+                "PQ_1": 0.2,
+                "PQ_Bus14": -0.2,
+                "PQ_Bus15": -0.2
+              }
+            },
+            {
+              "scenario_id": "canary_eval_b_differential_negative",
+              "profile_id": "canary_eval_b",
+              "pair_kind": "differential",
+              "sign": "negative",
+              "magnitude": 0.8,
+              "delta_u": {
+                "PQ_0": -0.2,
+                "PQ_1": -0.2,
+                "PQ_Bus14": 0.2,
+                "PQ_Bus15": 0.2
+              }
+            },
+            {
+              "scenario_id": "canary_eval_b_localized_positive",
+              "profile_id": "canary_eval_b",
+              "pair_kind": "localized",
+              "sign": "positive",
+              "magnitude": 0.9,
+              "delta_u": {
+                "PQ_Bus14": 0.9
+              }
+            },
+            {
+              "scenario_id": "canary_eval_b_localized_negative",
+              "profile_id": "canary_eval_b",
+              "pair_kind": "localized",
+              "sign": "negative",
+              "magnitude": 0.9,
+              "delta_u": {
+                "PQ_Bus14": -0.9
+              }
+            }
+          ],
+          "bank": "same",
+          "environment_seed": 401
+        },
+        {
+          "profile_id": "canary_eval_c",
+          "split": "evaluation",
+          "baseline_m0": [
+            180.0,
+            240.0,
+            150.0,
+            210.0
+          ],
+          "baseline_d0": [
+            70.0,
+            130.0,
+            60.0,
+            110.0
+          ],
+          "steady_loads": {
+            "PQ_Bus14": 1.96,
+            "PQ_Bus15": 0.64
+          },
+          "probe_magnitude": 1.0,
+          "localized_location": "PQ_Bus15",
+          "localized_magnitude": 1.1,
+          "scenarios": [
+            {
+              "scenario_id": "canary_eval_c_common_positive",
+              "profile_id": "canary_eval_c",
+              "pair_kind": "common",
+              "sign": "positive",
+              "magnitude": 1.0,
+              "delta_u": {
+                "PQ_0": 0.25,
+                "PQ_1": 0.25,
+                "PQ_Bus14": 0.25,
+                "PQ_Bus15": 0.25
+              }
+            },
+            {
+              "scenario_id": "canary_eval_c_common_negative",
+              "profile_id": "canary_eval_c",
+              "pair_kind": "common",
+              "sign": "negative",
+              "magnitude": 1.0,
+              "delta_u": {
+                "PQ_0": -0.25,
+                "PQ_1": -0.25,
+                "PQ_Bus14": -0.25,
+                "PQ_Bus15": -0.25
+              }
+            },
+            {
+              "scenario_id": "canary_eval_c_differential_positive",
+              "profile_id": "canary_eval_c",
+              "pair_kind": "differential",
+              "sign": "positive",
+              "magnitude": 1.0,
+              "delta_u": {
+                "PQ_0": 0.25,
+                "PQ_1": 0.25,
+                "PQ_Bus14": -0.25,
+                "PQ_Bus15": -0.25
+              }
+            },
+            {
+              "scenario_id": "canary_eval_c_differential_negative",
+              "profile_id": "canary_eval_c",
+              "pair_kind": "differential",
+              "sign": "negative",
+              "magnitude": 1.0,
+              "delta_u": {
+                "PQ_0": -0.25,
+                "PQ_1": -0.25,
+                "PQ_Bus14": 0.25,
+                "PQ_Bus15": 0.25
+              }
+            },
+            {
+              "scenario_id": "canary_eval_c_localized_positive",
+              "profile_id": "canary_eval_c",
+              "pair_kind": "localized",
+              "sign": "positive",
+              "magnitude": 1.1,
+              "delta_u": {
+                "PQ_Bus15": 1.1
+              }
+            },
+            {
+              "scenario_id": "canary_eval_c_localized_negative",
+              "profile_id": "canary_eval_c",
+              "pair_kind": "localized",
+              "sign": "negative",
+              "magnitude": 1.1,
+              "delta_u": {
+                "PQ_Bus15": -1.1
+              }
+            }
+          ],
+          "bank": "same",
+          "environment_seed": 401
+        },
+        {
+          "profile_id": "canary_eval_d",
+          "split": "evaluation",
+          "baseline_m0": [
+            220.0,
+            200.0,
+            260.0,
+            140.0
+          ],
+          "baseline_d0": [
+            110.0,
+            90.0,
+            150.0,
+            50.0
+          ],
+          "steady_loads": {
+            "PQ_Bus14": 2.32,
+            "PQ_Bus15": 0.46
+          },
+          "probe_magnitude": 1.1,
+          "localized_location": "PQ_1",
+          "localized_magnitude": 1.2,
+          "scenarios": [
+            {
+              "scenario_id": "canary_eval_d_common_positive",
+              "profile_id": "canary_eval_d",
+              "pair_kind": "common",
+              "sign": "positive",
+              "magnitude": 1.1,
+              "delta_u": {
+                "PQ_0": 0.275,
+                "PQ_1": 0.275,
+                "PQ_Bus14": 0.275,
+                "PQ_Bus15": 0.275
+              }
+            },
+            {
+              "scenario_id": "canary_eval_d_common_negative",
+              "profile_id": "canary_eval_d",
+              "pair_kind": "common",
+              "sign": "negative",
+              "magnitude": 1.1,
+              "delta_u": {
+                "PQ_0": -0.275,
+                "PQ_1": -0.275,
+                "PQ_Bus14": -0.275,
+                "PQ_Bus15": -0.275
+              }
+            },
+            {
+              "scenario_id": "canary_eval_d_differential_positive",
+              "profile_id": "canary_eval_d",
+              "pair_kind": "differential",
+              "sign": "positive",
+              "magnitude": 1.1,
+              "delta_u": {
+                "PQ_0": 0.275,
+                "PQ_1": 0.275,
+                "PQ_Bus14": -0.275,
+                "PQ_Bus15": -0.275
+              }
+            },
+            {
+              "scenario_id": "canary_eval_d_differential_negative",
+              "profile_id": "canary_eval_d",
+              "pair_kind": "differential",
+              "sign": "negative",
+              "magnitude": 1.1,
+              "delta_u": {
+                "PQ_0": -0.275,
+                "PQ_1": -0.275,
+                "PQ_Bus14": 0.275,
+                "PQ_Bus15": 0.275
+              }
+            },
+            {
+              "scenario_id": "canary_eval_d_localized_positive",
+              "profile_id": "canary_eval_d",
+              "pair_kind": "localized",
+              "sign": "positive",
+              "magnitude": 1.2,
+              "delta_u": {
+                "PQ_1": 1.2
+              }
+            },
+            {
+              "scenario_id": "canary_eval_d_localized_negative",
+              "profile_id": "canary_eval_d",
+              "pair_kind": "localized",
+              "sign": "negative",
+              "magnitude": 1.2,
+              "delta_u": {
+                "PQ_1": -1.2
+              }
+            }
+          ],
+          "bank": "same",
+          "environment_seed": 401
+        }
+      ],
+      "learning_arm_ids": [
+        "yang_scalar_td3",
+        "cd_matd3_no_message",
+        "cd_matd3_message"
+      ],
+      "deterministic_arm_id": "local_neighbour_md_km2_kd2",
+      "deterministic_reference_role": "strong_evaluation_reference_no_training_budget",
+      "training_seeds": [
+        401,
+        402,
+        403
+      ],
+      "selection_unit": "training_seed",
+      "uncertainty": "three-seed median plus seed-level table; descriptive, not population inference",
+      "capacity_reference": "memory/rounds/R401/capacity_evidence.json",
+      "evaluation_record_keys": "profile_id, arm_id, training_seed (null for deterministic), scenario_id, steps, identity, initial_freq_hz_physical, checkpoint_sha256 (learning arms only)",
+      "canary_outcomes": [
+        "CANARY-PASS",
+        "CANARY-FAIL",
+        "CANARY-INVALID"
+      ],
+      "source_steps": 30,
+      "bank": "same",
+      "environment_seed": 401,
+      "sha256": "492c97622d7625e90cff378b50141f4c854c612ddca2fdc36a2887cf73edd76a"
+    },
+    "fresh": {
+      "schema_version": 1,
+      "round": "R481",
+      "manuscript_line": "yang-md-decoupling-marl",
+      "fresh_profile_source": "prospectively generated by r481_fresh_profiles.build_fresh_rows with seed 481; all R399/R401 viewed rows excluded",
+      "steps": 150,
+      "dt_seconds": 0.2,
+      "seed": 42,
+      "physical_nominal_frequency_hz": 60.0,
+      "control_nominal_frequency_hz": 50.0,
+      "differential_transform": [
+        [
+          0.5,
+          0.5,
+          -0.5,
+          -0.5
+        ],
+        [
+          0.7071067811865475,
+          -0.7071067811865475,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.7071067811865475,
+          -0.7071067811865475
+        ]
+      ],
+      "action_bounds": [
+        -1.0,
+        1.0
+      ],
+      "action_slew_limit": 0.25,
+      "decoder": {
+        "delta_m_negative": -200.0,
+        "delta_m_positive": 600.0,
+        "delta_d_negative": -200.0,
+        "delta_d_positive": 600.0,
+        "m_lower_clamp": 20.0,
+        "d_lower_clamp": 10.0,
+        "mapping_atol": 3.0517578125e-05
+      },
+      "thresholds": {
+        "minimum_joint_improvement": 0.05,
+        "maximum_common_harm": 0.03,
+        "maximum_action_stress_harm": 0.1,
+        "maximum_action_saturation_fraction": 0.05,
+        "nonconstant_action_variation_floor": 1e-06,
+        "independent_action_dispersion_floor": 1e-06
+      },
+      "profiles": [
+        {
+          "profile_id": "fresh_dev_a",
+          "split": "development",
+          "baseline_m0": [
+            230.0,
+            220.0,
+            190.0,
+            250.0
+          ],
+          "baseline_d0": [
+            70.0,
+            80.0,
+            150.0,
+            110.0
+          ],
+          "steady_loads": {
+            "PQ_Bus14": 1.92,
+            "PQ_Bus15": 0.42
+          },
+          "probe_magnitude": 0.7,
+          "localized_location": "PQ_Bus14",
+          "localized_magnitude": 1.05,
+          "scenarios": [
+            {
+              "scenario_id": "fresh_dev_a_common_positive",
+              "profile_id": "fresh_dev_a",
+              "pair_kind": "common",
+              "sign": "positive",
+              "magnitude": 0.7,
+              "delta_u": {
+                "PQ_0": 0.175,
+                "PQ_1": 0.175,
+                "PQ_Bus14": 0.175,
+                "PQ_Bus15": 0.175
+              }
+            },
+            {
+              "scenario_id": "fresh_dev_a_common_negative",
+              "profile_id": "fresh_dev_a",
+              "pair_kind": "common",
+              "sign": "negative",
+              "magnitude": 0.7,
+              "delta_u": {
+                "PQ_0": -0.175,
+                "PQ_1": -0.175,
+                "PQ_Bus14": -0.175,
+                "PQ_Bus15": -0.175
+              }
+            },
+            {
+              "scenario_id": "fresh_dev_a_differential_positive",
+              "profile_id": "fresh_dev_a",
+              "pair_kind": "differential",
+              "sign": "positive",
+              "magnitude": 0.7,
+              "delta_u": {
+                "PQ_0": 0.175,
+                "PQ_1": 0.175,
+                "PQ_Bus14": -0.175,
+                "PQ_Bus15": -0.175
+              }
+            },
+            {
+              "scenario_id": "fresh_dev_a_differential_negative",
+              "profile_id": "fresh_dev_a",
+              "pair_kind": "differential",
+              "sign": "negative",
+              "magnitude": 0.7,
+              "delta_u": {
+                "PQ_0": -0.175,
+                "PQ_1": -0.175,
+                "PQ_Bus14": 0.175,
+                "PQ_Bus15": 0.175
+              }
+            },
+            {
+              "scenario_id": "fresh_dev_a_localized_positive",
+              "profile_id": "fresh_dev_a",
+              "pair_kind": "localized",
+              "sign": "positive",
+              "magnitude": 1.05,
+              "delta_u": {
+                "PQ_Bus14": 1.05
+              }
+            },
+            {
+              "scenario_id": "fresh_dev_a_localized_negative",
+              "profile_id": "fresh_dev_a",
+              "pair_kind": "localized",
+              "sign": "negative",
+              "magnitude": 1.05,
+              "delta_u": {
+                "PQ_Bus14": -1.05
+              }
+            }
+          ],
+          "bank": "fresh",
+          "environment_seed": 42
+        },
+        {
+          "profile_id": "fresh_dev_b",
+          "split": "development",
+          "baseline_m0": [
+            180.0,
+            140.0,
+            150.0,
+            210.0
+          ],
+          "baseline_d0": [
+            140.0,
+            100.0,
+            70.0,
+            50.0
+          ],
+          "steady_loads": {
+            "PQ_Bus14": 2.08,
+            "PQ_Bus15": 0.52
+          },
+          "probe_magnitude": 1.15,
+          "localized_location": "PQ_Bus15",
+          "localized_magnitude": 0.95,
+          "scenarios": [
+            {
+              "scenario_id": "fresh_dev_b_common_positive",
+              "profile_id": "fresh_dev_b",
+              "pair_kind": "common",
+              "sign": "positive",
+              "magnitude": 1.15,
+              "delta_u": {
+                "PQ_0": 0.2875,
+                "PQ_1": 0.2875,
+                "PQ_Bus14": 0.2875,
+                "PQ_Bus15": 0.2875
+              }
+            },
+            {
+              "scenario_id": "fresh_dev_b_common_negative",
+              "profile_id": "fresh_dev_b",
+              "pair_kind": "common",
+              "sign": "negative",
+              "magnitude": 1.15,
+              "delta_u": {
+                "PQ_0": -0.2875,
+                "PQ_1": -0.2875,
+                "PQ_Bus14": -0.2875,
+                "PQ_Bus15": -0.2875
+              }
+            },
+            {
+              "scenario_id": "fresh_dev_b_differential_positive",
+              "profile_id": "fresh_dev_b",
+              "pair_kind": "differential",
+              "sign": "positive",
+              "magnitude": 1.15,
+              "delta_u": {
+                "PQ_0": 0.2875,
+                "PQ_1": 0.2875,
+                "PQ_Bus14": -0.2875,
+                "PQ_Bus15": -0.2875
+              }
+            },
+            {
+              "scenario_id": "fresh_dev_b_differential_negative",
+              "profile_id": "fresh_dev_b",
+              "pair_kind": "differential",
+              "sign": "negative",
+              "magnitude": 1.15,
+              "delta_u": {
+                "PQ_0": -0.2875,
+                "PQ_1": -0.2875,
+                "PQ_Bus14": 0.2875,
+                "PQ_Bus15": 0.2875
+              }
+            },
+            {
+              "scenario_id": "fresh_dev_b_localized_positive",
+              "profile_id": "fresh_dev_b",
+              "pair_kind": "localized",
+              "sign": "positive",
+              "magnitude": 0.95,
+              "delta_u": {
+                "PQ_Bus15": 0.95
+              }
+            },
+            {
+              "scenario_id": "fresh_dev_b_localized_negative",
+              "profile_id": "fresh_dev_b",
+              "pair_kind": "localized",
+              "sign": "negative",
+              "magnitude": 0.95,
+              "delta_u": {
+                "PQ_Bus15": -0.95
+              }
+            }
+          ],
+          "bank": "fresh",
+          "environment_seed": 42
+        },
+        {
+          "profile_id": "fresh_eva_a",
+          "split": "evaluation",
+          "baseline_m0": [
+            190.0,
+            200.0,
+            140.0,
+            160.0
+          ],
+          "baseline_d0": [
+            110.0,
+            120.0,
+            130.0,
+            70.0
+          ],
+          "steady_loads": {
+            "PQ_Bus14": 1.92,
+            "PQ_Bus15": 0.64
+          },
+          "probe_magnitude": 1.15,
+          "localized_location": "PQ_1",
+          "localized_magnitude": 0.95,
+          "scenarios": [
+            {
+              "scenario_id": "fresh_eva_a_common_positive",
+              "profile_id": "fresh_eva_a",
+              "pair_kind": "common",
+              "sign": "positive",
+              "magnitude": 1.15,
+              "delta_u": {
+                "PQ_0": 0.2875,
+                "PQ_1": 0.2875,
+                "PQ_Bus14": 0.2875,
+                "PQ_Bus15": 0.2875
+              }
+            },
+            {
+              "scenario_id": "fresh_eva_a_common_negative",
+              "profile_id": "fresh_eva_a",
+              "pair_kind": "common",
+              "sign": "negative",
+              "magnitude": 1.15,
+              "delta_u": {
+                "PQ_0": -0.2875,
+                "PQ_1": -0.2875,
+                "PQ_Bus14": -0.2875,
+                "PQ_Bus15": -0.2875
+              }
+            },
+            {
+              "scenario_id": "fresh_eva_a_differential_positive",
+              "profile_id": "fresh_eva_a",
+              "pair_kind": "differential",
+              "sign": "positive",
+              "magnitude": 1.15,
+              "delta_u": {
+                "PQ_0": 0.2875,
+                "PQ_1": 0.2875,
+                "PQ_Bus14": -0.2875,
+                "PQ_Bus15": -0.2875
+              }
+            },
+            {
+              "scenario_id": "fresh_eva_a_differential_negative",
+              "profile_id": "fresh_eva_a",
+              "pair_kind": "differential",
+              "sign": "negative",
+              "magnitude": 1.15,
+              "delta_u": {
+                "PQ_0": -0.2875,
+                "PQ_1": -0.2875,
+                "PQ_Bus14": 0.2875,
+                "PQ_Bus15": 0.2875
+              }
+            },
+            {
+              "scenario_id": "fresh_eva_a_localized_positive",
+              "profile_id": "fresh_eva_a",
+              "pair_kind": "localized",
+              "sign": "positive",
+              "magnitude": 0.95,
+              "delta_u": {
+                "PQ_1": 0.95
+              }
+            },
+            {
+              "scenario_id": "fresh_eva_a_localized_negative",
+              "profile_id": "fresh_eva_a",
+              "pair_kind": "localized",
+              "sign": "negative",
+              "magnitude": 0.95,
+              "delta_u": {
+                "PQ_1": -0.95
+              }
+            }
+          ],
+          "bank": "fresh",
+          "environment_seed": 42
+        },
+        {
+          "profile_id": "fresh_eva_b",
+          "split": "evaluation",
+          "baseline_m0": [
+            230.0,
+            140.0,
+            250.0,
+            150.0
+          ],
+          "baseline_d0": [
+            60.0,
+            90.0,
+            70.0,
+            110.0
+          ],
+          "steady_loads": {
+            "PQ_Bus14": 2.04,
+            "PQ_Bus15": 0.58
+          },
+          "probe_magnitude": 1.0,
+          "localized_location": "PQ_0",
+          "localized_magnitude": 1.2,
+          "scenarios": [
+            {
+              "scenario_id": "fresh_eva_b_common_positive",
+              "profile_id": "fresh_eva_b",
+              "pair_kind": "common",
+              "sign": "positive",
+              "magnitude": 1.0,
+              "delta_u": {
+                "PQ_0": 0.25,
+                "PQ_1": 0.25,
+                "PQ_Bus14": 0.25,
+                "PQ_Bus15": 0.25
+              }
+            },
+            {
+              "scenario_id": "fresh_eva_b_common_negative",
+              "profile_id": "fresh_eva_b",
+              "pair_kind": "common",
+              "sign": "negative",
+              "magnitude": 1.0,
+              "delta_u": {
+                "PQ_0": -0.25,
+                "PQ_1": -0.25,
+                "PQ_Bus14": -0.25,
+                "PQ_Bus15": -0.25
+              }
+            },
+            {
+              "scenario_id": "fresh_eva_b_differential_positive",
+              "profile_id": "fresh_eva_b",
+              "pair_kind": "differential",
+              "sign": "positive",
+              "magnitude": 1.0,
+              "delta_u": {
+                "PQ_0": 0.25,
+                "PQ_1": 0.25,
+                "PQ_Bus14": -0.25,
+                "PQ_Bus15": -0.25
+              }
+            },
+            {
+              "scenario_id": "fresh_eva_b_differential_negative",
+              "profile_id": "fresh_eva_b",
+              "pair_kind": "differential",
+              "sign": "negative",
+              "magnitude": 1.0,
+              "delta_u": {
+                "PQ_0": -0.25,
+                "PQ_1": -0.25,
+                "PQ_Bus14": 0.25,
+                "PQ_Bus15": 0.25
+              }
+            },
+            {
+              "scenario_id": "fresh_eva_b_localized_positive",
+              "profile_id": "fresh_eva_b",
+              "pair_kind": "localized",
+              "sign": "positive",
+              "magnitude": 1.2,
+              "delta_u": {
+                "PQ_0": 1.2
+              }
+            },
+            {
+              "scenario_id": "fresh_eva_b_localized_negative",
+              "profile_id": "fresh_eva_b",
+              "pair_kind": "localized",
+              "sign": "negative",
+              "magnitude": 1.2,
+              "delta_u": {
+                "PQ_0": -1.2
+              }
+            }
+          ],
+          "bank": "fresh",
+          "environment_seed": 42
+        },
+        {
+          "profile_id": "fresh_eva_c",
+          "split": "evaluation",
+          "baseline_m0": [
+            200.0,
+            170.0,
+            250.0,
+            140.0
+          ],
+          "baseline_d0": [
+            60.0,
+            80.0,
+            70.0,
+            140.0
+          ],
+          "steady_loads": {
+            "PQ_Bus14": 2.4,
+            "PQ_Bus15": 0.36
+          },
+          "probe_magnitude": 0.9,
+          "localized_location": "PQ_Bus14",
+          "localized_magnitude": 0.85,
+          "scenarios": [
+            {
+              "scenario_id": "fresh_eva_c_common_positive",
+              "profile_id": "fresh_eva_c",
+              "pair_kind": "common",
+              "sign": "positive",
+              "magnitude": 0.9,
+              "delta_u": {
+                "PQ_0": 0.225,
+                "PQ_1": 0.225,
+                "PQ_Bus14": 0.225,
+                "PQ_Bus15": 0.225
+              }
+            },
+            {
+              "scenario_id": "fresh_eva_c_common_negative",
+              "profile_id": "fresh_eva_c",
+              "pair_kind": "common",
+              "sign": "negative",
+              "magnitude": 0.9,
+              "delta_u": {
+                "PQ_0": -0.225,
+                "PQ_1": -0.225,
+                "PQ_Bus14": -0.225,
+                "PQ_Bus15": -0.225
+              }
+            },
+            {
+              "scenario_id": "fresh_eva_c_differential_positive",
+              "profile_id": "fresh_eva_c",
+              "pair_kind": "differential",
+              "sign": "positive",
+              "magnitude": 0.9,
+              "delta_u": {
+                "PQ_0": 0.225,
+                "PQ_1": 0.225,
+                "PQ_Bus14": -0.225,
+                "PQ_Bus15": -0.225
+              }
+            },
+            {
+              "scenario_id": "fresh_eva_c_differential_negative",
+              "profile_id": "fresh_eva_c",
+              "pair_kind": "differential",
+              "sign": "negative",
+              "magnitude": 0.9,
+              "delta_u": {
+                "PQ_0": -0.225,
+                "PQ_1": -0.225,
+                "PQ_Bus14": 0.225,
+                "PQ_Bus15": 0.225
+              }
+            },
+            {
+              "scenario_id": "fresh_eva_c_localized_positive",
+              "profile_id": "fresh_eva_c",
+              "pair_kind": "localized",
+              "sign": "positive",
+              "magnitude": 0.85,
+              "delta_u": {
+                "PQ_Bus14": 0.85
+              }
+            },
+            {
+              "scenario_id": "fresh_eva_c_localized_negative",
+              "profile_id": "fresh_eva_c",
+              "pair_kind": "localized",
+              "sign": "negative",
+              "magnitude": 0.85,
+              "delta_u": {
+                "PQ_Bus14": -0.85
+              }
+            }
+          ],
+          "bank": "fresh",
+          "environment_seed": 42
+        },
+        {
+          "profile_id": "fresh_eva_d",
+          "split": "evaluation",
+          "baseline_m0": [
+            190.0,
+            150.0,
+            170.0,
+            220.0
+          ],
+          "baseline_d0": [
+            120.0,
+            130.0,
+            80.0,
+            110.0
+          ],
+          "steady_loads": {
+            "PQ_Bus14": 2.58,
+            "PQ_Bus15": 0.28
+          },
+          "probe_magnitude": 0.75,
+          "localized_location": "PQ_0",
+          "localized_magnitude": 0.9,
+          "scenarios": [
+            {
+              "scenario_id": "fresh_eva_d_common_positive",
+              "profile_id": "fresh_eva_d",
+              "pair_kind": "common",
+              "sign": "positive",
+              "magnitude": 0.75,
+              "delta_u": {
+                "PQ_0": 0.1875,
+                "PQ_1": 0.1875,
+                "PQ_Bus14": 0.1875,
+                "PQ_Bus15": 0.1875
+              }
+            },
+            {
+              "scenario_id": "fresh_eva_d_common_negative",
+              "profile_id": "fresh_eva_d",
+              "pair_kind": "common",
+              "sign": "negative",
+              "magnitude": 0.75,
+              "delta_u": {
+                "PQ_0": -0.1875,
+                "PQ_1": -0.1875,
+                "PQ_Bus14": -0.1875,
+                "PQ_Bus15": -0.1875
+              }
+            },
+            {
+              "scenario_id": "fresh_eva_d_differential_positive",
+              "profile_id": "fresh_eva_d",
+              "pair_kind": "differential",
+              "sign": "positive",
+              "magnitude": 0.75,
+              "delta_u": {
+                "PQ_0": 0.1875,
+                "PQ_1": 0.1875,
+                "PQ_Bus14": -0.1875,
+                "PQ_Bus15": -0.1875
+              }
+            },
+            {
+              "scenario_id": "fresh_eva_d_differential_negative",
+              "profile_id": "fresh_eva_d",
+              "pair_kind": "differential",
+              "sign": "negative",
+              "magnitude": 0.75,
+              "delta_u": {
+                "PQ_0": -0.1875,
+                "PQ_1": -0.1875,
+                "PQ_Bus14": 0.1875,
+                "PQ_Bus15": 0.1875
+              }
+            },
+            {
+              "scenario_id": "fresh_eva_d_localized_positive",
+              "profile_id": "fresh_eva_d",
+              "pair_kind": "localized",
+              "sign": "positive",
+              "magnitude": 0.9,
+              "delta_u": {
+                "PQ_0": 0.9
+              }
+            },
+            {
+              "scenario_id": "fresh_eva_d_localized_negative",
+              "profile_id": "fresh_eva_d",
+              "pair_kind": "localized",
+              "sign": "negative",
+              "magnitude": 0.9,
+              "delta_u": {
+                "PQ_0": -0.9
+              }
+            }
+          ],
+          "bank": "fresh",
+          "environment_seed": 42
+        }
+      ],
+      "candidate_arm_ids": [
+        "local_neighbour_md_km0p5_kd0p5",
+        "local_neighbour_md_km0p5_kd1",
+        "local_neighbour_md_km0p5_kd2",
+        "local_neighbour_md_km1_kd0p5",
+        "local_neighbour_md_km1_kd1",
+        "local_neighbour_md_km1_kd2",
+        "local_neighbour_md_km2_kd0p5",
+        "local_neighbour_md_km2_kd1",
+        "local_neighbour_md_km2_kd2"
+      ],
+      "arm_ids": [
+        "zero",
+        "local_neighbour_md_km0p5_kd0p5",
+        "local_neighbour_md_km0p5_kd1",
+        "local_neighbour_md_km0p5_kd2",
+        "local_neighbour_md_km1_kd0p5",
+        "local_neighbour_md_km1_kd1",
+        "local_neighbour_md_km1_kd2",
+        "local_neighbour_md_km2_kd0p5",
+        "local_neighbour_md_km2_kd1",
+        "local_neighbour_md_km2_kd2"
+      ],
+      "oracle_role": "non_deployable_outcome_selector_per_evaluation_profile",
+      "selection_unit": "heterogeneity_profile",
+      "uncertainty": "evaluation_profile_table_plus_leave_one_profile_out_range",
+      "reward_used_for_gate": false,
+      "training_authorized": false,
+      "source_steps": 30,
+      "bank": "fresh",
+      "environment_seed": 42,
+      "sha256": "14b83e2e1deb6f303236a3260fa1b60df08492b00397d9e55796eba01b2f6006"
+    }
+  },
+  "training_schedule": [
+    "canary_dev_a_common_positive",
+    "canary_dev_a_common_negative",
+    "canary_dev_a_differential_positive",
+    "canary_dev_a_differential_negative",
+    "canary_dev_a_localized_positive",
+    "canary_dev_a_localized_negative",
+    "canary_dev_b_common_positive",
+    "canary_dev_b_common_negative",
+    "canary_dev_b_differential_positive",
+    "canary_dev_b_differential_negative",
+    "canary_dev_b_localized_positive",
+    "canary_dev_b_localized_negative",
+    "canary_dev_c_common_positive",
+    "canary_dev_c_common_negative",
+    "canary_dev_c_differential_positive",
+    "canary_dev_c_differential_negative",
+    "canary_dev_c_localized_positive",
+    "canary_dev_c_localized_negative",
+    "canary_dev_d_common_positive",
+    "canary_dev_d_common_negative",
+    "canary_dev_d_differential_positive",
+    "canary_dev_d_differential_negative",
+    "canary_dev_d_localized_positive",
+    "canary_dev_d_localized_negative"
+  ],
+  "resolved_learner": {
+    "family": "four_independent_source_factorial_executed_action_sac_agents",
+    "actor_state_dim": 9,
+    "critic_state_dim": 9,
+    "action_dim": 2,
+    "hidden_sizes": [
+      128,
+      128,
+      128,
+      128
+    ],
+    "activation": "ReLU",
+    "actor": "Gaussian-tanh",
+    "log_std_bounds": [
+      -20.0,
+      2.0
+    ],
+    "twin_q": true,
+    "lr": 0.0003,
+    "gamma": 0.99,
+    "tau": 0.005,
+    "replay_capacity": 10000,
+    "batch_size": 256,
+    "alpha_initial": 1.0,
+    "alpha_bounds": [
+      0.005000000000000002,
+      4.999999999999999
+    ],
+    "target_entropy": -2.0,
+    "max_grad_norm": 1.0,
+    "updates_per_environment_step_after_warmup": 1,
+    "training_policy": "stochastic",
+    "evaluation_policy": "deterministic_mean"
+  },
+  "runtime": {
+    "python": "3.12.3",
+    "numpy": "2.4.3",
+    "torch": "2.10.0+cu128",
+    "andes": "2.0.0",
+    "optimizer": {
+      "lr": 0.0003,
+      "betas": [
+        0.9,
+        0.999
+      ],
+      "eps": 1e-08,
+      "weight_decay": 0,
+      "amsgrad": false,
+      "maximize": false,
+      "foreach": null,
+      "capturable": false,
+      "differentiable": false,
+      "fused": null
+    }
+  },
+  "installed_case": {
+    "path": "/home/wya/andes_venv/lib/python3.12/site-packages/andes/cases/kundur/kundur_full.xlsx",
+    "sha256": "f725e03ba12d8207616f68acdd606bbd35e7c4a68f13e66d7db43925adac2ed8"
+  },
+  "sources": {
+    "analysis_tests": {
+      "path": "tests/test_r485_analysis.py",
+      "sha256": "f7b08f5747d6d3285402ed5fa24457d0816dce5d5287c43cf9a7909a968a90c3"
+    },
+    "artifact_io": {
+      "path": "memory/tools/artifact_io.py",
+      "sha256": "03c42cddde3cd4281aeca341c74114c8ad6a10bd52546ed3f3cceefe74aeb6c8"
+    },
+    "artifact_io_tests": {
+      "path": "memory/tools/tests/test_artifact_io.py",
+      "sha256": "f5c67b8c3ce6101df3852815770f70ab316f403f3ef167585c8e816a26afd0c0"
+    },
+    "authority_kernel": {
+      "path": "src/andes_rl_kundur/evaluation/u2_confirmatory.py",
+      "sha256": "c64a7ece199405908e004f9d57aa49c4cba08438b3fb7f9ece5d6368dbd3ccce"
+    },
+    "config": {
+      "path": "memory/rounds/R485/config.json",
+      "sha256": "58ce96255b7afbfb9fc8831d6311454b3c5b3ae9c4159bbc4351ced1db58a835"
+    },
+    "endpoint_analysis": {
+      "path": "src/andes_rl_kundur/evaluation/md_decoupling_headroom.py",
+      "sha256": "bb5cb7aafe4b03b556dbeca24773cfecc4d31955e4e6eb7e94b379107a6bb87c"
+    },
+    "environment": {
+      "path": "src/andes_rl_kundur/env/andes/andes_vsg_env_v4.py",
+      "sha256": "5595857f587dbc09c6b67c7255fe4d2cdda50d1279f26ef0ce145259726ed138"
+    },
+    "environment_base": {
+      "path": "src/andes_rl_kundur/env/andes/base_env.py",
+      "sha256": "c541add4c42c6cbe84ae722667cbb7036e293de2f0ac4a889681a84986ea0696"
+    },
+    "environment_config": {
+      "path": "src/andes_rl_kundur/env/andes/v4_config.py",
+      "sha256": "d371629bf0c05d4532e8c569c9a4fedb0bebfa432caba0ccd165699c1a4fd394"
+    },
+    "executed_action_sac": {
+      "path": "src/andes_rl_kundur/agents/executed_action_sac.py",
+      "sha256": "aab0c7b22eedb1bc59df536c24b9fc7bdfe0324387e2deb86d1a8ef1c60f38e0"
+    },
+    "factorial_analysis": {
+      "path": "src/andes_rl_kundur/evaluation/source_factorial_design.py",
+      "sha256": "959b699fb166c73ea05932cd1057bbfe4b3547c4f6ce36ec9ea1feb78e9b0223"
+    },
+    "fresh_profiles": {
+      "path": "src/andes_rl_kundur/evaluation/r481_fresh_profiles.py",
+      "sha256": "e43da13e30e6fe09eb13abd0f763a771209ad080539eb028440b7743c5be613f"
+    },
+    "md_convention": {
+      "path": "src/andes_rl_kundur/env/andes/md_convention.py",
+      "sha256": "545a4ff044fc13d6db683f0652e2cd050fd626b83bb5798d6e52220e3d969222"
+    },
+    "networks": {
+      "path": "src/andes_rl_kundur/agents/networks.py",
+      "sha256": "50c27897add587da90b25f10538d5da212c2a170d5971a5c5bff79c9fb17e43f"
+    },
+    "observation_transform": {
+      "path": "src/andes_rl_kundur/control/per_vsg_md.py",
+      "sha256": "830122cbc2c4cbba96bd892197f95a5991e3f4c4e514d2c28d370ca589a29c5d"
+    },
+    "physical_contract": {
+      "path": "src/andes_rl_kundur/evaluation/cd_matd3_canary.py",
+      "sha256": "811ffd314a450e3c700270158437e7326d0d1bbdebc26fdb81f2783a53129f78"
+    },
+    "plan": {
+      "path": "memory/rounds/R485/plan.md",
+      "sha256": "b97491a26837b14121a20baf2359e942461aef3aaa783a1d2e27c01656b16bc5"
+    },
+    "power_plan": {
+      "path": "paper/yang_md_decoupling_marl/working/source_factorial_power_plan.json",
+      "sha256": "0e2eba2dd15343f45b5dc4d93c891d1e738666704a5724b82b74dac44fc4fb6e"
+    },
+    "r485_experiment": {
+      "path": "src/andes_rl_kundur/evaluation/r485_experiment.py",
+      "sha256": "8888ce5970c3b4405428edf5bee8e40ad66854d01c1f40a8df7a7cb112f64c34"
+    },
+    "reward_reference": {
+      "path": "scripts/run_r438_sac_message_channels.py",
+      "sha256": "285ce3d36420ae0cf7e1e4b35b71957564673102080f119f88961547b11e56f6"
+    },
+    "round_preflight": {
+      "path": "memory/tools/round_preflight.py",
+      "sha256": "fec42122e03a47a0881be49216541192e35fda8eda53811e3e88eca9cfef5c0f"
+    },
+    "round_preflight_tests": {
+      "path": "memory/tools/tests/test_round_preflight.py",
+      "sha256": "6567b0dd5ff795eeb58e7ae9487a832e5180360d554df8cf380121565d925050"
+    },
+    "runner": {
+      "path": "scripts/run_r485_60hz_source_factorial.py",
+      "sha256": "0f319a10157091e952dc69a62f0e61057346864b3f3dde02d2d67cc48ba27026"
+    },
+    "runner_tests": {
+      "path": "tests/test_run_r485_60hz_source_factorial.py",
+      "sha256": "79eb0c40b223eb5b81b6a30279ee2c6989b17e718ad3b1194de154e15b724dd8"
+    },
+    "scenario_contract": {
+      "path": "src/andes_rl_kundur/scenarios/contract.py",
+      "sha256": "eac18af1174559d11c3009d5172eeb3ad9694f2b18c862e566c77db1852d61de"
+    },
+    "scratch_launcher": {
+      "path": "scripts/andes_scratch.py",
+      "sha256": "bc5ed1a7978ca0f19d7cb053c32f59f46281dc91c1e2f68b730118e2b5b5fe62"
+    },
+    "shard_driver": {
+      "path": "scripts/soft_spot_shard_driver.py",
+      "sha256": "ab591eca51c9ecad7560ddb61aa5f9124735d1997b93e5b52035753989b69256"
+    },
+    "six_second_analysis": {
+      "path": "src/andes_rl_kundur/evaluation/r482_analysis.py",
+      "sha256": "075e72973fd384a020ae76598c6391c00f45524ca011a7e6632f91b4cbca8e6f"
+    },
+    "source_factorial_sac": {
+      "path": "src/andes_rl_kundur/agents/source_factorial_sac.py",
+      "sha256": "60eb1e5bca3e3e4410c21965a367a23d5083d35fbaf42b126bc3b9e3e25a113b"
+    },
+    "tail_analysis": {
+      "path": "src/andes_rl_kundur/evaluation/r484_tail_guard.py",
+      "sha256": "172d7b03ca8e7dbe06e812fac6c05d4e51d4330b8deed6c95541a236fc557978"
+    }
+  },
+  "parents": {
+    "r481_contract": {
+      "path": "memory/rounds/R481/contract.json",
+      "sha256": "4c7f21ad86438f09832a1f3d956e8c938839db9dbfac1b457eb36b3df02611b0"
+    },
+    "r481_formal_analysis": {
+      "path": "results/research_loop/r481_direct_md/formal_analysis.json",
+      "sha256": "d6de9e9830421c39c49f0c80f76ee68f106f5c1cb47dd4271c091e30106c5db8"
+    },
+    "r481_formal_seal": {
+      "path": "memory/rounds/R481/formal_seal.json",
+      "sha256": "f228eea10e555675b524ceb9e2b7eded5b0767902667c05daf7859dd9905541c"
+    }
+  },
+  "objective_semantics_probe": {
+    "replay_actor_rows_are_canonical": true,
+    "replay_critic_rows_are_canonical": true,
+    "placebo_is_same_time_registered_row_permutation": true,
+    "every_source_tuple_changed": true,
+    "no_p_source_is_true_neighbour": true,
+    "current_critic_uses_executed_action": true,
+    "target_critic_uses_projected_action": true,
+    "actor_critic_uses_projected_action": true,
+    "weights_changed": true,
+    "update_finite": true,
+    "passed": true
+  },
+  "created_utc": "2026-08-28T19:14:10.250575+00:00"
+}

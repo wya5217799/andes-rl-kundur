@@ -1,0 +1,48 @@
+{
+  "schema_version": 2,
+  "round": "R485",
+  "source_capacity_evidence": {
+    "path": "memory/rounds/R484/capacity_evidence_v2.json",
+    "sha256": "cd3592a4563b3f3039f34efd7fb52fa949b867f8b7dff9af9532bfa6ab65015c"
+  },
+  "host": {
+    "logical_processors": 32,
+    "physical_memory_bytes": 33518587904
+  },
+  "wsl": {
+    "memory_total_bytes": 29423169536,
+    "memory_available_bytes": 26596753408
+  },
+  "empirical_anchor": {
+    "concurrent_workers": 12,
+    "native_threads_per_worker": 1,
+    "all_records_valid": true,
+    "jobs": 12,
+    "workload": "R485 fixed canary evaluation",
+    "wall_seconds": 1623.261,
+    "driver_result": {
+      "path": "tmp/andes/r485_canary_eval_logs/R485_shard_logs_20260828T175652.438893Z/driver_result.json",
+      "sha256": "ccbf3a015b598202a1593ef75af0947020aed70e240aa1c456b3ec657a4fea2e"
+    }
+  },
+  "capacity_canary": {
+    "accepted": true,
+    "accepted_worker_budget": 17,
+    "formal_workers": 16,
+    "driver_processes": 1,
+    "projected_sixteen_worker_rss_bytes": 9636675584,
+    "required_available_bytes_with_25pct_and_2gib_reserve": 14193328128,
+    "measured_available_bytes": 26596753408,
+    "basis": "12 concurrent valid R485 jobs, current host snapshot, measured R484 per-worker RSS, and the frozen same-host 16-worker precedent"
+  },
+  "native_threads_per_process": 1,
+  "other_reserved_processes": 0,
+  "whole_host_python_process_budget": 17,
+  "safe_for_formal_launch": true,
+  "capacity_trace_role": "non-claim-bearing prospective capacity authority",
+  "process_snapshot": {
+    "wsl_python_processes": 0,
+    "other_reserved_processes": 0
+  },
+  "created_utc": "2026-08-28T18:26:54.7998875Z"
+}

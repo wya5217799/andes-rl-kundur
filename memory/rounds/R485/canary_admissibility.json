@@ -1,0 +1,273 @@
+{
+  "schema_version": 1,
+  "round": "R485",
+  "resolved_parameter_card_sha256": "325860a1f3eb5836ee7464ba9d2cf8fa0c7de51597e687bebeae0889323fa9ec",
+  "seed": 500,
+  "arms": {
+    "an_cn_r0": {
+      "training_manifest_sha256": "a5f90596ad30c008d47618470b7d03411d7b22b3ebeab76187ec0adcf762c5e6",
+      "evaluation_profiles": [
+        "canary_eval_a",
+        "canary_eval_b",
+        "canary_eval_c",
+        "canary_eval_d"
+      ],
+      "evaluation_schema_status": {
+        "canary_eval_a": "COMPLETE",
+        "canary_eval_b": "COMPLETE",
+        "canary_eval_c": "COMPLETE",
+        "canary_eval_d": "COMPLETE"
+      },
+      "learner_checks": {
+        "weights_changed": true,
+        "update_count": true,
+        "all_finite": true,
+        "actor_grad_nonzero": true,
+        "reward_variation": true,
+        "td_target_variation": true,
+        "policy_state_sensitivity": true,
+        "executed_action_variation": true,
+        "not_jointly_saturated": true,
+        "log_std_not_frozen": true,
+        "routing_oracle": true,
+        "executed_action_bellman": true
+      }
+    },
+    "an_cn_r1": {
+      "training_manifest_sha256": "536b95a664ef7f7042ae6814a545455608ea0c69131524bc0aec53948127eb68",
+      "evaluation_profiles": [
+        "canary_eval_a",
+        "canary_eval_b",
+        "canary_eval_c",
+        "canary_eval_d"
+      ],
+      "evaluation_schema_status": {
+        "canary_eval_a": "COMPLETE",
+        "canary_eval_b": "COMPLETE",
+        "canary_eval_c": "COMPLETE",
+        "canary_eval_d": "COMPLETE"
+      },
+      "learner_checks": {
+        "weights_changed": true,
+        "update_count": true,
+        "all_finite": true,
+        "actor_grad_nonzero": true,
+        "reward_variation": true,
+        "td_target_variation": true,
+        "policy_state_sensitivity": true,
+        "executed_action_variation": true,
+        "not_jointly_saturated": true,
+        "log_std_not_frozen": true,
+        "routing_oracle": true,
+        "executed_action_bellman": true
+      }
+    },
+    "an_cp_r0": {
+      "training_manifest_sha256": "cfe2eb9a7a1e130148763181ba5eee8862b68567d0f5b04a4435594e728321a5",
+      "evaluation_profiles": [
+        "canary_eval_a",
+        "canary_eval_b",
+        "canary_eval_c",
+        "canary_eval_d"
+      ],
+      "evaluation_schema_status": {
+        "canary_eval_a": "COMPLETE",
+        "canary_eval_b": "COMPLETE",
+        "canary_eval_c": "COMPLETE",
+        "canary_eval_d": "COMPLETE"
+      },
+      "learner_checks": {
+        "weights_changed": true,
+        "update_count": true,
+        "all_finite": true,
+        "actor_grad_nonzero": true,
+        "reward_variation": true,
+        "td_target_variation": true,
+        "policy_state_sensitivity": true,
+        "executed_action_variation": true,
+        "not_jointly_saturated": true,
+        "log_std_not_frozen": true,
+        "routing_oracle": true,
+        "executed_action_bellman": true
+      }
+    },
+    "an_cp_r1": {
+      "training_manifest_sha256": "5cf8904b7810cdedb52574d9e64158494e93b98da1b0669958d502de981444ba",
+      "evaluation_profiles": [
+        "canary_eval_a",
+        "canary_eval_b",
+        "canary_eval_c",
+        "canary_eval_d"
+      ],
+      "evaluation_schema_status": {
+        "canary_eval_a": "COMPLETE",
+        "canary_eval_b": "COMPLETE",
+        "canary_eval_c": "COMPLETE",
+        "canary_eval_d": "COMPLETE"
+      },
+      "learner_checks": {
+        "weights_changed": true,
+        "update_count": true,
+        "all_finite": true,
+        "actor_grad_nonzero": true,
+        "reward_variation": true,
+        "td_target_variation": true,
+        "policy_state_sensitivity": true,
+        "executed_action_variation": true,
+        "not_jointly_saturated": true,
+        "log_std_not_frozen": true,
+        "routing_oracle": true,
+        "executed_action_bellman": true
+      }
+    },
+    "ap_cn_r0": {
+      "training_manifest_sha256": "699357419a6051a39f3785628355f169c5d6db6dc17acc469935ada11aec2ac7",
+      "evaluation_profiles": [
+        "canary_eval_a",
+        "canary_eval_b",
+        "canary_eval_c",
+        "canary_eval_d"
+      ],
+      "evaluation_schema_status": {
+        "canary_eval_a": "COMPLETE",
+        "canary_eval_b": "COMPLETE",
+        "canary_eval_c": "COMPLETE",
+        "canary_eval_d": "COMPLETE"
+      },
+      "learner_checks": {
+        "weights_changed": true,
+        "update_count": true,
+        "all_finite": true,
+        "actor_grad_nonzero": true,
+        "reward_variation": true,
+        "td_target_variation": true,
+        "policy_state_sensitivity": true,
+        "executed_action_variation": true,
+        "not_jointly_saturated": true,
+        "log_std_not_frozen": true,
+        "routing_oracle": true,
+        "executed_action_bellman": true
+      }
+    },
+    "ap_cn_r1": {
+      "training_manifest_sha256": "5fd235b6b048b30b8ae151de29f16e16260a7b0319849aead882801f9209d4fd",
+      "evaluation_profiles": [
+        "canary_eval_a",
+        "canary_eval_b",
+        "canary_eval_c",
+        "canary_eval_d"
+      ],
+      "evaluation_schema_status": {
+        "canary_eval_a": "COMPLETE",
+        "canary_eval_b": "COMPLETE",
+        "canary_eval_c": "COMPLETE",
+        "canary_eval_d": "COMPLETE"
+      },
+      "learner_checks": {
+        "weights_changed": true,
+        "update_count": true,
+        "all_finite": true,
+        "actor_grad_nonzero": true,
+        "reward_variation": true,
+        "td_target_variation": true,
+        "policy_state_sensitivity": true,
+        "executed_action_variation": true,
+        "not_jointly_saturated": true,
+        "log_std_not_frozen": true,
+        "routing_oracle": true,
+        "executed_action_bellman": true
+      }
+    },
+    "ap_cp_r0": {
+      "training_manifest_sha256": "745092996b11cc0672db31184a3ac46ed634cdc62ac7f9eb8cba3ceb343105e0",
+      "evaluation_profiles": [
+        "canary_eval_a",
+        "canary_eval_b",
+        "canary_eval_c",
+        "canary_eval_d"
+      ],
+      "evaluation_schema_status": {
+        "canary_eval_a": "COMPLETE",
+        "canary_eval_b": "COMPLETE",
+        "canary_eval_c": "COMPLETE",
+        "canary_eval_d": "COMPLETE"
+      },
+      "learner_checks": {
+        "weights_changed": true,
+        "update_count": true,
+        "all_finite": true,
+        "actor_grad_nonzero": true,
+        "reward_variation": true,
+        "td_target_variation": true,
+        "policy_state_sensitivity": true,
+        "executed_action_variation": true,
+        "not_jointly_saturated": true,
+        "log_std_not_frozen": true,
+        "routing_oracle": true,
+        "executed_action_bellman": true
+      }
+    },
+    "ap_cp_r1": {
+      "training_manifest_sha256": "9ba1af3e465658f94a9042782c2407e81aba20a67aec6141b497e7603cfcaa7a",
+      "evaluation_profiles": [
+        "canary_eval_a",
+        "canary_eval_b",
+        "canary_eval_c",
+        "canary_eval_d"
+      ],
+      "evaluation_schema_status": {
+        "canary_eval_a": "COMPLETE",
+        "canary_eval_b": "COMPLETE",
+        "canary_eval_c": "COMPLETE",
+        "canary_eval_d": "COMPLETE"
+      },
+      "learner_checks": {
+        "weights_changed": true,
+        "update_count": true,
+        "all_finite": true,
+        "actor_grad_nonzero": true,
+        "reward_variation": true,
+        "td_target_variation": true,
+        "policy_state_sensitivity": true,
+        "executed_action_variation": true,
+        "not_jointly_saturated": true,
+        "log_std_not_frozen": true,
+        "routing_oracle": true,
+        "executed_action_bellman": true
+      }
+    }
+  },
+  "references": {
+    "same": {
+      "zero": {
+        "canary_eval_a": "COMPLETE",
+        "canary_eval_b": "COMPLETE",
+        "canary_eval_c": "COMPLETE",
+        "canary_eval_d": "COMPLETE"
+      },
+      "local_neighbour_md_km2_kd2": {
+        "canary_eval_a": "COMPLETE",
+        "canary_eval_b": "COMPLETE",
+        "canary_eval_c": "COMPLETE",
+        "canary_eval_d": "COMPLETE"
+      }
+    },
+    "fresh": {
+      "zero": {
+        "fresh_eva_a": "COMPLETE",
+        "fresh_eva_b": "COMPLETE",
+        "fresh_eva_c": "COMPLETE",
+        "fresh_eva_d": "COMPLETE"
+      },
+      "local_neighbour_md_km2_kd2": {
+        "fresh_eva_a": "COMPLETE",
+        "fresh_eva_b": "COMPLETE",
+        "fresh_eva_c": "COMPLETE",
+        "fresh_eva_d": "COMPLETE"
+      }
+    }
+  },
+  "passed": true,
+  "failures": [],
+  "performance_or_endpoint_selection_performed": false
+}

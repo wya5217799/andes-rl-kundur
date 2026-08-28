@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "round": "R485",
+  "phase": "same-pre-attempt-path-rehearsal",
+  "checks": {
+    "source_hash": true,
+    "parent_hash": true,
+    "installed_package": true,
+    "installed_case": true,
+    "output_absence": true,
+    "shard_roster": true,
+    "trajectory_count": true,
+    "representative_schema": true,
+    "representative_profile_contract": true,
+    "zero_action_md_command_and_readback": true,
+    "canonical_60hz_observation_readback": true
+  },
+  "runtime": {
+    "python": "3.12.3 (main, Jun 19 2026, 12:46:00) [GCC 13.3.0]",
+    "python_executable": "/home/wya/andes_venv/bin/python",
+    "andes_version": "2.0.0",
+    "andes_module": "/home/wya/andes_venv/lib/python3.12/site-packages/andes/__init__.py",
+    "scientific_environment": {
+      "N_SUBSTEPS": "5",
+      "DISABLE_TOGGLER": "1",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1"
+    }
+  },
+  "rehearsal_scope": "one zero-action six-scenario profile at 150 steps",
+  "representative": {
+    "profile_id": "canary_eval_a",
+    "trace_sha256": "fc7e9831624f3bdbb5d81db185ee1a1cd833bfaf0235fe259463e9e625da0d28",
+    "status": "COMPLETE",
+    "record_count": 6
+  },
+  "formal_attempt_created": false,
+  "formal_outputs_created": false,
+  "resolved_parameter_card_sha256": "325860a1f3eb5836ee7464ba9d2cf8fa0c7de51597e687bebeae0889323fa9ec",
+  "created_utc": "2026-08-28T23:02:10.967117+00:00"
+}
