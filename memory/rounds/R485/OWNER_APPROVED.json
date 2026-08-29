@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "round": "R485",
+  "approved": true,
+  "approved_action": "launch-r485-formal",
+  "approved_scope": "formal-208-cell-source-factorial",
+  "approved_description": "208 fresh cells: 8 frozen arms x seeds 501..526; registered evaluation only; no tuning or resume",
+  "attempt_id": "r485-formal-20260829-a",
+  "long_execution_authorized": true,
+  "source": "Owner message on 2026-08-29: 好的，启动大实验吧",
+  "created_utc": "2026-08-29T03:38:39.873673+00:00"
+}
