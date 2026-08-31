@@ -1,0 +1,102 @@
+{
+  "ascii_name_map": {},
+  "duplicates": {
+    "verification-stderr.txt": [
+      "E:\\Projects\\andes-rl-kundur\\tmp\\yang_md_decoupling_marl\\gpt_pro_math_deep_solutions_20260822\\evidence\\executed_checks\\advisory_algebra_probe.stderr.log",
+      "E:\\Projects\\andes-rl-kundur\\tmp\\yang_md_decoupling_marl\\gpt_pro_math_deep_solutions_20260822\\evidence\\executed_checks\\advisory_checks.stderr.log",
+      "E:\\Projects\\andes-rl-kundur\\tmp\\yang_md_decoupling_marl\\gpt_pro_math_deep_solutions_20260822\\evidence\\executed_checks\\custom_math_audit.stderr.log",
+      "E:\\Projects\\andes-rl-kundur\\tmp\\yang_md_decoupling_marl\\gpt_pro_math_deep_solutions_20260822\\evidence\\executed_checks\\pytest_collect.stderr.log",
+      "E:\\Projects\\andes-rl-kundur\\tmp\\yang_md_decoupling_marl\\gpt_pro_math_deep_solutions_20260822\\evidence\\executed_checks\\r402_final_pytest.stderr.log",
+      "E:\\Projects\\andes-rl-kundur\\tmp\\yang_md_decoupling_marl\\gpt_pro_math_deep_solutions_20260822\\evidence\\executed_checks\\r402_selftests.stderr.log",
+      "E:\\Projects\\andes-rl-kundur\\tmp\\yang_md_decoupling_marl\\gpt_pro_math_deep_solutions_20260822\\evidence\\executed_checks\\theory_certificate.stdout.log",
+      "E:\\Projects\\andes-rl-kundur\\tmp\\yang_md_decoupling_marl\\gpt_pro_math_deep_solutions_20260822\\evidence\\executed_checks\\theory_certificate_farkas.stderr.log",
+      "E:\\Projects\\andes-rl-kundur\\tmp\\yang_md_decoupling_marl\\gpt_pro_math_deep_solutions_20260822\\evidence\\executed_checks\\theory_certificate_synthetic.stderr.log",
+      "E:\\Projects\\andes-rl-kundur\\tmp\\yang_md_decoupling_marl\\gpt_pro_math_deep_solutions_20260822\\evidence\\executed_checks\\theory_symbolic.stderr.log",
+      "E:\\Projects\\andes-rl-kundur\\tmp\\yang_md_decoupling_marl\\gpt_pro_math_deep_solutions_20260822\\evidence\\executed_checks\\theory_vsg_audit.stderr.log",
+      "E:\\Projects\\andes-rl-kundur\\tmp\\yang_md_decoupling_marl\\gpt_pro_math_deep_solutions_20260822\\evidence\\executed_checks\\u1_u9_repo_checks.stderr.log",
+      "E:\\Projects\\andes-rl-kundur\\tmp\\yang_md_decoupling_marl\\gpt_pro_math_deep_solutions_20260822\\evidence\\executed_checks\\u1_u9_test_blueprints.stderr.log",
+      "E:\\Projects\\andes-rl-kundur\\tmp\\yang_md_decoupling_marl\\gpt_pro_math_deep_solutions_20260822\\evidence\\executed_checks\\u1_u9_verify_solution.stderr.log",
+      "E:\\Projects\\andes-rl-kundur\\tmp\\yang_md_decoupling_marl\\gpt_pro_math_deep_solutions_20260822\\evidence\\executed_checks\\root_tests\\test_fast_md_authority.stderr.log",
+      "E:\\Projects\\andes-rl-kundur\\tmp\\yang_md_decoupling_marl\\gpt_pro_math_deep_solutions_20260822\\evidence\\executed_checks\\root_tests\\test_r405_action_schedule_and_cross_energy.stderr.log",
+      "E:\\Projects\\andes-rl-kundur\\tmp\\yang_md_decoupling_marl\\gpt_pro_math_deep_solutions_20260822\\evidence\\executed_checks\\root_tests\\test_r405_fold_with_e.stderr.log",
+      "E:\\Projects\\andes-rl-kundur\\tmp\\yang_md_decoupling_marl\\gpt_pro_math_deep_solutions_20260822\\evidence\\executed_checks\\root_tests\\test_r405_gate_payload.stderr.log",
+      "E:\\Projects\\andes-rl-kundur\\tmp\\yang_md_decoupling_marl\\gpt_pro_math_deep_solutions_20260822\\evidence\\executed_checks\\root_tests\\test_r405_homogenization_gate.stderr.log",
+      "E:\\Projects\\andes-rl-kundur\\tmp\\yang_md_decoupling_marl\\gpt_pro_math_deep_solutions_20260822\\evidence\\executed_checks\\root_tests\\test_r405_kron_reduction.stderr.log",
+      "E:\\Projects\\andes-rl-kundur\\tmp\\yang_md_decoupling_marl\\gpt_pro_math_deep_solutions_20260822\\evidence\\executed_checks\\root_tests\\test_r405_linearization.stderr.log",
+      "E:\\Projects\\andes-rl-kundur\\tmp\\yang_md_decoupling_marl\\gpt_pro_math_deep_solutions_20260822\\evidence\\executed_checks\\root_tests\\test_run_r449_p1_sensitivity.stderr.log",
+      "E:\\Projects\\andes-rl-kundur\\tmp\\yang_md_decoupling_marl\\gpt_pro_math_deep_solutions_20260822\\evidence\\executed_checks\\root_tests\\test_run_r450_p2_delay_loop.stderr.log",
+      "E:\\Projects\\andes-rl-kundur\\tmp\\yang_md_decoupling_marl\\gpt_pro_math_deep_solutions_20260822\\evidence\\executed_checks\\root_tests\\test_run_r451_m3_message_factorial.stderr.log",
+      "E:\\Projects\\andes-rl-kundur\\tmp\\yang_md_decoupling_marl\\gpt_pro_math_deep_solutions_20260822\\evidence\\executed_checks\\root_tests\\test_run_r452_m5_all_candidate_pareto.stderr.log",
+      "E:\\Projects\\andes-rl-kundur\\tmp\\yang_md_decoupling_marl\\gpt_pro_math_deep_solutions_20260822\\evidence\\executed_checks\\root_tests\\test_run_r453_m5_aggregate_repair.stderr.log",
+      "E:\\Projects\\andes-rl-kundur\\tmp\\yang_md_decoupling_marl\\gpt_pro_math_deep_solutions_20260822\\evidence\\executed_checks\\root_tests\\test_run_r454_m4_residual_local_audit.stderr.log",
+      "E:\\Projects\\andes-rl-kundur\\tmp\\yang_md_decoupling_marl\\gpt_pro_math_deep_solutions_20260822\\evidence\\executed_checks\\root_tests\\test_run_r455_m1_dual_saturation.stderr.log",
+      "E:\\Projects\\andes-rl-kundur\\tmp\\yang_md_decoupling_marl\\gpt_pro_math_deep_solutions_20260822\\evidence\\executed_checks\\root_tests\\test_run_r456_m1_dual_saturation.stderr.log",
+      "E:\\Projects\\andes-rl-kundur\\tmp\\yang_md_decoupling_marl\\gpt_pro_math_deep_solutions_20260822\\evidence\\executed_checks\\root_tests\\test_run_r457_m2_head_causality.stderr.log",
+      "E:\\Projects\\andes-rl-kundur\\tmp\\yang_md_decoupling_marl\\gpt_pro_math_deep_solutions_20260822\\evidence\\executed_checks\\root_tests\\test_run_r458_dev_select_eval_validate.stderr.log",
+      "E:\\Projects\\andes-rl-kundur\\tmp\\yang_md_decoupling_marl\\gpt_pro_math_deep_solutions_20260822\\evidence\\executed_checks\\root_tests\\test_run_r470_u2_source_factorial.stderr.log",
+      "E:\\Projects\\andes-rl-kundur\\tmp\\yang_md_decoupling_marl\\gpt_pro_math_deep_solutions_20260822\\evidence\\executed_checks\\root_tests\\test_run_r471_u2_source_factorial.stderr.log",
+      "E:\\Projects\\andes-rl-kundur\\tmp\\yang_md_decoupling_marl\\gpt_pro_math_deep_solutions_20260822\\evidence\\executed_checks\\root_tests\\test_run_r472_u2_source_factorial.stderr.log"
+    ]
+  },
+  "files": [
+    {
+      "bytes": 3518,
+      "rel": "DELIVERY_MANIFEST.json",
+      "sha256": "b60de1e23d94c62f16a7c8e70532b845cc085f22f9362cf65ef8af1d52da60de",
+      "status": "NEW"
+    },
+    {
+      "bytes": 4762,
+      "rel": "DERIVED_RESULTS.json",
+      "sha256": "e93af5d320b40511e373ab2d9325633ea3220d870cd4a4f5b7a835a1094f5738",
+      "status": "NEW"
+    },
+    {
+      "bytes": 1588,
+      "rel": "README.md",
+      "sha256": "cdc268d06229770a99236828674e0b0f47e64d067cf5cdb19b215cf34f04a286",
+      "status": "NEW"
+    },
+    {
+      "bytes": 23779,
+      "rel": "SOLUTION.md",
+      "sha256": "5265dbe1bc832f375de22287e96a6a31adb6e286109ef6e4c9d306654c461ad4",
+      "status": "NEW"
+    },
+    {
+      "bytes": 2754,
+      "rel": "VERIFICATION_RECORD.md",
+      "sha256": "6b19345f2824ebe19c4e47dd783454e6c7c4993233429ad30a64162c94112be9",
+      "status": "NEW"
+    },
+    {
+      "bytes": 1381,
+      "rel": "verification-output.txt",
+      "sha256": "b3ef43e911b7645f343f4a8644ac82f6f1291c549ce521b15896acbc23f2ff66",
+      "status": "NEW"
+    },
+    {
+      "bytes": 0,
+      "rel": "verification-stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "DUPLICATE"
+    },
+    {
+      "bytes": 19833,
+      "rel": "verification.py",
+      "sha256": "4efa35faba9c43072c46575749e88ba3fcd83c57d8b6984645b5e3ad71b98fb9",
+      "status": "NEW"
+    }
+  ],
+  "line": "yang_md_decoupling_marl",
+  "schema_version": 1,
+  "sha256sums": {
+    "checked": 0,
+    "matched": [],
+    "present": false,
+    "unmatched": []
+  },
+  "src_root": "C:\\Users\\27443\\Downloads\\r485_action_guard_solution_generated_only_20260831",
+  "staged_root": "E:\\Projects\\andes-rl-kundur\\tmp\\yang_md_decoupling_marl\\r485_action_guard_solution_20260831",
+  "tool": "external_answer_absorb"
+}

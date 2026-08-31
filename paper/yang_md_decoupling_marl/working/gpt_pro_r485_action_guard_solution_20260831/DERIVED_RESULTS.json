@@ -1,0 +1,141 @@
+{
+  "all_832_ratio_distribution": {
+    "action_rms": {
+      "max": 9.917913644840068,
+      "median": 7.0140742930821025,
+      "min": 5.748142178293856,
+      "n": 832,
+      "q05": 6.0884078875329655,
+      "q25": 6.546766741796585,
+      "q75": 7.618646944104059,
+      "q95": 8.540103496624123
+    },
+    "action_total_variation": {
+      "max": 140.250756228348,
+      "median": 85.09737008998528,
+      "min": 48.54833081509907,
+      "n": 832,
+      "q05": 61.92274698387393,
+      "q25": 68.19522522214436,
+      "q75": 102.95687033126048,
+      "q95": 135.749237103374
+    },
+    "minimum_rms_candidate_reduction_to_reach_cap": 0.8086338218713827,
+    "minimum_rms_ratio_over_registered_cap": 5.22558379844896,
+    "minimum_tv_candidate_reduction_to_reach_cap": 0.9773421664240228,
+    "minimum_tv_ratio_over_registered_cap": 44.134846195544604
+  },
+  "counterexamples": {
+    "benign_but_rejected": {
+      "normalized_rms_ratio": 2.0,
+      "normalized_tv_ratio": 2.0,
+      "physical_harm_candidate": 0.0,
+      "physical_harm_reference": 0.0
+    },
+    "harmful_but_accepted": {
+      "decoded_candidate": 600.0,
+      "decoded_reference": -200.0,
+      "normalized_rms_ratio": 1.0,
+      "normalized_tv_ratio": 1.0,
+      "quadratic_stress_ratio": 9.0,
+      "safety_limit": 100000.0
+    }
+  },
+  "frozen_result": {
+    "action_rms_failures": 832,
+    "action_tv_failures": 832,
+    "complete_contract_break_even_values": [
+      123.11314737107597,
+      126.03317648841431,
+      131.00602831037432,
+      134.1103248035985,
+      137.0419350038427
+    ],
+    "complete_passes": 0,
+    "endpoint_qualified": 121,
+    "non_action_and_endpoint_pass_policies": 5,
+    "profile_blocks": 832,
+    "status": "VALID-MIXED",
+    "threshold_grid_cells": 16,
+    "threshold_grid_complete_passes": 0
+  },
+  "input": {
+    "hashed_manifest_files": 33,
+    "member_count": 36,
+    "problem_count": 1,
+    "problem_id": "yang-r485-action-guard-construct-validity",
+    "sidecars_checked": 11,
+    "zip_name": "r485_gpt_pro_action_guard_20260831.zip",
+    "zip_sha256": "66a4ae492810e4d64254966a7acfe75a751f93d50138adbcc54f6ce2d5cf68fd"
+  },
+  "raw_recomputation": [
+    {
+      "action_rms_ratio": 6.36994356072396,
+      "action_tv_ratio": 60.35775921585179,
+      "candidate_action_rms": 0.39640884226327533,
+      "candidate_action_total_variation": 192.86931862685014,
+      "candidate_max_observed_slew": 0.25,
+      "profile": "canary_eval_a",
+      "reference_action_rms": 0.06223113886086339,
+      "reference_action_total_variation": 3.195435369578743,
+      "reference_max_observed_slew": 0.0898660719135569
+    },
+    {
+      "action_rms_ratio": 7.098573733652626,
+      "action_tv_ratio": 123.11314737107597,
+      "candidate_action_rms": 0.3885004083172818,
+      "candidate_action_total_variation": 194.52840567324893,
+      "candidate_max_observed_slew": 0.25,
+      "profile": "canary_eval_b",
+      "reference_action_rms": 0.05472936154420641,
+      "reference_action_total_variation": 1.58007824369009,
+      "reference_max_observed_slew": 0.24999999996789826
+    },
+    {
+      "action_rms_ratio": 6.051225234795592,
+      "action_tv_ratio": 89.17903258866612,
+      "candidate_action_rms": 0.40814224689812223,
+      "candidate_action_total_variation": 191.0889242611447,
+      "candidate_max_observed_slew": 0.25,
+      "profile": "canary_eval_c",
+      "reference_action_rms": 0.06744786899539512,
+      "reference_action_total_variation": 2.1427561918341604,
+      "reference_max_observed_slew": 0.2499999999574501
+    },
+    {
+      "action_rms_ratio": 5.791272893742812,
+      "action_tv_ratio": 74.43885116542218,
+      "candidate_action_rms": 0.41055259995295185,
+      "candidate_action_total_variation": 189.67286637865618,
+      "candidate_max_observed_slew": 0.25,
+      "profile": "canary_eval_d",
+      "reference_action_rms": 0.07089159973734512,
+      "reference_action_total_variation": 2.548035916851464,
+      "reference_max_observed_slew": 0.15418443082095423
+    }
+  ],
+  "registered_tv_upper_bound": {
+    "maximum_possible_tv": 225.0,
+    "records": 6,
+    "slew_limit_per_step": 0.25,
+    "steps_per_record": 150
+  },
+  "runtime": {
+    "implementation": "CPython",
+    "python": "3.13.5"
+  },
+  "scaling_identity_checks": {
+    "base_rms": 0.17795130420052185,
+    "base_tv": 0.5,
+    "channel_duplication_tv_factor": 1.0,
+    "common_scale_rms_factor": 3.0,
+    "common_scale_tv_factor": 3.0,
+    "fourfold_horizon_single_pulse_rms_factor": 0.5,
+    "fourfold_horizon_single_pulse_tv_factor": 1.0,
+    "jitter_double_sample_count_rms_factor": 1.0,
+    "jitter_double_sample_count_tv_factor": 2.052631578947369,
+    "record_duplication_tv_factor": 2.0
+  },
+  "schema_version": 1,
+  "verification_status": "PASS"
+}

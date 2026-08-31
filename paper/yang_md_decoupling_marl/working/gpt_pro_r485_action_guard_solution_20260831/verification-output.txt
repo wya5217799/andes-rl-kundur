@@ -1,0 +1,16 @@
+R485 ACTION-GUARD VERIFICATION: PASS
+runtime: Python 3.13.5 (CPython)
+input zip sha256: 66a4ae492810e4d64254966a7acfe75a751f93d50138adbcc54f6ce2d5cf68fd
+package hashes: 33/33; sidecars: 11
+selected problem roster: 1/1 (yang-r485-action-guard-construct-validity)
+frozen result: endpoint-qualified=121/208, complete=0/208, action-RMS failures=832/832, action-TV failures=832/832
+all-block action ratios (min/median/max): RMS=5.748142/7.014074/9.917914; TV=48.548331/85.097370/140.250756
+distance from 1.10 cap at the nearest block: RMS needs 80.863% candidate reduction; TV needs 97.734% candidate reduction
+raw recomputation for included an_cp_r0/seed501 vs deterministic comparator:
+  canary_eval_a: R=0.396408842/0.062231139 (x6.369944); V=192.869318627/3.195435370 (x60.357759)
+  canary_eval_b: R=0.388500408/0.054729362 (x7.098574); V=194.528405673/1.580078244 (x123.113147)
+  canary_eval_c: R=0.408142247/0.067447869 (x6.051225); V=191.088924261/2.142756192 (x89.179033)
+  canary_eval_d: R=0.410552600/0.070891600 (x5.791273); V=189.672866379/2.548035917 (x74.438851)
+counterexample A: physically benign under deadband, but normalized RMS/TV ratios are both 2.0 and fail
+counterexample B: normalized RMS/TV ratios are both 1.0 and pass, while the registered +600/-200 decoder gives a 9.0x quadratic-stress ratio
+derived JSON: /mnt/data/r485_solution_build/DERIVED_RESULTS.json

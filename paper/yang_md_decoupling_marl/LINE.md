@@ -8,7 +8,7 @@ scope: {write_roots: [paper/yang_md_decoupling_marl], shared_read_roots: [paper/
 venue: {kind: conference, status: locked, primary: 'ICEMS 2026', decision_record: 'paper/yang_md_decoupling_marl/working/icems2026_official_requirements.md', official_source_status: current, last_checked: 2026-08-16, review_triggers: ['after evidence-bounded conference-draft review or any authorized topology-robustness gate', 'before 2026-08-28 author registration and 2026-09-07 final-paper upload']}
 working_title: "Decoupling-Oriented Coordination of Paralleled  VSGs With Multi-Agent Reinforcement Learning"
 title_policy: "Fixed wording; same-object evidence per term; prospective till gate passes."
-objective: "R484 complete: frozen learned bank fails the 30 s full guard; direct M/D passes 4/4 fresh profiles. Revise manuscript; no new experiment."
+objective: "R485 complete: corrected 60-Hz all-fresh learners are endpoint-only, no policy passes the complete command-activity contract, no material source effect is established, and direct M/D passes 4/4 fresh profiles. Refresh the manuscript; no new experiment."
 decision_refs: ["docs/adr/0019-separate-yang-md-decoupling-marl-successor.md#decision", "paper/yang_md_decoupling_marl/working/gpt_pro_unresolved_math_solution_20260821/IMPORT_NOTE.md#manuscript-disposition", "paper/yang_md_decoupling_marl/working/corrected_md_revalidation_experiment_plan_20260824.md#decision", "paper/yang_md_decoupling_marl/working/md_parameter_card_20260824.json#owner_decision", "paper/yang_md_decoupling_marl/working/prospective_direct_md_successor_decision_20260825.md#status", "paper/yang_md_decoupling_marl/working/learning_reverification_launch_decision_20260825.md#status"]
 evidence_refs:
   - "CLM-1135 -> paper/yang_md_decoupling_marl/reports/R398.md"
@@ -81,7 +81,8 @@ evidence_refs:
   - "CLM-1510 -> paper/yang_md_decoupling_marl/reports/R482.md"
   - "CLM-1515 -> paper/yang_md_decoupling_marl/reports/R483.md"
   - "CLM-1520 -> paper/yang_md_decoupling_marl/reports/R484.md"
+  - "CLM-1525 -> paper/yang_md_decoupling_marl/reports/R485.md"
 required_reading: [paper/yang_md_decoupling_marl/LINE.md]
-verification: ["R483/R484 horizons non-pooled; claims within CLM-1520."]
-stop_when: ["Evidence-bounded draft reviewed."]
+verification: ["R485 six-second/30-second horizons non-pooled; claims within CLM-1525; command activity is not physical safety."]
+stop_when: ["R485 evidence-bounded draft reviewed."]
 ---

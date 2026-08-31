@@ -72,3 +72,35 @@ established” conclusion. A final venue/package audit remains before submission
 - Do not use “there is no effect,” “communication is useless,” or “MARL cannot coordinate VSGs.”
 - Describe the structured energy-port controller as a distinct non-pooled physical witness, never as learned M/D success.
 - Bound every result to the frozen modified-Kundur plant, registered banks, controller family, and seed design.
+
+## 2026-08-31 R485 and external action-guard intake
+
+The current six-page LaTeX manuscript remains the pre-R485 frozen revision and
+is not submission-current.  The external action-guard answer was independently
+replayed and accepted only as a claim-boundary audit.
+
+1. [ ] Replace every R483/R484 learner result with R485 authority: `121/208`
+   endpoint-qualified, `0/208` complete-contract, 397 RoCoF failures, 37
+   worst-peak failures, and the R485 6-s/30-s source-factor tables.
+2. [ ] Regenerate the learner endpoint/guard figure and every caption from the
+   R485 sealed analysis; do not reuse the 126/408/45 values.
+3. [ ] Replace `action-stress`, `physical/action no-harm`, and similar literal
+   physical wording with `comparator-relative normalized command activity`,
+   `command RMS`, and `command total variation`.
+4. [ ] State that these action terms are empirical command-regularity
+   tolerances, not actuator energy, wear, thermal/fatigue stress, hardware
+   safety, or deployment no-harm evidence.
+5. [ ] Retain the finite-benchmark `VALID-MIXED` mapping and the distinction
+   between non-rejection and equivalence; disclose that all 208 entropy
+   coefficients reached the registered floor without calling it convergence.
+6. [ ] Use the external scaling/counterexample result only as a short
+   claim-boundary paragraph or supplement.  Do not advertise the elementary
+   `1.10^2=1.21` conditional bound as a novel theorem.
+7. [ ] Rebuild the PDF and submission package, then rerun claim-evidence,
+   external-theory-intake, domain, citation, LaTeX, and visual audits on one
+   frozen R485 manuscript revision.
+
+Publication route: retain the bounded ICEMS negative-evaluation paper.  Do not
+promote the current evidence to a physical-safety or general MARL claim; a
+stronger journal route would require a prospectively calibrated actuator/stress
+model and additional fresh learned evaluation.

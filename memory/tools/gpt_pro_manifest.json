@@ -668,6 +668,51 @@
     "paper/yang_md_decoupling_marl/manuscript/supplement/r477_reward_conditioned_effects.csv.sha256"
    ],
    "note": "Snapshot-only impact audit. Historical results remain evidence for the old implemented object; corrected reports are engineering or quarantined diagnostics unless explicitly labelled otherwise. No new experiment was run for this package."
+  },
+  {
+   "id": "yang-r485-action-guard-construct-validity",
+   "title": "R485 action guard construct validity and physical no-harm interpretation",
+   "manuscript_line": "yang_md_decoupling_marl",
+   "status": "answered",
+   "problem": [
+    "paper/yang_md_decoupling_marl/working/gpt_pro_r485_action_guard_solution_20260831/INPUT_QUESTION.md"
+   ],
+   "related_data": [
+    "tmp/r485_math_questions_for_gpt_pro.md",
+    "tmp/r485_postrun_data_audit.md",
+    "paper/yang_md_decoupling_marl/working/gpt_pro_r485_action_guard_solution_20260831/INPUT_AUDIT.json",
+    "tmp/r485_postrun_data_audit.py",
+    "memory/rounds/R485/plan.md",
+    "memory/rounds/R485/config.json",
+    "memory/rounds/R485/config.json.sha256",
+    "memory/rounds/R485/formal_seal.json",
+    "memory/rounds/R485/formal_seal.json.sha256",
+    "results/research_loop/r485_60hz_source_factorial/r485-formal-20260829-a/formal_analysis.json",
+    "results/research_loop/r485_60hz_source_factorial/r485-formal-20260829-a/formal_analysis.json.sha256",
+    "src/andes_rl_kundur/evaluation/r485_experiment.py",
+    "src/andes_rl_kundur/evaluation/r484_tail_guard.py",
+    "src/andes_rl_kundur/evaluation/md_decoupling_headroom.py",
+    "src/andes_rl_kundur/evaluation/source_factorial_design.py",
+    "tests/test_r485_analysis.py",
+    "results/research_loop/r485_60hz_source_factorial/r485-formal-20260829-a/eval/same/local_neighbour_md_km2_kd2/deterministic/canary_eval_a.json",
+    "results/research_loop/r485_60hz_source_factorial/r485-formal-20260829-a/eval/same/local_neighbour_md_km2_kd2/deterministic/canary_eval_a.json.sha256",
+    "results/research_loop/r485_60hz_source_factorial/r485-formal-20260829-a/eval/same/local_neighbour_md_km2_kd2/deterministic/canary_eval_b.json",
+    "results/research_loop/r485_60hz_source_factorial/r485-formal-20260829-a/eval/same/local_neighbour_md_km2_kd2/deterministic/canary_eval_b.json.sha256",
+    "results/research_loop/r485_60hz_source_factorial/r485-formal-20260829-a/eval/same/local_neighbour_md_km2_kd2/deterministic/canary_eval_c.json",
+    "results/research_loop/r485_60hz_source_factorial/r485-formal-20260829-a/eval/same/local_neighbour_md_km2_kd2/deterministic/canary_eval_c.json.sha256",
+    "results/research_loop/r485_60hz_source_factorial/r485-formal-20260829-a/eval/same/local_neighbour_md_km2_kd2/deterministic/canary_eval_d.json",
+    "results/research_loop/r485_60hz_source_factorial/r485-formal-20260829-a/eval/same/local_neighbour_md_km2_kd2/deterministic/canary_eval_d.json.sha256",
+    "results/research_loop/r485_60hz_source_factorial/r485-formal-20260829-a/eval/same/an_cp_r0/seed501/canary_eval_a.json",
+    "results/research_loop/r485_60hz_source_factorial/r485-formal-20260829-a/eval/same/an_cp_r0/seed501/canary_eval_a.json.sha256",
+    "results/research_loop/r485_60hz_source_factorial/r485-formal-20260829-a/eval/same/an_cp_r0/seed501/canary_eval_b.json",
+    "results/research_loop/r485_60hz_source_factorial/r485-formal-20260829-a/eval/same/an_cp_r0/seed501/canary_eval_b.json.sha256",
+    "results/research_loop/r485_60hz_source_factorial/r485-formal-20260829-a/eval/same/an_cp_r0/seed501/canary_eval_c.json",
+    "results/research_loop/r485_60hz_source_factorial/r485-formal-20260829-a/eval/same/an_cp_r0/seed501/canary_eval_c.json.sha256",
+    "results/research_loop/r485_60hz_source_factorial/r485-formal-20260829-a/eval/same/an_cp_r0/seed501/canary_eval_d.json",
+    "results/research_loop/r485_60hz_source_factorial/r485-formal-20260829-a/eval/same/an_cp_r0/seed501/canary_eval_d.json.sha256"
+   ],
+   "answer": "paper/yang_md_decoupling_marl/working/gpt_pro_r485_action_guard_solution_20260831/SOLUTION.md",
+   "note": "R485 sealed-data replay passed. Answer absorbed 2026-08-31 and replayed repo-side: construct-limited command-activity metric; the universal physical no-harm implication is refuted, actual hardware harm remains information-insufficient, and VALID-MIXED plus 121/208 and 0/208 remain unchanged. The conditional 1.10^2=1.21 bridge is claim-boundary support only, not a novel theorem or evidence that the assumptions hold."
   }
  ]
 }
