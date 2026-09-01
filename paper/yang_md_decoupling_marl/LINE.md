@@ -82,7 +82,8 @@ evidence_refs:
   - "CLM-1515 -> paper/yang_md_decoupling_marl/reports/R483.md"
   - "CLM-1520 -> paper/yang_md_decoupling_marl/reports/R484.md"
   - "CLM-1525 -> paper/yang_md_decoupling_marl/reports/R485.md"
+  - "CLM-1530 -> paper/yang_md_decoupling_marl/reports/R486.md"
 required_reading: [paper/yang_md_decoupling_marl/LINE.md]
-verification: ["R485 six-second/30-second horizons non-pooled; claims within CLM-1525; command activity is not physical safety."]
+verification: ["R485 six-second/30-second horizons remain non-pooled; keep the headline within CLM-1525 and use CLM-1530 only as post-hoc support; command activity is not physical safety."]
 stop_when: ["R485 evidence-bounded draft reviewed."]
 ---

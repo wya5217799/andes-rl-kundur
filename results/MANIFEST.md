@@ -182,8 +182,9 @@ locator before calling these artifacts durably archived.
 | R483 | `results/research_loop/r483_adaptive_u2/` | `formal_analysis.json` | `ad63a80e6ac64ec42900799f7f63b359f9eda36ebd12b86feadc4a2719820b9e` |
 | R484 | `results/research_loop/r484_30s_tail_guard/` | `formal_analysis.json` | `ed40dc4c114527730f1ac37b8998addb766db7094bc496ebd0143378931f8b1d` |
 | R485 | `results/research_loop/r485_60hz_source_factorial/r485-formal-20260829-a/` | `formal_analysis.json` | `2dad35d8e7f559bbcfa124dbae3628aa0d9ceae3ccfbe77996330c891927409b` |
+| R486 | `results/research_loop/r486_r485_posthoc_intake/` | `analysis.json` | `75c911f83a9f50c9f208e94c18c039a3b170d09d2575f7396958dcf16b1b257c` |
 
-The one hundred and thirteen roots currently occupy 18,400,081,823 bytes. R286, R287, R291, R292,
+The one hundred and fourteen roots currently occupy 18,402,107,554 bytes. R286, R287, R291, R292,
 R294, R295, R296, R297, R298, R299, and R300 raw traces remain ignored; their retained trace hashes are indexed by
 each round's decision and provenance artifacts.
 
@@ -191,6 +192,11 @@ R485 is `LOCAL-ONLY`: no independently verified second copy is registered.
 Its decision artifact records `VALID-MIXED`, 1,082/1,082 verified terminal
 artifacts and 5,088/5,088 verified trajectories; no durable-archive claim is
 made for the 8,438,471,773-byte formal root.
+
+R486 is `LOCAL-ONLY`: no independently verified second copy is registered.
+It preserves 2,025,731 bytes of post-hoc R485 precision, independent
+recomputation, figures, and bounded mechanism diagnostics. Its decision is
+`VALID-POSTHOC-INTAKE`; it adds no trajectory and does not modify R485.
 
 R466 is a preserved 99,253,032-byte engineering-invalid predecessor: its
 complete linear export remains under `results/research_loop/r466_u6_fractional_delay/`,
