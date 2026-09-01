@@ -1,0 +1,109 @@
+{
+  "schema_version": 1,
+  "scope": "R485 formal finite-benchmark evidence and R486 post-hoc precision intake; no new training, simulation, retuning, or case exclusion",
+  "formal_round": "R485",
+  "formal_claim": "CLM-1525",
+  "post_hoc_round": "R486",
+  "post_hoc_claim": "CLM-1530",
+  "execution_source_commit": "bf2d445d8a9ac1faa862dbd15aa1bf6c83024aa0",
+  "post_hoc_intake_commit": "8610a9e43cf153c993e889c1da22cad295406927",
+  "formal_seed_roster": [
+    501,
+    502,
+    503,
+    504,
+    505,
+    506,
+    507,
+    508,
+    509,
+    510,
+    511,
+    512,
+    513,
+    514,
+    515,
+    516,
+    517,
+    518,
+    519,
+    520,
+    521,
+    522,
+    523,
+    524,
+    525,
+    526
+  ],
+  "runtime": {
+    "python": "3.12.3",
+    "numpy": "2.4.3",
+    "pytorch": "2.10.0+cu128",
+    "andes": "2.0.0"
+  },
+  "fixed_execution_settings": {
+    "evaluation_policy": "deterministic_mean_without_exploration_noise",
+    "native_threads_per_process": 1,
+    "training_arms": 8,
+    "matched_seed_inference_units": 26,
+    "trained_arm_seed_policies": 208,
+    "learned_policy_profile_blocks": 832,
+    "deterministic_or_zero_command_reference_blocks": 16,
+    "six_second_summaries": 848,
+    "horizons_pooled": false,
+    "available_case_analysis_performed": false
+  },
+  "frozen_artifacts": [
+    {
+      "path": "memory/rounds/R485/formal_seal.json",
+      "sha256": "3d5865619b21d4276a0c07616c136c690beefc4f779d65d48f7a0bf3e04ade7f"
+    },
+    {
+      "path": "memory/rounds/R485/config.json",
+      "sha256": "58ce96255b7afbfb9fc8831d6311454b3c5b3ae9c4159bbc4351ced1db58a835"
+    },
+    {
+      "path": "memory/rounds/R485/resolved_parameter_card.json",
+      "sha256": "325860a1f3eb5836ee7464ba9d2cf8fa0c7de51597e687bebeae0889323fa9ec"
+    },
+    {
+      "path": "memory/rounds/R485/base_shards.json",
+      "sha256": "8859787bce90d9c11da95754448d8e0910fe8cdf04365836a03e4eabaf8f4a57"
+    },
+    {
+      "path": "memory/rounds/R485/train_shards.json",
+      "sha256": "c11ca3dfcacaceda599db824fa1412e32734329b58a854a0bbefcf52bc142182"
+    },
+    {
+      "path": "memory/rounds/R485/eval_shards.json",
+      "sha256": "9f2a0c715cee4f3126911511f673e6951d3d5807304e90d5ffe3bda187c610fd"
+    },
+    {
+      "path": "results/research_loop/r485_60hz_source_factorial/r485-formal-20260829-a/formal_analysis.json",
+      "sha256": "2dad35d8e7f559bbcfa124dbae3628aa0d9ceae3ccfbe77996330c891927409b"
+    },
+    {
+      "path": "results/research_loop/r486_r485_posthoc_intake/analysis.json",
+      "sha256": "75c911f83a9f50c9f208e94c18c039a3b170d09d2575f7396958dcf16b1b257c"
+    },
+    {
+      "path": "paper/yang_md_decoupling_marl/manuscript/supplement/frozen_profile_bank.csv",
+      "sha256": "2157b44ac7507898fc2198266fff1cc448717d6cd31434b8ced692d66fdbdb36"
+    },
+    {
+      "path": "scripts/run_r485_60hz_source_factorial.py",
+      "sha256": "0f319a10157091e952dc69a62f0e61057346864b3f3dde02d2d67cc48ba27026"
+    }
+  ],
+  "verified_inventory": {
+    "terminal_artifacts": "1082/1082",
+    "trajectories": "5088/5088",
+    "missing": 0,
+    "hash_or_parse_invalid": 0
+  },
+  "availability": {
+    "machine_readable_profile_cards": "included_in_companion_source_archive",
+    "small_formal_and_post_hoc_analysis_json": "identified_by_path_and_sha256_above",
+    "terminal_and_trajectory_records": "available_from_corresponding_author_due_to_package_size"
+  }
+}

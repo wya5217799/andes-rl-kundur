@@ -1,0 +1,64 @@
+{
+  "ascii_name_map": {},
+  "duplicates": {},
+  "files": [
+    {
+      "bytes": 426,
+      "rel": "SHA256SUMS",
+      "sha256": "a051fdcb830058866bdd20e9d6030299deffdb3e0d281cf8a2df78a59445f1bc",
+      "status": "NEW"
+    },
+    {
+      "bytes": 25280,
+      "rel": "SOLUTION.md",
+      "sha256": "b9477541a5b18634bc21b22d67546f9da76022dcff3491cfb72c43d3892ff4aa",
+      "status": "NEW"
+    },
+    {
+      "bytes": 970,
+      "rel": "manuscript_patch.tex",
+      "sha256": "73b942fe4abf29194137e684143ecb0296c9bcd0bbb15fb46973c01359655218",
+      "status": "NEW"
+    },
+    {
+      "bytes": 33381,
+      "rel": "math_result.json",
+      "sha256": "c0b4cd8b0bd7430cae39a4d46384f5abbe186e5bb2628e5fb31852ee6688daa9",
+      "status": "NEW"
+    },
+    {
+      "bytes": 54236,
+      "rel": "verify_finite_record_certificate.py",
+      "sha256": "3bed3b38a6f7ec7405a1f5c8c6c49ae342dde5d9971215f2be428ccc5b8ceb5e",
+      "status": "NEW"
+    }
+  ],
+  "line": "yang_md_decoupling_marl",
+  "schema_version": 1,
+  "sha256sums": {
+    "checked": 4,
+    "matched": [
+      {
+        "expected_path": "SOLUTION.md",
+        "status": "path-match"
+      },
+      {
+        "expected_path": "verify_finite_record_certificate.py",
+        "status": "path-match"
+      },
+      {
+        "expected_path": "math_result.json",
+        "status": "path-match"
+      },
+      {
+        "expected_path": "manuscript_patch.tex",
+        "status": "path-match"
+      }
+    ],
+    "present": true,
+    "unmatched": []
+  },
+  "src_root": "C:\\Users\\27443\\Downloads\\gpt_pro_r485_mechanism_math_solution_20260901\\gpt_pro_r485_mechanism_math_solution_20260901",
+  "staged_root": "E:\\Projects\\andes-rl-kundur\\tmp\\yang_md_decoupling_marl\\gpt_pro_r485_mechanism_math_solution_20260901",
+  "tool": "external_answer_absorb"
+}

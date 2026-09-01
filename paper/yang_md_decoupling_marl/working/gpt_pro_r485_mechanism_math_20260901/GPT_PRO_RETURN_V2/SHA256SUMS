@@ -1,0 +1,5 @@
+# SHA-256 for the four payload files; SHA256SUMS itself is reported in the external delivery receipt.
+bd134792cdd0894a45793af8d6fb3711122ad5634a036e60773f1c394019de87  SOLUTION.md
+39bf12fc5414b1171e55036ca5f7332dc642970787960ee8c8d2c7588bc6b5fb  verify_finite_record_certificate.py
+4ebce362cf28c99b3068fa526c7e2a62ce8607e47d473380e0f265f10bf1b96b  math_result.json
+3974118850cdeb467458b14609fa737eddd2ac89852aa3124cfe8a96dec09b26  manuscript_patch.tex

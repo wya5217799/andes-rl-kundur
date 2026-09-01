@@ -713,6 +713,24 @@
    ],
    "answer": "paper/yang_md_decoupling_marl/working/gpt_pro_r485_action_guard_solution_20260831/SOLUTION.md",
    "note": "R485 sealed-data replay passed. Answer absorbed 2026-08-31 and replayed repo-side: construct-limited command-activity metric; the universal physical no-harm implication is refuted, actual hardware harm remains information-insufficient, and VALID-MIXED plus 121/208 and 0/208 remain unchanged. The conditional 1.10^2=1.21 bridge is claim-boundary support only, not a novel theorem or evidence that the assumptions hold."
+  },
+  {
+   "id": "yang-r485-finite-record-mechanism-certificate",
+   "title": "R485 finite-record TV/RMS mechanism certificate",
+   "manuscript_line": "yang_md_decoupling_marl",
+   "status": "answered",
+   "problem": [
+    "paper/yang_md_decoupling_marl/working/gpt_pro_r485_mechanism_math_20260901/MATH_QUESTION_HANDOFF.md"
+   ],
+   "related_data": [
+    "paper/yang_md_decoupling_marl/working/gpt_pro_r485_mechanism_math_20260901/gpt_pro_r485_mechanism_math_20260901.zip",
+    "paper/yang_md_decoupling_marl/working/gpt_pro_r485_mechanism_math_20260901/PACKAGE_MANIFEST.json",
+    "paper/yang_md_decoupling_marl/PAPER_EVIDENCE.md",
+    "paper/yang_md_decoupling_marl/reports/R485.md",
+    "paper/yang_md_decoupling_marl/reports/R486.md"
+   ],
+   "answer": "paper/yang_md_decoupling_marl/working/gpt_pro_r485_mechanism_math_20260901/COMPARATIVE_ADVERSARIAL_REVIEW.md",
+   "note": "Answered by two external returns and a project-side adversarial comparison. Final disposition: ADVERSARIAL_QUALIFIED_PASS. Prefer the undated second verifier because it passes repo-side on the original ZIP and its kink-aware partition survived an independent 257-path audit; retain the shared common-reset normalized-TV theorem and finite-grid counts. The first verifier's eight float comparison mismatches do not change any count. Full-record means are acausal post-hoc anchors; unique/additive causality, full-policy sensitivity, plant counterfactuals, training benefit, stability, safety, hardware effects, and generalisation remain unestablished. No ANDES or training was authorized."
   }
  ]
 }

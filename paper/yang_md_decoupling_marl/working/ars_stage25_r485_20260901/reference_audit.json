@@ -1,0 +1,131 @@
+{
+  "schema_version": "ars-stage25-reference-audit/1.0",
+  "population": "16 unique references rendered by main_r485.tex",
+  "population_count": 16,
+  "verified_count": 16,
+  "unverified_count": 0,
+  "records": [
+    {
+      "key": "zhong2011synchronverters",
+      "status": "VERIFIED",
+      "url": "https://doi.org/10.1109/TIE.2010.2048839",
+      "confirmed": ["title", "authors", "venue", "year", "volume", "issue", "pages", "doi"],
+      "citation_context": "Foundational synchronverter/VSG framing"
+    },
+    {
+      "key": "darco2013vsm",
+      "status": "VERIFIED",
+      "url": "https://www.sintef.no/en/publications/publication/0198cc58e847-8932cedf-a533-4356-8a88-1edc42576eeb/",
+      "confirmed": ["title", "authors", "conference", "year", "pages", "doi"],
+      "citation_context": "VSM classification and droop-controller equivalence"
+    },
+    {
+      "key": "wu2016smallsignal",
+      "status": "VERIFIED",
+      "url": "https://doi.org/10.1109/TIE.2016.2543181",
+      "confirmed": ["title", "authors", "venue", "year", "volume", "issue", "pages", "doi"],
+      "citation_context": "VSG small-signal modeling and parameter design"
+    },
+    {
+      "key": "gonzalez2022parallel",
+      "status": "VERIFIED",
+      "url": "https://ieeexplore.ieee.org/abstract/document/9612048",
+      "confirmed": ["title", "authors", "venue", "year", "volume", "issue", "pages", "doi"],
+      "citation_context": "Parallel-connected grid-forming VSM design and analysis"
+    },
+    {
+      "key": "liu2020consensus",
+      "status": "VERIFIED",
+      "url": "https://www.sciencedirect.com/science/article/pii/S2352484720314219",
+      "confirmed": ["title", "authors", "venue", "year", "volume", "pages", "doi"],
+      "citation_context": "Consensus-based secondary control of parallel VSGs"
+    },
+    {
+      "key": "shi2021restoration",
+      "status": "VERIFIED",
+      "url": "https://pureportal.strath.ac.uk/en/publications/frequency-restoration-and-oscillation-damping-of-distributed-vsgs/",
+      "confirmed": ["title", "authors", "venue", "year", "volume", "issue", "pages", "doi"],
+      "citation_context": "Frequency restoration and oscillation damping with communication"
+    },
+    {
+      "key": "fu2022mutual",
+      "status": "VERIFIED",
+      "url": "https://doi.org/10.1109/TIE.2021.3139197",
+      "confirmed": ["title", "authors", "venue", "year", "volume", "issue", "pages", "doi"],
+      "citation_context": "Decentralized mutual damping in multi-VSG grids"
+    },
+    {
+      "key": "yang2023ddic",
+      "status": "VERIFIED",
+      "url": "https://doi.org/10.1109/TPWRS.2022.3221439",
+      "confirmed": ["title", "authors", "venue", "year", "volume", "issue", "pages", "doi"],
+      "citation_context": "Multi-agent DRL adaptation of inertia-droop control"
+    },
+    {
+      "key": "lu2024sac",
+      "status": "VERIFIED",
+      "url": "https://www.mdpi.com/1424-8220/24/7/2035",
+      "confirmed": ["title", "authors", "venue", "year", "volume", "issue", "article", "doi"],
+      "citation_context": "SAC-based adaptive VSG parameter control"
+    },
+    {
+      "key": "zhang2024maddpg",
+      "status": "VERIFIED",
+      "url": "https://www.mdpi.com/1996-1073/17/24/6421",
+      "confirmed": ["title", "authors", "venue", "year", "volume", "issue", "article", "doi"],
+      "citation_context": "MADDPG-based inertia-damping adaptation"
+    },
+    {
+      "key": "benhmidouch2024rlvsg",
+      "status": "VERIFIED",
+      "url": "https://www.sciencedirect.com/science/article/abs/pii/S0378779624001573",
+      "confirmed": ["title", "authors", "venue", "year", "volume", "article", "doi"],
+      "citation_context": "RL policy optimization for adaptive VSG frequency control"
+    },
+    {
+      "key": "kang2025madrl",
+      "status": "VERIFIED",
+      "url": "https://www.sciencedirect.com/science/article/pii/S0142061525009226",
+      "confirmed": ["title", "authors", "venue", "year", "volume", "article", "doi"],
+      "citation_context": "Decentralized multi-agent DRL for multi-VSG frequency stability"
+    },
+    {
+      "key": "agarwal2021statistical",
+      "status": "VERIFIED",
+      "url": "https://proceedings.neurips.cc/paper/2021/hash/f514cec81cb148559cf475e7426eed5e-Abstract.html",
+      "confirmed": ["title", "authors", "venue", "year", "volume", "pages"],
+      "citation_context": "Training-run uncertainty and limits of point-estimate reporting"
+    },
+    {
+      "key": "cui2021andes",
+      "status": "VERIFIED",
+      "url": "https://docs.andes.app/en/v1.10.1/about.html",
+      "confirmed": ["title", "authors", "venue", "year", "volume", "issue", "pages", "doi", "ANDES framework identity"],
+      "citation_context": "ANDES hybrid symbolic-numeric framework only; project-specific M/D base semantics are uncited"
+    },
+    {
+      "key": "haarnoja2018sac",
+      "status": "VERIFIED",
+      "url": "https://proceedings.mlr.press/v80/haarnoja18b.html",
+      "confirmed": ["title", "authors", "venue", "year", "volume", "pages"],
+      "citation_context": "Soft actor-critic algorithm identity"
+    },
+    {
+      "key": "holm1979simple",
+      "status": "VERIFIED",
+      "url": "https://www.jstor.org/stable/4615733",
+      "confirmed": ["title", "author", "venue", "year", "volume", "issue", "pages"],
+      "citation_context": "Holm sequentially rejective multiplicity control"
+    }
+  ],
+  "citation_context_review": {
+    "checked_references": 16,
+    "population_references": 16,
+    "coverage_fraction": 1.0,
+    "open_distortions": 0,
+    "corrections": [
+      "Restricted the Cui citation to the ANDES framework and assigned device/system-base M/D storage semantics to the project parameter card.",
+      "Replaced the broad shared-benchmark absence claim with a bounded non-interchangeability statement about controller-specific models and evaluation contracts."
+    ]
+  }
+}

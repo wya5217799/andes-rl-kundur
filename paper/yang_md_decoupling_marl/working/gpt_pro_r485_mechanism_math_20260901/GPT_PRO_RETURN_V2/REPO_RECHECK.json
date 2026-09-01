@@ -1,0 +1,75 @@
+{
+  "schema_version": "r485_mechanism_math_repo_recheck_v2",
+  "status": "ADVERSARIAL_QUALIFIED_PASS",
+  "source": "C:/Users/27443/Downloads/gpt_pro_r485_mechanism_math_solution/gpt_pro_r485_mechanism_math_solution",
+  "integrity": {
+    "required_payload_files": 5,
+    "sha256sums_checked": 4,
+    "sha256sums_matched": 4,
+    "sha256sums_unmatched": 0
+  },
+  "static_audit": {
+    "ast_and_help": "PASS",
+    "network_or_subprocess_surface": false,
+    "default_write": false,
+    "explicit_output_option_only": true
+  },
+  "repo_runtime_replay": {
+    "input_archive_sha256": "530ed9942169f620c88ee14138d263a9271516b8366e1296006002378fe41410",
+    "script_sha256": "39bf12fc5414b1171e55036ca5f7332dc642970787960ee8c8d2c7588bc6b5fb",
+    "python": "3.14.3",
+    "numpy": "2.4.3",
+    "torch": "2.10.0+cpu",
+    "elapsed_seconds": 28.334,
+    "exit_code": 0,
+    "expected_comparison": "PASS",
+    "certificate_status": "PASS",
+    "stdout_sha256": "7e52324e492dc588317553fca6e95ccdfd7bd5dedab08876645e79639879426c"
+  },
+  "independent_path_partition_audit": {
+    "total_available_segments": 14400,
+    "sampled_segments": 257,
+    "pieces_checked": 11505,
+    "interior_points_checked": 34515,
+    "maximum_piece_output_error": 1.1379786002407855e-15,
+    "maximum_dense_sampled_variation_minus_certificate": 1.2212453270876722e-15,
+    "status": "PASS"
+  },
+  "independent_trace_audit": {
+    "stored_tracks_checked": 192,
+    "minimum_tv_terminal_residual_slack": 1047.1426846882096,
+    "maximum_recorded_normalized_slew": 0.25,
+    "maximum_between_previous_and_raw_interval_violation": 0.0,
+    "representative_temporal_variance_fraction_min": 0.3744617046122963,
+    "representative_temporal_variance_fraction_max": 0.5122844578855186,
+    "status": "PASS"
+  },
+  "comparison_to_first_return": {
+    "first_return_status": "QUALIFIED_PASS_WITH_COMPARISON_TOLERANCE_DEFECT",
+    "second_return_preferred_for_machine_replay": true,
+    "shared_core_theorem_changed": false,
+    "paper_headline_or_counts_changed": false
+  },
+  "accepted_for_paper_support": [
+    "common-zero-reset normalized componentwise projector TV inequality",
+    "fixed-grid frozen-observation raw-TV ratios",
+    "neutral constant-anchor-to-actual raw-RMS counts",
+    "representative temporal-variance counterexample to static-source language",
+    "four-cell non-identification argument"
+  ],
+  "retained_out_of_main_paper": [
+    "representative declared Shapley allocations",
+    "local Jacobian and global spectral-product summaries",
+    "range-only Shapley bounds",
+    "the external completion label PROVED"
+  ],
+  "not_established": [
+    "unique root cause or additive mechanism share",
+    "causal or deployable previous-action intervention",
+    "full-208-policy or full-24-checkpoint sensitivity distribution",
+    "modified-controller plant trajectories or endpoint preservation",
+    "training benefit, stability, safety, hardware effect, or topology generalisation"
+  ],
+  "new_simulation_or_training": false,
+  "formal_R485_or_R486_numeric_authority_changed": false
+}

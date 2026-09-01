@@ -72,7 +72,7 @@
   {
    "id": "icems2026",
    "kind": "manuscript",
-   "status": "frozen",
+   "status": "active",
    "root": "paper/icems2026",
    "roles": {
     "canonical": [
@@ -191,6 +191,9 @@
     "support": [
      "paper/yang_md_decoupling_marl/working/route_contract.md",
      "paper/yang_md_decoupling_marl/working/vsg_failure_math_advisory_20260820",
+     "paper/yang_md_decoupling_marl/working/gpt_pro_r485_mechanism_math_20260901/gpt_pro_r485_mechanism_math_20260901.zip",
+     "paper/yang_md_decoupling_marl/working/ars_stage25_r485_20260901",
+     "paper/yang_md_decoupling_marl/working/pdf_review_20260901",
      "paper/yang_md_decoupling_marl/manuscript/build_reproducibility_supplement.py",
      "paper/yang_md_decoupling_marl/manuscript/supplement"
     ],
@@ -199,10 +202,13 @@
     ],
     "derived": [
      "paper/yang_md_decoupling_marl/manuscript/main.pdf",
+     "paper/yang_md_decoupling_marl/manuscript/main_r485.pdf",
      "paper/yang_md_decoupling_marl/manuscript/figures"
      ],
      "release": [
-      "paper/yang_md_decoupling_marl/working/yang_md_decoupling_marl_icems2026_source_20260828.zip"
+      "paper/yang_md_decoupling_marl/working/yang_md_decoupling_marl_icems2026_source_20260828.zip",
+      "paper/yang_md_decoupling_marl/working/yang_md_decoupling_marl_icems2026_source_r485_20260901.zip",
+      "paper/yang_md_decoupling_marl/working/r485_reproducibility_companion_20260901.zip"
      ]
     }
   },

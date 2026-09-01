@@ -1,0 +1,5 @@
+# SHA256 checksums for all payload files; this manifest is not self-hashed.
+b9477541a5b18634bc21b22d67546f9da76022dcff3491cfb72c43d3892ff4aa  SOLUTION.md
+3bed3b38a6f7ec7405a1f5c8c6c49ae342dde5d9971215f2be428ccc5b8ceb5e  verify_finite_record_certificate.py
+c0b4cd8b0bd7430cae39a4d46384f5abbe186e5bb2628e5fb31852ee6688daa9  math_result.json
+73b942fe4abf29194137e684143ecb0296c9bcd0bbb15fb46973c01359655218  manuscript_patch.tex

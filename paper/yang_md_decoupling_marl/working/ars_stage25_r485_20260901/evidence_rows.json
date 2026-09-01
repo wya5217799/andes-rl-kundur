@@ -1,0 +1,1847 @@
+[
+  {
+    "schema_version": "evidence-row/1.0",
+    "surface": "phase_e_claim_verification",
+    "row_id": "EVR-C-ABS-internal",
+    "claim": {
+      "claim_id": "C-ABS",
+      "text": "This paper presents a bounded, guard-first evaluation of adaptive virtual\ninertia and damping coordination by multi-agent reinforcement learning (MARL)\nin four paralleled virtual synchronous generators (VSGs). On the sealed\ncorrected-60-Hz benchmark, 121 of 208 all-fresh policies met both aggregate\ndecoupling endpoints, but none met the profile-complete\nendpoint-plus-command-activity contract. The evaluation first fixes an\nexactly-once device-to-system-base conversion, physical 60-Hz observation\nsemantics, common--differential response-energy endpoints, and a deterministic\ndirect-$M/D$ comparator. It then crosses authentic and row-permuted actor\nsource, critic source, and reward access with 26 matched seeds and a fixed\n43,200-step budget. All 832 policy--profile blocks exceeded both registered\ncomparator-relative normalized command-RMS and command-total-variation limits;\n397 also failed the rate-of-change-of-frequency guard and 37 failed the\nworst-frequency-peak guard. No registered 6-s or separate 30-s source contrast\nestablished its positive 10\\% material effect after Holm control. The direct\n$M/D$ comparator separately passed 4/4 fresh profiles at 30 s. These results\nseparate endpoint improvement from complete qualification for one finite\nbenchmark; the command metrics are activity summaries rather than physical\nsafety or hardware-harm measures.",
+      "paper_locator": "main_r485.tex:31",
+      "selection_tier": "HIGH-IMPACT"
+    },
+    "source": {
+      "ref_slug": "R485_report",
+      "display_label": "paper\\yang_md_decoupling_marl\\reports\\R485.md",
+      "source_content_sha256": "6a406b0b6bcdf965c3914d1066ac1ef09536beb909213230b752c8505d4b1479",
+      "source_content_utf8_bytes": 9592,
+      "source_artifact_sha256": "6a406b0b6bcdf965c3914d1066ac1ef09536beb909213230b752c8505d4b1479"
+    },
+    "anchor": {
+      "kind": "quote",
+      "value_encoded": "The%20registered%20finite-benchmark%20classification%20is%20%60VALID-MIXED%60%3A",
+      "value_decoded": "The registered finite-benchmark classification is `VALID-MIXED`:"
+    },
+    "verdict": "VERIFIED",
+    "detail": "Headline status and counts are reproduced from the sealed R485 decision surface.",
+    "content_handling": {
+      "contains_external_text": true,
+      "sharing_scope": "session_only",
+      "rights_basis": "not_assessed"
+    },
+    "cache": {
+      "status": "miss",
+      "key_sha256": "90d075dac88a486a6830e895ea4790af3a3018dcb77787d4ef4b7c38dd477fdd"
+    },
+    "excerpt": {
+      "state": "verified_exact_match",
+      "text": "The registered finite-benchmark classification is `VALID-MIXED`:",
+      "excerpt_sha256": "29038b235a507539604914e9c311965908954407178dce713a3545a8b5c75f29",
+      "source_span_utf8": {
+        "start": 2554,
+        "end": 2618
+      },
+      "captured_at": "2026-09-01T04:24:37Z"
+    },
+    "row_sha256": "8c26e2970aa9a7b3e1fcec8a9042be231f8a051d241168528a62e8f345a71082"
+  },
+  {
+    "schema_version": "evidence-row/1.0",
+    "surface": "phase_e_claim_verification",
+    "row_id": "EVR-C-INTRO-EXAMPLE-internal",
+    "claim": {
+      "claim_id": "C-INTRO-EXAMPLE",
+      "text": "Adaptive inertia and damping can improve an aggregate decoupling score without\nqualifying a controller for coordinated operation. In one illustrative R485\npolicy, arm \\texttt{an\\_cn\\_r0} with training seed 501 attained aggregate\noff-diagonal and disturbance-differential response-energy ratios of 0.535918\nand 0.905632 relative to the deterministic comparator, so both endpoints\nimproved by more than the registered 5\\%. Nevertheless, all four profile\nguards failed, including both command-activity checks on every profile. This\nexample is not a selected success or failure case: it makes concrete the\npopulation-level result that 121 of 208 all-fresh policies met both aggregate\nendpoints whereas 0 of 208 met the complete contract. The distinction matters\nfor paralleled VSGs because inertia-like fleet support and differential motion\nbetween units are different control objectives. VSG and parallel-VSM studies\nhave established the importance of inertia, damping, electrical coupling, and\ninter-unit coordination~\\cite{zhong2011synchronverters,darco2013vsm,\nwu2016smallsignal,gonzalez2022parallel}; the present question is how a learned\nadaptive controller should be qualified when these objectives and its command\npath disagree.",
+      "paper_locator": "main_r485.tex:59",
+      "selection_tier": "HIGH-IMPACT"
+    },
+    "source": {
+      "ref_slug": "data_claim_audit",
+      "display_label": "paper\\yang_md_decoupling_marl\\working\\ars_stage25_r485_20260901\\data_claim_audit.json",
+      "source_content_sha256": "b0940652cdfc801cd3b6394ec181c61b7936aeae880ad38217935dd995d29262",
+      "source_content_utf8_bytes": 8997,
+      "source_artifact_sha256": "b0378638e81ffaa158afa5d3a501fe84f05d9f50629d19ce14985f1fbaaa5b63"
+    },
+    "anchor": {
+      "kind": "quote",
+      "value_encoded": "%22check_id%22%3A%20%22seed501_example%22",
+      "value_decoded": "\"check_id\": \"seed501_example\""
+    },
+    "verdict": "VERIFIED",
+    "detail": "The named example and aggregate ratios were recomputed from R485 formal analysis.",
+    "content_handling": {
+      "contains_external_text": true,
+      "sharing_scope": "session_only",
+      "rights_basis": "not_assessed"
+    },
+    "cache": {
+      "status": "miss",
+      "key_sha256": "5d5e1aeb242bd179f8f8150e728b587dd6d1fb3319432856aca37419e4e56a4f"
+    },
+    "excerpt": {
+      "state": "verified_exact_match",
+      "text": "\"check_id\": \"seed501_example\"",
+      "excerpt_sha256": "1d692a9b24e46af9fa90f3c359885e2cd229851fb45c6630b7490efc03444c74",
+      "source_span_utf8": {
+        "start": 3275,
+        "end": 3304
+      },
+      "captured_at": "2026-09-01T04:24:37Z"
+    },
+    "row_sha256": "893dba04417f72384a01e120eb7216b923b3472ee4493304a307f88c4b0de3ee"
+  },
+  {
+    "schema_version": "evidence-row/1.0",
+    "surface": "phase_e_claim_verification",
+    "row_id": "EVR-C-QUESTION-internal",
+    "claim": {
+      "claim_id": "C-QUESTION",
+      "text": "We ask the following bounded question: under an exactly-once\ndevice-to-system-base conversion on a 60-Hz plant, does any all-fresh policy\nfrom the registered $M/D$-adaptive MARL family satisfy both decoupling\nendpoints and every profile-level guard relative to a deterministic direct-$M/D$\ncomparator? The hard constraints are part of the question. Policies are\nevaluated at their final checkpoint after a fixed 43,200-step budget; the four\nbenchmark profiles are outcome-visible frozen records rather than a population\nsample; a policy qualifies only if both equal-weight aggregate endpoints\nimprove by at least 5\\% and all four profiles satisfy trajectory, frequency,\nsaturation, dispersion, and comparator-relative normalized command-RMS and\ncommand-total-variation guards. The 6-s primary and 30-s tail analyses are\nderived from the same traces and remain separate. The command metrics quantify\nrelative command activity, not actuator energy, wear, hardware harm, or\nphysical safety.",
+      "paper_locator": "main_r485.tex:96",
+      "selection_tier": "HIGH-IMPACT"
+    },
+    "source": {
+      "ref_slug": "R485_report",
+      "display_label": "paper\\yang_md_decoupling_marl\\reports\\R485.md",
+      "source_content_sha256": "6a406b0b6bcdf965c3914d1066ac1ef09536beb909213230b752c8505d4b1479",
+      "source_content_utf8_bytes": 9592,
+      "source_artifact_sha256": "6a406b0b6bcdf965c3914d1066ac1ef09536beb909213230b752c8505d4b1479"
+    },
+    "anchor": {
+      "kind": "quote",
+      "value_encoded": "The%20complete%20contract%20required%20both%20aggregate%20decoupling%20endpoints%20and%20every",
+      "value_decoded": "The complete contract required both aggregate decoupling endpoints and every"
+    },
+    "verdict": "VERIFIED",
+    "detail": "The research question reproduces the registered conjunctive contract.",
+    "content_handling": {
+      "contains_external_text": true,
+      "sharing_scope": "session_only",
+      "rights_basis": "not_assessed"
+    },
+    "cache": {
+      "status": "miss",
+      "key_sha256": "62a147d17c37483c6324a07d6485819403dd7b9a7d97f43c75eee73983ae665f"
+    },
+    "excerpt": {
+      "state": "verified_exact_match",
+      "text": "The complete contract required both aggregate decoupling endpoints and every",
+      "excerpt_sha256": "a5f8adfb07aba0f9205846252339f3303b074b3eb0a51636bd097602c8d9197d",
+      "source_span_utf8": {
+        "start": 1862,
+        "end": 1938
+      },
+      "captured_at": "2026-09-01T04:24:37Z"
+    },
+    "row_sha256": "812883d105721cb2753e32c70a5b106ec9b9ab89af62937a90c743e71151b7b7"
+  },
+  {
+    "schema_version": "evidence-row/1.0",
+    "surface": "phase_e_claim_verification",
+    "row_id": "EVR-C-CHALLENGES-internal",
+    "claim": {
+      "claim_id": "C-CHALLENGES",
+      "text": "Three challenges prevent a direct reuse of conventional learned-controller\nreporting. The first is semantic comparability: controller arithmetic is\ndefined on the device base, the simulator stores $M/D$ on the system base, and\nthe 60-Hz physical endpoints must not receive a second conversion. The second\nis qualification: aggregate endpoint improvement and profile-level contract\ncompliance are different logical decisions, and pooling profiles or horizons\ncan hide their disagreement. The third is source attribution: stochastic\ntraining variation can dominate actor-, critic-, or reward-source differences,\nwhile a source replacement can change more than semantic neighbour information.\nEach challenge therefore requires a distinct part of the evaluation rather\nthan a stronger claim from the same summary metric.",
+      "paper_locator": "main_r485.tex:111",
+      "selection_tier": "HIGH-IMPACT"
+    },
+    "source": {
+      "ref_slug": "parameter_card",
+      "display_label": "paper\\yang_md_decoupling_marl\\working\\md_parameter_card_20260824.json",
+      "source_content_sha256": "8223467a83b7d7f441a9521ebdbd6bcff37bbbd760b86cef694c8649fdf9487b",
+      "source_content_utf8_bytes": 2037,
+      "source_artifact_sha256": "290e7422bf96395179527636b20948223811515717d0cd0ee1c19f19ef4cf79d"
+    },
+    "anchor": {
+      "kind": "quote",
+      "value_encoded": "controller%20math%20device-base%3B%20ANDES%20runtime%20system-base%3B%20convert%20exactly%20once%20per%20boundary%20crossing",
+      "value_decoded": "controller math device-base; ANDES runtime system-base; convert exactly once per boundary crossing"
+    },
+    "verdict": "VERIFIED",
+    "detail": "The base-conversion challenge is fixed by the project parameter card.",
+    "content_handling": {
+      "contains_external_text": true,
+      "sharing_scope": "session_only",
+      "rights_basis": "not_assessed"
+    },
+    "cache": {
+      "status": "miss",
+      "key_sha256": "0ce65ef9d35e13c95ecbe145a61575e95c0cfd6e31b553499d02d61fa83d4b5f"
+    },
+    "excerpt": {
+      "state": "verified_exact_match",
+      "text": "controller math device-base; ANDES runtime system-base; convert exactly once per boundary crossing",
+      "excerpt_sha256": "615af028feb118aa6998b6f7470bf944d0108ee18f661234531d18987527e055",
+      "source_span_utf8": {
+        "start": 189,
+        "end": 287
+      },
+      "captured_at": "2026-09-01T04:24:37Z"
+    },
+    "row_sha256": "d54f63d11f2106896728fbb177b4a44851eb821a52afdd51aef178703db4a1e5"
+  },
+  {
+    "schema_version": "evidence-row/1.0",
+    "surface": "phase_e_claim_verification",
+    "row_id": "EVR-C-EVALUATION-MAP-internal",
+    "claim": {
+      "claim_id": "C-EVALUATION-MAP",
+      "text": "The evaluation addresses these challenges in one-to-one form.\nSection~\\ref{sec:contract} defines the corrected parameter, action, coordinate,\nendpoint, and deterministic-comparator contract, with the 60-Hz transform\napplied exactly once. Section~\\ref{sec:protocol} then separates endpoint\ncalculation from a profile-complete guard decision and reports 6-s and 30-s\nresults without pooling; the development-selected direct-$M/D$ controller is\nevaluated on a separate prospectively fresh bank. The same section crosses\nauthentic and row-permuted actor source, critic source, and reward access in a\n$2\\times2\\times2$ design with 26 matched training seeds. Registered seed-level\ncontrasts, a 10\\% materiality boundary, and Holm control make the source\nquestion distinct from policy qualification. Together, these elements\nevaluate the MARL controller as an object under test rather than present it as\na qualified solution.",
+      "paper_locator": "main_r485.tex:123",
+      "selection_tier": "HIGH-IMPACT"
+    },
+    "source": {
+      "ref_slug": "R485_report",
+      "display_label": "paper\\yang_md_decoupling_marl\\reports\\R485.md",
+      "source_content_sha256": "6a406b0b6bcdf965c3914d1066ac1ef09536beb909213230b752c8505d4b1479",
+      "source_content_utf8_bytes": 9592,
+      "source_artifact_sha256": "6a406b0b6bcdf965c3914d1066ac1ef09536beb909213230b752c8505d4b1479"
+    },
+    "anchor": {
+      "kind": "quote",
+      "value_encoded": "Eight%20actor-source%20x%20critic-source%20x%20reward-access%20arms%20used%2026%20paired%20fresh",
+      "value_decoded": "Eight actor-source x critic-source x reward-access arms used 26 paired fresh"
+    },
+    "verdict": "VERIFIED",
+    "detail": "The evaluation map matches the frozen factorial and seed roster.",
+    "content_handling": {
+      "contains_external_text": true,
+      "sharing_scope": "session_only",
+      "rights_basis": "not_assessed"
+    },
+    "cache": {
+      "status": "miss",
+      "key_sha256": "08358512954d82267585c7baa6e600a9f6467d609f43028dfb6fa7814a1b8708"
+    },
+    "excerpt": {
+      "state": "verified_exact_match",
+      "text": "Eight actor-source x critic-source x reward-access arms used 26 paired fresh",
+      "excerpt_sha256": "3d6315b54c36e748374c2dee826da42da8c1d26f1db63e6f1364a6a8207dc326",
+      "source_span_utf8": {
+        "start": 1256,
+        "end": 1332
+      },
+      "captured_at": "2026-09-01T04:24:37Z"
+    },
+    "row_sha256": "f0ad928d258ee915d868be44f97719a3754795c95aeab611f206ff649443dcfa"
+  },
+  {
+    "schema_version": "evidence-row/1.0",
+    "surface": "phase_e_claim_verification",
+    "row_id": "EVR-C-CONTRIBUTIONS-internal",
+    "claim": {
+      "claim_id": "C-CONTRIBUTIONS",
+      "text": "The contributions are threefold. First, Section~\\ref{sec:contract} formulates\nthe qualification problem through a corrected semantic contract that binds\ndevice/system-base conversion, 60-Hz coordinates, endpoints, and\ncomparator-relative command activity to one profile-complete decision. Second,\nSection~\\ref{sec:protocol} gives a prospective guard-first evaluation design\nwith separate deterministic and learned-policy banks, a fixed final-checkpoint\nbudget, and non-pooled 6-s and 30-s horizons. Third,\nSection~\\ref{sec:results} reports the bounded R485 empirical finding from the\nmatched paired-seed source factorial: 121/208 policies met both aggregate\nendpoints, 5/208 also met every non-command guard in a post-hoc Pareto read,\nbut 0/208 met the complete contract; no registered source contrast established\nits positive material effect after Holm control, whereas the direct-$M/D$\ncomparator separately passed 4/4 fresh profiles. These are finite-benchmark\nqualification results, not a universal verdict on MARL.",
+      "paper_locator": "main_r485.tex:137",
+      "selection_tier": "HIGH-IMPACT"
+    },
+    "source": {
+      "ref_slug": "R485_report",
+      "display_label": "paper\\yang_md_decoupling_marl\\reports\\R485.md",
+      "source_content_sha256": "6a406b0b6bcdf965c3914d1066ac1ef09536beb909213230b752c8505d4b1479",
+      "source_content_utf8_bytes": 9592,
+      "source_artifact_sha256": "6a406b0b6bcdf965c3914d1066ac1ef09536beb909213230b752c8505d4b1479"
+    },
+    "anchor": {
+      "kind": "quote",
+      "value_encoded": "The%20registered%20finite-benchmark%20classification%20is%20%60VALID-MIXED%60%3A",
+      "value_decoded": "The registered finite-benchmark classification is `VALID-MIXED`:"
+    },
+    "verdict": "VERIFIED",
+    "detail": "The empirical contribution is bounded to the registered R485 classification.",
+    "content_handling": {
+      "contains_external_text": true,
+      "sharing_scope": "session_only",
+      "rights_basis": "not_assessed"
+    },
+    "cache": {
+      "status": "miss",
+      "key_sha256": "5d7ab64053623ce48b8574c5eb97d9e16e68738d976365e2b211b32ce28c6135"
+    },
+    "excerpt": {
+      "state": "verified_exact_match",
+      "text": "The registered finite-benchmark classification is `VALID-MIXED`:",
+      "excerpt_sha256": "29038b235a507539604914e9c311965908954407178dce713a3545a8b5c75f29",
+      "source_span_utf8": {
+        "start": 2554,
+        "end": 2618
+      },
+      "captured_at": "2026-09-01T04:24:37Z"
+    },
+    "row_sha256": "f1ae1165e64f8f25f6809e84f2d37dd885ac7aafe3aea72329d087f4665b25d3"
+  },
+  {
+    "schema_version": "evidence-row/1.0",
+    "surface": "phase_e_claim_verification",
+    "row_id": "EVR-C-PHYSICAL-OBJECT-internal",
+    "claim": {
+      "claim_id": "C-PHYSICAL-OBJECT",
+      "text": "We consider four controlled VSGs in a modified Kundur two-area system. Their\nangle and frequency states follow\n\\begin{equation}\n\\dot{\\delta}_i=2\\pi f_n(\\omega_i-1),\\quad\nM_i^{\\rm sys}\\dot{\\omega}_i=\\tau_{m,i}-\\tau_{e,i}\n-D_i^{\\rm sys}(\\omega_i-1),\n\\label{eq:swing}\n\\end{equation}\nwhere reported physical frequency uses $f_n=\\SI{60}{Hz}$. We implement the\nstudy in the ANDES hybrid symbolic--numeric framework~\\cite{cui2021andes}.\nWithin this project, controller arithmetic is defined on the device base,\nwhereas runtime $M/D$ parameters are stored on the system base. Each boundary\ncrossing therefore applies exactly one conversion,\n\\begin{equation}\nx_i^{\\rm sys}=x_i^{\\rm dev}\\frac{S_{n,i}}{S_b},\n\\qquad x\\in\\{M,D\\},\\qquad M=2H.\n\\label{eq:base_conversion}\n\\end{equation}\nThe project parameter card uses $S_b=\\SI{100}{MVA}$,\n$S_{n,i}=\\SI{200}{MVA}$, $H_0^{\\rm dev}=\\SI{100}{s}$,\n$M_0^{\\rm dev}=\\SI{200}{s}$, and $D_0^{\\rm dev}=100$. This is a declared\nproject calibration rather than a reconstruction of the parameterization in\nany cited controller.",
+      "paper_locator": "main_r485.tex:193",
+      "selection_tier": "HIGH-IMPACT"
+    },
+    "source": {
+      "ref_slug": "parameter_card",
+      "display_label": "paper\\yang_md_decoupling_marl\\working\\md_parameter_card_20260824.json",
+      "source_content_sha256": "8223467a83b7d7f441a9521ebdbd6bcff37bbbd760b86cef694c8649fdf9487b",
+      "source_content_utf8_bytes": 2037,
+      "source_artifact_sha256": "290e7422bf96395179527636b20948223811515717d0cd0ee1c19f19ef4cf79d"
+    },
+    "anchor": {
+      "kind": "quote",
+      "value_encoded": "controller%20math%20device-base%3B%20ANDES%20runtime%20system-base%3B%20convert%20exactly%20once%20per%20boundary%20crossing",
+      "value_decoded": "controller math device-base; ANDES runtime system-base; convert exactly once per boundary crossing"
+    },
+    "verdict": "VERIFIED",
+    "detail": "The physical/base semantics are declared project calibration, not imported from a citation.",
+    "content_handling": {
+      "contains_external_text": true,
+      "sharing_scope": "session_only",
+      "rights_basis": "not_assessed"
+    },
+    "cache": {
+      "status": "miss",
+      "key_sha256": "00abacd697f45165873d09775963eda606a96f6b81017b12b385634f6d1e4bd8"
+    },
+    "excerpt": {
+      "state": "verified_exact_match",
+      "text": "controller math device-base; ANDES runtime system-base; convert exactly once per boundary crossing",
+      "excerpt_sha256": "615af028feb118aa6998b6f7470bf944d0108ee18f661234531d18987527e055",
+      "source_span_utf8": {
+        "start": 189,
+        "end": 287
+      },
+      "captured_at": "2026-09-01T04:24:37Z"
+    },
+    "row_sha256": "3a354af5b5fc0b58c06906f8c8cd3dce7e8fcf2fee79c12af186d5ab09c3d3dd"
+  },
+  {
+    "schema_version": "evidence-row/1.0",
+    "surface": "phase_e_claim_verification",
+    "row_id": "EVR-C-ACTION-MAP-internal",
+    "claim": {
+      "claim_id": "C-ACTION-MAP",
+      "text": "At each $\\Delta t=\\SI{0.2}{s}$ control instant, controller $i$ produces a\ntwo-component normalized target $\\bar a_i$. With componentwise\n$\\Pi_c(x)=\\min\\{c,\\max\\{-c,x\\}\\}$ and $a_i^{\\rm exec}[-1]=0$, the common\nprojection is\n\\begin{align}\na_i^{\\rm amp}[k]&=\\Pi_1(\\bar a_i[k]),\\nonumber\\\\\na_i^{\\rm exec}[k]&=\\Pi_1\\!\\left(a_i^{\\rm exec}[k-1]\\right.\\nonumber\\\\\n&\\quad\\left.+\\Pi_{0.25}\\!\\left(a_i^{\\rm amp}[k]\n-a_i^{\\rm exec}[k-1]\\right)\\right).\n\\label{eq:projection}\n\\end{align}\nFor either component, $q(a)=600a$ when $a\\geq0$ and $q(a)=200a$ otherwise.\nThe device-base commands are\n\\begin{align}\nM_i^{\\rm dev}[k]&=\\max\\{20,M_{i,0}^{\\rm dev}+q(a_i^{M,{\\rm exec}}[k])\\},\\nonumber\\\\\nD_i^{\\rm dev}[k]&=\\max\\{10,D_{i,0}^{\\rm dev}+q(a_i^{D,{\\rm exec}}[k])\\}.\n\\label{eq:action_map}\n\\end{align}\nAfter~\\eqref{eq:base_conversion}, targets are linearly applied over five\nsimulator substeps from the preceding runtime readback. Projection precedes\ndecoding; the learned command does not directly inject active power.",
+      "paper_locator": "main_r485.tex:217",
+      "selection_tier": "HIGH-IMPACT"
+    },
+    "source": {
+      "ref_slug": "parameter_card",
+      "display_label": "paper\\yang_md_decoupling_marl\\working\\md_parameter_card_20260824.json",
+      "source_content_sha256": "8223467a83b7d7f441a9521ebdbd6bcff37bbbd760b86cef694c8649fdf9487b",
+      "source_content_utf8_bytes": 2037,
+      "source_artifact_sha256": "290e7422bf96395179527636b20948223811515717d0cd0ee1c19f19ef4cf79d"
+    },
+    "anchor": {
+      "kind": "quote",
+      "value_encoded": "linear%20interpolation%20over%20one%200.2%20s%20control%20step",
+      "value_decoded": "linear interpolation over one 0.2 s control step"
+    },
+    "verdict": "VERIFIED",
+    "detail": "The action projection, decoding, clamps, and five-substep application were checked against the parameter card.",
+    "content_handling": {
+      "contains_external_text": true,
+      "sharing_scope": "session_only",
+      "rights_basis": "not_assessed"
+    },
+    "cache": {
+      "status": "miss",
+      "key_sha256": "c1cdfbae980cd59216326ecdff3879816d48987d949f6b04cdc6d8f1c323d758"
+    },
+    "excerpt": {
+      "state": "verified_exact_match",
+      "text": "linear interpolation over one 0.2 s control step",
+      "excerpt_sha256": "3d562fcc4f3415e4d006828f2f98f01b8c9ffe330e3773adbb22b903ce7baa50",
+      "source_span_utf8": {
+        "start": 1255,
+        "end": 1303
+      },
+      "captured_at": "2026-09-01T04:24:37Z"
+    },
+    "row_sha256": "72b6600458200f6b3ae298304a1959e249c50d556b27476784dcbe29369d04d3"
+  },
+  {
+    "schema_version": "evidence-row/1.0",
+    "surface": "phase_e_claim_verification",
+    "row_id": "EVR-C-ENDPOINTS-internal",
+    "claim": {
+      "claim_id": "C-ENDPOINTS",
+      "text": "Let $\\Delta f\\in\\mathbb{R}^4$ be physical frequency deviation. We use the\narithmetic common coordinate $z_c=\\mathbf{1}^{\\top}\\Delta f/4$ and\n\\begin{equation}\nz_d=T_d\\Delta f,\\quad\nT_d=\\begin{bmatrix}\n1/2&1/2&-1/2&-1/2\\\\\n1/\\sqrt{2}&-1/\\sqrt{2}&0&0\\\\\n0&0&1/\\sqrt{2}&-1/\\sqrt{2}\n\\end{bmatrix}.\n\\label{eq:coordinates}\n\\end{equation}\nThese registered coordinates are neither identified electromechanical modes\nnor an inertia-weighted centre-of-inertia frequency.\n\nFor probe type $k\\in\\{c,d,\\ell\\}$, the odd response of a matched signed pair is\n$\\widetilde f_k[n]=(\\Delta f_k^+[n]-\\Delta f_k^-[n])/2$. With\n$z_{c,k}=\\mathbf{1}^{\\top}\\widetilde f_k/4$, $z_{d,k}=T_d\\widetilde f_k$,\n$\\varepsilon_c=\\varepsilon_d=q$, and $\\varepsilon_\\ell=\\ell$, the two\nlower-is-better endpoints are\n\\begin{align}\nJ_{\\rm cross}={}&\\frac{\\Delta t}{q^2}\\sum_n\\frac{\\|z_{d,c}[n]\\|_2^2}{3}\n+\\frac{\\Delta t}{q^2}\\sum_n z_{c,d}^2[n],\n\\label{eq:jcross}\\\\\nJ_d={}&\\sum_{k\\in\\{c,d,\\ell\\}}\\frac{\\Delta t}{\\varepsilon_k^2}\n\\sum_n\\frac{\\|z_{d,k}[n]\\|_2^2}{3}.\n\\label{eq:jd}\n\\end{align}\nThey are finite-window discrete response energies, not joules, storage\nfunctions, or Lyapunov functions.",
+      "paper_locator": "main_r485.tex:241",
+      "selection_tier": "HIGH-IMPACT"
+    },
+    "source": {
+      "ref_slug": "R485_report",
+      "display_label": "paper\\yang_md_decoupling_marl\\reports\\R485.md",
+      "source_content_sha256": "6a406b0b6bcdf965c3914d1066ac1ef09536beb909213230b752c8505d4b1479",
+      "source_content_utf8_bytes": 9592,
+      "source_artifact_sha256": "6a406b0b6bcdf965c3914d1066ac1ef09536beb909213230b752c8505d4b1479"
+    },
+    "anchor": {
+      "kind": "quote",
+      "value_encoded": "both%20aggregate%20decoupling%20endpoints",
+      "value_decoded": "both aggregate decoupling endpoints"
+    },
+    "verdict": "VERIFIED",
+    "detail": "Endpoint use matches the registered R485 decision surface.",
+    "content_handling": {
+      "contains_external_text": true,
+      "sharing_scope": "session_only",
+      "rights_basis": "not_assessed"
+    },
+    "cache": {
+      "status": "miss",
+      "key_sha256": "ac11856d92a28fba7f23028eee83c8f9ac7272533d4ade06b78de4840625a3e9"
+    },
+    "excerpt": {
+      "state": "verified_exact_match",
+      "text": "both aggregate decoupling endpoints",
+      "excerpt_sha256": "91c4478198619572f1e567f34dcad5bdeb95025b02bbfe8ea97ed3f902ae2dfe",
+      "source_span_utf8": {
+        "start": 1893,
+        "end": 1928
+      },
+      "captured_at": "2026-09-01T04:24:37Z"
+    },
+    "row_sha256": "c9dd162bd556074ebc1467d10185273335179456fdae9b346e4035c147c4cdf8"
+  },
+  {
+    "schema_version": "evidence-row/1.0",
+    "surface": "phase_e_claim_verification",
+    "row_id": "EVR-C-GUARDS-internal",
+    "claim": {
+      "claim_id": "C-GUARDS",
+      "text": "Each profile contains positive and negative common, differential, and localized\nload probes. A learned-policy block must be valid, preserve the registered\nmapping, bound and slew invariants, keep saturation fraction at most 0.05, and\nmeet nondegeneracy and per-VSG dispersion floors of $10^{-6}$. Common-frequency\nintegral, worst-frequency peak, and RoCoF must be no worse than 1.03 times the\nsame-profile direct-$M/D$ values. Comparator-relative normalized command RMS\nand total variation (TV) must each be no worse than 1.10 times the comparator.\n\nA policy meets the complete contract only when all four benchmark profiles\nmeet every block-level guard and the equal-weight aggregate ratios of both\n$J_{\\rm cross}$ and $J_d$ to direct $M/D$ are at most 0.95. The endpoint and\nguard decisions are therefore conjunctive. The frequency and command\nmultipliers are registered empirical tolerances. In particular, normalized\ncommand RMS and TV do not contain a calibrated actuator transfer, damage\nfunctional, hardware limit, or safety certificate.",
+      "paper_locator": "main_r485.tex:273",
+      "selection_tier": "HIGH-IMPACT"
+    },
+    "source": {
+      "ref_slug": "R485_report",
+      "display_label": "paper\\yang_md_decoupling_marl\\reports\\R485.md",
+      "source_content_sha256": "6a406b0b6bcdf965c3914d1066ac1ef09536beb909213230b752c8505d4b1479",
+      "source_content_utf8_bytes": 9592,
+      "source_artifact_sha256": "6a406b0b6bcdf965c3914d1066ac1ef09536beb909213230b752c8505d4b1479"
+    },
+    "anchor": {
+      "kind": "quote",
+      "value_encoded": "normalized%20command%20RMS%20and%20total%20variation%20measure",
+      "value_decoded": "normalized command RMS and total variation measure"
+    },
+    "verdict": "VERIFIED",
+    "detail": "The command metrics remain comparator-relative activity constructs.",
+    "content_handling": {
+      "contains_external_text": true,
+      "sharing_scope": "session_only",
+      "rights_basis": "not_assessed"
+    },
+    "cache": {
+      "status": "miss",
+      "key_sha256": "1c39272636405cb30a10c83ea15d3adb16088645010358aacc913e3b642ee0d3"
+    },
+    "excerpt": {
+      "state": "verified_exact_match",
+      "text": "normalized command RMS and total variation measure",
+      "excerpt_sha256": "319371f91ce8970564ccc6f25c9524925292e7995e431afaf36fb94fc75f642f",
+      "source_span_utf8": {
+        "start": 5415,
+        "end": 5465
+      },
+      "captured_at": "2026-09-01T04:24:37Z"
+    },
+    "row_sha256": "6d368c41afea392a83ba6245e614b6033c783799d7e44f1311fac0382abad4d6"
+  },
+  {
+    "schema_version": "evidence-row/1.0",
+    "surface": "phase_e_claim_verification",
+    "row_id": "EVR-C-BANKS-internal",
+    "claim": {
+      "claim_id": "C-BANKS",
+      "text": "Table~\\ref{tab:banks} separates the four roles. The direct-$M/D$ controller is\nselected only on two development profiles and evaluated on four prospectively\nfresh profiles. The learned family cycles through four development profiles\nduring training and is evaluated on four outcome-visible frozen benchmark\nprofiles. Thus, the deterministic 4/4 fresh result is not evidence that learned\npolicies were tested on a fresh bank.",
+      "paper_locator": "main_r485.tex:294",
+      "selection_tier": "HIGH-IMPACT"
+    },
+    "source": {
+      "ref_slug": "R485_report",
+      "display_label": "paper\\yang_md_decoupling_marl\\reports\\R485.md",
+      "source_content_sha256": "6a406b0b6bcdf965c3914d1066ac1ef09536beb909213230b752c8505d4b1479",
+      "source_content_utf8_bytes": 9592,
+      "source_artifact_sha256": "6a406b0b6bcdf965c3914d1066ac1ef09536beb909213230b752c8505d4b1479"
+    },
+    "anchor": {
+      "kind": "quote",
+      "value_encoded": "The%20separate%20fresh-bank%20direct-M%2FD%20result%20remains%20the%20valid%20deterministic",
+      "value_decoded": "The separate fresh-bank direct-M/D result remains the valid deterministic"
+    },
+    "verdict": "VERIFIED",
+    "detail": "The deterministic fresh bank is not transferred to learned-policy evidence.",
+    "content_handling": {
+      "contains_external_text": true,
+      "sharing_scope": "session_only",
+      "rights_basis": "not_assessed"
+    },
+    "cache": {
+      "status": "miss",
+      "key_sha256": "dd5915232880d7f36051e14e0d7a00850302363d4aa684c146d0f93acbc7167f"
+    },
+    "excerpt": {
+      "state": "verified_exact_match",
+      "text": "The separate fresh-bank direct-M/D result remains the valid deterministic",
+      "excerpt_sha256": "5c0dfebc7ad4f0ce0ce90a822661d64a2be7a9c9eb03eeb61d2ab2116870df16",
+      "source_span_utf8": {
+        "start": 5131,
+        "end": 5204
+      },
+      "captured_at": "2026-09-01T04:24:37Z"
+    },
+    "row_sha256": "7c51185cecc608a38609178ee4b9439d871bb83f892f6ec7030b159c7d4c6d2a"
+  },
+  {
+    "schema_version": "evidence-row/1.0",
+    "surface": "phase_e_claim_verification",
+    "row_id": "EVR-C-SCENARIOS-COMPARATOR-internal",
+    "claim": {
+      "claim_id": "C-SCENARIOS-COMPARATOR",
+      "text": "For a profile with common/differential magnitude $q$ and localized magnitude\n$\\ell$, the common probe applies $\\pm q/4$ to each of four loads; the\ndifferential probe applies $\\pm q/4$ to the two area-1 loads and $\\mp q/4$ to\nthe two area-2 loads; the localized probe applies $\\pm\\ell$ at its named load.\nEach profile therefore contributes six signed scenarios. The 14 exact\nprofile cards, including baseline $M/D$, steady loads, magnitudes, and localized\nload, are fixed in the sealed R481 and R485 contracts; no result was used to\nchange them.\n\nThe deterministic family contains zero command and nine local-neighbour laws\nwith $(k_M,k_D)\\in\\{0.5,1,2\\}^2$. For ring-neighbour set $\\mathcal N_i$, define\n$\\phi_i=2\\pi60(\\omega_i-1)/3$, $\\rho_i=2\\pi60\\dot\\omega_i/5$, and\n$\\sigma_i=|\\phi_i|+|\\rho_i|$. Before~\\eqref{eq:projection}, the law forms\n\\begin{align}\n\\bar a_i^M&=\\tanh\\!\\left[k_M\\!\\left(\\sigma_i-\n\\frac12\\sum_{j\\in\\mathcal N_i}\\sigma_j\\right)\\right],\\nonumber\\\\\n\\bar a_i^D&=\\tanh\\!\\left[k_D\\!\\left(|\\phi_i|+\n\\frac12\\sum_{j\\in\\mathcal N_i}(|\\phi_i-\\phi_j|+|\\rho_i-\\rho_j|)\\right)\\right].\n\\label{eq:direct_md}\n\\end{align}\nA frozen lexicographic development rule selected $(k_M,k_D)=(2,2)$; the law\nwas not reselected in R485.",
+      "paper_locator": "main_r485.tex:319",
+      "selection_tier": "HIGH-IMPACT"
+    },
+    "source": {
+      "ref_slug": "R485_report",
+      "display_label": "paper\\yang_md_decoupling_marl\\reports\\R485.md",
+      "source_content_sha256": "6a406b0b6bcdf965c3914d1066ac1ef09536beb909213230b752c8505d4b1479",
+      "source_content_utf8_bytes": 9592,
+      "source_artifact_sha256": "6a406b0b6bcdf965c3914d1066ac1ef09536beb909213230b752c8505d4b1479"
+    },
+    "anchor": {
+      "kind": "quote",
+      "value_encoded": "Every%20learned%20policy%20ran%20once%20on%20four%20registered%20benchmark%20profiles%20and%20six",
+      "value_decoded": "Every learned policy ran once on four registered benchmark profiles and six"
+    },
+    "verdict": "VERIFIED",
+    "detail": "The profile and signed-scenario roster matches the frozen R485 setup.",
+    "content_handling": {
+      "contains_external_text": true,
+      "sharing_scope": "session_only",
+      "rights_basis": "not_assessed"
+    },
+    "cache": {
+      "status": "miss",
+      "key_sha256": "f43410dfea4fca52ce70ad306bb2fcde7da5fa51a790504929e8f5755eb4c4c8"
+    },
+    "excerpt": {
+      "state": "verified_exact_match",
+      "text": "Every learned policy ran once on four registered benchmark profiles and six",
+      "excerpt_sha256": "e5e14418fad2205df64a866b9446b891758ce31ba432cfbdcd317714313be581",
+      "source_span_utf8": {
+        "start": 1669,
+        "end": 1744
+      },
+      "captured_at": "2026-09-01T04:24:37Z"
+    },
+    "row_sha256": "793ca48c3286ec0207b6adff901799b4a62da3e4d09315fa6cc062c3ceb09cae"
+  },
+  {
+    "schema_version": "evidence-row/1.0",
+    "surface": "phase_e_claim_verification",
+    "row_id": "EVR-C-LEARNER-ARCH-internal",
+    "claim": {
+      "claim_id": "C-LEARNER-ARCH",
+      "text": "The learner comprises four independent per-VSG soft actor--critic\nagents~\\cite{haarnoja2018sac}. Each agent uses a seven-component canonical physical\nobservation: local active power, local frequency and RoCoF, and the frequency\nand RoCoF of its two ring neighbours. Appending the previously executed\ntwo-component command gives a nine-dimensional Markov state. A Gaussian--tanh\nactor and twin-Q critic each use four 128-unit ReLU hidden layers. Adam has\nlearning rate $3\\times10^{-4}$; $\\gamma=0.99$, target rate $\\tau=0.005$,\nreplay capacity 10,000, batch size 256, target entropy $-2$, entropy coefficient\nbounds $[0.005,5]$, and gradient-norm clipping at one. Training is stochastic;\nevaluation uses the deterministic actor mean.\n\nAll six learner frequency/RoCoF slots use one canonical $60/50$ transform.\nActor, critic, replay, reward, and evaluation consume the transformed rows; no\npath applies it twice. Authentic source $N$ preserves the same-time neighbour\ntuple. Placebo source $P$ preserves recipient-local slots but takes the four\nneighbour slots from row $\\pi(i)=(i+1)\\bmod4$. The $N/P$ contrast is therefore\na total input-source intervention, not an isolated semantic-information\nintervention.",
+      "paper_locator": "main_r485.tex:344",
+      "selection_tier": "HIGH-IMPACT"
+    },
+    "source": {
+      "ref_slug": "R485_report",
+      "display_label": "paper\\yang_md_decoupling_marl\\reports\\R485.md",
+      "source_content_sha256": "6a406b0b6bcdf965c3914d1066ac1ef09536beb909213230b752c8505d4b1479",
+      "source_content_utf8_bytes": 9592,
+      "source_artifact_sha256": "6a406b0b6bcdf965c3914d1066ac1ef09536beb909213230b752c8505d4b1479"
+    },
+    "anchor": {
+      "kind": "quote",
+      "value_encoded": "One%20canonical%20physical%2060-Hz%20transform%20fed%20actor%2C%20critic%2C%20replay%2C%20reward%20and",
+      "value_decoded": "One canonical physical 60-Hz transform fed actor, critic, replay, reward and"
+    },
+    "verdict": "VERIFIED",
+    "detail": "The canonical transform and source routing match the frozen setup.",
+    "content_handling": {
+      "contains_external_text": true,
+      "sharing_scope": "session_only",
+      "rights_basis": "not_assessed"
+    },
+    "cache": {
+      "status": "miss",
+      "key_sha256": "a0c99da7dbcfc1955f11f0790941977945f58cce15bca4b8c19270d7135701b9"
+    },
+    "excerpt": {
+      "state": "verified_exact_match",
+      "text": "One canonical physical 60-Hz transform fed actor, critic, replay, reward and",
+      "excerpt_sha256": "cda3b23e5377968051a636a69161c5d9a81679c52dac13ec55141bfe605e6695",
+      "source_span_utf8": {
+        "start": 1494,
+        "end": 1570
+      },
+      "captured_at": "2026-09-01T04:24:37Z"
+    },
+    "row_sha256": "06a70afae87533403c4c9c90614a3ea7259d0831155737a986e4ca4d3ce30c00"
+  },
+  {
+    "schema_version": "evidence-row/1.0",
+    "surface": "phase_e_claim_verification",
+    "row_id": "EVR-C-LEARNER-TRAINING-internal",
+    "claim": {
+      "claim_id": "C-LEARNER-TRAINING",
+      "text": "The per-agent reward is\n\\begin{equation}\nr_i=100r_{f,i}+50r_{{\\rm abs},i}+0.0056r_H+0.0056r_D,\n\\label{eq:reward}\n\\end{equation}\nwhere reward access toggles only the registered neighbour-frequency terms.\n$r_H$ and $r_D$ penalize squared fleet-mean $M$ and $D$ commands normalized by\n600. The reward has no command-TV term and is never used by the evaluation\ncontract. The design crosses actor source $\\{N,P\\}$, critic source $\\{N,P\\}$,\nand reward access $\\{0,1\\}$ with matched seeds 501--526. All 208 cells were\nnewly trained for exactly 43,200 interaction steps. Only the final checkpoint\nenters qualification and source inference; no R483/R484 checkpoint, replay,\ncurve, or result row entered R485.\n\nEach final policy ran once on the four benchmark profiles for 150 steps at\n$\\Delta t=\\SI{0.2}{s}$. The first 30 steps produce the registered 6-s primary\nprefix of the same 30-s trace. The two horizons share policies, seeds, and\ntrajectories, so they are reported separately and are not independent\nreplications.",
+      "paper_locator": "main_r485.tex:363",
+      "selection_tier": "HIGH-IMPACT"
+    },
+    "source": {
+      "ref_slug": "R485_report",
+      "display_label": "paper\\yang_md_decoupling_marl\\reports\\R485.md",
+      "source_content_sha256": "6a406b0b6bcdf965c3914d1066ac1ef09536beb909213230b752c8505d4b1479",
+      "source_content_utf8_bytes": 9592,
+      "source_artifact_sha256": "6a406b0b6bcdf965c3914d1066ac1ef09536beb909213230b752c8505d4b1479"
+    },
+    "anchor": {
+      "kind": "quote",
+      "value_encoded": "seeds%20%28%60501..526%60%29%20and%20fixed%2043%2C200-step%20training.",
+      "value_decoded": "seeds (`501..526`) and fixed 43,200-step training."
+    },
+    "verdict": "VERIFIED",
+    "detail": "The seed roster, factorial, and training budget match the frozen setup.",
+    "content_handling": {
+      "contains_external_text": true,
+      "sharing_scope": "session_only",
+      "rights_basis": "not_assessed"
+    },
+    "cache": {
+      "status": "miss",
+      "key_sha256": "dc5909a0ddd80c534ad5e1d73411c044c752f91da9f081d8cdebd77292e352bc"
+    },
+    "excerpt": {
+      "state": "verified_exact_match",
+      "text": "seeds (`501..526`) and fixed 43,200-step training.",
+      "excerpt_sha256": "f9df9a6fab2d1b694940146685ac223d89f6f261164f90f19fb40957fe53a149",
+      "source_span_utf8": {
+        "start": 1335,
+        "end": 1385
+      },
+      "captured_at": "2026-09-01T04:24:37Z"
+    },
+    "row_sha256": "10a07b5461d4cb760ce21ff99e93078b24f902b488437993ccce32026d8823ed"
+  },
+  {
+    "schema_version": "evidence-row/1.0",
+    "surface": "phase_e_claim_verification",
+    "row_id": "EVR-C-INFERENCE-INVENTORY-internal",
+    "claim": {
+      "claim_id": "C-INFERENCE-INVENTORY",
+      "text": "Let $y_{acrps}=\\log L_{acrps}$, where $L$ is the positive final-checkpoint\n$J_d$ for actor source $a$, critic source $c$, reward access $r$, profile $p$,\nand seed $s$. Equal-weight averaging over nuisance indices gives the four\nregistered within-seed contrasts\n\\begin{align}\nd_s^A&=\\langle y_{Pcrps}-y_{Ncrps}\\rangle_{c,r,p},\\nonumber\\\\\nd_s^C&=\\langle y_{aPrps}-y_{aNrps}\\rangle_{a,r,p},\\nonumber\\\\\nd_s^{AC}&=\\langle y_{PNrps}-y_{NNrps}-y_{PPrps}+y_{NPrps}\\rangle_{r,p},\\nonumber\\\\\nd_s^{CR}&=\\langle y_{aP1ps}-y_{aN1ps}-y_{aP0ps}+y_{aN0ps}\\rangle_{a,p}.\n\\label{eq:contrasts}\n\\end{align}\nPositive main effects indicate lower loss with authentic $N$; interaction signs\nretain the registered ratio-of-ratios meaning. The 26 seeds, not profiles or\ntrajectories, are inference units. Exact one-sided Wilcoxon signed-rank tests\ncompare each Hodges--Lehmann location to $\\log(1.10)$, with one Holm family of\nfour~\\cite{holm1979simple}. Non-rejection is neither zero effect nor\nequivalence.\n\nThe formal inventory verifies 1,082/1,082 terminal artifacts and\n5,088/5,088 trajectories, with no missing, duplicate, hash-invalid, or\nparse-invalid item. All 848 6-s summaries are derived prefixes; no\navailable-case analysis or horizon pooling was performed.",
+      "paper_locator": "main_r485.tex:385",
+      "selection_tier": "HIGH-IMPACT"
+    },
+    "source": {
+      "ref_slug": "R485_report",
+      "display_label": "paper\\yang_md_decoupling_marl\\reports\\R485.md",
+      "source_content_sha256": "6a406b0b6bcdf965c3914d1066ac1ef09536beb909213230b752c8505d4b1479",
+      "source_content_utf8_bytes": 9592,
+      "source_artifact_sha256": "6a406b0b6bcdf965c3914d1066ac1ef09536beb909213230b752c8505d4b1479"
+    },
+    "anchor": {
+      "kind": "quote",
+      "value_encoded": "Execution%20and%20integrity%20are%20complete%3A%201%2C082%2F1%2C082%20terminal",
+      "value_decoded": "Execution and integrity are complete: 1,082/1,082 terminal"
+    },
+    "verdict": "VERIFIED",
+    "detail": "Inventory and inference-unit claims are tied to the sealed R485 report.",
+    "content_handling": {
+      "contains_external_text": true,
+      "sharing_scope": "session_only",
+      "rights_basis": "not_assessed"
+    },
+    "cache": {
+      "status": "miss",
+      "key_sha256": "1ffb7776c3a8fdc99cd059bd0045be3beeeb80c5a885b71f62b0a96418810d87"
+    },
+    "excerpt": {
+      "state": "verified_exact_match",
+      "text": "Execution and integrity are complete: 1,082/1,082 terminal",
+      "excerpt_sha256": "869fb6cbfdc014a6f2124c35526bc5d50c7c8509afc611acea1b178107471791",
+      "source_span_utf8": {
+        "start": 2330,
+        "end": 2388
+      },
+      "captured_at": "2026-09-01T04:24:37Z"
+    },
+    "row_sha256": "4382b777fe843dba80e3514eb0346f2568b62d78cc15db19a27388bda67fff6d"
+  },
+  {
+    "schema_version": "evidence-row/1.0",
+    "surface": "phase_e_claim_verification",
+    "row_id": "EVR-C-DIRECT-RESULT-internal",
+    "claim": {
+      "claim_id": "C-DIRECT-RESULT",
+      "text": "The selected direct-$M/D$ controller passed the 30-s fresh-bank gate on all\nfour profiles. Its descriptive off-diagonal ratios to zero command were\n0.3987, 0.4055, 0.4827, and 0.5559; the corresponding differential ratios were\n0.5062, 0.4540, 0.3307, and 0.5580. Figure~\\ref{fig:direct_horizon} shows the\nsame four profiles at the separate 6-s and 30-s horizons. These ratios are\nreport lines rather than deterministic-gate inputs, and 4/4 is not pooled with\nlearned-policy evidence.",
+      "paper_locator": "main_r485.tex:413",
+      "selection_tier": "HIGH-IMPACT"
+    },
+    "source": {
+      "ref_slug": "R485_report",
+      "display_label": "paper\\yang_md_decoupling_marl\\reports\\R485.md",
+      "source_content_sha256": "6a406b0b6bcdf965c3914d1066ac1ef09536beb909213230b752c8505d4b1479",
+      "source_content_utf8_bytes": 9592,
+      "source_artifact_sha256": "6a406b0b6bcdf965c3914d1066ac1ef09536beb909213230b752c8505d4b1479"
+    },
+    "anchor": {
+      "kind": "quote",
+      "value_encoded": "The%20frozen%20direct-M%2FD%20comparator%20passes%20its%20separate%2030-second",
+      "value_decoded": "The frozen direct-M/D comparator passes its separate 30-second"
+    },
+    "verdict": "VERIFIED",
+    "detail": "The separate deterministic 4/4 fresh-bank result is reproduced without pooling.",
+    "content_handling": {
+      "contains_external_text": true,
+      "sharing_scope": "session_only",
+      "rights_basis": "not_assessed"
+    },
+    "cache": {
+      "status": "miss",
+      "key_sha256": "9a7183ffb3b28e03ce595d5090fb0454c0cded1a60b48b3eb6e5bdcea655a82e"
+    },
+    "excerpt": {
+      "state": "verified_exact_match",
+      "text": "The frozen direct-M/D comparator passes its separate 30-second",
+      "excerpt_sha256": "b24bf7a5a2add2792b15be7c6bcc35d6a0e5bbcf82b0b702f26533df4f4d842c",
+      "source_span_utf8": {
+        "start": 3999,
+        "end": 4061
+      },
+      "captured_at": "2026-09-01T04:24:37Z"
+    },
+    "row_sha256": "02124baab7d0d5eca2b4bfea6ed68d70cdf2a123bb36f6137f633fd46d5e74dc"
+  },
+  {
+    "schema_version": "evidence-row/1.0",
+    "surface": "phase_e_claim_verification",
+    "row_id": "EVR-C-R485-RESULT-internal",
+    "claim": {
+      "claim_id": "C-R485-RESULT",
+      "text": "Figure~\\ref{fig:learned_tradeoff} gives the headline R485 result. Of 208\nall-fresh policies, 121 met both equal-weight 5\\% endpoint targets, but none met\nthe complete contract. Across all 832 policy--profile blocks, every block\nexceeded both the 1.10 command-RMS and command-TV limits; 397 also failed the\nRoCoF guard, 37 failed the worst-frequency-peak guard, and none failed the\ncommon-frequency guard. All 16 registered offline sensitivity cells formed by\nfrequency multipliers $\\{1.00,1.03,1.05,1.10\\}$ and command multipliers\n$\\{1.10,1.20,1.50,2.00\\}$ retained zero complete-contract policies. These\ncells reuse the same traces and are not new replications.",
+      "paper_locator": "main_r485.tex:432",
+      "selection_tier": "HIGH-IMPACT"
+    },
+    "source": {
+      "ref_slug": "R485_report",
+      "display_label": "paper\\yang_md_decoupling_marl\\reports\\R485.md",
+      "source_content_sha256": "6a406b0b6bcdf965c3914d1066ac1ef09536beb909213230b752c8505d4b1479",
+      "source_content_utf8_bytes": 9592,
+      "source_artifact_sha256": "6a406b0b6bcdf965c3914d1066ac1ef09536beb909213230b752c8505d4b1479"
+    },
+    "anchor": {
+      "kind": "quote",
+      "value_encoded": "None%20of%20the%20832%20learned%20policy-profile%20blocks%20passes%20its%20complete",
+      "value_decoded": "None of the 832 learned policy-profile blocks passes its complete"
+    },
+    "verdict": "VERIFIED",
+    "detail": "All headline counts were recomputed from the formal per-profile block roster.",
+    "content_handling": {
+      "contains_external_text": true,
+      "sharing_scope": "session_only",
+      "rights_basis": "not_assessed"
+    },
+    "cache": {
+      "status": "miss",
+      "key_sha256": "34ecf06112d70585ec4c67e31dff075ebee955201802b6adbea3463182379c64"
+    },
+    "excerpt": {
+      "state": "verified_exact_match",
+      "text": "None of the 832 learned policy-profile blocks passes its complete",
+      "excerpt_sha256": "ec44cfe38ec35997aa9c4af318fbabf9bd88e1ff924db53c4d90a3d36bd1bdfc",
+      "source_span_utf8": {
+        "start": 2845,
+        "end": 2910
+      },
+      "captured_at": "2026-09-01T04:24:37Z"
+    },
+    "row_sha256": "3a404ac1dd87fb04c523731ed8a3c28b29337dcb14617f6b79c35fd658d8072d"
+  },
+  {
+    "schema_version": "evidence-row/1.0",
+    "surface": "phase_e_claim_verification",
+    "row_id": "EVR-C-R485-EXAMPLE-internal",
+    "claim": {
+      "claim_id": "C-R485-EXAMPLE",
+      "text": "The illustrative seed-501 \\texttt{an\\_cn\\_r0} policy is consistent with this\npopulation decision: its off-diagonal and differential ratios were 0.535918\nand 0.905632, yet all four profile guards failed. The example therefore\nillustrates the endpoint/contract distinction rather than supplying a separate\nclaim.",
+      "paper_locator": "main_r485.tex:453",
+      "selection_tier": "HIGH-IMPACT"
+    },
+    "source": {
+      "ref_slug": "data_claim_audit",
+      "display_label": "paper\\yang_md_decoupling_marl\\working\\ars_stage25_r485_20260901\\data_claim_audit.json",
+      "source_content_sha256": "b0940652cdfc801cd3b6394ec181c61b7936aeae880ad38217935dd995d29262",
+      "source_content_utf8_bytes": 8997,
+      "source_artifact_sha256": "b0378638e81ffaa158afa5d3a501fe84f05d9f50629d19ce14985f1fbaaa5b63"
+    },
+    "anchor": {
+      "kind": "quote",
+      "value_encoded": "%22check_id%22%3A%20%22seed501_example%22",
+      "value_decoded": "\"check_id\": \"seed501_example\""
+    },
+    "verdict": "VERIFIED",
+    "detail": "The illustrative seed was checked against the exact policy-decision record.",
+    "content_handling": {
+      "contains_external_text": true,
+      "sharing_scope": "session_only",
+      "rights_basis": "not_assessed"
+    },
+    "cache": {
+      "status": "miss",
+      "key_sha256": "293270163759a318d5e7fbbc04b3b6f3bc369eadf0acd91bf45e98980a949ce4"
+    },
+    "excerpt": {
+      "state": "verified_exact_match",
+      "text": "\"check_id\": \"seed501_example\"",
+      "excerpt_sha256": "1d692a9b24e46af9fa90f3c359885e2cd229851fb45c6630b7490efc03444c74",
+      "source_span_utf8": {
+        "start": 3275,
+        "end": 3304
+      },
+      "captured_at": "2026-09-01T04:24:37Z"
+    },
+    "row_sha256": "e77185f02001a678bbca568591403ab6bbc2f913dfb1c797cd2c75fff6f23437"
+  },
+  {
+    "schema_version": "evidence-row/1.0",
+    "surface": "phase_e_claim_verification",
+    "row_id": "EVR-C-R486-SUPPORT-internal",
+    "claim": {
+      "claim_id": "C-R486-SUPPORT",
+      "text": "Post-hoc R486 support narrows where the complete decision changes. Five of 208\npolicies met both endpoints and every non-command guard, but all five still\nfailed command activity. The action-only break-even multiplier over these\npolicies had minimum/median/maximum 97.6575/131.9193/140.2508, versus the\nregistered 1.10 limit. Across all 832 blocks, median comparator-relative ratios\nwere 31.2256 for $M$ RMS, 5.6923 for $D$ RMS, 87.9674 for $M$ TV, and 83.4118\nfor $D$ TV. Because these summaries were selected after R485, they support\nthreshold-distance interpretation but do not alter the registered verdict.",
+      "paper_locator": "main_r485.tex:459",
+      "selection_tier": "HIGH-IMPACT"
+    },
+    "source": {
+      "ref_slug": "R486_report",
+      "display_label": "paper\\yang_md_decoupling_marl\\reports\\R486.md",
+      "source_content_sha256": "04aab2c0f52a6f0e0930063ac926088a86165dff03338eff6aafd10358478890",
+      "source_content_utf8_bytes": 10403,
+      "source_artifact_sha256": "04aab2c0f52a6f0e0930063ac926088a86165dff03338eff6aafd10358478890"
+    },
+    "anchor": {
+      "kind": "quote",
+      "value_encoded": "The%20Pareto%20read%20finds%20121%2F208%20endpoint-qualified%20policies%20but%20only",
+      "value_decoded": "The Pareto read finds 121/208 endpoint-qualified policies but only"
+    },
+    "verdict": "VERIFIED",
+    "detail": "R486 is used only as post-hoc support and does not change R485.",
+    "content_handling": {
+      "contains_external_text": true,
+      "sharing_scope": "session_only",
+      "rights_basis": "not_assessed"
+    },
+    "cache": {
+      "status": "miss",
+      "key_sha256": "906d022ea019511886145fcced5785a9e1010e9125d548a437a5a16e0aeead86"
+    },
+    "excerpt": {
+      "state": "verified_exact_match",
+      "text": "The Pareto read finds 121/208 endpoint-qualified policies but only",
+      "excerpt_sha256": "e544d48af7c42c805494fc4c37c0df0d04eed1d86bcb5c035d274bf77995ca86",
+      "source_span_utf8": {
+        "start": 2945,
+        "end": 3011
+      },
+      "captured_at": "2026-09-01T04:24:37Z"
+    },
+    "row_sha256": "833e457071605236426bc176e603cc936a81274b70407d7ab08def773e260383"
+  },
+  {
+    "schema_version": "evidence-row/1.0",
+    "surface": "phase_e_claim_verification",
+    "row_id": "EVR-C-SOURCE-CONTRAST-internal",
+    "claim": {
+      "claim_id": "C-SOURCE-CONTRAST",
+      "text": "Table~\\ref{tab:source_effects} reports\n$100\\{\\exp(\\widehat\\theta_{\\rm HL})-1\\}\\%$ at each non-pooled horizon. No row\nestablished its registered positive material effect after Holm control. The\npositive actor-by-critic estimates therefore remain unconfirmed interactions,\nnot main effects or evidence of a causal communication mechanism.",
+      "paper_locator": "main_r485.tex:470",
+      "selection_tier": "HIGH-IMPACT"
+    },
+    "source": {
+      "ref_slug": "R485_report",
+      "display_label": "paper\\yang_md_decoupling_marl\\reports\\R485.md",
+      "source_content_sha256": "6a406b0b6bcdf965c3914d1066ac1ef09536beb909213230b752c8505d4b1479",
+      "source_content_utf8_bytes": 9592,
+      "source_artifact_sha256": "6a406b0b6bcdf965c3914d1066ac1ef09536beb909213230b752c8505d4b1479"
+    },
+    "anchor": {
+      "kind": "quote",
+      "value_encoded": "None%20of%20the%20four%20primary%206-second%20or%20four%20separate%2030-second",
+      "value_decoded": "None of the four primary 6-second or four separate 30-second"
+    },
+    "verdict": "VERIFIED",
+    "detail": "The non-pooled source-contrast verdict is reproduced from R485.",
+    "content_handling": {
+      "contains_external_text": true,
+      "sharing_scope": "session_only",
+      "rights_basis": "not_assessed"
+    },
+    "cache": {
+      "status": "miss",
+      "key_sha256": "e2f62dfc6c83d35f3347ca31a998d514303612a3c6f3ae071887e238f2fbb04b"
+    },
+    "excerpt": {
+      "state": "verified_exact_match",
+      "text": "None of the four primary 6-second or four separate 30-second",
+      "excerpt_sha256": "1f627d78ccd3abe9a0f9c80ebdc5d633175c361238c385f0b85a6d40ed759646",
+      "source_span_utf8": {
+        "start": 3543,
+        "end": 3603
+      },
+      "captured_at": "2026-09-01T04:24:37Z"
+    },
+    "row_sha256": "f993b12c6fd807516ad7f274d1a79f609fdddf2014e86dbae8c9522162ec47bf"
+  },
+  {
+    "schema_version": "evidence-row/1.0",
+    "surface": "phase_e_claim_verification",
+    "row_id": "EVR-C-SOURCE-TABLE-internal",
+    "claim": {
+      "claim_id": "C-SOURCE-TABLE",
+      "text": "Actor main           & $-3.72$ & 1.000 & $-4.23$ & 1.000\\\\\nCritic main          & $+1.86$ & 1.000 & $+5.41$ & 1.000\\\\\nActor$\\times$critic  & $+13.51$& 1.000 & $+15.46$& 1.000\\\\\nCritic$\\times$reward & $-1.42$ & 1.000 & $-5.11$ & 1.000\\\\",
+      "paper_locator": "main_r485.tex:487",
+      "selection_tier": "HIGH-IMPACT"
+    },
+    "source": {
+      "ref_slug": "data_claim_audit",
+      "display_label": "paper\\yang_md_decoupling_marl\\working\\ars_stage25_r485_20260901\\data_claim_audit.json",
+      "source_content_sha256": "b0940652cdfc801cd3b6394ec181c61b7936aeae880ad38217935dd995d29262",
+      "source_content_utf8_bytes": 8997,
+      "source_artifact_sha256": "b0378638e81ffaa158afa5d3a501fe84f05d9f50629d19ce14985f1fbaaa5b63"
+    },
+    "anchor": {
+      "kind": "quote",
+      "value_encoded": "%22check_id%22%3A%20%22primary_inference_effects%22",
+      "value_decoded": "\"check_id\": \"primary_inference_effects\""
+    },
+    "verdict": "VERIFIED",
+    "detail": "Both horizon tables and Holm-adjusted values were recomputed.",
+    "content_handling": {
+      "contains_external_text": true,
+      "sharing_scope": "session_only",
+      "rights_basis": "not_assessed"
+    },
+    "cache": {
+      "status": "miss",
+      "key_sha256": "e0e5db5e0dbb4673110ecd6f8221919d8a1771eb25abc5b3a248eebfe346eba6"
+    },
+    "excerpt": {
+      "state": "verified_exact_match",
+      "text": "\"check_id\": \"primary_inference_effects\"",
+      "excerpt_sha256": "54eb1e492c588a26b527fe69e53ebb37aea00ef59ef66c1799759dc85dc2360a",
+      "source_span_utf8": {
+        "start": 3753,
+        "end": 3792
+      },
+      "captured_at": "2026-09-01T04:24:37Z"
+    },
+    "row_sha256": "622786bbc790384c813420bf2a3fd143faf14ab8494b632810f647593c4b768c"
+  },
+  {
+    "schema_version": "evidence-row/1.0",
+    "surface": "phase_e_claim_verification",
+    "row_id": "EVR-C-DISCUSSION-internal",
+    "claim": {
+      "claim_id": "C-DISCUSSION",
+      "text": "The central result is a qualification reversal, not an absence of useful\nendpoint motion: endpoint-only assessment admits 121 policies, while the\nregistered complete contract admits none. The deterministic result separately\nshows that the corrected comparator object has a nonempty finite fresh-bank\nfeasible set. Neither statement ranks MARL against all deterministic designs or\ntransfers the comparator's fresh-bank result to the learned policies.\n\nThe source factorial adds an attribution boundary. No registered contrast\nestablished the positive 10\\% effect after multiplicity control, but this does\nnot show zero effect, equivalence, or source irrelevance. The $N/P$ replacement\nalso changes a same-time algorithm input distribution and cannot isolate pure\nsemantic neighbour information.",
+      "paper_locator": "main_r485.tex:498",
+      "selection_tier": "HIGH-IMPACT"
+    },
+    "source": {
+      "ref_slug": "R485_report",
+      "display_label": "paper\\yang_md_decoupling_marl\\reports\\R485.md",
+      "source_content_sha256": "6a406b0b6bcdf965c3914d1066ac1ef09536beb909213230b752c8505d4b1479",
+      "source_content_utf8_bytes": 9592,
+      "source_artifact_sha256": "6a406b0b6bcdf965c3914d1066ac1ef09536beb909213230b752c8505d4b1479"
+    },
+    "anchor": {
+      "kind": "quote",
+      "value_encoded": "many%20policies%20improve%20both%20aggregate%20endpoints%2C%20but%20none%20satisfies%20the%20full",
+      "value_decoded": "many policies improve both aggregate endpoints, but none satisfies the full"
+    },
+    "verdict": "VERIFIED",
+    "detail": "Discussion restates the endpoint/complete-contract separation without universalizing it.",
+    "content_handling": {
+      "contains_external_text": true,
+      "sharing_scope": "session_only",
+      "rights_basis": "not_assessed"
+    },
+    "cache": {
+      "status": "miss",
+      "key_sha256": "8103b2cc5a7aa583353e3ce95940dcdd3566f3c9a5f72f85c1495ffbeb703454"
+    },
+    "excerpt": {
+      "state": "verified_exact_match",
+      "text": "many policies improve both aggregate endpoints, but none satisfies the full",
+      "excerpt_sha256": "bc066dca43c88e79a33a92000c29aa6a7609c888d942b28f1e4771e8e64c11d9",
+      "source_span_utf8": {
+        "start": 4814,
+        "end": 4889
+      },
+      "captured_at": "2026-09-01T04:24:37Z"
+    },
+    "row_sha256": "0afb72fbea9074a840a257f7527227cdf816ee8b7ebba8761b3485ea7049fd81"
+  },
+  {
+    "schema_version": "evidence-row/1.0",
+    "surface": "phase_e_claim_verification",
+    "row_id": "EVR-C-DIAGNOSTICS-internal",
+    "claim": {
+      "claim_id": "C-DIAGNOSTICS",
+      "text": "Post-hoc frozen-path diagnostics are consistent with high recorded command\nactivity but do not identify its cause. For the common-reset componentwise\nprojector, executed-command TV plus terminal tracking residual is structurally\nno greater than raw-command TV. Replacing the two previous-executed-command\nactor inputs by their full-record means left 0.0710--0.2046 of raw TV in 48/48\ntested channel-policy cases; the anchor is acausal. On a 24-policy by\nfour-profile grid, the constant-anchor/actual raw-RMS ratio had median 0.9588,\nwith 141/192 ratios at least 0.90, while temporal variation still contributed\n37.45\\%--51.23\\% of raw RMS-squared energy for the included checkpoint. These\nare recorded-path sensitivity and recurrence observations, not evidence that a\nfeedback loop, projector, reward term, or quasi-static mechanism caused the\nR485 outcome.",
+      "paper_locator": "main_r485.tex:511",
+      "selection_tier": "HIGH-IMPACT"
+    },
+    "source": {
+      "ref_slug": "R486_report",
+      "display_label": "paper\\yang_md_decoupling_marl\\reports\\R486.md",
+      "source_content_sha256": "04aab2c0f52a6f0e0930063ac926088a86165dff03338eff6aafd10358478890",
+      "source_content_utf8_bytes": 10403,
+      "source_artifact_sha256": "04aab2c0f52a6f0e0930063ac926088a86165dff03338eff6aafd10358478890"
+    },
+    "anchor": {
+      "kind": "quote",
+      "value_encoded": "replacing%20the%20previous-executed-action%20actor%20inputs%20by%20their%20full-record",
+      "value_decoded": "replacing the previous-executed-action actor inputs by their full-record"
+    },
+    "verdict": "VERIFIED",
+    "detail": "The diagnostic is preserved as recorded-path sensitivity, not a causal mechanism.",
+    "content_handling": {
+      "contains_external_text": true,
+      "sharing_scope": "session_only",
+      "rights_basis": "not_assessed"
+    },
+    "cache": {
+      "status": "miss",
+      "key_sha256": "3c34c894cd18575e16663ad2c51e4e3026fdf55661905b41e2b0619b0198ceb9"
+    },
+    "excerpt": {
+      "state": "verified_exact_match",
+      "text": "replacing the previous-executed-action actor inputs by their full-record",
+      "excerpt_sha256": "1e04dd4d12881b0a501e65ff47985b12a49891d6e836bf6c29fd77d2fa6a2aaf",
+      "source_span_utf8": {
+        "start": 4449,
+        "end": 4521
+      },
+      "captured_at": "2026-09-01T04:24:37Z"
+    },
+    "row_sha256": "2dc7ffe5ab359b01d01caaf60a19cb2f4a50eba9661113ed28c2928f0b92ed10"
+  },
+  {
+    "schema_version": "evidence-row/1.0",
+    "surface": "phase_e_claim_verification",
+    "row_id": "EVR-C-LIMITATIONS-internal",
+    "claim": {
+      "claim_id": "C-LIMITATIONS",
+      "text": "The scope is one modified Kundur topology, four outcome-visible benchmark\nprofiles, six signed scenarios, one controller family, 26 seeds, and a fixed\nbudget. Learned policies were not evaluated on the separate fresh bank. The\n6-s and 30-s results share traces and are not replications. All 208 training\nmanifests recorded the entropy coefficient at its lower bound at the final\ncheckpoint; without a registered convergence criterion this is a limitation,\nnot proof of convergence or divergence. Synchronous idealized communication\nexcludes delay, loss, and quantization.\n\nFinally, comparator-relative command RMS and TV do not establish actuator\nenergy, wear, fatigue, thermal stress, absolute hardware limits, physical\nsafety, or deployment harm. The study supplies no probability of learner\nfailure, topology generalization, stability certificate, EMT or HIL validation,\nor deployment claim. Each would require a separate prospective design rather\nthan reinterpretation of the sealed traces.",
+      "paper_locator": "main_r485.tex:524",
+      "selection_tier": "HIGH-IMPACT"
+    },
+    "source": {
+      "ref_slug": "R486_report",
+      "display_label": "paper\\yang_md_decoupling_marl\\reports\\R486.md",
+      "source_content_sha256": "04aab2c0f52a6f0e0930063ac926088a86165dff03338eff6aafd10358478890",
+      "source_content_utf8_bytes": 10403,
+      "source_artifact_sha256": "04aab2c0f52a6f0e0930063ac926088a86165dff03338eff6aafd10358478890"
+    },
+    "anchor": {
+      "kind": "quote",
+      "value_encoded": "training-dynamics%20limitation%3B%20it%20is%20not%20a%20failed%20registered%20admissibility",
+      "value_decoded": "training-dynamics limitation; it is not a failed registered admissibility"
+    },
+    "verdict": "VERIFIED",
+    "detail": "The limitation language does not convert alpha-floor prevalence into convergence evidence.",
+    "content_handling": {
+      "contains_external_text": true,
+      "sharing_scope": "session_only",
+      "rights_basis": "not_assessed"
+    },
+    "cache": {
+      "status": "miss",
+      "key_sha256": "6d14c082c14934e919c54eaac96805cb4367a84e86a48d378310566b53f3ebf4"
+    },
+    "excerpt": {
+      "state": "verified_exact_match",
+      "text": "training-dynamics limitation; it is not a failed registered admissibility",
+      "excerpt_sha256": "c3da05d1270fc615e4f5b5ca5fd0d9e05af7043fa74e751c1eeb1b92fefe9fd8",
+      "source_span_utf8": {
+        "start": 3853,
+        "end": 3926
+      },
+      "captured_at": "2026-09-01T04:24:37Z"
+    },
+    "row_sha256": "b94e924e1fae5cbce430713637df2fd19d8ec46572a7650aeb5c2ae4dc102ce1"
+  },
+  {
+    "schema_version": "evidence-row/1.0",
+    "surface": "phase_e_claim_verification",
+    "row_id": "EVR-C-CONCLUSION-internal",
+    "claim": {
+      "claim_id": "C-CONCLUSION",
+      "text": "On the sealed corrected-60-Hz finite benchmark, 121/208 all-fresh MARL policies\nmet both aggregate decoupling endpoints, but 0/208 met the profile-complete\ncontract because all 832 policy--profile blocks exceeded both registered\ncommand-activity limits. No registered 6-s or separate 30-s source contrast\nestablished its positive material effect after Holm control. The direct-$M/D$\ncomparator separately passed 4/4 fresh 30-s profiles. Thus, for the tested\nfamily and budget, endpoint improvement is not sufficient for qualification;\nthis bounded result is neither a physical-safety verdict nor a universal\nfailure claim for MARL.",
+      "paper_locator": "main_r485.tex:543",
+      "selection_tier": "HIGH-IMPACT"
+    },
+    "source": {
+      "ref_slug": "R485_report",
+      "display_label": "paper\\yang_md_decoupling_marl\\reports\\R485.md",
+      "source_content_sha256": "6a406b0b6bcdf965c3914d1066ac1ef09536beb909213230b752c8505d4b1479",
+      "source_content_utf8_bytes": 9592,
+      "source_artifact_sha256": "6a406b0b6bcdf965c3914d1066ac1ef09536beb909213230b752c8505d4b1479"
+    },
+    "anchor": {
+      "kind": "quote",
+      "value_encoded": "many%20policies%20improve%20both%20aggregate%20endpoints%2C%20but%20none%20satisfies%20the%20full",
+      "value_decoded": "many policies improve both aggregate endpoints, but none satisfies the full"
+    },
+    "verdict": "VERIFIED",
+    "detail": "The conclusion remains a finite-benchmark qualification result.",
+    "content_handling": {
+      "contains_external_text": true,
+      "sharing_scope": "session_only",
+      "rights_basis": "not_assessed"
+    },
+    "cache": {
+      "status": "miss",
+      "key_sha256": "d3c70bee77fa51e001ccbbefab4430eaa412d237e6069446fecbea2e7c44f04d"
+    },
+    "excerpt": {
+      "state": "verified_exact_match",
+      "text": "many policies improve both aggregate endpoints, but none satisfies the full",
+      "excerpt_sha256": "bc066dca43c88e79a33a92000c29aa6a7609c888d942b28f1e4771e8e64c11d9",
+      "source_span_utf8": {
+        "start": 4814,
+        "end": 4889
+      },
+      "captured_at": "2026-09-01T04:24:37Z"
+    },
+    "row_sha256": "2fe9340525040b6761dbcab4703a477656a62e860657edce1981c3b9459bd520"
+  },
+  {
+    "schema_version": "evidence-row/1.0",
+    "surface": "phase_e_claim_verification",
+    "row_id": "EVR-C-INTRO-EXAMPLE-zhong2011synchronverters",
+    "claim": {
+      "claim_id": "C-INTRO-EXAMPLE",
+      "text": "Adaptive inertia and damping can improve an aggregate decoupling score without\nqualifying a controller for coordinated operation. In one illustrative R485\npolicy, arm \\texttt{an\\_cn\\_r0} with training seed 501 attained aggregate\noff-diagonal and disturbance-differential response-energy ratios of 0.535918\nand 0.905632 relative to the deterministic comparator, so both endpoints\nimproved by more than the registered 5\\%. Nevertheless, all four profile\nguards failed, including both command-activity checks on every profile. This\nexample is not a selected success or failure case: it makes concrete the\npopulation-level result that 121 of 208 all-fresh policies met both aggregate\nendpoints whereas 0 of 208 met the complete contract. The distinction matters\nfor paralleled VSGs because inertia-like fleet support and differential motion\nbetween units are different control objectives. VSG and parallel-VSM studies\nhave established the importance of inertia, damping, electrical coupling, and\ninter-unit coordination~\\cite{zhong2011synchronverters,darco2013vsm,\nwu2016smallsignal,gonzalez2022parallel}; the present question is how a learned\nadaptive controller should be qualified when these objectives and its command\npath disagree.",
+      "paper_locator": "main_r485.tex:59",
+      "selection_tier": "HIGH-IMPACT"
+    },
+    "source": {
+      "ref_slug": "zhong2011synchronverters",
+      "display_label": "https://doi.org/10.1109/TIE.2010.2048839",
+      "source_content_sha256": "7e9b2c36da8ff2a36d28ce33a949f2119aa8c23f08d5d7857742935c31cf43a2",
+      "source_content_utf8_bytes": 60,
+      "source_artifact_sha256": null
+    },
+    "anchor": {
+      "kind": "quote",
+      "value_encoded": "Synchronverters%3A%20Inverters%20That%20Mimic%20Synchronous%20Generators",
+      "value_decoded": "Synchronverters: Inverters That Mimic Synchronous Generators"
+    },
+    "verdict": "VERIFIED",
+    "detail": "Existence and bibliographic metadata were checked against the linked publisher or official record; the title anchor matches the session-held metadata.",
+    "content_handling": {
+      "contains_external_text": true,
+      "sharing_scope": "session_only",
+      "rights_basis": "not_assessed"
+    },
+    "cache": {
+      "status": "miss",
+      "key_sha256": "8e85388a73d44d7ff2ebc3b10e8e0a2393e30e6e727671f6fa42fc241cbdf4db"
+    },
+    "excerpt": {
+      "state": "verified_exact_match",
+      "text": "Synchronverters: Inverters That Mimic Synchronous Generators",
+      "excerpt_sha256": "7e9b2c36da8ff2a36d28ce33a949f2119aa8c23f08d5d7857742935c31cf43a2",
+      "source_span_utf8": {
+        "start": 0,
+        "end": 60
+      },
+      "captured_at": "2026-09-01T04:24:37Z"
+    },
+    "row_sha256": "53a5c58424efcdc4eec33d2c3f87e3a99dee3601f0da5c4d00d88dc75c10602b"
+  },
+  {
+    "schema_version": "evidence-row/1.0",
+    "surface": "phase_e_claim_verification",
+    "row_id": "EVR-C-INTRO-EXAMPLE-darco2013vsm",
+    "claim": {
+      "claim_id": "C-INTRO-EXAMPLE",
+      "text": "Adaptive inertia and damping can improve an aggregate decoupling score without\nqualifying a controller for coordinated operation. In one illustrative R485\npolicy, arm \\texttt{an\\_cn\\_r0} with training seed 501 attained aggregate\noff-diagonal and disturbance-differential response-energy ratios of 0.535918\nand 0.905632 relative to the deterministic comparator, so both endpoints\nimproved by more than the registered 5\\%. Nevertheless, all four profile\nguards failed, including both command-activity checks on every profile. This\nexample is not a selected success or failure case: it makes concrete the\npopulation-level result that 121 of 208 all-fresh policies met both aggregate\nendpoints whereas 0 of 208 met the complete contract. The distinction matters\nfor paralleled VSGs because inertia-like fleet support and differential motion\nbetween units are different control objectives. VSG and parallel-VSM studies\nhave established the importance of inertia, damping, electrical coupling, and\ninter-unit coordination~\\cite{zhong2011synchronverters,darco2013vsm,\nwu2016smallsignal,gonzalez2022parallel}; the present question is how a learned\nadaptive controller should be qualified when these objectives and its command\npath disagree.",
+      "paper_locator": "main_r485.tex:59",
+      "selection_tier": "HIGH-IMPACT"
+    },
+    "source": {
+      "ref_slug": "darco2013vsm",
+      "display_label": "https://doi.org/10.1109/PTC.2013.6652456",
+      "source_content_sha256": "2f06ec5eded50a28e362ace52603bc6a34bf98403ce890106b56c4873c674f01",
+      "source_content_utf8_bytes": 128,
+      "source_artifact_sha256": null
+    },
+    "anchor": {
+      "kind": "quote",
+      "value_encoded": "Virtual%20Synchronous%20Machines---Classification%20of%20Implementations%20and%20Analysis%20of%20Equivalence%20to%20Droop%20Controllers%20for%20Microgrids",
+      "value_decoded": "Virtual Synchronous Machines---Classification of Implementations and Analysis of Equivalence to Droop Controllers for Microgrids"
+    },
+    "verdict": "VERIFIED",
+    "detail": "Existence and bibliographic metadata were checked against the linked publisher or official record; the title anchor matches the session-held metadata.",
+    "content_handling": {
+      "contains_external_text": true,
+      "sharing_scope": "session_only",
+      "rights_basis": "not_assessed"
+    },
+    "cache": {
+      "status": "miss",
+      "key_sha256": "64595c8477ebdc049b77e486071ff6dd9793ef411d1e78e8149b97214780d922"
+    },
+    "excerpt": {
+      "state": "verified_exact_match",
+      "text": "Virtual Synchronous Machines---Classification of Implementations and Analysis of Equivalence to Droop Controllers for Microgrids",
+      "excerpt_sha256": "2f06ec5eded50a28e362ace52603bc6a34bf98403ce890106b56c4873c674f01",
+      "source_span_utf8": {
+        "start": 0,
+        "end": 128
+      },
+      "captured_at": "2026-09-01T04:24:37Z"
+    },
+    "row_sha256": "5ff8756ecebeed1ae9c50df05652c094bc2ae5938306949d19ee93fb9474a303"
+  },
+  {
+    "schema_version": "evidence-row/1.0",
+    "surface": "phase_e_claim_verification",
+    "row_id": "EVR-C-INTRO-EXAMPLE-wu2016smallsignal",
+    "claim": {
+      "claim_id": "C-INTRO-EXAMPLE",
+      "text": "Adaptive inertia and damping can improve an aggregate decoupling score without\nqualifying a controller for coordinated operation. In one illustrative R485\npolicy, arm \\texttt{an\\_cn\\_r0} with training seed 501 attained aggregate\noff-diagonal and disturbance-differential response-energy ratios of 0.535918\nand 0.905632 relative to the deterministic comparator, so both endpoints\nimproved by more than the registered 5\\%. Nevertheless, all four profile\nguards failed, including both command-activity checks on every profile. This\nexample is not a selected success or failure case: it makes concrete the\npopulation-level result that 121 of 208 all-fresh policies met both aggregate\nendpoints whereas 0 of 208 met the complete contract. The distinction matters\nfor paralleled VSGs because inertia-like fleet support and differential motion\nbetween units are different control objectives. VSG and parallel-VSM studies\nhave established the importance of inertia, damping, electrical coupling, and\ninter-unit coordination~\\cite{zhong2011synchronverters,darco2013vsm,\nwu2016smallsignal,gonzalez2022parallel}; the present question is how a learned\nadaptive controller should be qualified when these objectives and its command\npath disagree.",
+      "paper_locator": "main_r485.tex:59",
+      "selection_tier": "HIGH-IMPACT"
+    },
+    "source": {
+      "ref_slug": "wu2016smallsignal",
+      "display_label": "https://doi.org/10.1109/TIE.2016.2543181",
+      "source_content_sha256": "93b0c5f8df335f921a2298c4d87759928a690d6fd1a4179326c951bda5db624c",
+      "source_content_utf8_bytes": 78,
+      "source_artifact_sha256": null
+    },
+    "anchor": {
+      "kind": "quote",
+      "value_encoded": "Small-Signal%20Modeling%20and%20Parameters%20Design%20for%20Virtual%20Synchronous%20Generators",
+      "value_decoded": "Small-Signal Modeling and Parameters Design for Virtual Synchronous Generators"
+    },
+    "verdict": "VERIFIED",
+    "detail": "Existence and bibliographic metadata were checked against the linked publisher or official record; the title anchor matches the session-held metadata.",
+    "content_handling": {
+      "contains_external_text": true,
+      "sharing_scope": "session_only",
+      "rights_basis": "not_assessed"
+    },
+    "cache": {
+      "status": "miss",
+      "key_sha256": "21f93b4742a03311a0c55a054d63875e6f9b6d013dc2b50c92f107df8c68fdc0"
+    },
+    "excerpt": {
+      "state": "verified_exact_match",
+      "text": "Small-Signal Modeling and Parameters Design for Virtual Synchronous Generators",
+      "excerpt_sha256": "93b0c5f8df335f921a2298c4d87759928a690d6fd1a4179326c951bda5db624c",
+      "source_span_utf8": {
+        "start": 0,
+        "end": 78
+      },
+      "captured_at": "2026-09-01T04:24:37Z"
+    },
+    "row_sha256": "173bb9e90b8f027d6806540e46f5065a063ba2ed4bba0fc4df1919740e7ea9f9"
+  },
+  {
+    "schema_version": "evidence-row/1.0",
+    "surface": "phase_e_claim_verification",
+    "row_id": "EVR-C-INTRO-EXAMPLE-gonzalez2022parallel",
+    "claim": {
+      "claim_id": "C-INTRO-EXAMPLE",
+      "text": "Adaptive inertia and damping can improve an aggregate decoupling score without\nqualifying a controller for coordinated operation. In one illustrative R485\npolicy, arm \\texttt{an\\_cn\\_r0} with training seed 501 attained aggregate\noff-diagonal and disturbance-differential response-energy ratios of 0.535918\nand 0.905632 relative to the deterministic comparator, so both endpoints\nimproved by more than the registered 5\\%. Nevertheless, all four profile\nguards failed, including both command-activity checks on every profile. This\nexample is not a selected success or failure case: it makes concrete the\npopulation-level result that 121 of 208 all-fresh policies met both aggregate\nendpoints whereas 0 of 208 met the complete contract. The distinction matters\nfor paralleled VSGs because inertia-like fleet support and differential motion\nbetween units are different control objectives. VSG and parallel-VSM studies\nhave established the importance of inertia, damping, electrical coupling, and\ninter-unit coordination~\\cite{zhong2011synchronverters,darco2013vsm,\nwu2016smallsignal,gonzalez2022parallel}; the present question is how a learned\nadaptive controller should be qualified when these objectives and its command\npath disagree.",
+      "paper_locator": "main_r485.tex:59",
+      "selection_tier": "HIGH-IMPACT"
+    },
+    "source": {
+      "ref_slug": "gonzalez2022parallel",
+      "display_label": "https://doi.org/10.1109/TPEL.2021.3127463",
+      "source_content_sha256": "fdfce99c17465a27283a8e1d28799f6197cc3583a218abe25e61591600fe6a11",
+      "source_content_utf8_bytes": 126,
+      "source_artifact_sha256": null
+    },
+    "anchor": {
+      "kind": "quote",
+      "value_encoded": "Design%20and%20Analysis%20of%20Parallel-Connected%20Grid-Forming%20Virtual%20Synchronous%20Machines%20for%20Island%20and%20Grid-Connected%20Applications",
+      "value_decoded": "Design and Analysis of Parallel-Connected Grid-Forming Virtual Synchronous Machines for Island and Grid-Connected Applications"
+    },
+    "verdict": "VERIFIED",
+    "detail": "Existence and bibliographic metadata were checked against the linked publisher or official record; the title anchor matches the session-held metadata.",
+    "content_handling": {
+      "contains_external_text": true,
+      "sharing_scope": "session_only",
+      "rights_basis": "not_assessed"
+    },
+    "cache": {
+      "status": "miss",
+      "key_sha256": "5b3e8f06928881c6f8249a5585e43a04ca6cd27898b90ee01600827da76c5808"
+    },
+    "excerpt": {
+      "state": "verified_exact_match",
+      "text": "Design and Analysis of Parallel-Connected Grid-Forming Virtual Synchronous Machines for Island and Grid-Connected Applications",
+      "excerpt_sha256": "fdfce99c17465a27283a8e1d28799f6197cc3583a218abe25e61591600fe6a11",
+      "source_span_utf8": {
+        "start": 0,
+        "end": 126
+      },
+      "captured_at": "2026-09-01T04:24:37Z"
+    },
+    "row_sha256": "0b31fcf04aab34383d5959698aad4eec59ad8511eb0a1336740993d73db30f79"
+  },
+  {
+    "schema_version": "evidence-row/1.0",
+    "surface": "phase_e_claim_verification",
+    "row_id": "EVR-C-INTRO-PRIOR-liu2020consensus",
+    "claim": {
+      "claim_id": "C-INTRO-PRIOR",
+      "text": "Existing work leaves three evaluation limitations relevant to that question.\nFirst, model-based consensus, frequency-restoration, and mutual-damping\ncontrollers explicitly coordinate paralleled VSGs~\\cite{liu2020consensus,\nshi2021restoration,fu2022mutual}, while reinforcement-learning studies adapt\ninertia--droop or inertia--damping parameters to improve frequency or power\nresponses~\\cite{yang2023ddic,lu2024sac,zhang2024maddpg,\nbenhmidouch2024rlvsg,kang2025madrl}; those controller-specific performance\nresults do not by themselves answer whether an adaptive policy satisfies a\ncommon profile-complete endpoint-plus-command contract. Second, the cited\nstudies use controller-specific models and evaluation contracts; their\nnumerical results are therefore not treated as semantically interchangeable\nwith the benchmark object tested here. Third,\nattribution validity is threatened both by training-run uncertainty that point\nestimates can conceal~\\cite{agarwal2021statistical} and by nominal source\ncomparisons in which actor inputs, critic inputs, and reward access change\ntogether. A qualification study therefore needs a corrected common object,\nexplicit guard semantics, and paired-seed source interventions rather than a\nsuccess-style endpoint comparison.",
+      "paper_locator": "main_r485.tex:77",
+      "selection_tier": "HIGH-IMPACT"
+    },
+    "source": {
+      "ref_slug": "liu2020consensus",
+      "display_label": "https://doi.org/10.1016/j.egyr.2020.10.068",
+      "source_content_sha256": "fc2ea67c30d515f4fdf5da6e786ec5a69df24f90fa86d05aa4712bfae114384d",
+      "source_content_utf8_bytes": 112,
+      "source_artifact_sha256": null
+    },
+    "anchor": {
+      "kind": "quote",
+      "value_encoded": "Modeling%20and%20Parameter%20Analysis%20for%20Consensus%20Based%20Secondary%20Control%20of%20Parallel%20Virtual%20Synchronous%20Generators",
+      "value_decoded": "Modeling and Parameter Analysis for Consensus Based Secondary Control of Parallel Virtual Synchronous Generators"
+    },
+    "verdict": "VERIFIED",
+    "detail": "Existence and bibliographic metadata were checked against the linked publisher or official record; the title anchor matches the session-held metadata.",
+    "content_handling": {
+      "contains_external_text": true,
+      "sharing_scope": "session_only",
+      "rights_basis": "not_assessed"
+    },
+    "cache": {
+      "status": "miss",
+      "key_sha256": "216dd4aa2b6ad124add2e1b7a1017fd3399735bdc1ac08ff83e7db3ecd3e9097"
+    },
+    "excerpt": {
+      "state": "verified_exact_match",
+      "text": "Modeling and Parameter Analysis for Consensus Based Secondary Control of Parallel Virtual Synchronous Generators",
+      "excerpt_sha256": "fc2ea67c30d515f4fdf5da6e786ec5a69df24f90fa86d05aa4712bfae114384d",
+      "source_span_utf8": {
+        "start": 0,
+        "end": 112
+      },
+      "captured_at": "2026-09-01T04:24:37Z"
+    },
+    "row_sha256": "ee3083131cfa861b768f7623f005a9105423c7a04cbe1035f24a430d6708e725"
+  },
+  {
+    "schema_version": "evidence-row/1.0",
+    "surface": "phase_e_claim_verification",
+    "row_id": "EVR-C-INTRO-PRIOR-shi2021restoration",
+    "claim": {
+      "claim_id": "C-INTRO-PRIOR",
+      "text": "Existing work leaves three evaluation limitations relevant to that question.\nFirst, model-based consensus, frequency-restoration, and mutual-damping\ncontrollers explicitly coordinate paralleled VSGs~\\cite{liu2020consensus,\nshi2021restoration,fu2022mutual}, while reinforcement-learning studies adapt\ninertia--droop or inertia--damping parameters to improve frequency or power\nresponses~\\cite{yang2023ddic,lu2024sac,zhang2024maddpg,\nbenhmidouch2024rlvsg,kang2025madrl}; those controller-specific performance\nresults do not by themselves answer whether an adaptive policy satisfies a\ncommon profile-complete endpoint-plus-command contract. Second, the cited\nstudies use controller-specific models and evaluation contracts; their\nnumerical results are therefore not treated as semantically interchangeable\nwith the benchmark object tested here. Third,\nattribution validity is threatened both by training-run uncertainty that point\nestimates can conceal~\\cite{agarwal2021statistical} and by nominal source\ncomparisons in which actor inputs, critic inputs, and reward access change\ntogether. A qualification study therefore needs a corrected common object,\nexplicit guard semantics, and paired-seed source interventions rather than a\nsuccess-style endpoint comparison.",
+      "paper_locator": "main_r485.tex:77",
+      "selection_tier": "HIGH-IMPACT"
+    },
+    "source": {
+      "ref_slug": "shi2021restoration",
+      "display_label": "https://doi.org/10.1109/TSG.2020.3030022",
+      "source_content_sha256": "0301a6b3263496d80cb754e152f192742b2948dc6c0b9c63133d136accd095b8",
+      "source_content_utf8_bytes": 111,
+      "source_artifact_sha256": null
+    },
+    "anchor": {
+      "kind": "quote",
+      "value_encoded": "Frequency%20Restoration%20and%20Oscillation%20Damping%20of%20Distributed%20VSGs%20in%20Microgrid%20With%20Low%20Bandwidth%20Communication",
+      "value_decoded": "Frequency Restoration and Oscillation Damping of Distributed VSGs in Microgrid With Low Bandwidth Communication"
+    },
+    "verdict": "VERIFIED",
+    "detail": "Existence and bibliographic metadata were checked against the linked publisher or official record; the title anchor matches the session-held metadata.",
+    "content_handling": {
+      "contains_external_text": true,
+      "sharing_scope": "session_only",
+      "rights_basis": "not_assessed"
+    },
+    "cache": {
+      "status": "miss",
+      "key_sha256": "d1a01366e549d17a084f804f983ed9c782e293bcec4f25165c21c386800293ed"
+    },
+    "excerpt": {
+      "state": "verified_exact_match",
+      "text": "Frequency Restoration and Oscillation Damping of Distributed VSGs in Microgrid With Low Bandwidth Communication",
+      "excerpt_sha256": "0301a6b3263496d80cb754e152f192742b2948dc6c0b9c63133d136accd095b8",
+      "source_span_utf8": {
+        "start": 0,
+        "end": 111
+      },
+      "captured_at": "2026-09-01T04:24:37Z"
+    },
+    "row_sha256": "6bbb9066923f5bbddc79053cd7da6231a818f03fe9d00c24e28bca7d9b94485d"
+  },
+  {
+    "schema_version": "evidence-row/1.0",
+    "surface": "phase_e_claim_verification",
+    "row_id": "EVR-C-INTRO-PRIOR-fu2022mutual",
+    "claim": {
+      "claim_id": "C-INTRO-PRIOR",
+      "text": "Existing work leaves three evaluation limitations relevant to that question.\nFirst, model-based consensus, frequency-restoration, and mutual-damping\ncontrollers explicitly coordinate paralleled VSGs~\\cite{liu2020consensus,\nshi2021restoration,fu2022mutual}, while reinforcement-learning studies adapt\ninertia--droop or inertia--damping parameters to improve frequency or power\nresponses~\\cite{yang2023ddic,lu2024sac,zhang2024maddpg,\nbenhmidouch2024rlvsg,kang2025madrl}; those controller-specific performance\nresults do not by themselves answer whether an adaptive policy satisfies a\ncommon profile-complete endpoint-plus-command contract. Second, the cited\nstudies use controller-specific models and evaluation contracts; their\nnumerical results are therefore not treated as semantically interchangeable\nwith the benchmark object tested here. Third,\nattribution validity is threatened both by training-run uncertainty that point\nestimates can conceal~\\cite{agarwal2021statistical} and by nominal source\ncomparisons in which actor inputs, critic inputs, and reward access change\ntogether. A qualification study therefore needs a corrected common object,\nexplicit guard semantics, and paired-seed source interventions rather than a\nsuccess-style endpoint comparison.",
+      "paper_locator": "main_r485.tex:77",
+      "selection_tier": "HIGH-IMPACT"
+    },
+    "source": {
+      "ref_slug": "fu2022mutual",
+      "display_label": "https://doi.org/10.1109/TIE.2021.3139197",
+      "source_content_sha256": "4f36930d8770720ec5d0edd39cafffa70b52efe6d05887557e6b9c74f1695e51",
+      "source_content_utf8_bytes": 88,
+      "source_artifact_sha256": null
+    },
+    "anchor": {
+      "kind": "quote",
+      "value_encoded": "Power%20Oscillation%20Suppression%20of%20Multi-VSG%20Grid%20via%20Decentralized%20Mutual%20Damping%20Control",
+      "value_decoded": "Power Oscillation Suppression of Multi-VSG Grid via Decentralized Mutual Damping Control"
+    },
+    "verdict": "VERIFIED",
+    "detail": "Existence and bibliographic metadata were checked against the linked publisher or official record; the title anchor matches the session-held metadata.",
+    "content_handling": {
+      "contains_external_text": true,
+      "sharing_scope": "session_only",
+      "rights_basis": "not_assessed"
+    },
+    "cache": {
+      "status": "miss",
+      "key_sha256": "5790339b6ab44e1aab93f568787026f8ff6df6ae347a871991c7b97680e692d3"
+    },
+    "excerpt": {
+      "state": "verified_exact_match",
+      "text": "Power Oscillation Suppression of Multi-VSG Grid via Decentralized Mutual Damping Control",
+      "excerpt_sha256": "4f36930d8770720ec5d0edd39cafffa70b52efe6d05887557e6b9c74f1695e51",
+      "source_span_utf8": {
+        "start": 0,
+        "end": 88
+      },
+      "captured_at": "2026-09-01T04:24:37Z"
+    },
+    "row_sha256": "ffc7a82d1544a80b70ec92d8c0b9d6f9fc38d16b1a3187baccee0ba2c2582f7a"
+  },
+  {
+    "schema_version": "evidence-row/1.0",
+    "surface": "phase_e_claim_verification",
+    "row_id": "EVR-C-INTRO-PRIOR-yang2023ddic",
+    "claim": {
+      "claim_id": "C-INTRO-PRIOR",
+      "text": "Existing work leaves three evaluation limitations relevant to that question.\nFirst, model-based consensus, frequency-restoration, and mutual-damping\ncontrollers explicitly coordinate paralleled VSGs~\\cite{liu2020consensus,\nshi2021restoration,fu2022mutual}, while reinforcement-learning studies adapt\ninertia--droop or inertia--damping parameters to improve frequency or power\nresponses~\\cite{yang2023ddic,lu2024sac,zhang2024maddpg,\nbenhmidouch2024rlvsg,kang2025madrl}; those controller-specific performance\nresults do not by themselves answer whether an adaptive policy satisfies a\ncommon profile-complete endpoint-plus-command contract. Second, the cited\nstudies use controller-specific models and evaluation contracts; their\nnumerical results are therefore not treated as semantically interchangeable\nwith the benchmark object tested here. Third,\nattribution validity is threatened both by training-run uncertainty that point\nestimates can conceal~\\cite{agarwal2021statistical} and by nominal source\ncomparisons in which actor inputs, critic inputs, and reward access change\ntogether. A qualification study therefore needs a corrected common object,\nexplicit guard semantics, and paired-seed source interventions rather than a\nsuccess-style endpoint comparison.",
+      "paper_locator": "main_r485.tex:77",
+      "selection_tier": "HIGH-IMPACT"
+    },
+    "source": {
+      "ref_slug": "yang2023ddic",
+      "display_label": "https://doi.org/10.1109/TPWRS.2022.3221439",
+      "source_content_sha256": "49f7240d3c5666b427be652f3870cf32243db07ba5ae5e8fc4532a22125adb9a",
+      "source_content_utf8_bytes": 130,
+      "source_artifact_sha256": null
+    },
+    "anchor": {
+      "kind": "quote",
+      "value_encoded": "A%20Distributed%20Dynamic%20Inertia-Droop%20Control%20Strategy%20Based%20on%20Multi-Agent%20Deep%20Reinforcement%20Learning%20for%20Multiple%20Paralleled%20VSGs",
+      "value_decoded": "A Distributed Dynamic Inertia-Droop Control Strategy Based on Multi-Agent Deep Reinforcement Learning for Multiple Paralleled VSGs"
+    },
+    "verdict": "VERIFIED",
+    "detail": "Existence and bibliographic metadata were checked against the linked publisher or official record; the title anchor matches the session-held metadata.",
+    "content_handling": {
+      "contains_external_text": true,
+      "sharing_scope": "session_only",
+      "rights_basis": "not_assessed"
+    },
+    "cache": {
+      "status": "miss",
+      "key_sha256": "b18ff672c5b285bca9fc2ca0db6bf3f78800b22cdd4c5cc0603397c7d52911b0"
+    },
+    "excerpt": {
+      "state": "verified_exact_match",
+      "text": "A Distributed Dynamic Inertia-Droop Control Strategy Based on Multi-Agent Deep Reinforcement Learning for Multiple Paralleled VSGs",
+      "excerpt_sha256": "49f7240d3c5666b427be652f3870cf32243db07ba5ae5e8fc4532a22125adb9a",
+      "source_span_utf8": {
+        "start": 0,
+        "end": 130
+      },
+      "captured_at": "2026-09-01T04:24:37Z"
+    },
+    "row_sha256": "b750282a9a0dbf4317530ebf27dcd9b1a71182c0e1db4205e757b4c23c3f9920"
+  },
+  {
+    "schema_version": "evidence-row/1.0",
+    "surface": "phase_e_claim_verification",
+    "row_id": "EVR-C-INTRO-PRIOR-lu2024sac",
+    "claim": {
+      "claim_id": "C-INTRO-PRIOR",
+      "text": "Existing work leaves three evaluation limitations relevant to that question.\nFirst, model-based consensus, frequency-restoration, and mutual-damping\ncontrollers explicitly coordinate paralleled VSGs~\\cite{liu2020consensus,\nshi2021restoration,fu2022mutual}, while reinforcement-learning studies adapt\ninertia--droop or inertia--damping parameters to improve frequency or power\nresponses~\\cite{yang2023ddic,lu2024sac,zhang2024maddpg,\nbenhmidouch2024rlvsg,kang2025madrl}; those controller-specific performance\nresults do not by themselves answer whether an adaptive policy satisfies a\ncommon profile-complete endpoint-plus-command contract. Second, the cited\nstudies use controller-specific models and evaluation contracts; their\nnumerical results are therefore not treated as semantically interchangeable\nwith the benchmark object tested here. Third,\nattribution validity is threatened both by training-run uncertainty that point\nestimates can conceal~\\cite{agarwal2021statistical} and by nominal source\ncomparisons in which actor inputs, critic inputs, and reward access change\ntogether. A qualification study therefore needs a corrected common object,\nexplicit guard semantics, and paired-seed source interventions rather than a\nsuccess-style endpoint comparison.",
+      "paper_locator": "main_r485.tex:77",
+      "selection_tier": "HIGH-IMPACT"
+    },
+    "source": {
+      "ref_slug": "lu2024sac",
+      "display_label": "https://doi.org/10.3390/s24072035",
+      "source_content_sha256": "096f7428a88b615421160d9354261db1e24482777b67f86840b2022c8d8a8308",
+      "source_content_utf8_bytes": 88,
+      "source_artifact_sha256": null
+    },
+    "anchor": {
+      "kind": "quote",
+      "value_encoded": "Adaptive%20Control%20for%20Virtual%20Synchronous%20Generator%20Parameters%20Based%20on%20Soft%20Actor%20Critic",
+      "value_decoded": "Adaptive Control for Virtual Synchronous Generator Parameters Based on Soft Actor Critic"
+    },
+    "verdict": "VERIFIED",
+    "detail": "Existence and bibliographic metadata were checked against the linked publisher or official record; the title anchor matches the session-held metadata.",
+    "content_handling": {
+      "contains_external_text": true,
+      "sharing_scope": "session_only",
+      "rights_basis": "not_assessed"
+    },
+    "cache": {
+      "status": "miss",
+      "key_sha256": "19ac8659db62a474960e8185f94e21db2a89b0c3f09043c9b673fc96b278a9e7"
+    },
+    "excerpt": {
+      "state": "verified_exact_match",
+      "text": "Adaptive Control for Virtual Synchronous Generator Parameters Based on Soft Actor Critic",
+      "excerpt_sha256": "096f7428a88b615421160d9354261db1e24482777b67f86840b2022c8d8a8308",
+      "source_span_utf8": {
+        "start": 0,
+        "end": 88
+      },
+      "captured_at": "2026-09-01T04:24:37Z"
+    },
+    "row_sha256": "35364ce10545e28fc5bdb97c35c814d4cc14b45a014b3e0f9b9cf0775232a649"
+  },
+  {
+    "schema_version": "evidence-row/1.0",
+    "surface": "phase_e_claim_verification",
+    "row_id": "EVR-C-INTRO-PRIOR-zhang2024maddpg",
+    "claim": {
+      "claim_id": "C-INTRO-PRIOR",
+      "text": "Existing work leaves three evaluation limitations relevant to that question.\nFirst, model-based consensus, frequency-restoration, and mutual-damping\ncontrollers explicitly coordinate paralleled VSGs~\\cite{liu2020consensus,\nshi2021restoration,fu2022mutual}, while reinforcement-learning studies adapt\ninertia--droop or inertia--damping parameters to improve frequency or power\nresponses~\\cite{yang2023ddic,lu2024sac,zhang2024maddpg,\nbenhmidouch2024rlvsg,kang2025madrl}; those controller-specific performance\nresults do not by themselves answer whether an adaptive policy satisfies a\ncommon profile-complete endpoint-plus-command contract. Second, the cited\nstudies use controller-specific models and evaluation contracts; their\nnumerical results are therefore not treated as semantically interchangeable\nwith the benchmark object tested here. Third,\nattribution validity is threatened both by training-run uncertainty that point\nestimates can conceal~\\cite{agarwal2021statistical} and by nominal source\ncomparisons in which actor inputs, critic inputs, and reward access change\ntogether. A qualification study therefore needs a corrected common object,\nexplicit guard semantics, and paired-seed source interventions rather than a\nsuccess-style endpoint comparison.",
+      "paper_locator": "main_r485.tex:77",
+      "selection_tier": "HIGH-IMPACT"
+    },
+    "source": {
+      "ref_slug": "zhang2024maddpg",
+      "display_label": "https://doi.org/10.3390/en17246421",
+      "source_content_sha256": "df0cfa3bc0909b9c5d50e039d89251a0988d8478d32d09fe744f1f5b8b0cf14e",
+      "source_content_utf8_bytes": 55,
+      "source_artifact_sha256": null
+    },
+    "anchor": {
+      "kind": "quote",
+      "value_encoded": "Adaptive%20Control%20of%20VSG%20Inertia%20Damping%20Based%20on%20MADDPG",
+      "value_decoded": "Adaptive Control of VSG Inertia Damping Based on MADDPG"
+    },
+    "verdict": "VERIFIED",
+    "detail": "Existence and bibliographic metadata were checked against the linked publisher or official record; the title anchor matches the session-held metadata.",
+    "content_handling": {
+      "contains_external_text": true,
+      "sharing_scope": "session_only",
+      "rights_basis": "not_assessed"
+    },
+    "cache": {
+      "status": "miss",
+      "key_sha256": "319ea98bf78ca017c346d7ba19fd373353dd6d79692db31d8aeae48430f090c6"
+    },
+    "excerpt": {
+      "state": "verified_exact_match",
+      "text": "Adaptive Control of VSG Inertia Damping Based on MADDPG",
+      "excerpt_sha256": "df0cfa3bc0909b9c5d50e039d89251a0988d8478d32d09fe744f1f5b8b0cf14e",
+      "source_span_utf8": {
+        "start": 0,
+        "end": 55
+      },
+      "captured_at": "2026-09-01T04:24:37Z"
+    },
+    "row_sha256": "e60c385150f0a1447da0cdded5346fbbc9953ce0dfb00285a1f6473747684baa"
+  },
+  {
+    "schema_version": "evidence-row/1.0",
+    "surface": "phase_e_claim_verification",
+    "row_id": "EVR-C-INTRO-PRIOR-benhmidouch2024rlvsg",
+    "claim": {
+      "claim_id": "C-INTRO-PRIOR",
+      "text": "Existing work leaves three evaluation limitations relevant to that question.\nFirst, model-based consensus, frequency-restoration, and mutual-damping\ncontrollers explicitly coordinate paralleled VSGs~\\cite{liu2020consensus,\nshi2021restoration,fu2022mutual}, while reinforcement-learning studies adapt\ninertia--droop or inertia--damping parameters to improve frequency or power\nresponses~\\cite{yang2023ddic,lu2024sac,zhang2024maddpg,\nbenhmidouch2024rlvsg,kang2025madrl}; those controller-specific performance\nresults do not by themselves answer whether an adaptive policy satisfies a\ncommon profile-complete endpoint-plus-command contract. Second, the cited\nstudies use controller-specific models and evaluation contracts; their\nnumerical results are therefore not treated as semantically interchangeable\nwith the benchmark object tested here. Third,\nattribution validity is threatened both by training-run uncertainty that point\nestimates can conceal~\\cite{agarwal2021statistical} and by nominal source\ncomparisons in which actor inputs, critic inputs, and reward access change\ntogether. A qualification study therefore needs a corrected common object,\nexplicit guard semantics, and paired-seed source interventions rather than a\nsuccess-style endpoint comparison.",
+      "paper_locator": "main_r485.tex:77",
+      "selection_tier": "HIGH-IMPACT"
+    },
+    "source": {
+      "ref_slug": "benhmidouch2024rlvsg",
+      "display_label": "https://doi.org/10.1016/j.epsr.2024.110269",
+      "source_content_sha256": "e60fa00465232f67c4b4740b2adab5546d90fe93cb20f571db59dedf3f994842",
+      "source_content_utf8_bytes": 141,
+      "source_artifact_sha256": null
+    },
+    "anchor": {
+      "kind": "quote",
+      "value_encoded": "A%20Novel%20Reinforcement%20Learning%20Policy%20Optimization%20Based%20Adaptive%20VSG%20Control%20Technique%20for%20Improved%20Frequency%20Stabilization%20in%20AC%20Microgrids",
+      "value_decoded": "A Novel Reinforcement Learning Policy Optimization Based Adaptive VSG Control Technique for Improved Frequency Stabilization in AC Microgrids"
+    },
+    "verdict": "VERIFIED",
+    "detail": "Existence and bibliographic metadata were checked against the linked publisher or official record; the title anchor matches the session-held metadata.",
+    "content_handling": {
+      "contains_external_text": true,
+      "sharing_scope": "session_only",
+      "rights_basis": "not_assessed"
+    },
+    "cache": {
+      "status": "miss",
+      "key_sha256": "38e5d90e0bb965695ea03bc2783822c5a201166b72b986b77f63d483d7521cb1"
+    },
+    "excerpt": {
+      "state": "verified_exact_match",
+      "text": "A Novel Reinforcement Learning Policy Optimization Based Adaptive VSG Control Technique for Improved Frequency Stabilization in AC Microgrids",
+      "excerpt_sha256": "e60fa00465232f67c4b4740b2adab5546d90fe93cb20f571db59dedf3f994842",
+      "source_span_utf8": {
+        "start": 0,
+        "end": 141
+      },
+      "captured_at": "2026-09-01T04:24:37Z"
+    },
+    "row_sha256": "f5c5a52af7d65844280970c67d0c3ee118fec1f3be1e05cefcee8ef5a8188be5"
+  },
+  {
+    "schema_version": "evidence-row/1.0",
+    "surface": "phase_e_claim_verification",
+    "row_id": "EVR-C-INTRO-PRIOR-kang2025madrl",
+    "claim": {
+      "claim_id": "C-INTRO-PRIOR",
+      "text": "Existing work leaves three evaluation limitations relevant to that question.\nFirst, model-based consensus, frequency-restoration, and mutual-damping\ncontrollers explicitly coordinate paralleled VSGs~\\cite{liu2020consensus,\nshi2021restoration,fu2022mutual}, while reinforcement-learning studies adapt\ninertia--droop or inertia--damping parameters to improve frequency or power\nresponses~\\cite{yang2023ddic,lu2024sac,zhang2024maddpg,\nbenhmidouch2024rlvsg,kang2025madrl}; those controller-specific performance\nresults do not by themselves answer whether an adaptive policy satisfies a\ncommon profile-complete endpoint-plus-command contract. Second, the cited\nstudies use controller-specific models and evaluation contracts; their\nnumerical results are therefore not treated as semantically interchangeable\nwith the benchmark object tested here. Third,\nattribution validity is threatened both by training-run uncertainty that point\nestimates can conceal~\\cite{agarwal2021statistical} and by nominal source\ncomparisons in which actor inputs, critic inputs, and reward access change\ntogether. A qualification study therefore needs a corrected common object,\nexplicit guard semantics, and paired-seed source interventions rather than a\nsuccess-style endpoint comparison.",
+      "paper_locator": "main_r485.tex:77",
+      "selection_tier": "HIGH-IMPACT"
+    },
+    "source": {
+      "ref_slug": "kang2025madrl",
+      "display_label": "https://doi.org/10.1016/j.ijepes.2025.111374",
+      "source_content_sha256": "aae5b6109b6f0a6130db47233a2ec9e46607d35481a773431410c0dbd7cdb62b",
+      "source_content_utf8_bytes": 125,
+      "source_artifact_sha256": null
+    },
+    "anchor": {
+      "kind": "quote",
+      "value_encoded": "Enhancing%20Frequency%20Stability%20With%20Decentralized%20Adaptive%20Control%20Using%20Multi-Agent%20Deep%20Reinforcement%20Learning%20of%20Multi-VSGs",
+      "value_decoded": "Enhancing Frequency Stability With Decentralized Adaptive Control Using Multi-Agent Deep Reinforcement Learning of Multi-VSGs"
+    },
+    "verdict": "VERIFIED",
+    "detail": "Existence and bibliographic metadata were checked against the linked publisher or official record; the title anchor matches the session-held metadata.",
+    "content_handling": {
+      "contains_external_text": true,
+      "sharing_scope": "session_only",
+      "rights_basis": "not_assessed"
+    },
+    "cache": {
+      "status": "miss",
+      "key_sha256": "109c41c41795d0c1da2d2832d06b63e58ee2f2f129131abf935ff2e67b1f249c"
+    },
+    "excerpt": {
+      "state": "verified_exact_match",
+      "text": "Enhancing Frequency Stability With Decentralized Adaptive Control Using Multi-Agent Deep Reinforcement Learning of Multi-VSGs",
+      "excerpt_sha256": "aae5b6109b6f0a6130db47233a2ec9e46607d35481a773431410c0dbd7cdb62b",
+      "source_span_utf8": {
+        "start": 0,
+        "end": 125
+      },
+      "captured_at": "2026-09-01T04:24:37Z"
+    },
+    "row_sha256": "c8ab90439530652d8176580e78e9f0bf6b651900092666f67221bb4aed00cad6"
+  },
+  {
+    "schema_version": "evidence-row/1.0",
+    "surface": "phase_e_claim_verification",
+    "row_id": "EVR-C-INTRO-PRIOR-agarwal2021statistical",
+    "claim": {
+      "claim_id": "C-INTRO-PRIOR",
+      "text": "Existing work leaves three evaluation limitations relevant to that question.\nFirst, model-based consensus, frequency-restoration, and mutual-damping\ncontrollers explicitly coordinate paralleled VSGs~\\cite{liu2020consensus,\nshi2021restoration,fu2022mutual}, while reinforcement-learning studies adapt\ninertia--droop or inertia--damping parameters to improve frequency or power\nresponses~\\cite{yang2023ddic,lu2024sac,zhang2024maddpg,\nbenhmidouch2024rlvsg,kang2025madrl}; those controller-specific performance\nresults do not by themselves answer whether an adaptive policy satisfies a\ncommon profile-complete endpoint-plus-command contract. Second, the cited\nstudies use controller-specific models and evaluation contracts; their\nnumerical results are therefore not treated as semantically interchangeable\nwith the benchmark object tested here. Third,\nattribution validity is threatened both by training-run uncertainty that point\nestimates can conceal~\\cite{agarwal2021statistical} and by nominal source\ncomparisons in which actor inputs, critic inputs, and reward access change\ntogether. A qualification study therefore needs a corrected common object,\nexplicit guard semantics, and paired-seed source interventions rather than a\nsuccess-style endpoint comparison.",
+      "paper_locator": "main_r485.tex:77",
+      "selection_tier": "HIGH-IMPACT"
+    },
+    "source": {
+      "ref_slug": "agarwal2021statistical",
+      "display_label": "https://proceedings.neurips.cc/paper/2021/hash/f514cec81cb148559cf475e7426eed5e-Abstract.html",
+      "source_content_sha256": "d059f2e28b23d642911bcf4741cff6cd5d2fd4d4d67fec19d66b656e939997a5",
+      "source_content_utf8_bytes": 68,
+      "source_artifact_sha256": null
+    },
+    "anchor": {
+      "kind": "quote",
+      "value_encoded": "Deep%20Reinforcement%20Learning%20at%20the%20Edge%20of%20the%20Statistical%20Precipice",
+      "value_decoded": "Deep Reinforcement Learning at the Edge of the Statistical Precipice"
+    },
+    "verdict": "VERIFIED",
+    "detail": "Existence and bibliographic metadata were checked against the linked publisher or official record; the title anchor matches the session-held metadata.",
+    "content_handling": {
+      "contains_external_text": true,
+      "sharing_scope": "session_only",
+      "rights_basis": "not_assessed"
+    },
+    "cache": {
+      "status": "miss",
+      "key_sha256": "ff77b0f851eb77116ee2d440d7ec473915157dc7ba219d115592f6a444ecc719"
+    },
+    "excerpt": {
+      "state": "verified_exact_match",
+      "text": "Deep Reinforcement Learning at the Edge of the Statistical Precipice",
+      "excerpt_sha256": "d059f2e28b23d642911bcf4741cff6cd5d2fd4d4d67fec19d66b656e939997a5",
+      "source_span_utf8": {
+        "start": 0,
+        "end": 68
+      },
+      "captured_at": "2026-09-01T04:24:37Z"
+    },
+    "row_sha256": "20fcd40d6f41278aadc62caba62b255449e4338e044c6c9700c3d386a28ffef5"
+  },
+  {
+    "schema_version": "evidence-row/1.0",
+    "surface": "phase_e_claim_verification",
+    "row_id": "EVR-C-PHYSICAL-OBJECT-cui2021andes",
+    "claim": {
+      "claim_id": "C-PHYSICAL-OBJECT",
+      "text": "We consider four controlled VSGs in a modified Kundur two-area system. Their\nangle and frequency states follow\n\\begin{equation}\n\\dot{\\delta}_i=2\\pi f_n(\\omega_i-1),\\quad\nM_i^{\\rm sys}\\dot{\\omega}_i=\\tau_{m,i}-\\tau_{e,i}\n-D_i^{\\rm sys}(\\omega_i-1),\n\\label{eq:swing}\n\\end{equation}\nwhere reported physical frequency uses $f_n=\\SI{60}{Hz}$. We implement the\nstudy in the ANDES hybrid symbolic--numeric framework~\\cite{cui2021andes}.\nWithin this project, controller arithmetic is defined on the device base,\nwhereas runtime $M/D$ parameters are stored on the system base. Each boundary\ncrossing therefore applies exactly one conversion,\n\\begin{equation}\nx_i^{\\rm sys}=x_i^{\\rm dev}\\frac{S_{n,i}}{S_b},\n\\qquad x\\in\\{M,D\\},\\qquad M=2H.\n\\label{eq:base_conversion}\n\\end{equation}\nThe project parameter card uses $S_b=\\SI{100}{MVA}$,\n$S_{n,i}=\\SI{200}{MVA}$, $H_0^{\\rm dev}=\\SI{100}{s}$,\n$M_0^{\\rm dev}=\\SI{200}{s}$, and $D_0^{\\rm dev}=100$. This is a declared\nproject calibration rather than a reconstruction of the parameterization in\nany cited controller.",
+      "paper_locator": "main_r485.tex:193",
+      "selection_tier": "HIGH-IMPACT"
+    },
+    "source": {
+      "ref_slug": "cui2021andes",
+      "display_label": "https://doi.org/10.1109/TPWRS.2020.3017019",
+      "source_content_sha256": "f18f11d32e334d5e7876097501780aeb10ab8334ee98c6f546d1357ee18e7197",
+      "source_content_utf8_bytes": 72,
+      "source_artifact_sha256": null
+    },
+    "anchor": {
+      "kind": "quote",
+      "value_encoded": "Hybrid%20Symbolic-Numeric%20Framework%20for%20Power%20System%20Modeling%20and%20Analysis",
+      "value_decoded": "Hybrid Symbolic-Numeric Framework for Power System Modeling and Analysis"
+    },
+    "verdict": "VERIFIED",
+    "detail": "Existence and bibliographic metadata were checked against the linked publisher or official record; the title anchor matches the session-held metadata.",
+    "content_handling": {
+      "contains_external_text": true,
+      "sharing_scope": "session_only",
+      "rights_basis": "not_assessed"
+    },
+    "cache": {
+      "status": "miss",
+      "key_sha256": "34879ef005714c96c86916ea2ad60120391642e32fc3bce2933d8f9a3daa6883"
+    },
+    "excerpt": {
+      "state": "verified_exact_match",
+      "text": "Hybrid Symbolic-Numeric Framework for Power System Modeling and Analysis",
+      "excerpt_sha256": "f18f11d32e334d5e7876097501780aeb10ab8334ee98c6f546d1357ee18e7197",
+      "source_span_utf8": {
+        "start": 0,
+        "end": 72
+      },
+      "captured_at": "2026-09-01T04:24:37Z"
+    },
+    "row_sha256": "251eba47c109198e86ced10909c1ff16da09d35d2b1b906f79b7be1d8cb36300"
+  },
+  {
+    "schema_version": "evidence-row/1.0",
+    "surface": "phase_e_claim_verification",
+    "row_id": "EVR-C-LEARNER-ARCH-haarnoja2018sac",
+    "claim": {
+      "claim_id": "C-LEARNER-ARCH",
+      "text": "The learner comprises four independent per-VSG soft actor--critic\nagents~\\cite{haarnoja2018sac}. Each agent uses a seven-component canonical physical\nobservation: local active power, local frequency and RoCoF, and the frequency\nand RoCoF of its two ring neighbours. Appending the previously executed\ntwo-component command gives a nine-dimensional Markov state. A Gaussian--tanh\nactor and twin-Q critic each use four 128-unit ReLU hidden layers. Adam has\nlearning rate $3\\times10^{-4}$; $\\gamma=0.99$, target rate $\\tau=0.005$,\nreplay capacity 10,000, batch size 256, target entropy $-2$, entropy coefficient\nbounds $[0.005,5]$, and gradient-norm clipping at one. Training is stochastic;\nevaluation uses the deterministic actor mean.\n\nAll six learner frequency/RoCoF slots use one canonical $60/50$ transform.\nActor, critic, replay, reward, and evaluation consume the transformed rows; no\npath applies it twice. Authentic source $N$ preserves the same-time neighbour\ntuple. Placebo source $P$ preserves recipient-local slots but takes the four\nneighbour slots from row $\\pi(i)=(i+1)\\bmod4$. The $N/P$ contrast is therefore\na total input-source intervention, not an isolated semantic-information\nintervention.",
+      "paper_locator": "main_r485.tex:344",
+      "selection_tier": "HIGH-IMPACT"
+    },
+    "source": {
+      "ref_slug": "haarnoja2018sac",
+      "display_label": "https://proceedings.mlr.press/v80/haarnoja18b.html",
+      "source_content_sha256": "d32047c7b53d37aa1c3cfcdea1960c066cd6af36c39c59bcc1a6447666fd41aa",
+      "source_content_utf8_bytes": 97,
+      "source_artifact_sha256": null
+    },
+    "anchor": {
+      "kind": "quote",
+      "value_encoded": "Soft%20Actor-Critic%3A%20Off-Policy%20Maximum%20Entropy%20Deep%20Reinforcement%20Learning%20With%20a%20Stochastic%20Actor",
+      "value_decoded": "Soft Actor-Critic: Off-Policy Maximum Entropy Deep Reinforcement Learning With a Stochastic Actor"
+    },
+    "verdict": "VERIFIED",
+    "detail": "Existence and bibliographic metadata were checked against the linked publisher or official record; the title anchor matches the session-held metadata.",
+    "content_handling": {
+      "contains_external_text": true,
+      "sharing_scope": "session_only",
+      "rights_basis": "not_assessed"
+    },
+    "cache": {
+      "status": "miss",
+      "key_sha256": "9bf2db16745be7080c79126acbb41b6272f830347e0045f40b426716a22e5d5b"
+    },
+    "excerpt": {
+      "state": "verified_exact_match",
+      "text": "Soft Actor-Critic: Off-Policy Maximum Entropy Deep Reinforcement Learning With a Stochastic Actor",
+      "excerpt_sha256": "d32047c7b53d37aa1c3cfcdea1960c066cd6af36c39c59bcc1a6447666fd41aa",
+      "source_span_utf8": {
+        "start": 0,
+        "end": 97
+      },
+      "captured_at": "2026-09-01T04:24:37Z"
+    },
+    "row_sha256": "a72c80b82cd608ba128924e704d448e478101bec75fdef04f4be207bda1529d2"
+  },
+  {
+    "schema_version": "evidence-row/1.0",
+    "surface": "phase_e_claim_verification",
+    "row_id": "EVR-C-INFERENCE-INVENTORY-holm1979simple",
+    "claim": {
+      "claim_id": "C-INFERENCE-INVENTORY",
+      "text": "Let $y_{acrps}=\\log L_{acrps}$, where $L$ is the positive final-checkpoint\n$J_d$ for actor source $a$, critic source $c$, reward access $r$, profile $p$,\nand seed $s$. Equal-weight averaging over nuisance indices gives the four\nregistered within-seed contrasts\n\\begin{align}\nd_s^A&=\\langle y_{Pcrps}-y_{Ncrps}\\rangle_{c,r,p},\\nonumber\\\\\nd_s^C&=\\langle y_{aPrps}-y_{aNrps}\\rangle_{a,r,p},\\nonumber\\\\\nd_s^{AC}&=\\langle y_{PNrps}-y_{NNrps}-y_{PPrps}+y_{NPrps}\\rangle_{r,p},\\nonumber\\\\\nd_s^{CR}&=\\langle y_{aP1ps}-y_{aN1ps}-y_{aP0ps}+y_{aN0ps}\\rangle_{a,p}.\n\\label{eq:contrasts}\n\\end{align}\nPositive main effects indicate lower loss with authentic $N$; interaction signs\nretain the registered ratio-of-ratios meaning. The 26 seeds, not profiles or\ntrajectories, are inference units. Exact one-sided Wilcoxon signed-rank tests\ncompare each Hodges--Lehmann location to $\\log(1.10)$, with one Holm family of\nfour~\\cite{holm1979simple}. Non-rejection is neither zero effect nor\nequivalence.\n\nThe formal inventory verifies 1,082/1,082 terminal artifacts and\n5,088/5,088 trajectories, with no missing, duplicate, hash-invalid, or\nparse-invalid item. All 848 6-s summaries are derived prefixes; no\navailable-case analysis or horizon pooling was performed.",
+      "paper_locator": "main_r485.tex:385",
+      "selection_tier": "HIGH-IMPACT"
+    },
+    "source": {
+      "ref_slug": "holm1979simple",
+      "display_label": "https://www.jstor.org/stable/4615733",
+      "source_content_sha256": "73e97254a91cb36a2d377b86766669356bc0517d5c6b50d67ce7dcd43f5b1860",
+      "source_content_utf8_bytes": 55,
+      "source_artifact_sha256": null
+    },
+    "anchor": {
+      "kind": "quote",
+      "value_encoded": "A%20Simple%20Sequentially%20Rejective%20Multiple%20Test%20Procedure",
+      "value_decoded": "A Simple Sequentially Rejective Multiple Test Procedure"
+    },
+    "verdict": "VERIFIED",
+    "detail": "Existence and bibliographic metadata were checked against the linked publisher or official record; the title anchor matches the session-held metadata.",
+    "content_handling": {
+      "contains_external_text": true,
+      "sharing_scope": "session_only",
+      "rights_basis": "not_assessed"
+    },
+    "cache": {
+      "status": "miss",
+      "key_sha256": "54d3509dadbecc756057dfe9f8260e2f4fdd36a7d099ee6a2b64bd277f76dd14"
+    },
+    "excerpt": {
+      "state": "verified_exact_match",
+      "text": "A Simple Sequentially Rejective Multiple Test Procedure",
+      "excerpt_sha256": "73e97254a91cb36a2d377b86766669356bc0517d5c6b50d67ce7dcd43f5b1860",
+      "source_span_utf8": {
+        "start": 0,
+        "end": 55
+      },
+      "captured_at": "2026-09-01T04:24:37Z"
+    },
+    "row_sha256": "45e0a996a3257dc3cb8478de65116c4bad4b406392192c14e361170812188ca3"
+  }
+]

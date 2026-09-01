@@ -1,0 +1,152 @@
+{
+  "schema_version": "donor-overlap-audit/1.0",
+  "new_sha256": "ccc1d1772a0fee14a421e5598f808229b3a7b5a1f55c49214965420afcc97121",
+  "donor_sha256": "33fe35dfea68acd12c729388fba5a8f2a02e3a641875c43e31c66415d01834bd",
+  "method": "case-folded word shingles after removal of common LaTeX control syntax",
+  "interpretation_boundary": "Overlap is a screening signal, not a plagiarism verdict. The donor is an unpublished same-project draft and is not scientific evidence.",
+  "results": {
+    "8": {
+      "new_unique_shingles": 3546,
+      "shared_shingles": 458,
+      "new_overlap_fraction": 0.12915961646926113,
+      "shared_examples": [
+        "0 0 0 0 1 2 1 2",
+        "0 005 replay capacity 10 000 batch size",
+        "0 0056r h 0 0056r d where reward",
+        "0 2 s control instant controller i produces",
+        "0 25 a i amp k a i",
+        "0 dev 100 s m 0 dev 200",
+        "0 dev 200 s and d 0 dev",
+        "0 dev q a i d exec k",
+        "0 dev q a i m exec k",
+        "0 the common projection is a i amp",
+        "005 replay capacity 10 000 batch size 256",
+        "0056r h 0 0056r d where reward access",
+        "1 0 the common projection is a i",
+        "1 2 0 0 0 0 1 2",
+        "1 2 1 2 0 0 0 0",
+        "1 2 1 2 1 2 0 0",
+        "1 2 1 2 1 2 1 2",
+        "1 a i exec k-1 0 25 a",
+        "1 a i k a i exec k",
+        "1 f 4 and z d t d"
+      ]
+    },
+    "12": {
+      "new_unique_shingles": 3564,
+      "shared_shingles": 352,
+      "new_overlap_fraction": 0.09876543209876543,
+      "shared_examples": [
+        "0 005 replay capacity 10 000 batch size 256 target entropy 2",
+        "0 dev 100 s m 0 dev 200 s and d 0",
+        "0 dev q a i m exec k d i dev k",
+        "0 the common projection is a i amp k 1 a i",
+        "1 0 the common projection is a i amp k 1 a",
+        "1 2 1 2 0 0 0 0 1 2 1 2",
+        "1 2 1 2 1 2 0 0 0 0 1 2",
+        "1 2 1 2 1 2 1 2 0 0 0 0",
+        "1 2 1 2 1 2 1 2 1 2 0 0",
+        "1 2 1 2 1 2 1 2 1 2 1 2",
+        "1 a i exec k-1 0 25 a i amp k a",
+        "1 a i k a i exec k 1 a i exec",
+        "1 f 4 and z d t d f t d 1",
+        "10 d i 0 dev q a i d exec k after",
+        "10 metric style box fill green 9 guard style box fill orange",
+        "100 mva s n i 200 mva h 0 dev 100 s",
+        "100 s m 0 dev 200 s and d 0 dev 100",
+        "100r f i 50r abs i 0 0056r h 0 0056r d",
+        "12 arr style latex length 2mm thick input source actor critic factors",
+        "18mm of plant decision complete decision arr plant south endpoints north arr"
+      ]
+    },
+    "16": {
+      "new_unique_shingles": 3560,
+      "shared_shingles": 284,
+      "new_overlap_fraction": 0.07977528089887641,
+      "shared_examples": [
+        "0 dev q a i m exec k d i dev k 10 d i 0",
+        "0 the common projection is a i amp k 1 a i k a i exec",
+        "1 0 the common projection is a i amp k 1 a i k a i",
+        "1 2 1 2 1 2 1 2 0 0 0 0 1 2 1 2",
+        "1 2 1 2 1 2 1 2 1 2 0 0 0 0 1 2",
+        "1 2 1 2 1 2 1 2 1 2 1 2 0 0 0 0",
+        "1 a i k a i exec k 1 a i exec k-1 0 25 a",
+        "1 f 4 and z d t d f t d 1 2 1 2 1",
+        "10 metric style box fill green 9 guard style box fill orange 12 arr style latex",
+        "100 mva s n i 200 mva h 0 dev 100 s m 0 dev 200",
+        "12 arr style latex length 2mm thick input source actor critic factors input right of source",
+        "18mm of plant decision complete decision arr plant south endpoints north arr plant south guards north",
+        "2 1 2 1 2 1 2 1 2 0 0 0 0 1 2 1",
+        "2 1 2 1 2 1 2 1 2 1 2 0 0 0 0 1",
+        "2 5pt input style box fill blue 8 plant style box fill gray 10 metric style",
+        "2 f n i-1 m i sys i m i e i d i sys i-1",
+        "20 m i 0 dev q a i m exec k d i dev k 10",
+        "200 mva h 0 dev 100 s m 0 dev 200 s and d 0 dev",
+        "2mm thick input source actor critic factors input right of source actor actor i a i",
+        "4 and z d t d f t d 1 2 1 2 1 2 1"
+      ]
+    }
+  },
+  "longest_contiguous_matches": [
+    {
+      "word_count": 73,
+      "text": "t node distance 4mm and 5mm box style draw rounded corners minimum height 7mm align center inner sep 2 5pt input style box fill blue 8 plant style box fill gray 10 metric style box fill green 9 guard style box fill orange 12 arr style latex length 2mm thick input source actor critic factors input right of source actor actor i a i m a i d guard right of actor map"
+    },
+    {
+      "word_count": 46,
+      "text": "d s a y pcrps y ncrps c r p d s c y aprps y anrps a r p d s ac y pnrps y nnrps y pprps y nprps r p d s cr y ap1ps y an1ps y ap0ps y an0ps a p"
+    },
+    {
+      "word_count": 41,
+      "text": "plant right of base plant four-vsg arr source actor arr actor map arr map base arr base plant metric below left 7mm and 5mm of plant endpoints j cross j d path guard below right 7mm and 5mm of plant guards"
+    },
+    {
+      "word_count": 40,
+      "text": "object we consider four controlled vsgs in a modified kundur two-area system their angle and frequency states follow i 2 f n i-1 m i sys i m i e i d i sys i-1 where reported physical frequency uses"
+    },
+    {
+      "word_count": 38,
+      "text": "figures detect-all decoupling-oriented coordination of paralleled vsgs with multi-agent reinforcement learning yuang wei yixiao wang and zhuang xu department of electrical and electronic engineering university of nottingham ningbo china ningbo china john xu nottingham edu cn empty keywords"
+    },
+    {
+      "word_count": 33,
+      "text": "1 0 the common projection is a i amp k 1 a i k a i exec k 1 a i exec k-1 0 25 a i amp k a i exec k-1"
+    },
+    {
+      "word_count": 33,
+      "text": "z c 1 f 4 and z d t d f t d 1 2 1 2 1 2 1 2 1 2 1 2 0 0 0 0 1 2 1 2"
+    },
+    {
+      "word_count": 31,
+      "text": "m i dev k 20 m i 0 dev q a i m exec k d i dev k 10 d i 0 dev q a i d exec k after"
+    },
+    {
+      "word_count": 29,
+      "text": "path guard below 18mm of plant decision complete decision arr plant south endpoints north arr plant south guards north arr endpoints south decision west arr guards south decision east"
+    },
+    {
+      "word_count": 29,
+      "text": "on the system base each boundary crossing therefore applies exactly one conversion x i sys x i dev s n i s b x m d m 2h the"
+    },
+    {
+      "word_count": 28,
+      "text": "let y acrps l acrps where l is the positive final-checkpoint j d for actor source a critic source c reward access r profile p and seed s"
+    },
+    {
+      "word_count": 27,
+      "text": "parameter card uses s b 100 mva s n i 200 mva h 0 dev 100 s m 0 dev 200 s and d 0 dev 100"
+    },
+    {
+      "word_count": 27,
+      "text": "the odd response of a matched signed pair is f k n f k n f k n 2 with z c k 1 f k 4"
+    },
+    {
+      "word_count": 19,
+      "text": "reward is r i 100r f i 50r abs i 0 0056r h 0 0056r d where reward access"
+    },
+    {
+      "word_count": 14,
+      "text": "z c d 2 n j d k c d t k 2 n"
+    }
+  ]
+}

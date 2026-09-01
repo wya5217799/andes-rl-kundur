@@ -1,0 +1,57 @@
+{
+  "schema_version": "r485_mechanism_math_repo_recheck_v1",
+  "status": "QUALIFIED_PASS",
+  "external_package": {
+    "source": "C:/Users/27443/Downloads/gpt_pro_r485_mechanism_math_solution_20260901/gpt_pro_r485_mechanism_math_solution_20260901",
+    "required_file_count": 5,
+    "sha256sums_checked": 4,
+    "sha256sums_matched": 4,
+    "sha256sums_unmatched": 0
+  },
+  "verifier": {
+    "external_script_sha256": "3bed3b38a6f7ec7405a1f5c8c6c49ae342dde5d9971215f2be428ccc5b8ceb5e",
+    "static_scan": "PASS_NO_NETWORK_NO_SUBPROCESS_DEFAULT_NO_WRITE",
+    "rebuild_status": "COMPLETE",
+    "rebuilt_result_sha256": "54f50d5d3a4da1b3bb6bdbfa0b2516597f7ccc60b25406c05f8e30bccf21789e",
+    "direct_expected_result_comparison": "FAIL_OVER_TIGHT_TOLERANCE",
+    "declared_result_comparison_atol": 0.000002,
+    "mismatch_count": 8,
+    "mismatch_scope": "certificate.identifiable_decomposition.rows[*].tv.constant_anchor",
+    "maximum_absolute_difference": 0.00008561462163925171,
+    "maximum_relative_difference": 0.000009131551854582859,
+    "non_numeric_or_structure_mismatches": 0,
+    "threshold_or_count_changes": 0
+  },
+  "independent_checks": {
+    "projector_replay_max_abs_error": 0.0,
+    "saved_action_delta_max_abs_error": 0.0,
+    "actor_replay_max_abs_error_repo_runtime": 7.599592208862305e-7,
+    "tvd_discrete_sequences_checked": 9375,
+    "tvd_discrete_counterexamples": 0,
+    "rms_noncontraction_counterexample_reproduced": true,
+    "feedback_ratio_count": 48,
+    "feedback_ratio_max": 0.20461806566210014,
+    "feedback_all_at_most_0_205": true,
+    "quasistatic_ratio_count": 192,
+    "quasistatic_at_least_0_90_count": 141,
+    "quasistatic_M_at_least_0_90_count": 54,
+    "quasistatic_D_at_least_0_90_count": 87
+  },
+  "accepted": [
+    "componentwise common-reset projector is total-variation diminishing with terminal residual",
+    "projected/raw TV non-increase is structural for the registered recursion",
+    "fixed-previous result is a frozen-observation actor-path statement, not a causal share",
+    "constant-anchor RMS ratio is aggregate norm retention, not temporal-static dominance",
+    "fixed grids support exact counts but no superpopulation inference"
+  ],
+  "not_accepted": [
+    "external claim that the supplied verifier passes unchanged on this repository runtime",
+    "unique or additive mechanism shares",
+    "training causality or closed-loop endpoint preservation",
+    "full-24-checkpoint Jacobian certificate",
+    "backend-invariant replay of the absent stepwise recursive intervention path"
+  ],
+  "manuscript_patch": "ACCEPT_AFTER_PROJECT_WORDING_BOUNDARY",
+  "formal_R485_or_R486_authority_changed": false,
+  "new_simulation_or_training": false
+}

@@ -1,0 +1,442 @@
+{
+  "candidate_unregistered_count": 0,
+  "candidates": [
+    {
+      "candidate_id": "CAND-B2428-2452-e4fb4702c78d",
+      "candidate_kinds": [
+        "quantitative_sentence"
+      ],
+      "coverage_state": "registry_span_matched",
+      "end_byte": 2452,
+      "line": 60,
+      "matched_claim_ids": [
+        "MECH-01"
+      ],
+      "sentence_index": 2,
+      "start_byte": 2428,
+      "text": "In one illustrative R485",
+      "triggers": [
+        {
+          "coverage_state": "registry_span_matched",
+          "end_byte": 2452,
+          "kind": "quantitative_sentence",
+          "matched_claim_ids": [
+            "MECH-01"
+          ],
+          "start_byte": 2448,
+          "text": "R485",
+          "trigger_id": "TRIG-B2448-2452-77a9fbab1a37"
+        }
+      ],
+      "uncovered_trigger_count": 0
+    },
+    {
+      "candidate_id": "CAND-B8030-8107-3e5d0dc22f07",
+      "candidate_kinds": [
+        "quantitative_sentence"
+      ],
+      "coverage_state": "registry_span_matched",
+      "end_byte": 8107,
+      "line": 144,
+      "matched_claim_ids": [
+        "MECH-02"
+      ],
+      "sentence_index": 1,
+      "start_byte": 8030,
+      "text": "Section~\\ref{sec:results} reports the bounded R485 empirical finding from the",
+      "triggers": [
+        {
+          "coverage_state": "registry_span_matched",
+          "end_byte": 8080,
+          "kind": "quantitative_sentence",
+          "matched_claim_ids": [
+            "MECH-02"
+          ],
+          "start_byte": 8076,
+          "text": "R485",
+          "trigger_id": "TRIG-B8076-8080-77a9fbab1a37"
+        }
+      ],
+      "uncovered_trigger_count": 0
+    },
+    {
+      "candidate_id": "CAND-B13776-13854-e13b8fd2f982",
+      "candidate_kinds": [
+        "quantitative_sentence"
+      ],
+      "coverage_state": "registry_span_matched",
+      "end_byte": 13854,
+      "line": 277,
+      "matched_claim_ids": [
+        "MECH-03"
+      ],
+      "sentence_index": 1,
+      "start_byte": 13776,
+      "text": "integral, worst-frequency peak, and RoCoF must be no worse than 1.03 times the",
+      "triggers": [
+        {
+          "coverage_state": "registry_span_matched",
+          "end_byte": 13850,
+          "kind": "quantitative_sentence",
+          "matched_claim_ids": [
+            "MECH-03"
+          ],
+          "start_byte": 13840,
+          "text": "1.03 times",
+          "trigger_id": "TRIG-B13840-13850-c8edfc5f2cea"
+        }
+      ],
+      "uncovered_trigger_count": 0
+    },
+    {
+      "candidate_id": "CAND-B13932-14010-aa1789977f09",
+      "candidate_kinds": [
+        "quantitative_sentence"
+      ],
+      "coverage_state": "registry_span_matched",
+      "end_byte": 14010,
+      "line": 279,
+      "matched_claim_ids": [
+        "MECH-04"
+      ],
+      "sentence_index": 1,
+      "start_byte": 13932,
+      "text": "and total variation (TV) must each be no worse than 1.10 times the comparator.",
+      "triggers": [
+        {
+          "coverage_state": "registry_span_matched",
+          "end_byte": 13994,
+          "kind": "quantitative_sentence",
+          "matched_claim_ids": [
+            "MECH-04"
+          ],
+          "start_byte": 13984,
+          "text": "1.10 times",
+          "trigger_id": "TRIG-B13984-13994-d99b0d45bfc3"
+        }
+      ],
+      "uncovered_trigger_count": 0
+    },
+    {
+      "candidate_id": "CAND-B15991-16067-4abf122efa10",
+      "candidate_kinds": [
+        "quantitative_sentence"
+      ],
+      "coverage_state": "registry_span_matched",
+      "end_byte": 16067,
+      "line": 325,
+      "matched_claim_ids": [
+        "MECH-05"
+      ],
+      "sentence_index": 1,
+      "start_byte": 15991,
+      "text": "load, are fixed in the sealed R481 and R485 contracts; no result was used to",
+      "triggers": [
+        {
+          "coverage_state": "registry_span_matched",
+          "end_byte": 16025,
+          "kind": "quantitative_sentence",
+          "matched_claim_ids": [
+            "MECH-05"
+          ],
+          "start_byte": 16021,
+          "text": "R481",
+          "trigger_id": "TRIG-B16021-16025-6608e8398ddc"
+        },
+        {
+          "coverage_state": "registry_span_matched",
+          "end_byte": 16034,
+          "kind": "quantitative_sentence",
+          "matched_claim_ids": [
+            "MECH-05"
+          ],
+          "start_byte": 16030,
+          "text": "R485",
+          "trigger_id": "TRIG-B16030-16034-77a9fbab1a37"
+        }
+      ],
+      "uncovered_trigger_count": 0
+    },
+    {
+      "candidate_id": "CAND-B16738-16765-9cf64d40fdfb",
+      "candidate_kinds": [
+        "quantitative_sentence"
+      ],
+      "coverage_state": "registry_span_matched",
+      "end_byte": 16765,
+      "line": 340,
+      "matched_claim_ids": [
+        "MECH-06"
+      ],
+      "sentence_index": 1,
+      "start_byte": 16738,
+      "text": "was not reselected in R485.",
+      "triggers": [
+        {
+          "coverage_state": "registry_span_matched",
+          "end_byte": 16764,
+          "kind": "quantitative_sentence",
+          "matched_claim_ids": [
+            "MECH-06"
+          ],
+          "start_byte": 16760,
+          "text": "R485",
+          "trigger_id": "TRIG-B16760-16764-77a9fbab1a37"
+        }
+      ],
+      "uncovered_trigger_count": 0
+    },
+    {
+      "candidate_id": "CAND-B18611-18686-3fc685ec86b4",
+      "candidate_kinds": [
+        "quantitative_sentence"
+      ],
+      "coverage_state": "registry_span_matched",
+      "end_byte": 18686,
+      "line": 374,
+      "matched_claim_ids": [
+        "MECH-07"
+      ],
+      "sentence_index": 1,
+      "start_byte": 18611,
+      "text": "enters qualification and source inference; no R483/R484 checkpoint, replay,",
+      "triggers": [
+        {
+          "coverage_state": "registry_span_matched",
+          "end_byte": 18661,
+          "kind": "quantitative_sentence",
+          "matched_claim_ids": [
+            "MECH-07"
+          ],
+          "start_byte": 18657,
+          "text": "R483",
+          "trigger_id": "TRIG-B18657-18661-7f071ba38137"
+        },
+        {
+          "coverage_state": "registry_span_matched",
+          "end_byte": 18666,
+          "kind": "quantitative_sentence",
+          "matched_claim_ids": [
+            "MECH-07"
+          ],
+          "start_byte": 18662,
+          "text": "R484",
+          "trigger_id": "TRIG-B18662-18666-a38b145927ee"
+        }
+      ],
+      "uncovered_trigger_count": 0
+    },
+    {
+      "candidate_id": "CAND-B18687-18721-d5ec33757efd",
+      "candidate_kinds": [
+        "quantitative_sentence"
+      ],
+      "coverage_state": "registry_span_matched",
+      "end_byte": 18721,
+      "line": 375,
+      "matched_claim_ids": [
+        "MECH-08"
+      ],
+      "sentence_index": 1,
+      "start_byte": 18687,
+      "text": "curve, or result row entered R485.",
+      "triggers": [
+        {
+          "coverage_state": "registry_span_matched",
+          "end_byte": 18720,
+          "kind": "quantitative_sentence",
+          "matched_claim_ids": [
+            "MECH-08"
+          ],
+          "start_byte": 18716,
+          "text": "R485",
+          "trigger_id": "TRIG-B18716-18720-77a9fbab1a37"
+        }
+      ],
+      "uncovered_trigger_count": 0
+    },
+    {
+      "candidate_id": "CAND-B21319-21384-992b6ab83240",
+      "candidate_kinds": [
+        "quantitative_sentence"
+      ],
+      "coverage_state": "registry_span_matched",
+      "end_byte": 21384,
+      "line": 432,
+      "matched_claim_ids": [
+        "MECH-09"
+      ],
+      "sentence_index": 1,
+      "start_byte": 21319,
+      "text": "Figure~\\ref{fig:learned_tradeoff} gives the headline R485 result.",
+      "triggers": [
+        {
+          "coverage_state": "registry_span_matched",
+          "end_byte": 21376,
+          "kind": "quantitative_sentence",
+          "matched_claim_ids": [
+            "MECH-09"
+          ],
+          "start_byte": 21372,
+          "text": "R485",
+          "trigger_id": "TRIG-B21372-21376-77a9fbab1a37"
+        }
+      ],
+      "uncovered_trigger_count": 0
+    },
+    {
+      "candidate_id": "CAND-B22088-22139-d3816cbe129f",
+      "candidate_kinds": [
+        "quantitative_sentence"
+      ],
+      "coverage_state": "registry_span_matched",
+      "end_byte": 22139,
+      "line": 445,
+      "matched_claim_ids": [
+        "MECH-10"
+      ],
+      "sentence_index": 1,
+      "start_byte": 22088,
+      "text": "\\caption{R485 endpoint and profile-guard decisions.",
+      "triggers": [
+        {
+          "coverage_state": "registry_span_matched",
+          "end_byte": 22101,
+          "kind": "quantitative_sentence",
+          "matched_claim_ids": [
+            "MECH-10"
+          ],
+          "start_byte": 22097,
+          "text": "R485",
+          "trigger_id": "TRIG-B22097-22101-77a9fbab1a37"
+        }
+      ],
+      "uncovered_trigger_count": 0
+    },
+    {
+      "candidate_id": "CAND-B22772-22838-4bf9561b9df8",
+      "candidate_kinds": [
+        "quantitative_sentence"
+      ],
+      "coverage_state": "registry_span_matched",
+      "end_byte": 22838,
+      "line": 459,
+      "matched_claim_ids": [
+        "MECH-11"
+      ],
+      "sentence_index": 1,
+      "start_byte": 22772,
+      "text": "Post-hoc R486 support narrows where the complete decision changes.",
+      "triggers": [
+        {
+          "coverage_state": "registry_span_matched",
+          "end_byte": 22785,
+          "kind": "quantitative_sentence",
+          "matched_claim_ids": [
+            "MECH-11"
+          ],
+          "start_byte": 22781,
+          "text": "R486",
+          "trigger_id": "TRIG-B22781-22785-c7308626671a"
+        }
+      ],
+      "uncovered_trigger_count": 0
+    },
+    {
+      "candidate_id": "CAND-B23245-23307-4ad3b0d25886",
+      "candidate_kinds": [
+        "quantitative_sentence"
+      ],
+      "coverage_state": "registry_span_matched",
+      "end_byte": 23307,
+      "line": 465,
+      "matched_claim_ids": [
+        "MECH-12"
+      ],
+      "sentence_index": 2,
+      "start_byte": 23245,
+      "text": "Because these summaries were selected after R485, they support",
+      "triggers": [
+        {
+          "coverage_state": "registry_span_matched",
+          "end_byte": 23293,
+          "kind": "quantitative_sentence",
+          "matched_claim_ids": [
+            "MECH-12"
+          ],
+          "start_byte": 23289,
+          "text": "R485",
+          "trigger_id": "TRIG-B23289-23293-77a9fbab1a37"
+        }
+      ],
+      "uncovered_trigger_count": 0
+    },
+    {
+      "candidate_id": "CAND-B26064-26077-e70372481636",
+      "candidate_kinds": [
+        "quantitative_sentence"
+      ],
+      "coverage_state": "registry_span_matched",
+      "end_byte": 26077,
+      "line": 522,
+      "matched_claim_ids": [
+        "MECH-13"
+      ],
+      "sentence_index": 1,
+      "start_byte": 26064,
+      "text": "R485 outcome.",
+      "triggers": [
+        {
+          "coverage_state": "registry_span_matched",
+          "end_byte": 26068,
+          "kind": "quantitative_sentence",
+          "matched_claim_ids": [
+            "MECH-13"
+          ],
+          "start_byte": 26064,
+          "text": "R485",
+          "trigger_id": "TRIG-B26064-26068-77a9fbab1a37"
+        }
+      ],
+      "uncovered_trigger_count": 0
+    }
+  ],
+  "draft_raw_sha256": "ccc1d1772a0fee14a421e5598f808229b3a7b5a1f55c49214965420afcc97121",
+  "mechanical_candidate_scope": [
+    "citation_bearing_sentence",
+    "quantitative_sentence"
+  ],
+  "registered_claims_outside_candidate_classes": [
+    "C-ABS",
+    "C-ACTION-MAP",
+    "C-BANKS",
+    "C-CHALLENGES",
+    "C-CONCLUSION",
+    "C-CONTRIBUTIONS",
+    "C-DIAGNOSTICS",
+    "C-DIRECT-RESULT",
+    "C-DISCUSSION",
+    "C-ENDPOINTS",
+    "C-EVALUATION-MAP",
+    "C-GUARDS",
+    "C-INFERENCE-INVENTORY",
+    "C-INTRO-EXAMPLE",
+    "C-INTRO-PRIOR",
+    "C-LEARNER-ARCH",
+    "C-LEARNER-TRAINING",
+    "C-LIMITATIONS",
+    "C-PHYSICAL-OBJECT",
+    "C-QUESTION",
+    "C-R485-EXAMPLE",
+    "C-R485-RESULT",
+    "C-R486-SUPPORT",
+    "C-SCENARIOS-COMPARATOR",
+    "C-SOURCE-CONTRAST",
+    "C-SOURCE-TABLE"
+  ],
+  "registry_claim_count": 39,
+  "registry_raw_sha256": "e75d40aa328085c172996486948f4154188285e5b42ffbf3c75af76fd42f61ed",
+  "registry_schema_version": "claim-registry/1.0",
+  "schema_version": "claim-registry-coverage/1.0",
+  "semantic_extraction_coverage": "not_machine_detectable"
+}

@@ -1,0 +1,858 @@
+{
+  "schema_version": "claim-registry/1.0",
+  "draft_raw_sha256": "ccc1d1772a0fee14a421e5598f808229b3a7b5a1f55c49214965420afcc97121",
+  "claims": [
+    {
+      "claim_id": "C-ABS",
+      "claim_text": "This paper presents a bounded, guard-first evaluation of adaptive virtual\ninertia and damping coordination by multi-agent reinforcement learning (MARL)\nin four paralleled virtual synchronous generators (VSGs). On the sealed\ncorrected-60-Hz benchmark, 121 of 208 all-fresh policies met both aggregate\ndecoupling endpoints, but none met the profile-complete\nendpoint-plus-command-activity contract. The evaluation first fixes an\nexactly-once device-to-system-base conversion, physical 60-Hz observation\nsemantics, common--differential response-energy endpoints, and a deterministic\ndirect-$M/D$ comparator. It then crosses authentic and row-permuted actor\nsource, critic source, and reward access with 26 matched seeds and a fixed\n43,200-step budget. All 832 policy--profile blocks exceeded both registered\ncomparator-relative normalized command-RMS and command-total-variation limits;\n397 also failed the rate-of-change-of-frequency guard and 37 failed the\nworst-frequency-peak guard. No registered 6-s or separate 30-s source contrast\nestablished its positive 10\\% material effect after Holm control. The direct\n$M/D$ comparator separately passed 4/4 fresh profiles at 30 s. These results\nseparate endpoint improvement from complete qualification for one finite\nbenchmark; the command metrics are activity summaries rather than physical\nsafety or hardware-harm measures.",
+      "draft_span": {
+        "start_byte": 718,
+        "end_byte": 2088
+      },
+      "claim_kinds": [
+        "quantitative"
+      ],
+      "ref_slugs": [
+        "CLM-1525",
+        "CLM-1530"
+      ],
+      "writer_anchors": [
+        "main_r485.tex:31"
+      ],
+      "paper_section": "ABS",
+      "selection_tier": "HIGH-IMPACT",
+      "high_impact_basis": [
+        "headline_conclusion",
+        "numerical"
+      ]
+    },
+    {
+      "claim_id": "C-INTRO-EXAMPLE",
+      "claim_text": "Adaptive inertia and damping can improve an aggregate decoupling score without\nqualifying a controller for coordinated operation. In one illustrative R485\npolicy, arm \\texttt{an\\_cn\\_r0} with training seed 501 attained aggregate\noff-diagonal and disturbance-differential response-energy ratios of 0.535918\nand 0.905632 relative to the deterministic comparator, so both endpoints\nimproved by more than the registered 5\\%. Nevertheless, all four profile\nguards failed, including both command-activity checks on every profile. This\nexample is not a selected success or failure case: it makes concrete the\npopulation-level result that 121 of 208 all-fresh policies met both aggregate\nendpoints whereas 0 of 208 met the complete contract. The distinction matters\nfor paralleled VSGs because inertia-like fleet support and differential motion\nbetween units are different control objectives. VSG and parallel-VSM studies\nhave established the importance of inertia, damping, electrical coupling, and\ninter-unit coordination~\\cite{zhong2011synchronverters,darco2013vsm,\nwu2016smallsignal,gonzalez2022parallel}; the present question is how a learned\nadaptive controller should be qualified when these objectives and its command\npath disagree.",
+      "draft_span": {
+        "start_byte": 2298,
+        "end_byte": 3530
+      },
+      "claim_kinds": [
+        "quantitative"
+      ],
+      "ref_slugs": [
+        "CLM-1525",
+        "zhong2011synchronverters",
+        "darco2013vsm",
+        "wu2016smallsignal",
+        "gonzalez2022parallel"
+      ],
+      "writer_anchors": [
+        "main_r485.tex:59"
+      ],
+      "paper_section": "INTRO-EXAMPLE",
+      "selection_tier": "HIGH-IMPACT",
+      "high_impact_basis": [
+        "headline_conclusion",
+        "numerical"
+      ]
+    },
+    {
+      "claim_id": "C-INTRO-PRIOR",
+      "claim_text": "Existing work leaves three evaluation limitations relevant to that question.\nFirst, model-based consensus, frequency-restoration, and mutual-damping\ncontrollers explicitly coordinate paralleled VSGs~\\cite{liu2020consensus,\nshi2021restoration,fu2022mutual}, while reinforcement-learning studies adapt\ninertia--droop or inertia--damping parameters to improve frequency or power\nresponses~\\cite{yang2023ddic,lu2024sac,zhang2024maddpg,\nbenhmidouch2024rlvsg,kang2025madrl}; those controller-specific performance\nresults do not by themselves answer whether an adaptive policy satisfies a\ncommon profile-complete endpoint-plus-command contract. Second, the cited\nstudies use controller-specific models and evaluation contracts; their\nnumerical results are therefore not treated as semantically interchangeable\nwith the benchmark object tested here. Third,\nattribution validity is threatened both by training-run uncertainty that point\nestimates can conceal~\\cite{agarwal2021statistical} and by nominal source\ncomparisons in which actor inputs, critic inputs, and reward access change\ntogether. A qualification study therefore needs a corrected common object,\nexplicit guard semantics, and paired-seed source interventions rather than a\nsuccess-style endpoint comparison.",
+      "draft_span": {
+        "start_byte": 3532,
+        "end_byte": 4795
+      },
+      "claim_kinds": [
+        "other_factual"
+      ],
+      "ref_slugs": [
+        "liu2020consensus",
+        "shi2021restoration",
+        "fu2022mutual",
+        "yang2023ddic",
+        "lu2024sac",
+        "zhang2024maddpg",
+        "benhmidouch2024rlvsg",
+        "kang2025madrl",
+        "agarwal2021statistical"
+      ],
+      "writer_anchors": [
+        "main_r485.tex:77"
+      ],
+      "paper_section": "INTRO-PRIOR",
+      "selection_tier": "HIGH-IMPACT",
+      "high_impact_basis": [
+        "disputed"
+      ]
+    },
+    {
+      "claim_id": "C-QUESTION",
+      "claim_text": "We ask the following bounded question: under an exactly-once\ndevice-to-system-base conversion on a 60-Hz plant, does any all-fresh policy\nfrom the registered $M/D$-adaptive MARL family satisfy both decoupling\nendpoints and every profile-level guard relative to a deterministic direct-$M/D$\ncomparator? The hard constraints are part of the question. Policies are\nevaluated at their final checkpoint after a fixed 43,200-step budget; the four\nbenchmark profiles are outcome-visible frozen records rather than a population\nsample; a policy qualifies only if both equal-weight aggregate endpoints\nimprove by at least 5\\% and all four profiles satisfy trajectory, frequency,\nsaturation, dispersion, and comparator-relative normalized command-RMS and\ncommand-total-variation guards. The 6-s primary and 30-s tail analyses are\nderived from the same traces and remain separate. The command metrics quantify\nrelative command activity, not actuator energy, wear, hardware harm, or\nphysical safety.",
+      "draft_span": {
+        "start_byte": 4797,
+        "end_byte": 5784
+      },
+      "claim_kinds": [
+        "quantitative"
+      ],
+      "ref_slugs": [
+        "CLM-1525",
+        "R485-formal-plan"
+      ],
+      "writer_anchors": [
+        "main_r485.tex:96"
+      ],
+      "paper_section": "QUESTION",
+      "selection_tier": "HIGH-IMPACT",
+      "high_impact_basis": [
+        "headline_conclusion",
+        "methods_critical",
+        "numerical"
+      ]
+    },
+    {
+      "claim_id": "C-CHALLENGES",
+      "claim_text": "Three challenges prevent a direct reuse of conventional learned-controller\nreporting. The first is semantic comparability: controller arithmetic is\ndefined on the device base, the simulator stores $M/D$ on the system base, and\nthe 60-Hz physical endpoints must not receive a second conversion. The second\nis qualification: aggregate endpoint improvement and profile-level contract\ncompliance are different logical decisions, and pooling profiles or horizons\ncan hide their disagreement. The third is source attribution: stochastic\ntraining variation can dominate actor-, critic-, or reward-source differences,\nwhile a source replacement can change more than semantic neighbour information.\nEach challenge therefore requires a distinct part of the evaluation rather\nthan a stronger claim from the same summary metric.",
+      "draft_span": {
+        "start_byte": 5786,
+        "end_byte": 6602
+      },
+      "claim_kinds": [
+        "other_factual"
+      ],
+      "ref_slugs": [
+        "md-parameter-card",
+        "R485-formal-plan"
+      ],
+      "writer_anchors": [
+        "main_r485.tex:111"
+      ],
+      "paper_section": "CHALLENGES",
+      "selection_tier": "HIGH-IMPACT",
+      "high_impact_basis": [
+        "methods_critical"
+      ]
+    },
+    {
+      "claim_id": "C-EVALUATION-MAP",
+      "claim_text": "The evaluation addresses these challenges in one-to-one form.\nSection~\\ref{sec:contract} defines the corrected parameter, action, coordinate,\nendpoint, and deterministic-comparator contract, with the 60-Hz transform\napplied exactly once. Section~\\ref{sec:protocol} then separates endpoint\ncalculation from a profile-complete guard decision and reports 6-s and 30-s\nresults without pooling; the development-selected direct-$M/D$ controller is\nevaluated on a separate prospectively fresh bank. The same section crosses\nauthentic and row-permuted actor source, critic source, and reward access in a\n$2\\times2\\times2$ design with 26 matched training seeds. Registered seed-level\ncontrasts, a 10\\% materiality boundary, and Holm control make the source\nquestion distinct from policy qualification. Together, these elements\nevaluate the MARL controller as an object under test rather than present it as\na qualified solution.",
+      "draft_span": {
+        "start_byte": 6604,
+        "end_byte": 7522
+      },
+      "claim_kinds": [
+        "quantitative"
+      ],
+      "ref_slugs": [
+        "R485-formal-plan"
+      ],
+      "writer_anchors": [
+        "main_r485.tex:123"
+      ],
+      "paper_section": "EVALUATION-MAP",
+      "selection_tier": "HIGH-IMPACT",
+      "high_impact_basis": [
+        "methods_critical",
+        "numerical"
+      ]
+    },
+    {
+      "claim_id": "C-CONTRIBUTIONS",
+      "claim_text": "The contributions are threefold. First, Section~\\ref{sec:contract} formulates\nthe qualification problem through a corrected semantic contract that binds\ndevice/system-base conversion, 60-Hz coordinates, endpoints, and\ncomparator-relative command activity to one profile-complete decision. Second,\nSection~\\ref{sec:protocol} gives a prospective guard-first evaluation design\nwith separate deterministic and learned-policy banks, a fixed final-checkpoint\nbudget, and non-pooled 6-s and 30-s horizons. Third,\nSection~\\ref{sec:results} reports the bounded R485 empirical finding from the\nmatched paired-seed source factorial: 121/208 policies met both aggregate\nendpoints, 5/208 also met every non-command guard in a post-hoc Pareto read,\nbut 0/208 met the complete contract; no registered source contrast established\nits positive material effect after Holm control, whereas the direct-$M/D$\ncomparator separately passed 4/4 fresh profiles. These are finite-benchmark\nqualification results, not a universal verdict on MARL.",
+      "draft_span": {
+        "start_byte": 7524,
+        "end_byte": 8543
+      },
+      "claim_kinds": [
+        "quantitative"
+      ],
+      "ref_slugs": [
+        "CLM-1525",
+        "CLM-1530"
+      ],
+      "writer_anchors": [
+        "main_r485.tex:137"
+      ],
+      "paper_section": "CONTRIBUTIONS",
+      "selection_tier": "HIGH-IMPACT",
+      "high_impact_basis": [
+        "headline_conclusion",
+        "numerical"
+      ]
+    },
+    {
+      "claim_id": "C-PHYSICAL-OBJECT",
+      "claim_text": "We consider four controlled VSGs in a modified Kundur two-area system. Their\nangle and frequency states follow\n\\begin{equation}\n\\dot{\\delta}_i=2\\pi f_n(\\omega_i-1),\\quad\nM_i^{\\rm sys}\\dot{\\omega}_i=\\tau_{m,i}-\\tau_{e,i}\n-D_i^{\\rm sys}(\\omega_i-1),\n\\label{eq:swing}\n\\end{equation}\nwhere reported physical frequency uses $f_n=\\SI{60}{Hz}$. We implement the\nstudy in the ANDES hybrid symbolic--numeric framework~\\cite{cui2021andes}.\nWithin this project, controller arithmetic is defined on the device base,\nwhereas runtime $M/D$ parameters are stored on the system base. Each boundary\ncrossing therefore applies exactly one conversion,\n\\begin{equation}\nx_i^{\\rm sys}=x_i^{\\rm dev}\\frac{S_{n,i}}{S_b},\n\\qquad x\\in\\{M,D\\},\\qquad M=2H.\n\\label{eq:base_conversion}\n\\end{equation}\nThe project parameter card uses $S_b=\\SI{100}{MVA}$,\n$S_{n,i}=\\SI{200}{MVA}$, $H_0^{\\rm dev}=\\SI{100}{s}$,\n$M_0^{\\rm dev}=\\SI{200}{s}$, and $D_0^{\\rm dev}=100$. This is a declared\nproject calibration rather than a reconstruction of the parameterization in\nany cited controller.",
+      "draft_span": {
+        "start_byte": 10169,
+        "end_byte": 11218
+      },
+      "claim_kinds": [
+        "quantitative"
+      ],
+      "ref_slugs": [
+        "cui2021andes",
+        "md-parameter-card"
+      ],
+      "writer_anchors": [
+        "main_r485.tex:193"
+      ],
+      "paper_section": "PHYSICAL-OBJECT",
+      "selection_tier": "HIGH-IMPACT",
+      "high_impact_basis": [
+        "methods_critical",
+        "numerical"
+      ]
+    },
+    {
+      "claim_id": "C-ACTION-MAP",
+      "claim_text": "At each $\\Delta t=\\SI{0.2}{s}$ control instant, controller $i$ produces a\ntwo-component normalized target $\\bar a_i$. With componentwise\n$\\Pi_c(x)=\\min\\{c,\\max\\{-c,x\\}\\}$ and $a_i^{\\rm exec}[-1]=0$, the common\nprojection is\n\\begin{align}\na_i^{\\rm amp}[k]&=\\Pi_1(\\bar a_i[k]),\\nonumber\\\\\na_i^{\\rm exec}[k]&=\\Pi_1\\!\\left(a_i^{\\rm exec}[k-1]\\right.\\nonumber\\\\\n&\\quad\\left.+\\Pi_{0.25}\\!\\left(a_i^{\\rm amp}[k]\n-a_i^{\\rm exec}[k-1]\\right)\\right).\n\\label{eq:projection}\n\\end{align}\nFor either component, $q(a)=600a$ when $a\\geq0$ and $q(a)=200a$ otherwise.\nThe device-base commands are\n\\begin{align}\nM_i^{\\rm dev}[k]&=\\max\\{20,M_{i,0}^{\\rm dev}+q(a_i^{M,{\\rm exec}}[k])\\},\\nonumber\\\\\nD_i^{\\rm dev}[k]&=\\max\\{10,D_{i,0}^{\\rm dev}+q(a_i^{D,{\\rm exec}}[k])\\}.\n\\label{eq:action_map}\n\\end{align}\nAfter~\\eqref{eq:base_conversion}, targets are linearly applied over five\nsimulator substeps from the preceding runtime readback. Projection precedes\ndecoding; the learned command does not directly inject active power.",
+      "draft_span": {
+        "start_byte": 11220,
+        "end_byte": 12221
+      },
+      "claim_kinds": [
+        "quantitative"
+      ],
+      "ref_slugs": [
+        "md-parameter-card",
+        "R485-source"
+      ],
+      "writer_anchors": [
+        "main_r485.tex:217"
+      ],
+      "paper_section": "ACTION-MAP",
+      "selection_tier": "HIGH-IMPACT",
+      "high_impact_basis": [
+        "methods_critical",
+        "numerical"
+      ]
+    },
+    {
+      "claim_id": "C-ENDPOINTS",
+      "claim_text": "Let $\\Delta f\\in\\mathbb{R}^4$ be physical frequency deviation. We use the\narithmetic common coordinate $z_c=\\mathbf{1}^{\\top}\\Delta f/4$ and\n\\begin{equation}\nz_d=T_d\\Delta f,\\quad\nT_d=\\begin{bmatrix}\n1/2&1/2&-1/2&-1/2\\\\\n1/\\sqrt{2}&-1/\\sqrt{2}&0&0\\\\\n0&0&1/\\sqrt{2}&-1/\\sqrt{2}\n\\end{bmatrix}.\n\\label{eq:coordinates}\n\\end{equation}\nThese registered coordinates are neither identified electromechanical modes\nnor an inertia-weighted centre-of-inertia frequency.\n\nFor probe type $k\\in\\{c,d,\\ell\\}$, the odd response of a matched signed pair is\n$\\widetilde f_k[n]=(\\Delta f_k^+[n]-\\Delta f_k^-[n])/2$. With\n$z_{c,k}=\\mathbf{1}^{\\top}\\widetilde f_k/4$, $z_{d,k}=T_d\\widetilde f_k$,\n$\\varepsilon_c=\\varepsilon_d=q$, and $\\varepsilon_\\ell=\\ell$, the two\nlower-is-better endpoints are\n\\begin{align}\nJ_{\\rm cross}={}&\\frac{\\Delta t}{q^2}\\sum_n\\frac{\\|z_{d,c}[n]\\|_2^2}{3}\n+\\frac{\\Delta t}{q^2}\\sum_n z_{c,d}^2[n],\n\\label{eq:jcross}\\\\\nJ_d={}&\\sum_{k\\in\\{c,d,\\ell\\}}\\frac{\\Delta t}{\\varepsilon_k^2}\n\\sum_n\\frac{\\|z_{d,k}[n]\\|_2^2}{3}.\n\\label{eq:jd}\n\\end{align}\nThey are finite-window discrete response energies, not joules, storage\nfunctions, or Lyapunov functions.",
+      "draft_span": {
+        "start_byte": 12268,
+        "end_byte": 13420
+      },
+      "claim_kinds": [
+        "other_factual"
+      ],
+      "ref_slugs": [
+        "R485-formal-plan",
+        "R485-source"
+      ],
+      "writer_anchors": [
+        "main_r485.tex:241"
+      ],
+      "paper_section": "ENDPOINTS",
+      "selection_tier": "HIGH-IMPACT",
+      "high_impact_basis": [
+        "methods_critical"
+      ]
+    },
+    {
+      "claim_id": "C-GUARDS",
+      "claim_text": "Each profile contains positive and negative common, differential, and localized\nload probes. A learned-policy block must be valid, preserve the registered\nmapping, bound and slew invariants, keep saturation fraction at most 0.05, and\nmeet nondegeneracy and per-VSG dispersion floors of $10^{-6}$. Common-frequency\nintegral, worst-frequency peak, and RoCoF must be no worse than 1.03 times the\nsame-profile direct-$M/D$ values. Comparator-relative normalized command RMS\nand total variation (TV) must each be no worse than 1.10 times the comparator.\n\nA policy meets the complete contract only when all four benchmark profiles\nmeet every block-level guard and the equal-weight aggregate ratios of both\n$J_{\\rm cross}$ and $J_d$ to direct $M/D$ are at most 0.95. The endpoint and\nguard decisions are therefore conjunctive. The frequency and command\nmultipliers are registered empirical tolerances. In particular, normalized\ncommand RMS and TV do not contain a calibrated actuator transfer, damage\nfunctional, hardware limit, or safety certificate.",
+      "draft_span": {
+        "start_byte": 13462,
+        "end_byte": 14506
+      },
+      "claim_kinds": [
+        "quantitative"
+      ],
+      "ref_slugs": [
+        "R485-formal-plan"
+      ],
+      "writer_anchors": [
+        "main_r485.tex:273"
+      ],
+      "paper_section": "GUARDS",
+      "selection_tier": "HIGH-IMPACT",
+      "high_impact_basis": [
+        "methods_critical",
+        "numerical"
+      ]
+    },
+    {
+      "claim_id": "C-BANKS",
+      "claim_text": "Table~\\ref{tab:banks} separates the four roles. The direct-$M/D$ controller is\nselected only on two development profiles and evaluated on four prospectively\nfresh profiles. The learned family cycles through four development profiles\nduring training and is evaluated on four outcome-visible frozen benchmark\nprofiles. Thus, the deterministic 4/4 fresh result is not evidence that learned\npolicies were tested on a fresh bank.",
+      "draft_span": {
+        "start_byte": 14630,
+        "end_byte": 15054
+      },
+      "claim_kinds": [
+        "quantitative"
+      ],
+      "ref_slugs": [
+        "R485-formal-plan"
+      ],
+      "writer_anchors": [
+        "main_r485.tex:294"
+      ],
+      "paper_section": "BANKS",
+      "selection_tier": "HIGH-IMPACT",
+      "high_impact_basis": [
+        "methods_critical",
+        "numerical"
+      ]
+    },
+    {
+      "claim_id": "C-SCENARIOS-COMPARATOR",
+      "claim_text": "For a profile with common/differential magnitude $q$ and localized magnitude\n$\\ell$, the common probe applies $\\pm q/4$ to each of four loads; the\ndifferential probe applies $\\pm q/4$ to the two area-1 loads and $\\mp q/4$ to\nthe two area-2 loads; the localized probe applies $\\pm\\ell$ at its named load.\nEach profile therefore contributes six signed scenarios. The 14 exact\nprofile cards, including baseline $M/D$, steady loads, magnitudes, and localized\nload, are fixed in the sealed R481 and R485 contracts; no result was used to\nchange them.\n\nThe deterministic family contains zero command and nine local-neighbour laws\nwith $(k_M,k_D)\\in\\{0.5,1,2\\}^2$. For ring-neighbour set $\\mathcal N_i$, define\n$\\phi_i=2\\pi60(\\omega_i-1)/3$, $\\rho_i=2\\pi60\\dot\\omega_i/5$, and\n$\\sigma_i=|\\phi_i|+|\\rho_i|$. Before~\\eqref{eq:projection}, the law forms\n\\begin{align}\n\\bar a_i^M&=\\tanh\\!\\left[k_M\\!\\left(\\sigma_i-\n\\frac12\\sum_{j\\in\\mathcal N_i}\\sigma_j\\right)\\right],\\nonumber\\\\\n\\bar a_i^D&=\\tanh\\!\\left[k_D\\!\\left(|\\phi_i|+\n\\frac12\\sum_{j\\in\\mathcal N_i}(|\\phi_i-\\phi_j|+|\\rho_i-\\rho_j|)\\right)\\right].\n\\label{eq:direct_md}\n\\end{align}\nA frozen lexicographic development rule selected $(k_M,k_D)=(2,2)$; the law\nwas not reselected in R485.",
+      "draft_span": {
+        "start_byte": 15536,
+        "end_byte": 16765
+      },
+      "claim_kinds": [
+        "quantitative"
+      ],
+      "ref_slugs": [
+        "R481-contract",
+        "R485-contract"
+      ],
+      "writer_anchors": [
+        "main_r485.tex:319"
+      ],
+      "paper_section": "SCENARIOS-COMPARATOR",
+      "selection_tier": "HIGH-IMPACT",
+      "high_impact_basis": [
+        "methods_critical",
+        "numerical"
+      ]
+    },
+    {
+      "claim_id": "C-LEARNER-ARCH",
+      "claim_text": "The learner comprises four independent per-VSG soft actor--critic\nagents~\\cite{haarnoja2018sac}. Each agent uses a seven-component canonical physical\nobservation: local active power, local frequency and RoCoF, and the frequency\nand RoCoF of its two ring neighbours. Appending the previously executed\ntwo-component command gives a nine-dimensional Markov state. A Gaussian--tanh\nactor and twin-Q critic each use four 128-unit ReLU hidden layers. Adam has\nlearning rate $3\\times10^{-4}$; $\\gamma=0.99$, target rate $\\tau=0.005$,\nreplay capacity 10,000, batch size 256, target entropy $-2$, entropy coefficient\nbounds $[0.005,5]$, and gradient-norm clipping at one. Training is stochastic;\nevaluation uses the deterministic actor mean.\n\nAll six learner frequency/RoCoF slots use one canonical $60/50$ transform.\nActor, critic, replay, reward, and evaluation consume the transformed rows; no\npath applies it twice. Authentic source $N$ preserves the same-time neighbour\ntuple. Placebo source $P$ preserves recipient-local slots but takes the four\nneighbour slots from row $\\pi(i)=(i+1)\\bmod4$. The $N/P$ contrast is therefore\na total input-source intervention, not an isolated semantic-information\nintervention.",
+      "draft_span": {
+        "start_byte": 16813,
+        "end_byte": 18020
+      },
+      "claim_kinds": [
+        "quantitative"
+      ],
+      "ref_slugs": [
+        "haarnoja2018sac",
+        "R485-source",
+        "R485-formal-plan"
+      ],
+      "writer_anchors": [
+        "main_r485.tex:344"
+      ],
+      "paper_section": "LEARNER-ARCH",
+      "selection_tier": "HIGH-IMPACT",
+      "high_impact_basis": [
+        "methods_critical",
+        "numerical"
+      ]
+    },
+    {
+      "claim_id": "C-LEARNER-TRAINING",
+      "claim_text": "The per-agent reward is\n\\begin{equation}\nr_i=100r_{f,i}+50r_{{\\rm abs},i}+0.0056r_H+0.0056r_D,\n\\label{eq:reward}\n\\end{equation}\nwhere reward access toggles only the registered neighbour-frequency terms.\n$r_H$ and $r_D$ penalize squared fleet-mean $M$ and $D$ commands normalized by\n600. The reward has no command-TV term and is never used by the evaluation\ncontract. The design crosses actor source $\\{N,P\\}$, critic source $\\{N,P\\}$,\nand reward access $\\{0,1\\}$ with matched seeds 501--526. All 208 cells were\nnewly trained for exactly 43,200 interaction steps. Only the final checkpoint\nenters qualification and source inference; no R483/R484 checkpoint, replay,\ncurve, or result row entered R485.\n\nEach final policy ran once on the four benchmark profiles for 150 steps at\n$\\Delta t=\\SI{0.2}{s}$. The first 30 steps produce the registered 6-s primary\nprefix of the same 30-s trace. The two horizons share policies, seeds, and\ntrajectories, so they are reported separately and are not independent\nreplications.",
+      "draft_span": {
+        "start_byte": 18022,
+        "end_byte": 19034
+      },
+      "claim_kinds": [
+        "quantitative"
+      ],
+      "ref_slugs": [
+        "R485-source",
+        "R485-formal-plan"
+      ],
+      "writer_anchors": [
+        "main_r485.tex:363"
+      ],
+      "paper_section": "LEARNER-TRAINING",
+      "selection_tier": "HIGH-IMPACT",
+      "high_impact_basis": [
+        "methods_critical",
+        "numerical"
+      ]
+    },
+    {
+      "claim_id": "C-INFERENCE-INVENTORY",
+      "claim_text": "Let $y_{acrps}=\\log L_{acrps}$, where $L$ is the positive final-checkpoint\n$J_d$ for actor source $a$, critic source $c$, reward access $r$, profile $p$,\nand seed $s$. Equal-weight averaging over nuisance indices gives the four\nregistered within-seed contrasts\n\\begin{align}\nd_s^A&=\\langle y_{Pcrps}-y_{Ncrps}\\rangle_{c,r,p},\\nonumber\\\\\nd_s^C&=\\langle y_{aPrps}-y_{aNrps}\\rangle_{a,r,p},\\nonumber\\\\\nd_s^{AC}&=\\langle y_{PNrps}-y_{NNrps}-y_{PPrps}+y_{NPrps}\\rangle_{r,p},\\nonumber\\\\\nd_s^{CR}&=\\langle y_{aP1ps}-y_{aN1ps}-y_{aP0ps}+y_{aN0ps}\\rangle_{a,p}.\n\\label{eq:contrasts}\n\\end{align}\nPositive main effects indicate lower loss with authentic $N$; interaction signs\nretain the registered ratio-of-ratios meaning. The 26 seeds, not profiles or\ntrajectories, are inference units. Exact one-sided Wilcoxon signed-rank tests\ncompare each Hodges--Lehmann location to $\\log(1.10)$, with one Holm family of\nfour~\\cite{holm1979simple}. Non-rejection is neither zero effect nor\nequivalence.\n\nThe formal inventory verifies 1,082/1,082 terminal artifacts and\n5,088/5,088 trajectories, with no missing, duplicate, hash-invalid, or\nparse-invalid item. All 848 6-s summaries are derived prefixes; no\navailable-case analysis or horizon pooling was performed.",
+      "draft_span": {
+        "start_byte": 19092,
+        "end_byte": 20336
+      },
+      "claim_kinds": [
+        "quantitative"
+      ],
+      "ref_slugs": [
+        "holm1979simple",
+        "R485-formal-analysis"
+      ],
+      "writer_anchors": [
+        "main_r485.tex:385"
+      ],
+      "paper_section": "INFERENCE-INVENTORY",
+      "selection_tier": "HIGH-IMPACT",
+      "high_impact_basis": [
+        "methods_critical",
+        "numerical"
+      ]
+    },
+    {
+      "claim_id": "C-DIRECT-RESULT",
+      "claim_text": "The selected direct-$M/D$ controller passed the 30-s fresh-bank gate on all\nfour profiles. Its descriptive off-diagonal ratios to zero command were\n0.3987, 0.4055, 0.4827, and 0.5559; the corresponding differential ratios were\n0.5062, 0.4540, 0.3307, and 0.5580. Figure~\\ref{fig:direct_horizon} shows the\nsame four profiles at the separate 6-s and 30-s horizons. These ratios are\nreport lines rather than deterministic-gate inputs, and 4/4 is not pooled with\nlearned-policy evidence.",
+      "draft_span": {
+        "start_byte": 20426,
+        "end_byte": 20909
+      },
+      "claim_kinds": [
+        "quantitative"
+      ],
+      "ref_slugs": [
+        "CLM-1525",
+        "R481-formal-analysis",
+        "R485-formal-analysis"
+      ],
+      "writer_anchors": [
+        "main_r485.tex:413"
+      ],
+      "paper_section": "DIRECT-RESULT",
+      "selection_tier": "HIGH-IMPACT",
+      "high_impact_basis": [
+        "headline_conclusion",
+        "numerical"
+      ]
+    },
+    {
+      "claim_id": "C-R485-RESULT",
+      "claim_text": "Figure~\\ref{fig:learned_tradeoff} gives the headline R485 result. Of 208\nall-fresh policies, 121 met both equal-weight 5\\% endpoint targets, but none met\nthe complete contract. Across all 832 policy--profile blocks, every block\nexceeded both the 1.10 command-RMS and command-TV limits; 397 also failed the\nRoCoF guard, 37 failed the worst-frequency-peak guard, and none failed the\ncommon-frequency guard. All 16 registered offline sensitivity cells formed by\nfrequency multipliers $\\{1.00,1.03,1.05,1.10\\}$ and command multipliers\n$\\{1.10,1.20,1.50,2.00\\}$ retained zero complete-contract policies. These\ncells reuse the same traces and are not new replications.",
+      "draft_span": {
+        "start_byte": 21319,
+        "end_byte": 21981
+      },
+      "claim_kinds": [
+        "quantitative"
+      ],
+      "ref_slugs": [
+        "CLM-1525",
+        "R485-formal-analysis"
+      ],
+      "writer_anchors": [
+        "main_r485.tex:432"
+      ],
+      "paper_section": "R485-RESULT",
+      "selection_tier": "HIGH-IMPACT",
+      "high_impact_basis": [
+        "headline_conclusion",
+        "numerical"
+      ]
+    },
+    {
+      "claim_id": "C-R485-EXAMPLE",
+      "claim_text": "The illustrative seed-501 \\texttt{an\\_cn\\_r0} policy is consistent with this\npopulation decision: its off-diagonal and differential ratios were 0.535918\nand 0.905632, yet all four profile guards failed. The example therefore\nillustrates the endpoint/contract distinction rather than supplying a separate\nclaim.",
+      "draft_span": {
+        "start_byte": 22460,
+        "end_byte": 22770
+      },
+      "claim_kinds": [
+        "quantitative"
+      ],
+      "ref_slugs": [
+        "R485-formal-analysis"
+      ],
+      "writer_anchors": [
+        "main_r485.tex:453"
+      ],
+      "paper_section": "R485-EXAMPLE",
+      "selection_tier": "HIGH-IMPACT",
+      "high_impact_basis": [
+        "numerical"
+      ]
+    },
+    {
+      "claim_id": "C-R486-SUPPORT",
+      "claim_text": "Post-hoc R486 support narrows where the complete decision changes. Five of 208\npolicies met both endpoints and every non-command guard, but all five still\nfailed command activity. The action-only break-even multiplier over these\npolicies had minimum/median/maximum 97.6575/131.9193/140.2508, versus the\nregistered 1.10 limit. Across all 832 blocks, median comparator-relative ratios\nwere 31.2256 for $M$ RMS, 5.6923 for $D$ RMS, 87.9674 for $M$ TV, and 83.4118\nfor $D$ TV. Because these summaries were selected after R485, they support\nthreshold-distance interpretation but do not alter the registered verdict.",
+      "draft_span": {
+        "start_byte": 22772,
+        "end_byte": 23382
+      },
+      "claim_kinds": [
+        "quantitative"
+      ],
+      "ref_slugs": [
+        "CLM-1530",
+        "R486-formal-analysis"
+      ],
+      "writer_anchors": [
+        "main_r485.tex:459"
+      ],
+      "paper_section": "R486-SUPPORT",
+      "selection_tier": "HIGH-IMPACT",
+      "high_impact_basis": [
+        "numerical",
+        "disputed"
+      ]
+    },
+    {
+      "claim_id": "C-SOURCE-CONTRAST",
+      "claim_text": "Table~\\ref{tab:source_effects} reports\n$100\\{\\exp(\\widehat\\theta_{\\rm HL})-1\\}\\%$ at each non-pooled horizon. No row\nestablished its registered positive material effect after Holm control. The\npositive actor-by-critic estimates therefore remain unconfirmed interactions,\nnot main effects or evidence of a causal communication mechanism.",
+      "draft_span": {
+        "start_byte": 23426,
+        "end_byte": 23762
+      },
+      "claim_kinds": [
+        "quantitative",
+        "causal"
+      ],
+      "ref_slugs": [
+        "CLM-1525",
+        "R485-formal-analysis"
+      ],
+      "writer_anchors": [
+        "main_r485.tex:470"
+      ],
+      "paper_section": "SOURCE-CONTRAST",
+      "selection_tier": "HIGH-IMPACT",
+      "high_impact_basis": [
+        "headline_conclusion",
+        "numerical",
+        "causal"
+      ]
+    },
+    {
+      "claim_id": "C-SOURCE-TABLE",
+      "claim_text": "Actor main           & $-3.72$ & 1.000 & $-4.23$ & 1.000\\\\\nCritic main          & $+1.86$ & 1.000 & $+5.41$ & 1.000\\\\\nActor$\\times$critic  & $+13.51$& 1.000 & $+15.46$& 1.000\\\\\nCritic$\\times$reward & $-1.42$ & 1.000 & $-5.11$ & 1.000\\\\",
+      "draft_span": {
+        "start_byte": 24089,
+        "end_byte": 24324
+      },
+      "claim_kinds": [
+        "quantitative"
+      ],
+      "ref_slugs": [
+        "R485-formal-analysis"
+      ],
+      "writer_anchors": [
+        "main_r485.tex:487"
+      ],
+      "paper_section": "SOURCE-TABLE",
+      "selection_tier": "HIGH-IMPACT",
+      "high_impact_basis": [
+        "numerical"
+      ]
+    },
+    {
+      "claim_id": "C-DISCUSSION",
+      "claim_text": "The central result is a qualification reversal, not an absence of useful\nendpoint motion: endpoint-only assessment admits 121 policies, while the\nregistered complete contract admits none. The deterministic result separately\nshows that the corrected comparator object has a nonempty finite fresh-bank\nfeasible set. Neither statement ranks MARL against all deterministic designs or\ntransfers the comparator's fresh-bank result to the learned policies.\n\nThe source factorial adds an attribution boundary. No registered contrast\nestablished the positive 10\\% effect after multiplicity control, but this does\nnot show zero effect, equivalence, or source irrelevance. The $N/P$ replacement\nalso changes a same-time algorithm input distribution and cannot isolate pure\nsemantic neighbour information.",
+      "draft_span": {
+        "start_byte": 24425,
+        "end_byte": 25218
+      },
+      "claim_kinds": [
+        "other_factual",
+        "causal"
+      ],
+      "ref_slugs": [
+        "CLM-1525"
+      ],
+      "writer_anchors": [
+        "main_r485.tex:498"
+      ],
+      "paper_section": "DISCUSSION",
+      "selection_tier": "HIGH-IMPACT",
+      "high_impact_basis": [
+        "headline_conclusion",
+        "causal"
+      ]
+    },
+    {
+      "claim_id": "C-DIAGNOSTICS",
+      "claim_text": "Post-hoc frozen-path diagnostics are consistent with high recorded command\nactivity but do not identify its cause. For the common-reset componentwise\nprojector, executed-command TV plus terminal tracking residual is structurally\nno greater than raw-command TV. Replacing the two previous-executed-command\nactor inputs by their full-record means left 0.0710--0.2046 of raw TV in 48/48\ntested channel-policy cases; the anchor is acausal. On a 24-policy by\nfour-profile grid, the constant-anchor/actual raw-RMS ratio had median 0.9588,\nwith 141/192 ratios at least 0.90, while temporal variation still contributed\n37.45\\%--51.23\\% of raw RMS-squared energy for the included checkpoint. These\nare recorded-path sensitivity and recurrence observations, not evidence that a\nfeedback loop, projector, reward term, or quasi-static mechanism caused the\nR485 outcome.",
+      "draft_span": {
+        "start_byte": 25220,
+        "end_byte": 26077
+      },
+      "claim_kinds": [
+        "quantitative",
+        "causal"
+      ],
+      "ref_slugs": [
+        "CLM-1530",
+        "R486-formal-analysis"
+      ],
+      "writer_anchors": [
+        "main_r485.tex:511"
+      ],
+      "paper_section": "DIAGNOSTICS",
+      "selection_tier": "HIGH-IMPACT",
+      "high_impact_basis": [
+        "numerical",
+        "causal",
+        "disputed"
+      ]
+    },
+    {
+      "claim_id": "C-LIMITATIONS",
+      "claim_text": "The scope is one modified Kundur topology, four outcome-visible benchmark\nprofiles, six signed scenarios, one controller family, 26 seeds, and a fixed\nbudget. Learned policies were not evaluated on the separate fresh bank. The\n6-s and 30-s results share traces and are not replications. All 208 training\nmanifests recorded the entropy coefficient at its lower bound at the final\ncheckpoint; without a registered convergence criterion this is a limitation,\nnot proof of convergence or divergence. Synchronous idealized communication\nexcludes delay, loss, and quantization.\n\nFinally, comparator-relative command RMS and TV do not establish actuator\nenergy, wear, fatigue, thermal stress, absolute hardware limits, physical\nsafety, or deployment harm. The study supplies no probability of learner\nfailure, topology generalization, stability certificate, EMT or HIL validation,\nor deployment claim. Each would require a separate prospective design rather\nthan reinterpretation of the sealed traces.",
+      "draft_span": {
+        "start_byte": 26079,
+        "end_byte": 27073
+      },
+      "claim_kinds": [
+        "quantitative"
+      ],
+      "ref_slugs": [
+        "CLM-1525",
+        "CLM-1530"
+      ],
+      "writer_anchors": [
+        "main_r485.tex:524"
+      ],
+      "paper_section": "LIMITATIONS",
+      "selection_tier": "HIGH-IMPACT",
+      "high_impact_basis": [
+        "methods_critical",
+        "numerical",
+        "disputed"
+      ]
+    },
+    {
+      "claim_id": "C-CONCLUSION",
+      "claim_text": "On the sealed corrected-60-Hz finite benchmark, 121/208 all-fresh MARL policies\nmet both aggregate decoupling endpoints, but 0/208 met the profile-complete\ncontract because all 832 policy--profile blocks exceeded both registered\ncommand-activity limits. No registered 6-s or separate 30-s source contrast\nestablished its positive material effect after Holm control. The direct-$M/D$\ncomparator separately passed 4/4 fresh 30-s profiles. Thus, for the tested\nfamily and budget, endpoint improvement is not sufficient for qualification;\nthis bounded result is neither a physical-safety verdict nor a universal\nfailure claim for MARL.",
+      "draft_span": {
+        "start_byte": 27120,
+        "end_byte": 27751
+      },
+      "claim_kinds": [
+        "quantitative"
+      ],
+      "ref_slugs": [
+        "CLM-1525"
+      ],
+      "writer_anchors": [
+        "main_r485.tex:543"
+      ],
+      "paper_section": "CONCLUSION",
+      "selection_tier": "HIGH-IMPACT",
+      "high_impact_basis": [
+        "headline_conclusion",
+        "numerical"
+      ]
+    },
+    {
+      "claim_id": "MECH-01",
+      "claim_text": "In one illustrative R485",
+      "draft_span": {
+        "start_byte": 2428,
+        "end_byte": 2452
+      },
+      "claim_kinds": [
+        "other_factual"
+      ],
+      "ref_slugs": [],
+      "writer_anchors": [
+        "main_r485.tex:60"
+      ],
+      "paper_section": "mechanical-detector-sentinel",
+      "selection_tier": "NOT-SELECTED"
+    },
+    {
+      "claim_id": "MECH-02",
+      "claim_text": "Section~\\ref{sec:results} reports the bounded R485 empirical finding from the",
+      "draft_span": {
+        "start_byte": 8030,
+        "end_byte": 8107
+      },
+      "claim_kinds": [
+        "other_factual"
+      ],
+      "ref_slugs": [],
+      "writer_anchors": [
+        "main_r485.tex:144"
+      ],
+      "paper_section": "mechanical-detector-sentinel",
+      "selection_tier": "NOT-SELECTED"
+    },
+    {
+      "claim_id": "MECH-03",
+      "claim_text": "integral, worst-frequency peak, and RoCoF must be no worse than 1.03 times the",
+      "draft_span": {
+        "start_byte": 13776,
+        "end_byte": 13854
+      },
+      "claim_kinds": [
+        "other_factual"
+      ],
+      "ref_slugs": [],
+      "writer_anchors": [
+        "main_r485.tex:277"
+      ],
+      "paper_section": "mechanical-detector-sentinel",
+      "selection_tier": "NOT-SELECTED"
+    },
+    {
+      "claim_id": "MECH-04",
+      "claim_text": "and total variation (TV) must each be no worse than 1.10 times the comparator.",
+      "draft_span": {
+        "start_byte": 13932,
+        "end_byte": 14010
+      },
+      "claim_kinds": [
+        "other_factual"
+      ],
+      "ref_slugs": [],
+      "writer_anchors": [
+        "main_r485.tex:279"
+      ],
+      "paper_section": "mechanical-detector-sentinel",
+      "selection_tier": "NOT-SELECTED"
+    },
+    {
+      "claim_id": "MECH-05",
+      "claim_text": "load, are fixed in the sealed R481 and R485 contracts; no result was used to",
+      "draft_span": {
+        "start_byte": 15991,
+        "end_byte": 16067
+      },
+      "claim_kinds": [
+        "other_factual"
+      ],
+      "ref_slugs": [],
+      "writer_anchors": [
+        "main_r485.tex:325"
+      ],
+      "paper_section": "mechanical-detector-sentinel",
+      "selection_tier": "NOT-SELECTED"
+    },
+    {
+      "claim_id": "MECH-06",
+      "claim_text": "was not reselected in R485.",
+      "draft_span": {
+        "start_byte": 16738,
+        "end_byte": 16765
+      },
+      "claim_kinds": [
+        "other_factual"
+      ],
+      "ref_slugs": [],
+      "writer_anchors": [
+        "main_r485.tex:340"
+      ],
+      "paper_section": "mechanical-detector-sentinel",
+      "selection_tier": "NOT-SELECTED"
+    },
+    {
+      "claim_id": "MECH-07",
+      "claim_text": "enters qualification and source inference; no R483/R484 checkpoint, replay,",
+      "draft_span": {
+        "start_byte": 18611,
+        "end_byte": 18686
+      },
+      "claim_kinds": [
+        "other_factual"
+      ],
+      "ref_slugs": [],
+      "writer_anchors": [
+        "main_r485.tex:374"
+      ],
+      "paper_section": "mechanical-detector-sentinel",
+      "selection_tier": "NOT-SELECTED"
+    },
+    {
+      "claim_id": "MECH-08",
+      "claim_text": "curve, or result row entered R485.",
+      "draft_span": {
+        "start_byte": 18687,
+        "end_byte": 18721
+      },
+      "claim_kinds": [
+        "other_factual"
+      ],
+      "ref_slugs": [],
+      "writer_anchors": [
+        "main_r485.tex:375"
+      ],
+      "paper_section": "mechanical-detector-sentinel",
+      "selection_tier": "NOT-SELECTED"
+    },
+    {
+      "claim_id": "MECH-09",
+      "claim_text": "Figure~\\ref{fig:learned_tradeoff} gives the headline R485 result.",
+      "draft_span": {
+        "start_byte": 21319,
+        "end_byte": 21384
+      },
+      "claim_kinds": [
+        "other_factual"
+      ],
+      "ref_slugs": [],
+      "writer_anchors": [
+        "main_r485.tex:432"
+      ],
+      "paper_section": "mechanical-detector-sentinel",
+      "selection_tier": "NOT-SELECTED"
+    },
+    {
+      "claim_id": "MECH-10",
+      "claim_text": "\\caption{R485 endpoint and profile-guard decisions.",
+      "draft_span": {
+        "start_byte": 22088,
+        "end_byte": 22139
+      },
+      "claim_kinds": [
+        "other_factual"
+      ],
+      "ref_slugs": [],
+      "writer_anchors": [
+        "main_r485.tex:445"
+      ],
+      "paper_section": "mechanical-detector-sentinel",
+      "selection_tier": "NOT-SELECTED"
+    },
+    {
+      "claim_id": "MECH-11",
+      "claim_text": "Post-hoc R486 support narrows where the complete decision changes.",
+      "draft_span": {
+        "start_byte": 22772,
+        "end_byte": 22838
+      },
+      "claim_kinds": [
+        "other_factual"
+      ],
+      "ref_slugs": [],
+      "writer_anchors": [
+        "main_r485.tex:459"
+      ],
+      "paper_section": "mechanical-detector-sentinel",
+      "selection_tier": "NOT-SELECTED"
+    },
+    {
+      "claim_id": "MECH-12",
+      "claim_text": "Because these summaries were selected after R485, they support",
+      "draft_span": {
+        "start_byte": 23245,
+        "end_byte": 23307
+      },
+      "claim_kinds": [
+        "other_factual"
+      ],
+      "ref_slugs": [],
+      "writer_anchors": [
+        "main_r485.tex:465"
+      ],
+      "paper_section": "mechanical-detector-sentinel",
+      "selection_tier": "NOT-SELECTED"
+    },
+    {
+      "claim_id": "MECH-13",
+      "claim_text": "R485 outcome.",
+      "draft_span": {
+        "start_byte": 26064,
+        "end_byte": 26077
+      },
+      "claim_kinds": [
+        "other_factual"
+      ],
+      "ref_slugs": [],
+      "writer_anchors": [
+        "main_r485.tex:522"
+      ],
+      "paper_section": "mechanical-detector-sentinel",
+      "selection_tier": "NOT-SELECTED"
+    }
+  ]
+}

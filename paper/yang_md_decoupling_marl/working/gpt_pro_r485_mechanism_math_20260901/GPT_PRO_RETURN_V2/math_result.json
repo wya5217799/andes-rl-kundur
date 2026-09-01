@@ -1,0 +1,1031 @@
+{
+  "assumptions_and_numerical_semantics": [
+    "The tanh mean head makes each raw component lie in [-1,1].",
+    "Every record resets executed action to zero, and registered raw TV uses the same zero baseline.",
+    "All ablations freeze the supplied plant observations; no endogenous plant counterfactual is inferred.",
+    "Stored float32 weights and actor inputs are interpreted as real coefficients for the piecewise-affine path theorem.",
+    "The executable partition uses float64 root arithmetic with tolerance 1e-13; production endpoint linkage is checked at tolerance 1e-6.",
+    "Same-context audit and this checker are not independent scientific review; project-side reconstruction remains required before publication."
+  ],
+  "claim_ceiling": [
+    "finite supplied checkpoints and records only",
+    "no training causality",
+    "no plant counterfactual",
+    "no endpoint preservation under intervention",
+    "no stability/safety/hardware claim",
+    "no topology generalisation",
+    "no retraining benefit claim"
+  ],
+  "completion_label": "PROVED",
+  "completion_label_scope": "The audit conclusions, projector theorem, non-identification proof, and finite-record computations are complete; this label does not upgrade unidentified training or closed-loop claims.",
+  "fixed_headline": {
+    "complete_contract": "0/208",
+    "endpoint_qualified": "121/208",
+    "rejudged": false,
+    "source": "formal/r485_formal_analysis.json#/learner_qualification"
+  },
+  "numerical_certificate": {
+    "checkpoint_identity": {
+      "arm_id": "an_cn_r0",
+      "kind": "r485-source-factorial",
+      "members": 4,
+      "seed": 501,
+      "stage": "final"
+    },
+    "checks": {
+      "plant_counterfactual_run": false,
+      "random_sampling_assumption": false,
+      "scope": "finite stored package, representative checkpoint/traces, and supplied full-grid rows",
+      "status": "PASS",
+      "training_run": false
+    },
+    "finite_grid": {
+      "feedback_grid": {
+        "channel_policy_cells": 48,
+        "count_ratio_le_0_50": 48,
+        "maximum_replay_error": 0.0,
+        "policies": 24,
+        "prevalence_ratio_le_0_50": 1.0,
+        "ratio": {
+          "max": 0.20461806566210014,
+          "median": 0.14378743760681162,
+          "min": 0.07098264794427186,
+          "q95": 0.20172592985927593
+        }
+      },
+      "formal_headline": {
+        "blocks_failing_action_rms": 832,
+        "blocks_failing_action_tv": 832,
+        "complete_contract_passing_count": 0,
+        "endpoint_qualified_count": 121,
+        "policy_profile_blocks": 832
+      },
+      "projection_grid": {
+        "all_ratios_le_1": true,
+        "channel_profile_cells": 8,
+        "profiles": 4,
+        "projector_replay_max_abs_error": 0.0,
+        "ratio": {
+          "max": 0.44417481421170096,
+          "median": 0.4071841303744272,
+          "min": 0.36065084630711713,
+          "q95": 0.43791761927970013
+        },
+        "saved_action_delta_max_abs_error": 0.0
+      },
+      "quasistatic_rms_grid": {
+        "by_channel": {
+          "D": {
+            "count_ge_0_90": 87,
+            "prevalence_ge_0_90": 0.90625,
+            "ratio": {
+              "max": 1.1522927983227385,
+              "median": 0.9870977234264978,
+              "min": 0.813331914442014,
+              "q95": 1.0976710180693006
+            }
+          },
+          "M": {
+            "count_ge_0_90": 54,
+            "prevalence_ge_0_90": 0.5625,
+            "ratio": {
+              "max": 1.1951563267624143,
+              "median": 0.9154994849682964,
+              "min": 0.7014875059361183,
+              "q95": 1.0614606126818733
+            }
+          }
+        },
+        "by_profile": {
+          "canary_eval_a": {
+            "cells": 48,
+            "count_ge_0_90": 35,
+            "prevalence_ge_0_90": 0.7291666666666666
+          },
+          "canary_eval_b": {
+            "cells": 48,
+            "count_ge_0_90": 36,
+            "prevalence_ge_0_90": 0.75
+          },
+          "canary_eval_c": {
+            "cells": 48,
+            "count_ge_0_90": 34,
+            "prevalence_ge_0_90": 0.7083333333333334
+          },
+          "canary_eval_d": {
+            "cells": 48,
+            "count_ge_0_90": 36,
+            "prevalence_ge_0_90": 0.75
+          }
+        },
+        "channel_policy_profile_cells": 192,
+        "count_ge_0_90": 141,
+        "count_le_0_50": 0,
+        "maximum_replay_error": 0.0,
+        "policies": 24,
+        "policy_profile_blocks": 96,
+        "prevalence_ge_0_90": 0.734375,
+        "prevalence_le_0_50": 0.0,
+        "ratio": {
+          "max": 1.1951563267624143,
+          "median": 0.9587847726934369,
+          "min": 0.7014875059361183,
+          "q95": 1.0725406174130299
+        }
+      },
+      "recursive_intervention": {
+        "joint_rms_intervention_to_actual": {
+          "canary_eval_a": 1.0661728399263835,
+          "canary_eval_b": 1.029888383518716,
+          "canary_eval_c": 1.1152116605026188,
+          "canary_eval_d": 0.9836824863703556
+        },
+        "joint_rms_intervention_to_direct": {
+          "canary_eval_a": 7.660745330643311,
+          "canary_eval_b": 8.39774876005383,
+          "canary_eval_c": 7.501257828860617,
+          "canary_eval_d": 6.529797735946937
+        },
+        "joint_tv_intervention_to_actual": {
+          "canary_eval_a": 0.29737987230421975,
+          "canary_eval_b": 0.24994625509271773,
+          "canary_eval_c": 0.2798272577801852,
+          "canary_eval_d": 0.3185639006575466
+        },
+        "joint_tv_intervention_to_direct": {
+          "canary_eval_a": 18.63040010070926,
+          "canary_eval_b": 31.680954513889173,
+          "canary_eval_c": 26.501127761572352,
+          "canary_eval_d": 24.550934544592852
+        },
+        "m_channel_rms_increase_all_profiles": true,
+        "maximum_negative_control_projected_error": 0.0,
+        "maximum_negative_control_raw_error": 0.0,
+        "profiles": 4
+      },
+      "reward_temporal_order": {
+        "high_to_low_combined_tv_ratio": {
+          "max": 18.458136756673888,
+          "median": 15.797046693553478,
+          "min": 13.220241906112117,
+          "q95": 18.28749817029009
+        },
+        "maximum_action_cost_abs_difference": 0.0,
+        "profiles": 4
+      }
+    },
+    "previous_action_path_sensitivity": {
+      "autograd_cross_check": {
+        "max_jacobian_error": 2.6645352591003757e-15,
+        "max_output_error": 2.7755575615628914e-16,
+        "sampled_states": 64
+      },
+      "endpoint_to_path_variation_ratio": {
+        "D": {
+          "max": 1.0000000000000486,
+          "median": 0.9999999999999948,
+          "min": 3.7683673774469983e-06,
+          "q95": 1.0000000000000013
+        },
+        "M": {
+          "max": 1.000000000000068,
+          "median": 0.9999999999999992,
+          "min": 0.0017651426093539494,
+          "q95": 1.0000000000000016
+        }
+      },
+      "exact_zero_preactivations": 0,
+      "global_product_spectral_bound_by_agent": {
+        "agent_0": 731.3650272755235,
+        "agent_1": 742.5995060942138,
+        "agent_2": 766.9338259885503,
+        "agent_3": 930.1922426731026
+      },
+      "hidden_preactivations": 7372800,
+      "line_piece_count": {
+        "max": 333.0,
+        "median": 42.0,
+        "min": 1.0,
+        "q95": 71.0
+      },
+      "local_previous_jacobian_spectral_norm": {
+        "max": 13.067369721798384,
+        "median": 1.783033608756699,
+        "min": 0.10857179149495638,
+        "q95": 5.673005659182018
+      },
+      "max_float64_endpoint_bound_violation": 1.887379141862766e-15,
+      "max_float64_vs_production_error_actual_endpoint": 4.2964240293263956e-07,
+      "max_float64_vs_production_error_anchor_endpoint": 5.394666590941011e-07,
+      "max_path_telescoping_error": 4.440892098500626e-15,
+      "max_production_endpoint_bound_violation_after_roundoff_allowance": 1.3322676295501878e-15,
+      "minimum_abs_preactivation": 7.493835774141644e-09,
+      "minimum_line_piece_width": 3.355284416972637e-08,
+      "near_zero_preactivations_abs_le_1e_7": 1,
+      "path_variation_gain": {
+        "D": {
+          "max": 7.541472354673832,
+          "median": 1.061867582468474,
+          "min": 0.028079001906977707,
+          "q95": 4.035534354048726
+        },
+        "M": {
+          "max": 7.8398198016297345,
+          "median": 1.5178820318934534,
+          "min": 0.0645002450933319,
+          "q95": 4.119562780997172
+        }
+      },
+      "root_partition_tolerance": 1e-13,
+      "secant_gain": {
+        "D": {
+          "max": 7.541472354673835,
+          "median": 1.038232531804307,
+          "min": 5.589692265719255e-07,
+          "q95": 4.034282070277236
+        },
+        "M": {
+          "max": 7.839819801629733,
+          "median": 1.4709807377023174,
+          "min": 0.0005978832346509409,
+          "q95": 4.119168103190362
+        }
+      },
+      "segments_crossing_at_least_one_hidden_kink": 14398,
+      "state_segments": 14400,
+      "zero_previous_input_displacements": 0
+    },
+    "representative_profiles": {
+      "canary_eval_a": {
+        "factorial_cells_and_declared_allocations": {
+          "D": {
+            "cells": {
+              "A_actual_raw": {
+                "rms": 0.4928274583180939,
+                "tv": 1847.3924909692723
+              },
+              "B_fixed_obs_actual_prev_raw": {
+                "rms": 0.49121801868372017,
+                "tv": 1806.2834614757448
+              },
+              "C_constant_anchor_raw": {
+                "rms": 0.4998955180939548,
+                "tv": 10.34628438949585
+              },
+              "E_actual_projected": {
+                "rms": 0.48476946871467297,
+                "tv": 733.6115385740995
+              },
+              "F_fixed_prev_raw": {
+                "rms": 0.5024707289250939,
+                "tv": 264.64829624129925
+              },
+              "I_fixed_prev_projected": {
+                "rms": 0.49843897008410726,
+                "tv": 224.3543904586695
+              }
+            },
+            "declared_shapley_obs_prev": {
+              "observation_factor": 147.70552067266544,
+              "previous_action_factor": 1689.340685907111,
+              "rms_observation_factor": 0.0020923252327564035,
+              "rms_previous_action_factor": -0.00916038500861735,
+              "total_rms_contrast": -0.0070680597758609465,
+              "total_tv_contrast": 1837.0462065797765
+            },
+            "declared_shapley_prev_projection": {
+              "previous_action_factor_rms": -0.011656385988217166,
+              "previous_action_factor_tv": 1046.0006714217016,
+              "projector_factor_rms": -0.006044874222203789,
+              "projector_factor_tv": -577.0374290889013,
+              "total_rms_contrast": -0.017701260210420955,
+              "total_tv_contrast": 468.9632423328003
+            },
+            "metric_contrast_bounds": {
+              "absolute_rms_metric_contrast": 0.009643270607000043,
+              "absolute_tv_metric_contrast": 1582.744194727973,
+              "rms_of_pointwise_difference": 0.3630839659492105,
+              "tv_of_pointwise_difference": 1769.2621084867278
+            }
+          },
+          "M": {
+            "cells": {
+              "A_actual_raw": {
+                "rms": 0.47912154954416175,
+                "tv": 2072.493810709566
+              },
+              "B_fixed_obs_actual_prev_raw": {
+                "rms": 0.4736600406040131,
+                "tv": 2016.645756457001
+              },
+              "C_constant_anchor_raw": {
+                "rms": 0.45908198005386175,
+                "tv": 9.687201119959354
+              },
+              "E_actual_projected": {
+                "rms": 0.40605539537462826,
+                "tv": 867.9020802173764
+              },
+              "F_fixed_prev_raw": {
+                "rms": 0.45667066486014174,
+                "tv": 315.2672288316535
+              },
+              "I_fixed_prev_projected": {
+                "rms": 0.4539986222914855,
+                "tv": 251.90352499100845
+              }
+            },
+            "declared_shapley_obs_prev": {
+              "observation_factor": 180.71404098212952,
+              "previous_action_factor": 1882.092568607477,
+              "rms_observation_factor": 0.00152509687321431,
+              "rms_previous_action_factor": 0.018514472617085692,
+              "total_rms_contrast": 0.020039569490300002,
+              "total_tv_contrast": 2062.8066095896065
+            },
+            "declared_shapley_prev_projection": {
+              "previous_action_factor_rms": -0.012746171116418625,
+              "previous_action_factor_tv": 1186.6125685521401,
+              "projector_factor_rms": -0.037869098369094856,
+              "projector_factor_tv": -633.9777171664173,
+              "total_rms_contrast": -0.05061526948551348,
+              "total_tv_contrast": 552.6348513857229
+            },
+            "metric_contrast_bounds": {
+              "absolute_rms_metric_contrast": 0.02245088468402001,
+              "absolute_tv_metric_contrast": 1757.2265818779124,
+              "rms_of_pointwise_difference": 0.3619139583316898,
+              "tv_of_pointwise_difference": 2051.0736955128377
+            }
+          }
+        },
+        "projector_replay_max_abs_error": 0.0,
+        "quasistatic_rms_decomposition": {
+          "D": {
+            "actual_anchor_error_rms": 0.3773928799181273,
+            "actual_rms": 0.492827458318093,
+            "anchor_mean_mismatch_rms": 0.20081297304207532,
+            "anchor_rms": 0.49989551809394656,
+            "anchor_to_actual_rms_ratio": 1.0143418546522858,
+            "pythagorean_error": 2.7755575615628914e-17,
+            "temporal_mean_energy_fraction": 0.5796278139962757,
+            "temporal_variance_fraction": 0.4203721860037243
+          },
+          "M": {
+            "actual_anchor_error_rms": 0.37051748566715653,
+            "actual_rms": 0.4791215495441609,
+            "anchor_mean_mismatch_rms": 0.18268179148668684,
+            "anchor_rms": 0.4590819800538653,
+            "anchor_to_actual_rms_ratio": 0.9581743515620172,
+            "pythagorean_error": 2.7755575615628914e-17,
+            "temporal_mean_energy_fraction": 0.547343960900107,
+            "temporal_variance_fraction": 0.45265603909989327
+          }
+        },
+        "raw_replay_max_abs_error": 0.0,
+        "tv_residual_inequality": {
+          "D": {
+            "final_tracking_l1": 4.425877837464213,
+            "projected_tv": 733.6115385740995,
+            "raw_tv": 1847.3924909692723,
+            "slack": 1109.3550745577086
+          },
+          "M": {
+            "final_tracking_l1": 4.052024576812983,
+            "projected_tv": 867.9020802173764,
+            "raw_tv": 2072.493810709566,
+            "slack": 1200.5397059153765
+          }
+        }
+      },
+      "canary_eval_b": {
+        "factorial_cells_and_declared_allocations": {
+          "D": {
+            "cells": {
+              "A_actual_raw": {
+                "rms": 0.4845151796789271,
+                "tv": 1881.7133971378207
+              },
+              "B_fixed_obs_actual_prev_raw": {
+                "rms": 0.47789753810853536,
+                "tv": 1841.0386644061655
+              },
+              "C_constant_anchor_raw": {
+                "rms": 0.4502911416794073,
+                "tv": 8.820095356553793
+              },
+              "E_actual_projected": {
+                "rms": 0.47780039873971364,
+                "tv": 729.2903979942203
+              },
+              "F_fixed_prev_raw": {
+                "rms": 0.4629755122848443,
+                "tv": 207.9826858167071
+              },
+              "I_fixed_prev_projected": {
+                "rms": 0.4594436899418144,
+                "tv": 198.3038348306436
+              }
+            },
+            "declared_shapley_obs_prev": {
+              "observation_factor": 119.91866159590427,
+              "previous_action_factor": 1752.9746401853627,
+              "rms_observation_factor": 0.00965100608791436,
+              "rms_previous_action_factor": 0.024573031911605425,
+              "total_rms_contrast": 0.034224037999519785,
+              "total_tv_contrast": 1872.893301781267
+            },
+            "declared_shapley_prev_projection": {
+              "previous_action_factor_rms": 0.019948188095991026,
+              "previous_action_factor_tv": 1102.3586372423451,
+              "projector_factor_rms": -0.00512330164112168,
+              "projector_factor_tv": -581.050925064832,
+              "total_rms_contrast": 0.014824886454869346,
+              "total_tv_contrast": 521.3077121775132
+            },
+            "metric_contrast_bounds": {
+              "absolute_rms_metric_contrast": 0.021539667394082807,
+              "absolute_tv_metric_contrast": 1673.7307113211136,
+              "rms_of_pointwise_difference": 0.3643442000015039,
+              "tv_of_pointwise_difference": 1791.5782727131154
+            }
+          },
+          "M": {
+            "cells": {
+              "A_actual_raw": {
+                "rms": 0.4825370448963335,
+                "tv": 1965.2677282243967
+              },
+              "B_fixed_obs_actual_prev_raw": {
+                "rms": 0.4785707162243402,
+                "tv": 1952.6607119459659
+              },
+              "C_constant_anchor_raw": {
+                "rms": 0.45688523073832843,
+                "tv": 9.904232457280159
+              },
+              "E_actual_projected": {
+                "rms": 0.41232533221878714,
+                "tv": 872.922428060323
+              },
+              "F_fixed_prev_raw": {
+                "rms": 0.46390443023186734,
+                "tv": 214.65906281000935
+              },
+              "I_fixed_prev_projected": {
+                "rms": 0.4597631106522673,
+                "tv": 202.16326090320945
+              }
+            },
+            "declared_shapley_obs_prev": {
+              "observation_factor": 108.68092331558,
+              "previous_action_factor": 1846.6825724515365,
+              "rms_observation_factor": 0.005492764082766083,
+              "rms_previous_action_factor": 0.020159050075238966,
+              "total_rms_contrast": 0.02565181415800505,
+              "total_tv_contrast": 1955.3634957671165
+            },
+            "declared_shapley_prev_projection": {
+              "previous_action_factor_rms": -0.01440258188450702,
+              "previous_action_factor_tv": 1210.6839162857505,
+              "projector_factor_rms": -0.03717651612857317,
+              "projector_factor_tv": -552.4205510354368,
+              "total_rms_contrast": -0.051579098013080193,
+              "total_tv_contrast": 658.2633652503137
+            },
+            "metric_contrast_bounds": {
+              "absolute_rms_metric_contrast": 0.01863261466446614,
+              "absolute_tv_metric_contrast": 1750.6086654143874,
+              "rms_of_pointwise_difference": 0.3502096901516843,
+              "tv_of_pointwise_difference": 1993.344322230434
+            }
+          }
+        },
+        "projector_replay_max_abs_error": 0.0,
+        "quasistatic_rms_decomposition": {
+          "D": {
+            "actual_anchor_error_rms": 0.3780793925405436,
+            "actual_rms": 0.4845151796789264,
+            "anchor_mean_mismatch_rms": 0.19122574280702842,
+            "anchor_rms": 0.45029114167940576,
+            "anchor_to_actual_rms_ratio": 0.9293643637291201,
+            "pythagorean_error": 2.7755575615628914e-17,
+            "temporal_mean_energy_fraction": 0.5468605108445209,
+            "temporal_variance_fraction": 0.45313948915547914
+          },
+          "M": {
+            "actual_anchor_error_rms": 0.35055787599077287,
+            "actual_rms": 0.4825370448963322,
+            "anchor_mean_mismatch_rms": 0.17740234526042772,
+            "anchor_rms": 0.45688523073832343,
+            "anchor_to_actual_rms_ratio": 0.9468396998130584,
+            "pythagorean_error": 2.7755575615628914e-17,
+            "temporal_mean_energy_fraction": 0.607376536732569,
+            "temporal_variance_fraction": 0.39262346326743097
+          }
+        },
+        "raw_replay_max_abs_error": 0.0,
+        "tv_residual_inequality": {
+          "D": {
+            "final_tracking_l1": 4.028933838009834,
+            "projected_tv": 729.2903979942203,
+            "raw_tv": 1881.7133971378207,
+            "slack": 1148.3940653055906
+          },
+          "M": {
+            "final_tracking_l1": 4.029439821839333,
+            "projected_tv": 872.922428060323,
+            "raw_tv": 1965.2677282243967,
+            "slack": 1088.3158603422344
+          }
+        }
+      },
+      "canary_eval_c": {
+        "factorial_cells_and_declared_allocations": {
+          "D": {
+            "cells": {
+              "A_actual_raw": {
+                "rms": 0.5019652552144475,
+                "tv": 1800.486389823258
+              },
+              "B_fixed_obs_actual_prev_raw": {
+                "rms": 0.49765978772150277,
+                "tv": 1750.3190202194965
+              },
+              "C_constant_anchor_raw": {
+                "rms": 0.5330662475582959,
+                "tv": 10.630163668654859
+              },
+              "E_actual_projected": {
+                "rms": 0.5066677771719136,
+                "tv": 751.2741481611738
+              },
+              "F_fixed_prev_raw": {
+                "rms": 0.5391533329728222,
+                "tv": 194.42008648102637
+              },
+              "I_fixed_prev_projected": {
+                "rms": 0.536528981293998,
+                "tv": 184.70624709501863
+              }
+            },
+            "declared_shapley_obs_prev": {
+              "observation_factor": 116.9786462080665,
+              "previous_action_factor": 1672.8775799465366,
+              "rms_observation_factor": 0.005196276453735493,
+              "rms_previous_action_factor": -0.03629726879758394,
+              "total_rms_contrast": -0.031100992343848444,
+              "total_tv_contrast": 1789.856226154603
+            },
+            "declared_shapley_prev_projection": {
+              "previous_action_factor_rms": -0.033524640940229555,
+              "previous_action_factor_tv": 1086.3171022041934,
+              "projector_factor_rms": 0.0010390851393209388,
+              "projector_factor_tv": -529.4630405240459,
+              "total_rms_contrast": -0.032485555800908616,
+              "total_tv_contrast": 556.8540616801474
+            },
+            "metric_contrast_bounds": {
+              "absolute_rms_metric_contrast": 0.03718807775837474,
+              "absolute_tv_metric_contrast": 1606.0663033422315,
+              "rms_of_pointwise_difference": 0.36239904201205714,
+              "tv_of_pointwise_difference": 1742.237615828053
+            }
+          },
+          "M": {
+            "cells": {
+              "A_actual_raw": {
+                "rms": 0.47522340709567357,
+                "tv": 2045.9181456291699
+              },
+              "B_fixed_obs_actual_prev_raw": {
+                "rms": 0.4642605351371401,
+                "tv": 1926.242005349137
+              },
+              "C_constant_anchor_raw": {
+                "rms": 0.47736094689722297,
+                "tv": 9.858239209279418
+              },
+              "E_actual_projected": {
+                "rms": 0.3936116218241069,
+                "tv": 872.1690017925575
+              },
+              "F_fixed_prev_raw": {
+                "rms": 0.4772934154423677,
+                "tv": 287.321220180369
+              },
+              "I_fixed_prev_projected": {
+                "rms": 0.4733867570471464,
+                "tv": 269.57739771855995
+              }
+            },
+            "declared_shapley_obs_prev": {
+              "observation_factor": 198.56956062556128,
+              "previous_action_factor": 1837.4903457943292,
+              "rms_observation_factor": 0.005447670251839093,
+              "rms_previous_action_factor": -0.007585210053388497,
+              "total_rms_contrast": -0.002137539801549404,
+              "total_tv_contrast": 2036.0599064198905
+            },
+            "declared_shapley_prev_projection": {
+              "previous_action_factor_rms": -0.0409225717848668,
+              "previous_action_factor_tv": 1180.5942647613992,
+              "projector_factor_rms": -0.04275922183339398,
+              "projector_factor_tv": -595.7464831492107,
+              "total_rms_contrast": -0.08368179361826078,
+              "total_tv_contrast": 584.8477816121886
+            },
+            "metric_contrast_bounds": {
+              "absolute_rms_metric_contrast": 0.00207000834669413,
+              "absolute_tv_metric_contrast": 1758.596925448801,
+              "rms_of_pointwise_difference": 0.3665400823842387,
+              "tv_of_pointwise_difference": 1963.152148649504
+            }
+          }
+        },
+        "projector_replay_max_abs_error": 0.0,
+        "quasistatic_rms_decomposition": {
+          "D": {
+            "actual_anchor_error_rms": 0.3718039318401502,
+            "actual_rms": 0.5019652552144469,
+            "anchor_mean_mismatch_rms": 0.20948837319674507,
+            "anchor_rms": 0.5330662475582906,
+            "anchor_to_actual_rms_ratio": 1.0619584563289284,
+            "pythagorean_error": 0.0,
+            "temporal_mean_energy_fraction": 0.6255382953877034,
+            "temporal_variance_fraction": 0.3744617046122965
+          },
+          "M": {
+            "actual_anchor_error_rms": 0.38021058098062066,
+            "actual_rms": 0.4752234070956725,
+            "anchor_mean_mismatch_rms": 0.21502096738063717,
+            "anchor_rms": 0.4773609468972218,
+            "anchor_to_actual_rms_ratio": 1.0044979682600503,
+            "pythagorean_error": 0.0,
+            "temporal_mean_energy_fraction": 0.5646154320477839,
+            "temporal_variance_fraction": 0.43538456795221625
+          }
+        },
+        "raw_replay_max_abs_error": 0.0,
+        "tv_residual_inequality": {
+          "D": {
+            "final_tracking_l1": 2.069556973874569,
+            "projected_tv": 751.2741481611738,
+            "raw_tv": 1800.486389823258,
+            "slack": 1047.1426846882096
+          },
+          "M": {
+            "final_tracking_l1": 4.132256805896759,
+            "projected_tv": 872.1690017925575,
+            "raw_tv": 2045.9181456291699,
+            "slack": 1169.6168870307156
+          }
+        }
+      },
+      "canary_eval_d": {
+        "factorial_cells_and_declared_allocations": {
+          "D": {
+            "cells": {
+              "A_actual_raw": {
+                "rms": 0.5189596939078801,
+                "tv": 1980.9309027925483
+              },
+              "B_fixed_obs_actual_prev_raw": {
+                "rms": 0.5149690724410736,
+                "tv": 1931.3173329969868
+              },
+              "C_constant_anchor_raw": {
+                "rms": 0.4671350954446853,
+                "tv": 9.89111353084445
+              },
+              "E_actual_projected": {
+                "rms": 0.5260731354997061,
+                "tv": 714.4244065680541
+              },
+              "F_fixed_prev_raw": {
+                "rms": 0.47828144643450216,
+                "tv": 251.82720165507635
+              },
+              "I_fixed_prev_projected": {
+                "rms": 0.4742261312301203,
+                "tv": 235.9268886371865
+              }
+            },
+            "declared_shapley_obs_prev": {
+              "observation_factor": 145.7748289598967,
+              "previous_action_factor": 1825.2649603018072,
+              "rms_observation_factor": 0.007568486228311688,
+              "rms_previous_action_factor": 0.04425611223488313,
+              "total_rms_contrast": 0.051824598463194815,
+              "total_tv_contrast": 1971.0397892617038
+            },
+            "declared_shapley_prev_projection": {
+              "previous_action_factor_rms": 0.04626262587148189,
+              "previous_action_factor_tv": 1103.8006095341698,
+              "projector_factor_rms": 0.001529063193722091,
+              "projector_factor_tv": -641.203404621192,
+              "total_rms_contrast": 0.04779168906520398,
+              "total_tv_contrast": 462.59720491297776
+            },
+            "metric_contrast_bounds": {
+              "absolute_rms_metric_contrast": 0.04067824747337795,
+              "absolute_tv_metric_contrast": 1729.103701137472,
+              "rms_of_pointwise_difference": 0.3443604830732822,
+              "tv_of_pointwise_difference": 1817.5061201964854
+            }
+          },
+          "M": {
+            "cells": {
+              "A_actual_raw": {
+                "rms": 0.4965651598086644,
+                "tv": 2252.003145659226
+              },
+              "B_fixed_obs_actual_prev_raw": {
+                "rms": 0.48852209512966716,
+                "tv": 2157.735019055195
+              },
+              "C_constant_anchor_raw": {
+                "rms": 0.45167447518801407,
+                "tv": 9.37569198012352
+              },
+              "E_actual_projected": {
+                "rms": 0.4076157170938607,
+                "tv": 856.542369837407
+              },
+              "F_fixed_prev_raw": {
+                "rms": 0.45514582680635607,
+                "tv": 300.9605972908903
+              },
+              "I_fixed_prev_projected": {
+                "rms": 0.45130571997053653,
+                "tv": 264.52641545794904
+              }
+            },
+            "declared_shapley_obs_prev": {
+              "observation_factor": 192.9265159573988,
+              "previous_action_factor": 2049.7009377217037,
+              "rms_observation_factor": 0.005757208148669618,
+              "rms_previous_action_factor": 0.039133476471980705,
+              "total_rms_contrast": 0.04489068462065032,
+              "total_tv_contrast": 2242.6274536791025
+            },
+            "declared_shapley_prev_projection": {
+              "previous_action_factor_rms": -0.0011353349371837629,
+              "previous_action_factor_tv": 1271.5292513738968,
+              "projector_factor_rms": -0.04639477477531162,
+              "projector_factor_tv": -715.9474788273801,
+              "total_rms_contrast": -0.04753010971249538,
+              "total_tv_contrast": 555.5817725465167
+            },
+            "metric_contrast_bounds": {
+              "absolute_rms_metric_contrast": 0.04141933300230832,
+              "absolute_tv_metric_contrast": 1951.0425483683357,
+              "rms_of_pointwise_difference": 0.3714468685593563,
+              "tv_of_pointwise_difference": 2111.182584291324
+            }
+          }
+        },
+        "projector_replay_max_abs_error": 0.0,
+        "quasistatic_rms_decomposition": {
+          "D": {
+            "actual_anchor_error_rms": 0.37127042947054023,
+            "actual_rms": 0.5189596939078792,
+            "anchor_mean_mismatch_rms": 0.1293496600640044,
+            "anchor_rms": 0.46713509544468423,
+            "anchor_to_actual_rms_ratio": 0.9001375269186235,
+            "pythagorean_error": 0.0,
+            "temporal_mean_energy_fraction": 0.5503090255949874,
+            "temporal_variance_fraction": 0.4496909744050127
+          },
+          "M": {
+            "actual_anchor_error_rms": 0.3962012803445846,
+            "actual_rms": 0.49656515980866395,
+            "anchor_mean_mismatch_rms": 0.17509400710328243,
+            "anchor_rms": 0.451674475188012,
+            "anchor_to_actual_rms_ratio": 0.9095975951314241,
+            "pythagorean_error": 2.7755575615628914e-17,
+            "temporal_mean_energy_fraction": 0.487715542114481,
+            "temporal_variance_fraction": 0.5122844578855192
+          }
+        },
+        "raw_replay_max_abs_error": 0.0,
+        "tv_residual_inequality": {
+          "D": {
+            "final_tracking_l1": 5.782021149992943,
+            "projected_tv": 714.4244065680541,
+            "raw_tv": 1980.9309027925483,
+            "slack": 1260.7244750745012
+          },
+          "M": {
+            "final_tracking_l1": 5.520296525210142,
+            "projected_tv": 856.542369837407,
+            "raw_tv": 2252.003145659226,
+            "slack": 1389.9404792966088
+          }
+        }
+      }
+    },
+    "schema_version": "r485_finite_record_certificate_v1",
+    "source_identity": {
+      "all_manifest_entries_validated": true,
+      "archive": {
+        "member_count": 31,
+        "members_match_manifest": true,
+        "provided": true,
+        "sha256": "530ed9942169f620c88ee14138d263a9271516b8366e1296006002378fe41410"
+      },
+      "checkpoint_sha256": "c5fec5e301cae22fbc71818523aca119d85bcb304b42f4dc87043618b072aaaa",
+      "manifest_entry_count": 30,
+      "manifest_sha256": "887e1c82e73d51e264cc9ee3141bee7844326d6d2f96504961095800480dff76",
+      "package_id": "gpt_pro_r485_mechanism_math_20260901"
+    },
+    "theoretical_metric_ranges": {
+      "dimensions": {
+        "agents": 4,
+        "records": 6,
+        "steps": 150
+      },
+      "projected_channel_tv": {
+        "lower": 0.0,
+        "upper": 900.0
+      },
+      "raw_channel_tv": {
+        "lower": 0.0,
+        "upper": 7176.0
+      },
+      "raw_component_rms": {
+        "lower": 0.0,
+        "upper": 1.0
+      }
+    }
+  },
+  "overall_disposition": "QUALIFIED-DESCRIPTIVE-ONLY",
+  "phrase_dispositions": {
+    "a quasi-static actor setpoint retains RMS": {
+      "disposition": "CURRENT-LANGUAGE-FAILS_AS_UNQUALIFIED_MECHANISM; QUALIFIED_DESCRIPTIVE_REWRITE_AVAILABLE",
+      "reason": "A near-one ratio compares aggregate norms only; it does not identify temporal constancy, closeness to the temporal mean, dominance, or causality.",
+      "safe_replacement": "Across the fixed 24-policy by four-profile grid, constant-anchor inputs retained at least 90% of raw RMS in 141/192 cells, with 54/96 M cells and 87/96 D cells."
+    },
+    "previous-action feedback amplifies TV": {
+      "disposition": "CURRENT-LANGUAGE-FAILS",
+      "reason": "The verb feedback/amplifies reads as a closed-loop or additive causal claim. The package identifies only a frozen-observation actor-input replacement contrast.",
+      "safe_replacement": "On the fixed 24-policy, one-profile grid, replacing the two previous-action input slots by within-record means left 7.10%--20.46% of raw TV in all 48 channel-policy cells, conditional on recorded observations."
+    }
+  },
+  "range_only_nonidentification_bounds": {
+    "notation": "v00=C, v10=F, v01=B, v11=A; B is missing in the full grid; B in [L,U].",
+    "raw_RMS_bounds": {
+      "L": 0.0,
+      "U": 1.0
+    },
+    "raw_TV_bounds": {
+      "L": 0.0,
+      "U": 7176.0,
+      "derivation": "6 records * 4 agents * (1 + 149*2)"
+    },
+    "scope": "Sharp under only bounded-sequence information; actor-specific feasible ranges may be narrower but are not identified for the omitted checkpoints.",
+    "shapley_observation_interval": "0.5*((F-C)+(A-U)) <= phi_O <= 0.5*((F-C)+(A-L))",
+    "shapley_previous_interval": "0.5*((A-F)+(L-C)) <= phi_P <= 0.5*((A-F)+(U-C))"
+  },
+  "schema_version": "r485_mechanism_math_result_v1",
+  "source_locators": [
+    {
+      "locator": "Exact implemented objects; S1--S6; Claim ceiling",
+      "path": "MATH_PROBLEM_DRAFT.md"
+    },
+    {
+      "locator": "/learner_qualification and /threshold_sensitivity/primary/per_profile_blocks",
+      "path": "formal/r485_formal_analysis.json"
+    },
+    {
+      "locator": "/candidate/profiles and /candidate/checks",
+      "path": "posthoc/projection_tv_result.json"
+    },
+    {
+      "locator": "/policies and /decision",
+      "path": "posthoc/feedback_grid_result.json"
+    },
+    {
+      "locator": "/rows, /by_channel, /by_profile, /decision",
+      "path": "posthoc/quasistatic_rms_grid_result.json"
+    },
+    {
+      "locator": "/profiles and /decision",
+      "path": "posthoc/recursive_intervention_result.json"
+    },
+    {
+      "locator": "/profiles and /decision",
+      "path": "posthoc/reward_tv_blindness_result.json"
+    },
+    {
+      "locator": "GaussianActor",
+      "path": "source/networks.py"
+    },
+    {
+      "locator": "project_action_numpy",
+      "path": "source/executed_action_sac.py"
+    },
+    {
+      "locator": "members[*].actor",
+      "path": "checkpoint/an_cn_r0_seed501_final.pt"
+    },
+    {
+      "locator": "records[*].steps[*]",
+      "path": "traces/canary_eval_[a-d].json"
+    }
+  ],
+  "subgoals": {
+    "S1_metric_and_projector": {
+      "disposition": "CERTIFIED-BOUNDED-MECHANISM",
+      "observational_limit": "Projected/raw ratios quantify strict attenuation on stored paths; 1-ratio is not an additive causal share.",
+      "result": "For each scalar track, TV(p;0:t)+|r_t-p_t| <= TV(r;0:t). Summing over records and agents gives the registered channel inequality. The projector can delay/redistribute increments but cannot increase total registered TV."
+    },
+    "S2_identifiable_decomposition": {
+      "disposition": "QUALIFIED-DESCRIPTIVE-ONLY",
+      "full_grid_missing": "The other 23 checkpoints/traces do not provide B=fixed-observation/actual-previous-action outputs or a full projection factorial.",
+      "result": "The three actor cells A,F,C do not identify the missing fourth cell B, the interaction, or a unique symmetric allocation. Ordered telescoping contrasts are exact; Shapley values are declared allocations only."
+    },
+    "S3_actor_sensitivity": {
+      "all_24_disposition": "DATA-UNDECIDABLE",
+      "minimal_missing_for_all_24": [
+        "The other 23 four-member actor state dictionaries.",
+        "Their canonical 9-dimensional actor input paths, equivalently canonical observations plus previous-executed-action arrays and record boundaries.",
+        "For any closed-loop extension, the action-dependent plant transition/observation map and modified-controller trajectories; these do not exist in the package."
+      ],
+      "representative_disposition": "CERTIFIED-BOUNDED-MECHANISM",
+      "result": "A ReLU activation-path partition gives exact algebraic path variation for the stored real network; the checker evaluates it in deterministic float64 and links endpoints to production float32 within stated tolerance."
+    },
+    "S4_quasistatic_RMS": {
+      "disposition": "QUALIFIED-DESCRIPTIVE-ONLY",
+      "dominant_source_claim": "REJECTED",
+      "result": "The ratio ||q||_2/||a||_2 near one establishes only aggregate energy similarity. Temporal variance, nonlinear anchor/mean mismatch, and record/agent heterogeneity remain separate terms."
+    },
+    "S5_inference_boundary": {
+      "actor_path_intervention": [
+        "fixed-prev raw",
+        "constant-anchor raw",
+        "recursive fixed-prev projected",
+        "straight previous-input path sensitivity"
+      ],
+      "disposition": "QUALIFIED-DESCRIPTIVE-ONLY",
+      "exact_replay": [
+        "representative raw actor replay",
+        "representative projector replay",
+        "stored finite-grid row recomputation",
+        "row-multiset action-cost invariance on supplied cases"
+      ],
+      "finite_grid_descriptive": [
+        "24-policy profile-a previous-input grid",
+        "24-policy by four-profile RMS grid",
+        "representative four-profile projector and recursive intervention"
+      ],
+      "uncertainty_statement": "NONE: the 24 policies are a fixed finite grid, not a declared random sample.",
+      "unidentified": [
+        "modified-controller plant observation path",
+        "closed-loop endpoints under intervention",
+        "training cause or effect of a TV loss",
+        "unique root cause",
+        "stability",
+        "safety or hardware harm",
+        "benefit of retraining"
+      ]
+    },
+    "S6_paper_facing": {
+      "artifact": "manuscript_patch.tex",
+      "displayed_equations": 1,
+      "disposition": "QUALIFIED-DESCRIPTIVE-ONLY",
+      "prose_word_ceiling": 150
+    }
+  },
+  "tolerances": {
+    "float_expected_comparison_atol": 2e-09,
+    "float_expected_comparison_rtol": 2e-09,
+    "manual_vs_autograd_jacobian_max": 1e-12,
+    "path_root_partition": 1e-13,
+    "path_telescoping_max": 1e-10,
+    "source_hash": "exact SHA-256",
+    "stored_raw_and_projector_replay_max_abs": 1e-06
+  },
+  "verification": {
+    "command": "python verify_finite_record_certificate.py --input-root /mnt/data/r485_work_530ed994 --archive /mnt/data/gpt_pro_r485_mechanism_math_20260901.zip --expected math_result.json --output /tmp/r485_certificate_final.json",
+    "exit_status": 0,
+    "expected_comparison": "PASS",
+    "expected_scope": "math_result.json#/numerical_certificate",
+    "independent_review": false,
+    "runtime": {
+      "deterministic_algorithms": true,
+      "device": "cpu",
+      "numpy": "2.3.5",
+      "python": "3.13.5",
+      "threads": 1,
+      "torch": "2.10.0+cpu"
+    },
+    "scope": "Exact package identity, supplied-grid recomputation, representative replay, TV residual inequalities, RMS identities, declared allocations, and kink-aware actor path sensitivity.",
+    "script_sha256": "39bf12fc5414b1171e55036ca5f7332dc642970787960ee8c8d2c7588bc6b5fb",
+    "script_stderr": "",
+    "status": "RUN/PASS",
+    "stderr": "",
+    "stdout_bytes": 31908,
+    "stdout_sha256": "8fc311e946cab81fadfdd252278d2fdaa45deda7ab7ef8bac08b9aa4512d6703"
+  }
+}

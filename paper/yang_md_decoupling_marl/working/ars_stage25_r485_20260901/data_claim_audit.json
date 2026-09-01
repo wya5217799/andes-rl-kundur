@@ -1,0 +1,317 @@
+{
+  "schema_version": "ars-stage25-data-claim-audit/1.0",
+  "draft_raw_sha256": "ccc1d1772a0fee14a421e5598f808229b3a7b5a1f55c49214965420afcc97121",
+  "status": "PASS",
+  "check_count": 25,
+  "failed_checks": [],
+  "checks": [
+    {
+      "check_id": "r485_sha256",
+      "status": "PASS",
+      "actual": "2dad35d8e7f559bbcfa124dbae3628aa0d9ceae3ccfbe77996330c891927409b",
+      "authority": "results\\research_loop\\r485_60hz_source_factorial\\r485-formal-20260829-a\\formal_analysis.json"
+    },
+    {
+      "check_id": "r486_sha256",
+      "status": "PASS",
+      "actual": "75c911f83a9f50c9f208e94c18c039a3b170d09d2575f7396958dcf16b1b257c",
+      "authority": "results\\research_loop\\r486_r485_posthoc_intake\\analysis.json"
+    },
+    {
+      "check_id": "terminal_inventory",
+      "status": "PASS",
+      "actual": {
+        "expected_terminal_artifacts": 1082,
+        "verified_terminal_artifacts": 1082,
+        "expected_base_manifests": 26,
+        "expected_training_manifests": 208,
+        "expected_evaluation_profiles": 848,
+        "expected_trajectories": 5088,
+        "missing": [],
+        "hash_or_parse_invalid": [],
+        "verified_trajectories": 5088
+      },
+      "authority": "R485#/inventory"
+    },
+    {
+      "check_id": "trajectory_inventory",
+      "status": "PASS",
+      "actual": [
+        5088,
+        5088
+      ],
+      "authority": "R485#/inventory"
+    },
+    {
+      "check_id": "qualification_counts",
+      "status": "PASS",
+      "actual": {
+        "status": "ENDPOINT-ONLY",
+        "endpoint_qualified_count": 121,
+        "complete_contract_passing_count": 0
+      },
+      "authority": "R485#/learner_qualification"
+    },
+    {
+      "check_id": "profile_block_failures",
+      "status": "PASS",
+      "actual": {
+        "command_rms": 832,
+        "command_tv": 832,
+        "rocof": 397,
+        "worst_peak": 37,
+        "common_frequency": 0
+      },
+      "authority": "R485#/threshold_sensitivity/primary/per_profile_blocks"
+    },
+    {
+      "check_id": "sensitivity_grid",
+      "status": "PASS",
+      "actual": {
+        "cells": 16,
+        "passing_counts": [
+          0
+        ]
+      },
+      "authority": "R485#/threshold_sensitivity/grid"
+    },
+    {
+      "check_id": "nonpooled_horizons",
+      "status": "PASS",
+      "actual": {
+        "prefixes": 848,
+        "horizons_pooled": false,
+        "available_case": false
+      },
+      "authority": "R485 top-level"
+    },
+    {
+      "check_id": "direct_fresh_gate",
+      "status": "PASS",
+      "actual": {
+        "passed_4_of_4": true,
+        "passed_count": 4
+      },
+      "authority": "R485#/fresh_bank_deterministic_gate"
+    },
+    {
+      "check_id": "direct_offdiag_ratios",
+      "status": "PASS",
+      "actual": [
+        0.39865840065965374,
+        0.40554157166966376,
+        0.4827274458354439,
+        0.5559000297353938
+      ],
+      "authority": "R485#/fresh_bank_deterministic_gate/gate/per_profile"
+    },
+    {
+      "check_id": "direct_differential_ratios",
+      "status": "PASS",
+      "actual": [
+        0.506174895479591,
+        0.45404114168434256,
+        0.33065135301538023,
+        0.5579928694063306
+      ],
+      "authority": "R485#/fresh_bank_deterministic_gate/gate/per_profile"
+    },
+    {
+      "check_id": "seed501_example",
+      "status": "PASS",
+      "actual": {
+        "ratios": {
+          "off_diagonal_response_energy": 0.5359183778730694,
+          "disturbance_differential_energy": 0.9056320569293328
+        },
+        "failed_profiles": [
+          "canary_eval_a",
+          "canary_eval_b",
+          "canary_eval_c",
+          "canary_eval_d"
+        ]
+      },
+      "authority": "R485#/threshold_sensitivity/primary/policy_decisions"
+    },
+    {
+      "check_id": "primary_inference_effects",
+      "status": "PASS",
+      "actual": {
+        "percent": {
+          "actor_main": -3.7170109106684612,
+          "critic_main": 1.8622362227852518,
+          "actor_x_critic": 13.514614393400382,
+          "critic_x_reward": -1.4163660676567602
+        },
+        "holm": {
+          "actor_main": 1.0,
+          "critic_main": 1.0,
+          "actor_x_critic": 1.0,
+          "critic_x_reward": 1.0
+        }
+      },
+      "authority": "R485#/primary_inference/tests"
+    },
+    {
+      "check_id": "tail_inference_effects",
+      "status": "PASS",
+      "actual": {
+        "percent": {
+          "actor_main": -4.229173695589616,
+          "critic_main": 5.4089611150821115,
+          "actor_x_critic": 15.463268291855648,
+          "critic_x_reward": -5.106378721580018
+        },
+        "holm": {
+          "actor_main": 1.0,
+          "critic_main": 1.0,
+          "actor_x_critic": 1.0,
+          "critic_x_reward": 1.0
+        }
+      },
+      "authority": "R485#/tail_inference/tests"
+    },
+    {
+      "check_id": "r486_break_even",
+      "status": "PASS",
+      "actual": {
+        "max": 140.250756228348,
+        "median": 131.91926958184553,
+        "min": 97.65754560361577
+      },
+      "authority": "R486#/formal_context/action_only_break_even"
+    },
+    {
+      "check_id": "r486_pareto",
+      "status": "PASS",
+      "actual": {
+        "endpoint_and_non_action_clean": 5,
+        "endpoint_qualified": 121,
+        "front_count": 8,
+        "policy_count": 208
+      },
+      "authority": "R486#/posthoc_supplement/pareto"
+    },
+    {
+      "check_id": "r486_command_medians",
+      "status": "PASS",
+      "actual": {
+        "ratio_executed_D_rms": 5.692286321113583,
+        "ratio_executed_D_tv": 83.41182402981197,
+        "ratio_executed_M_rms": 31.22563294209668,
+        "ratio_executed_M_tv": 87.96744220411136
+      },
+      "authority": "R486#/posthoc_supplement/command_activity_ratio_quantiles"
+    },
+    {
+      "check_id": "r486_training_disclosure",
+      "status": "PASS",
+      "actual": {
+        "alpha_at_floor_count": 208,
+        "interpretation": "registered admissibility passed; alpha-floor prevalence is a training-dynamics limitation, not convergence or optimality evidence",
+        "training_manifests": 208,
+        "training_tds_failed_episodes": 0,
+        "valid_manifests": 208
+      },
+      "authority": "R486#/training_dynamics_disclosure"
+    },
+    {
+      "check_id": "r486_previous_action_scope",
+      "status": "PASS",
+      "actual": {
+        "ratio_max": 0.20461806566210014,
+        "ratio_median": 0.14378743760681162,
+        "ratio_q95": 0.20172592985927593,
+        "refute_prevalence": 0.0,
+        "support_prevalence": 1.0,
+        "verdict": "FEEDBACK_AMPLIFICATION_GENERALITY_SUPPORTED"
+      },
+      "authority": "R486#/exploratory_diagnostics/previous_action_grid"
+    },
+    {
+      "check_id": "parameter_base",
+      "status": "PASS",
+      "actual": {
+        "system_base_mva": 100.0,
+        "device_sn_mva": 200.0
+      },
+      "authority": "md_parameter_card_20260824.json"
+    },
+    {
+      "check_id": "parameter_md",
+      "status": "PASS",
+      "actual": {
+        "sn_mva": 200.0,
+        "h_device_s": 100.0,
+        "m_device_s": 200.0,
+        "d_device": 100.0,
+        "m_system_s": 400.0,
+        "d_system": 200.0,
+        "note": "H0=100 s / D0=100 are declared project calibration values; the Yang 2023 paper specifies no baseline H0/D0"
+      },
+      "authority": "md_parameter_card_20260824.json"
+    },
+    {
+      "check_id": "parameter_action",
+      "status": "PASS",
+      "actual": {
+        "action_map": {
+          "normalized_action_range": [
+            -1,
+            1
+          ],
+          "delta_m_device": [
+            -200,
+            600
+          ],
+          "delta_d_device": [
+            -200,
+            600
+          ],
+          "delta_m_system": [
+            -400,
+            1200
+          ],
+          "delta_d_system": [
+            -400,
+            1200
+          ],
+          "positive_slope": 600,
+          "negative_slope": 200
+        },
+        "clamps": {
+          "m_min_device": 20.0,
+          "d_min_device": 10.0,
+          "upper_clamp": "none (reachable maxima 800/700 device)"
+        },
+        "slew": {
+          "n_substeps": 5,
+          "rule": "linear interpolation over one 0.2 s control step"
+        }
+      },
+      "authority": "md_parameter_card_20260824.json"
+    },
+    {
+      "check_id": "headline_text_present",
+      "status": "PASS",
+      "actual": "bounded language present",
+      "authority": "main_r485.tex"
+    },
+    {
+      "check_id": "title_exact",
+      "status": "PASS",
+      "actual": "exact title present",
+      "authority": "main_r485.tex"
+    },
+    {
+      "check_id": "figures_exist",
+      "status": "PASS",
+      "actual": [
+        "direct_md_fresh_horizon_r485.pdf",
+        "learned_contract_tradeoff_r485.pdf"
+      ],
+      "authority": "manuscript/figures"
+    }
+  ],
+  "provenance_boundary": "This check verifies disclosure and claim-to-provenance fidelity. It does not judge whether the experiment was correctly designed, run, statistically adequate, or reproducible by ARS."
+}

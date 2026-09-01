@@ -1,0 +1,29 @@
+{
+  "schema_version": "ars-stage25-originality-audit/1.0",
+  "body_prose_paragraphs": 32,
+  "sampled_paragraphs": 12,
+  "coverage_fraction": 0.375,
+  "search_mode": "exact quoted phrase Web search",
+  "exact_overlap_hits": 0,
+  "queries": [
+    "Adaptive inertia and damping can improve an aggregate decoupling score",
+    "common profile-complete endpoint-plus-command contract",
+    "under an exactly-once device-to-system-base conversion",
+    "The endpoint and guard decisions are therefore conjunctive",
+    "The direct-M/D controller is selected only on two development profiles",
+    "The learner comprises four independent per-VSG soft actor-critic agents",
+    "The formal inventory verifies 1,082/1,082 terminal artifacts",
+    "The central result is a qualification reversal",
+    "Post-hoc frozen-path diagnostics are consistent with high recorded command activity",
+    "command RMS and TV do not establish actuator energy",
+    "The 6-s and 30-s results share traces and are not replications",
+    "endpoint improvement is not sufficient for qualification"
+  ],
+  "result": "No exact phrase match was returned for the sampled manuscript phrases. Search results, when any, were unrelated or shared only generic words.",
+  "donor_screen": {
+    "donor": "manuscript/main.tex",
+    "donor_role": "unpublished same-project donor for structure, expression, layout, method explanation, and literature leads only",
+    "twelve_word_shingle_overlap_fraction": 0.09876543209876543,
+    "interpretation": "The longest overlaps are equations, parameter strings, author/title material, and TikZ layout syntax. This screen is not a plagiarism verdict and the donor is not scientific evidence."
+  }
+}
